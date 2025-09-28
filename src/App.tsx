@@ -1,0 +1,482 @@
+import { useState } from "react";
+import {
+  CompositeDidDocumentResolver,
+  CompositeHandleResolver,
+  PlcDidDocumentResolver,
+  AtprotoWebDidDocumentResolver,
+  DohJsonHandleResolver,
+  WellKnownHandleResolver
+} from "@atcute/identity-resolver";
+
+interface BskySession {
+  did: string;
+  handle: string;
+  accessJwt: string;
+  serviceEndpoint: string;
+}
+
+interface TikTokUser {
+  username: string;
+  date: string;
+}
+
+interface SearchResult {
+  tiktokUser: TikTokUser;
+  bskyMatches: any[];
+  isSearching: boolean;
+  error?: string;
+}
+
+export default function App() {
+  const [handle, setHandle] = useState("");
+  const [appPassword, setAppPassword] = useState("");
+  const [session, setSession] = useState<BskySession | null>(null);
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearchingAll, setIsSearchingAll] = useState(false);
+
+  const didDocumentResolver = new CompositeDidDocumentResolver({
+    methods: {
+      plc: new PlcDidDocumentResolver({ apiUrl: "https://plc.directory" }),
+      web: new AtprotoWebDidDocumentResolver(),
+    },
+  });
+
+  const handleResolver = new CompositeHandleResolver({
+    strategy: "dns-first",
+    methods: {
+      dns: new DohJsonHandleResolver({ dohUrl: "https://dns.google/resolve?" }),
+      http: new WellKnownHandleResolver(),
+    },
+  });
+
+  async function login() {
+  try {
+    if (!handle || !appPassword) {
+      alert("Enter handle and app password");
+      return;
+    }
+
+    // Step 1: Resolve handle → DID
+    const did = await handleResolver.resolve(handle as `${string}.${string}`);
+    if (!did) {
+      alert("Failed to resolve handle to DID");
+      return;
+    }
+
+    // Step 2: Resolve DID → DID Document
+    const didDoc = await didDocumentResolver.resolve(did);
+    if (!didDoc?.service?.[0]?.serviceEndpoint) {
+      alert("Could not determine PDS endpoint from DID Document");
+      return;
+    }
+
+    // Step 3: Extract PDS endpoint
+    const pdsEndpoint = didDoc.service[0].serviceEndpoint;
+
+    // Step 4: Authenticate via App Password
+    const sessionRes = await fetch(`${pdsEndpoint}/xrpc/com.atproto.server.createSession`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier: handle, password: appPassword }),
+    });
+
+    if (!sessionRes.ok) {
+      const errText = await sessionRes.text();
+      console.error("Login failed:", errText);
+      alert("Login failed, check handle and app password");
+      return;
+    }
+
+    const sessionData = await sessionRes.json();
+
+    // Step 5: Store session + PDS endpoint for future API calls
+    setSession({
+      ...sessionData,
+      serviceEndpoint: pdsEndpoint,
+    });
+
+    console.log("Logged in successfully!", sessionData, pdsEndpoint);
+  } catch (err) {
+    console.error("Login error:", err);
+    alert("Error during login. See console for details.");
+  }
+}
+
+  // Parse TikTok Following.txt
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const text = await file.text();
+    const users: TikTokUser[] = [];
+    const entries = text.split("\n\n").map((b) => b.trim()).filter(Boolean);
+    
+    for (const entry of entries) {
+      const userMatch = entry.match(/Username:\s*(.+)/);
+      if (userMatch) {
+        users.push({
+          username: userMatch[1].trim(),
+          date: "",
+        });
+      }
+    }
+
+    console.log(`Loaded ${users.length} TikTok users:`, users.map(u => u.username));
+
+    // Initialize search results
+    const initialResults: SearchResult[] = users.map(user => ({
+      tiktokUser: user,
+      bskyMatches: [],
+      isSearching: false,
+    }));
+
+    setSearchResults(initialResults);
+  }
+
+  // Debug function to test search
+  async function testSearch(username: string) {
+    if (!session) return;
+    
+    console.log(`\n=== Testing search for: "${username}" ===`);
+    
+    try {
+      const res = await fetch(
+        `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
+        { headers: { Authorization: `Bearer ${session.accessJwt}` } }
+      );
+      
+      console.log('Response status:', res.status);
+      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.log('Error response:', errorText);
+        return;
+      }
+      
+      const data = await res.json();
+      console.log('Raw API response:', data);
+      console.log(`Found ${data.actors?.length || 0} actors`);
+      
+      if (data.actors && data.actors.length > 0) {
+        data.actors.forEach((actor: any, i: number) => {
+          console.log(`${i + 1}. Handle: ${actor.handle}`);
+          console.log(`   Display: ${actor.displayName || 'No display name'}`);
+          console.log(`   DID: ${actor.did}`);
+          console.log(`   Followers: ${actor.followersCount || 0}`);
+        });
+      } else {
+        console.log('No actors found in response');
+      }
+      
+    } catch (error) {
+      console.error('Search test error:', error);
+    }
+  }
+
+  // Search Bluesky by handle
+  async function searchSingleUser(username: string): Promise<any[]> {
+    if (!session) return [];
+
+    try {
+      // Search for exact username first
+      const res = await fetch(
+        `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
+        { headers: { Authorization: `Bearer ${session.accessJwt}` } }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Search failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Filter and rank matches
+      const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
+      const normalizedUsername = normalize(username)
+
+      return data.actors.map((actor: any) => {
+        const handlePart = actor.handle.split('.')[0]; // get part before first dot
+        const normalizedHandle = normalize(handlePart);
+        const normalizedFullHandle = normalize(actor.handle);
+        const normalizedDisplayName = normalize(actor.displayName || '');
+
+        // Calculate match score
+        let score = 0;
+        if (normalizedHandle == normalizedUsername) score = 100;
+        else if (normalizedFullHandle == normalizedUsername) score = 90;
+        else if (normalizedDisplayName === normalizedUsername) score = 80;
+          else if (normalizedHandle.includes(normalizedUsername)) score = 60;
+          else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
+          else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
+          else if (normalizedUsername.includes(normalizedHandle)) score = 30;
+
+          return { ...actor, matchScore: score };
+      })
+      .filter((actor: any) => actor.matchScore > 0)
+      .sort((a: any, b: any) => b.matchScore - a.matchScore)
+      .slice(0, 5);
+    } catch (error) {
+      console.error(`Search error for ${username}:`, error);
+      return [];
+    }
+  }
+
+  // Search all users
+  async function searchAllUsers() {
+    if (!session || searchResults.length === 0) return;
+    
+    setIsSearchingAll(true);
+    
+    // Process users in batches to avoid rate limiting
+    const batchSize = 3;
+    for (let i = 0; i < searchResults.length; i += batchSize) {
+      const batch = searchResults.slice(i, i + batchSize);
+      
+      // Mark current batch as searching
+      setSearchResults(prev => prev.map((result, index) => 
+        i <= index && index < i + batchSize 
+          ? { ...result, isSearching: true }
+          : result
+      ));
+      
+      // Search batch in parallel
+      const batchPromises = batch.map(async (result, batchIndex) => {
+        const globalIndex = i + batchIndex;
+        try {
+          const matches = await searchSingleUser(result.tiktokUser.username);
+          return { globalIndex, matches, error: undefined };
+        } catch (error) {
+          return { globalIndex, matches: [], error: error instanceof Error ? error.message : 'Search failed' };
+        }
+      });
+      
+      const batchResults = await Promise.all(batchPromises);
+      
+      // Update results
+      setSearchResults(prev => prev.map((result, index) => {
+        const batchResult = batchResults.find(br => br.globalIndex === index);
+        if (batchResult) {
+          return {
+            ...result,
+            bskyMatches: batchResult.matches,
+            isSearching: false,
+            error: batchResult.error,
+          };
+        }
+        return result;
+      }));
+      
+      // Add delay between batches to be respectful of rate limits
+      if (i + batchSize < searchResults.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+    
+    setIsSearchingAll(false);
+  }
+
+  // Follow selected user
+  async function followUser(did: string, resultIndex: number) {
+    if (!session) return;
+
+    try {
+      const res = await fetch(`${session.serviceEndpoint}/xrpc/com.atproto.repo.createRecord`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.accessJwt}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          repo: session.did,
+          collection: "app.bsky.graph.follow",
+          record: {
+            $type: "app.bsky.graph.follow",
+            subject: did,
+            createdAt: new Date().toISOString(),
+          },
+        }),
+      });
+      
+      if (!res.ok) {
+        alert("Follow failed");
+        return;
+      }
+
+      // Mark as followed
+      setSearchResults(prev => prev.map((result, index) => 
+        index === resultIndex 
+          ? { ...result, bskyMatches: result.bskyMatches.map(match => 
+              match.did === did ? { ...match, followed: true } : match
+            )}
+          : result
+      ));
+    } catch (error) {
+      console.error("Follow error:", error);
+      alert("Follow failed");
+    }
+  }
+
+  return (
+    <div className="p-6 max-w-6xl mx-auto">
+      {!session ? (
+        <div className="space-y-4 max-w-md">
+          <h1 className="text-2xl font-bold">TikTok → Bluesky Follower Sync</h1>
+          <p className="text-gray-600">Login to your Bluesky account to start syncing your TikTok follows.</p>
+          <input
+            className="border border-gray-300 p-3 w-full rounded"
+            placeholder="yourhandle.bsky.social"
+            value={handle}
+            onChange={(e) => setHandle(e.target.value)}
+          />
+          <input
+            className="border border-gray-300 p-3 w-full rounded"
+            type="password"
+            placeholder="App password (not your regular password!)"
+            value={appPassword}
+            onChange={(e) => setAppPassword(e.target.value)}
+          />
+          <button 
+            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded w-full font-medium" 
+            onClick={login}
+          >
+            Login to Bluesky
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold">TikTok → Bluesky Sync</h1>
+            <p className="text-gray-600">Logged in as {session.handle}</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">
+                Upload your TikTok Following.txt file:
+              </label>
+              <input 
+                type="file" 
+                accept=".txt" 
+                onChange={handleFileUpload}
+                className="border border-gray-300 p-2 rounded"
+              />
+            </div>
+            
+            {searchResults.length > 0 && (
+              <div className="flex space-x-4">
+                <button
+                  className={`px-6 py-2 rounded font-medium ${
+                    isSearchingAll 
+                      ? 'bg-gray-400 cursor-not-allowed' 
+                      : 'bg-green-500 hover:bg-green-600 text-white'
+                  }`}
+                  onClick={searchAllUsers}
+                  disabled={isSearchingAll}
+                >
+                  {isSearchingAll ? 'Searching...' : `Search All ${searchResults.length} Users on Bluesky`}
+                </button>
+                
+                <div className="space-x-2">
+                  <button
+                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
+                    onClick={() => testSearch('joebasser')}
+                  >
+                    Test Search "joebasser"
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
+                    onClick={() => testSearch('skylight.social')}
+                  >
+                    Test Search "skylight.social"
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {searchResults.length > 0 && (
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">
+                Results ({searchResults.filter(r => r.bskyMatches.length > 0).length}/{searchResults.length} found)
+              </h2>
+              
+              {searchResults.map((result, index) => (
+                <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {/* TikTok User */}
+                    <div>
+                      <h3 className="font-semibold text-lg">TikTok: @{result.tiktokUser.username}</h3>
+                    </div>
+                    
+                    {/* Bluesky Results */}
+                    <div>
+                      {result.isSearching ? (
+                        <div className="flex items-center space-x-2">
+                          <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                          <span className="text-gray-600">Searching...</span>
+                        </div>
+                      ) : result.error ? (
+                        <div className="text-red-600">Error: {result.error}</div>
+                      ) : result.bskyMatches.length === 0 ? (
+                        <div className="text-gray-500 italic">No matches found</div>
+                      ) : (
+                        <div className="space-y-2">
+                          <h4 className="font-medium">Bluesky matches:</h4>
+                          {result.bskyMatches.map((match: any, matchIndex: number) => (
+                            <div key={matchIndex} className="flex items-center justify-between p-2 border rounded bg-gray-50">
+                              <div className="flex-1">
+                                <div className="font-medium">@{match.handle}</div>
+                                {match.displayName && (
+                                  <div className="text-sm text-gray-600">{match.displayName}</div>
+                                )}
+                                <div className="text-xs text-gray-400">
+                                  Match score: {match.matchScore}% • {match.followersCount || 0} followers
+                                </div>
+                              </div>
+                              <div className="flex space-x-2 ml-4">
+                                {match.followed ? (
+                                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded text-sm">
+                                    ✓ Followed
+                                  </span>
+                                ) : (
+                                  <>
+                                    <button
+                                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm"
+                                      onClick={() => followUser(match.did, index)}
+                                    >
+                                      Follow
+                                    </button>
+                                    <button
+                                      className="px-3 py-1 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded text-sm"
+                                      onClick={() => {
+                                        // Mark as skipped
+                                        setSearchResults(prev => prev.map((r, i) => 
+                                          i === index 
+                                            ? { ...r, bskyMatches: r.bskyMatches.map(m => 
+                                                m.did === match.did ? { ...m, skipped: true } : m
+                                              )}
+                                            : r
+                                        ));
+                                      }}
+                                    >
+                                      {match.skipped ? 'Skipped' : 'Skip'}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
