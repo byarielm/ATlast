@@ -25,6 +25,7 @@ interface SearchResult {
   bskyMatches: any[];
   isSearching: boolean;
   error?: string;
+  selectedMatches?: Set<string>; // Track selected match DIDs
 }
 
 export default function App() {
@@ -134,6 +135,7 @@ export default function App() {
       tiktokUser: user,
       bskyMatches: [],
       isSearching: false,
+      selectedMatches: new Set<string>(),
     }));
 
     setSearchResults(initialResults);
@@ -226,11 +228,18 @@ export default function App() {
       setSearchResults(prev => prev.map((result, index) => {
         const batchResult = batchResults.find(br => br.globalIndex === index);
         if (batchResult) {
+          const newSelectedMatches = new Set<string>();
+          // Auto-select only the first (highest scoring) match
+          if (batchResult.matches.length > 0) {
+            newSelectedMatches.add(batchResult.matches[0].did);
+          }
+
           return {
             ...result,
             bskyMatches: batchResult.matches,
             isSearching: false,
             error: batchResult.error,
+            selectedMatches: newSelectedMatches,
           };
         }
         return result;
@@ -245,44 +254,88 @@ export default function App() {
     setIsSearchingAll(false);
   }
 
-  // Follow selected user
-  async function followUser(did: string, resultIndex: number) {
+  // Toggle selection for a specific match
+  function toggleMatchSelection(resultIndex: number, did: string) {
+    setSearchResults(prev => prev.map((result, index) => {
+      if (index === resultIndex) {
+        const newSelectedMatches = new Set(result.selectedMatches);
+        if (newSelectedMatches.has(did)) {
+          newSelectedMatches.delete(did);
+        } else {
+          newSelectedMatches.add(did);
+        }
+        return { ...result, selectedMatches: newSelectedMatches };
+      }
+      return result;
+    }));
+  }
+
+  // Select all matches across all results
+  function selectAllMatches() {
+    setSearchResults(prev => prev.map(result => ({
+      ...result,
+      selectedMatches: new Set(result.bskyMatches.map(match => match.did))
+    })));
+  }
+
+  // Deselect all matches across all results
+  function deselectAllMatches() {
+    setSearchResults(prev => prev.map(result => ({
+      ...result,
+      selectedMatches: new Set<string>()
+    })));
+  }
+
+  // Follow all selected users
+  async function followSelectedUsers() {
     if (!session) return;
 
-    try {
-      const res = await fetch(`${session.serviceEndpoint}/xrpc/com.atproto.repo.createRecord`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${session.accessJwt}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          repo: session.did,
-          collection: "app.bsky.graph.follow",
-          record: {
-            $type: "app.bsky.graph.follow",
-            subject: did,
-            createdAt: new Date().toISOString(),
-          },
-        }),
-      });
-      
-      if (!res.ok) {
-        alert("Follow failed");
-        return;
-      }
+    const selectedUsers = searchResults.flatMap((result, resultIndex) => 
+      result.bskyMatches
+        .filter(match => result.selectedMatches?.has(match.did))
+        .map(match => ({ ...match, resultIndex }))
+    );
 
-      // Mark as followed
-      setSearchResults(prev => prev.map((result, index) => 
-        index === resultIndex 
-          ? { ...result, bskyMatches: result.bskyMatches.map(match => 
-              match.did === did ? { ...match, followed: true } : match
-            )}
-          : result
-      ));
-    } catch (error) {
-      console.error("Follow error:", error);
-      alert("Follow failed");
+    if (selectedUsers.length === 0) {
+      alert("No users selected to follow");
+      return;
+    }
+
+    for (const user of selectedUsers) {
+      try {
+        const res = await fetch(`${session.serviceEndpoint}/xrpc/com.atproto.repo.createRecord`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.accessJwt}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            repo: session.did,
+            collection: "app.bsky.graph.follow",
+            record: {
+              $type: "app.bsky.graph.follow",
+              subject: user.did,
+              createdAt: new Date().toISOString(),
+            },
+          }),
+        });
+        
+        if (res.ok) {
+          // Mark as followed
+          setSearchResults(prev => prev.map((result, index) => 
+            index === user.resultIndex 
+              ? { ...result, bskyMatches: result.bskyMatches.map(match => 
+                  match.did === user.did ? { ...match, followed: true } : match
+                )}
+              : result
+          ));
+        }
+      } catch (error) {
+        console.error(`Follow error for ${user.handle}:`, error);
+      }
+      
+      // Add small delay between follows to be respectful
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
@@ -358,9 +411,38 @@ export default function App() {
 
           {searchResults.length > 0 && (
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold">
-                Results ({searchResults.filter(r => r.bskyMatches.length > 0).length}/{searchResults.length} found)
-              </h2>
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold">
+                  Results ({searchResults.filter(r => r.bskyMatches.length > 0).length}/{searchResults.length} found)
+                </h2>
+                
+                {/* Selection controls */}
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-600">
+                    {searchResults.reduce((total, result) => total + (result.selectedMatches?.size || 0), 0)} selected
+                  </span>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={selectAllMatches}
+                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={deselectAllMatches}
+                      className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
+                    >
+                      Deselect All
+                    </button>
+                    <button
+                      onClick={followSelectedUsers}
+                      className="px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium"
+                    >
+                      Follow Selected
+                    </button>
+                  </div>
+                </div>
+              </div>
               
               {searchResults.map((result, index) => (
                 <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
@@ -383,9 +465,23 @@ export default function App() {
                         <div className="text-gray-500 italic">No matches found</div>
                       ) : (
                         <div className="space-y-2">
-                          <h4 className="font-medium">Bluesky matches:</h4>
+                          <div className="flex items-center justify-between">
+                            <h4 className="font-medium">Bluesky matches:</h4>
+                            {result.bskyMatches.length > 1 && (
+                              <span className="text-xs text-gray-500">
+                                {result.selectedMatches?.size || 0} of {result.bskyMatches.length} selected
+                              </span>
+                            )}
+                          </div>
                           {result.bskyMatches.map((match: any, matchIndex: number) => (
-                            <div key={matchIndex} className="flex items-center justify-between p-2 border rounded bg-gray-50">
+                            <div key={matchIndex} className="flex items-center space-x-3 p-2 border rounded bg-gray-50">
+                              <input
+                                type="checkbox"
+                                checked={result.selectedMatches?.has(match.did) || false}
+                                onChange={() => toggleMatchSelection(index, match.did)}
+                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                                disabled={match.followed}
+                              />
                               <div className="flex-1">
                                 <div className="font-medium">
                                   <a 
@@ -404,37 +500,11 @@ export default function App() {
                                   Match score: {match.matchScore}%
                                 </div>
                               </div>
-                              <div className="flex space-x-2 ml-4">
-                                {match.followed ? (
-                                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded text-sm">
-                                    ✓ Followed
-                                  </span>
-                                ) : (
-                                  <>
-                                    <button
-                                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm"
-                                      onClick={() => followUser(match.did, index)}
-                                    >
-                                      Follow
-                                    </button>
-                                    <button
-                                      className="px-3 py-1 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded text-sm"
-                                      onClick={() => {
-                                        // Mark as skipped
-                                        setSearchResults(prev => prev.map((r, i) => 
-                                          i === index 
-                                            ? { ...r, bskyMatches: r.bskyMatches.map(m => 
-                                                m.did === match.did ? { ...m, skipped: true } : m
-                                              )}
-                                            : r
-                                        ));
-                                      }}
-                                    >
-                                      {match.skipped ? 'Skipped' : 'Skip'}
-                                    </button>
-                                  </>
-                                )}
-                              </div>
+                              {match.followed && (
+                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
+                                  ✓ Followed
+                                </span>
+                              )}
                             </div>
                           ))}
                         </div>
