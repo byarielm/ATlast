@@ -3,6 +3,11 @@ ATlast — you'll never need to find your favorites on another platform again. T
 
 ### Development  
 
+#### Test locally
+```
+npm run dev
+```
+
 #### Enable debug mode
 ```
 // Option 1: Add ?debug to URL

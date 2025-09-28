@@ -49,6 +49,12 @@ export default function App() {
     },
   });
 
+  // Debug mode - enabled by URL parameter or localStorage
+  const [debugMode] = useState(() => {
+    return new URLSearchParams(window.location.search).has('debug') || 
+           localStorage.getItem('debug') === 'true';
+  });
+
   async function login() {
   try {
     if (!handle || !appPassword) {
@@ -131,47 +137,6 @@ export default function App() {
     }));
 
     setSearchResults(initialResults);
-  }
-
-  // Debug function to test search
-  async function testSearch(username: string) {
-    if (!session) return;
-    
-    console.log(`\n=== Testing search for: "${username}" ===`);
-    
-    try {
-      const res = await fetch(
-        `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
-        { headers: { Authorization: `Bearer ${session.accessJwt}` } }
-      );
-      
-      console.log('Response status:', res.status);
-      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-      
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.log('Error response:', errorText);
-        return;
-      }
-      
-      const data = await res.json();
-      console.log('Raw API response:', data);
-      console.log(`Found ${data.actors?.length || 0} actors`);
-      
-      if (data.actors && data.actors.length > 0) {
-        data.actors.forEach((actor: any, i: number) => {
-          console.log(`${i + 1}. Handle: ${actor.handle}`);
-          console.log(`   Display: ${actor.displayName || 'No display name'}`);
-          console.log(`   DID: ${actor.did}`);
-          console.log(`   Followers: ${actor.followersCount || 0}`);
-        });
-      } else {
-        console.log('No actors found in response');
-      }
-      
-    } catch (error) {
-      console.error('Search test error:', error);
-    }
   }
 
   // Search Bluesky by handle
@@ -317,7 +282,7 @@ export default function App() {
     }
   }
 
-  return (
+return (
     <div className="p-6 max-w-6xl mx-auto">
       {!session ? (
         <div className="space-y-4 max-w-md">
@@ -347,7 +312,14 @@ export default function App() {
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold">TikTok → Bluesky Sync</h1>
-            <p className="text-gray-600">Logged in as {session.handle}</p>
+            <div className="flex items-center space-x-4">
+              <p className="text-gray-600">Logged in as {session.handle}</p>
+              {debugMode && (
+                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
+                  DEBUG MODE
+                </span>
+              )}
+            </div>
           </div>
           
           <div className="space-y-4">
@@ -364,9 +336,9 @@ export default function App() {
             </div>
             
             {searchResults.length > 0 && (
-              <div className="flex space-x-4">
+              <div className="flex flex-col space-y-4">
                 <button
-                  className={`px-6 py-2 rounded font-medium ${
+                  className={`px-6 py-3 rounded font-medium ${
                     isSearchingAll 
                       ? 'bg-gray-400 cursor-not-allowed' 
                       : 'bg-green-500 hover:bg-green-600 text-white'
@@ -377,20 +349,8 @@ export default function App() {
                   {isSearchingAll ? 'Searching...' : `Search All ${searchResults.length} Users on Bluesky`}
                 </button>
                 
-                <div className="space-x-2">
-                  <button
-                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
-                    onClick={() => testSearch('joebasser')}
-                  >
-                    Test Search "joebasser"
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded"
-                    onClick={() => testSearch('skylight.social')}
-                  >
-                    Test Search "skylight.social"
-                  </button>
-                </div>
+                {/* Debug Panel - Only show in debug mode */}
+                {debugMode && <DebugPanel session={session} />}
               </div>
             )}
           </div>
@@ -477,6 +437,80 @@ export default function App() {
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+// Debug Panel Component - Separated from main UI
+function DebugPanel({ session }: { session: BskySession }) {
+  // Debug function to test search
+  async function testSearch(username: string) {
+    console.log(`\n=== Testing search for: "${username}" ===`);
+    
+    try {
+      const res = await fetch(
+        `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
+        { headers: { Authorization: `Bearer ${session.accessJwt}` } }
+      );
+      
+      console.log('Response status:', res.status);
+      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+      
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.log('Error response:', errorText);
+        return;
+      }
+      
+      const data = await res.json();
+      console.log('Raw API response:', data);
+      console.log(`Found ${data.actors?.length || 0} actors`);
+      
+      if (data.actors && data.actors.length > 0) {
+        data.actors.forEach((actor: any, i: number) => {
+          console.log(`${i + 1}. Handle: ${actor.handle}`);
+          console.log(`   Display: ${actor.displayName || 'No display name'}`);
+          console.log(`   DID: ${actor.did}`);
+          console.log(`   Followers: ${actor.followersCount || 0}`);
+        });
+      } else {
+        console.log('No actors found in response');
+      }
+      
+    } catch (error) {
+      console.error('Search test error:', error);
+    }
+  }
+
+  return (
+    <div className="border border-yellow-300 rounded-lg p-4 bg-yellow-50">
+      <h3 className="text-lg font-semibold mb-2 text-yellow-800">Debug Tools</h3>
+      <p className="text-sm text-yellow-700 mb-3">
+        These tools are only visible in debug mode. Check console for detailed logs.
+      </p>
+      <div className="flex space-x-2">
+        <button
+          className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
+          onClick={() => testSearch('joebasser')}
+        >
+          Test Search "joebasser"
+        </button>
+        <button
+          className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
+          onClick={() => testSearch('skylight.social')}
+        >
+          Test Search "skylight.social"
+        </button>
+        <button
+          className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm"
+          onClick={() => {
+            localStorage.removeItem('debug');
+            window.location.reload();
+          }}
+        >
+          Exit Debug Mode
+        </button>
+      </div>
     </div>
   );
 }
