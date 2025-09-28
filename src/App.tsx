@@ -1,4 +1,5 @@
 import { useState } from "react";
+import JSZip from "jszip";
 import {
   CompositeDidDocumentResolver,
   CompositeHandleResolver,
@@ -109,17 +110,59 @@ export default function App() {
   }
 }
 
-  // Parse TikTok Following.txt
+  // Parse TikTok Following data from .txt or .zip file
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const text = await file.text();
+    let followingText: string;
+
+    if (file.name.endsWith(".zip")) {
+      try {
+        const zip = await JSZip.loadAsync(file);
+
+        const followingFile =
+          zip.file("TikTok/Profile and Settings/Following.txt") ||
+          zip.file("Profile and Settings/Following.txt") ||
+          zip.files[
+            Object.keys(zip.files).find(
+              (path) => path.endsWith("Following.txt") && path.includes("Profile")
+            ) || ""
+          ];
+
+        if (!followingFile) {
+          alert(
+            "Could not find Following.txt in the ZIP file. Expected path: TikTok/Profile and Settings/Following.txt"
+          );
+          return;
+        }
+
+        followingText = await followingFile.async("string");
+        console.log("Successfully extracted Following.txt from ZIP file");
+      } catch (error) {
+        console.error("Error processing ZIP file:", error);
+        alert(
+          "Error processing ZIP file. Please make sure it's a valid TikTok data export."
+        );
+        return;
+      }
+    } else if (file.name.endsWith(".txt")) {
+      followingText = await file.text();
+      console.log("Processing direct Following.txt file");
+    } else {
+      alert(
+        "Please upload either a Following.txt file or a TikTok data export ZIP file"
+      );
+      return;
+    }
+
+    // Parse the following text
     const users: TikTokUser[] = [];
-    const entries = text.split("\n\n").map((b) => b.trim()).filter(Boolean);
+    const entries = followingText.split("\n\n").map((b) => b.trim()).filter(Boolean);
     
     for (const entry of entries) {
       const userMatch = entry.match(/Username:\s*(.+)/);
+      const dateMatch = entry.match(/Date:\s*(.+)/);
       if (userMatch) {
         users.push({
           username: userMatch[1].trim(),
@@ -128,7 +171,12 @@ export default function App() {
       }
     }
 
-    console.log(`Loaded ${users.length} TikTok users:`, users.map(u => u.username));
+    console.log(`Loaded ${users.length} TikTok users from ${file.name}:`, users.map(u => u.username));
+
+    if (users.length === 0) {
+      alert('No users found in the file. Please make sure it\'s a valid TikTok Following.txt file.');
+      return;
+    }
 
     // Initialize search results
     const initialResults: SearchResult[] = users.map(user => ({
@@ -270,12 +318,19 @@ export default function App() {
     }));
   }
 
-  // Select all matches across all results
+  // Select all matches across all results - only first match per TT user
   function selectAllMatches() {
-    setSearchResults(prev => prev.map(result => ({
-      ...result,
-      selectedMatches: new Set(result.bskyMatches.map(match => match.did))
-    })));
+    setSearchResults(prev => prev.map(result => {
+      const newSelectedMatches = new Set<string>();
+      // Only select the first (highest scoring) match for each TikTok user
+      if (result.bskyMatches.length > 0) {
+        newSelectedMatches.add(result.bskyMatches[0].did);
+      }
+      return {
+        ...result,
+        selectedMatches: newSelectedMatches
+      };
+    }));
   }
 
   // Deselect all matches across all results
