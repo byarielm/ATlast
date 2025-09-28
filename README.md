@@ -8,6 +8,12 @@ ATlast — you'll never need to find your favorites on another platform again. T
 npm run dev
 ```
 
+#### Build and preview
+```
+npm run build
+npm run preview
+```
+
 #### Enable debug mode
 ```
 // Option 1: Add ?debug to URL
