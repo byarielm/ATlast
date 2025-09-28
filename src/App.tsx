@@ -137,6 +137,9 @@ export default function App() {
     }));
 
     setSearchResults(initialResults);
+
+    // Automatically start searching once users are loaded
+    setTimeout(() => searchAllUsers(initialResults), 100);
   }
 
   // Search Bluesky by handle
@@ -158,7 +161,7 @@ export default function App() {
 
       // Filter and rank matches
       const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
-      const normalizedUsername = normalize(username)
+      const normalizedUsername = normalize(username);
 
       return data.actors.map((actor: any) => {
         const handlePart = actor.handle.split('.')[0]; // get part before first dot
@@ -168,15 +171,15 @@ export default function App() {
 
         // Calculate match score
         let score = 0;
-        if (normalizedHandle == normalizedUsername) score = 100;
-        else if (normalizedFullHandle == normalizedUsername) score = 90;
+        if (normalizedHandle === normalizedUsername) score = 100;
+        else if (normalizedFullHandle === normalizedUsername) score = 90;
         else if (normalizedDisplayName === normalizedUsername) score = 80;
-          else if (normalizedHandle.includes(normalizedUsername)) score = 60;
-          else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
-          else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
-          else if (normalizedUsername.includes(normalizedHandle)) score = 30;
+        else if (normalizedHandle.includes(normalizedUsername)) score = 60;
+        else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
+        else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
+        else if (normalizedUsername.includes(normalizedHandle)) score = 30;
 
-          return { ...actor, matchScore: score };
+        return { ...actor, matchScore: score };
       })
       .filter((actor: any) => actor.matchScore > 0)
       .sort((a: any, b: any) => b.matchScore - a.matchScore)
@@ -188,15 +191,16 @@ export default function App() {
   }
 
   // Search all users
-  async function searchAllUsers() {
-    if (!session || searchResults.length === 0) return;
+  async function searchAllUsers(resultsToSearch?: SearchResult[]) {
+    const targetResults = resultsToSearch || searchResults;
+    if (!session || targetResults.length === 0) return;
     
     setIsSearchingAll(true);
     
     // Process users in batches to avoid rate limiting
     const batchSize = 3;
-    for (let i = 0; i < searchResults.length; i += batchSize) {
-      const batch = searchResults.slice(i, i + batchSize);
+    for (let i = 0; i < targetResults.length; i += batchSize) {
+      const batch = targetResults.slice(i, i + batchSize);
       
       // Mark current batch as searching
       setSearchResults(prev => prev.map((result, index) => 
@@ -233,7 +237,7 @@ export default function App() {
       }));
       
       // Add delay between batches to be respectful of rate limits
-      if (i + batchSize < searchResults.length) {
+      if (i + batchSize < targetResults.length) {
         await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
@@ -282,7 +286,7 @@ export default function App() {
     }
   }
 
-return (
+  return (
     <div className="p-6 max-w-6xl mx-auto">
       {!session ? (
         <div className="space-y-4 max-w-md">
@@ -337,17 +341,14 @@ return (
             
             {searchResults.length > 0 && (
               <div className="flex flex-col space-y-4">
-                <button
-                  className={`px-6 py-3 rounded font-medium ${
-                    isSearchingAll 
-                      ? 'bg-gray-400 cursor-not-allowed' 
-                      : 'bg-green-500 hover:bg-green-600 text-white'
-                  }`}
-                  onClick={searchAllUsers}
-                  disabled={isSearchingAll}
-                >
-                  {isSearchingAll ? 'Searching...' : `Search All ${searchResults.length} Users on Bluesky`}
-                </button>
+                {isSearchingAll && (
+                  <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                    <span className="text-blue-700 font-medium">
+                      Searching Bluesky for all {searchResults.length} users...
+                    </span>
+                  </div>
+                )}
                 
                 {/* Debug Panel - Only show in debug mode */}
                 {debugMode && <DebugPanel session={session} />}
@@ -386,12 +387,21 @@ return (
                           {result.bskyMatches.map((match: any, matchIndex: number) => (
                             <div key={matchIndex} className="flex items-center justify-between p-2 border rounded bg-gray-50">
                               <div className="flex-1">
-                                <div className="font-medium">@{match.handle}</div>
+                                <div className="font-medium">
+                                  <a 
+                                    href={`https://bsky.app/profile/${match.handle}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:text-blue-800 hover:underline"
+                                  >
+                                    @{match.handle}
+                                  </a>
+                                </div>
                                 {match.displayName && (
                                   <div className="text-sm text-gray-600">{match.displayName}</div>
                                 )}
                                 <div className="text-xs text-gray-400">
-                                  Match score: {match.matchScore}% • {match.followersCount || 0} followers
+                                  Match score: {match.matchScore}%
                                 </div>
                               </div>
                               <div className="flex space-x-2 ml-4">
