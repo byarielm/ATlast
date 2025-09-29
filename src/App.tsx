@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Upload, User, Check, X, Search, Settings, ArrowRight, Users, FileText } from "lucide-react";
 import JSZip from "jszip";
 import {
   CompositeDidDocumentResolver,
@@ -35,6 +36,7 @@ export default function App() {
   const [session, setSession] = useState<BskySession | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
+  const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'results'>('login');
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
     methods: {
@@ -102,6 +104,8 @@ export default function App() {
       ...sessionData,
       serviceEndpoint: pdsEndpoint,
     });
+
+    setCurrentStep('upload');
 
     console.log("Logged in successfully!", sessionData, pdsEndpoint);
   } catch (err) {
@@ -187,6 +191,8 @@ export default function App() {
     }));
 
     setSearchResults(initialResults);
+
+    setCurrentStep('results');
 
     // Automatically start searching once users are loaded
     setTimeout(() => searchAllUsers(initialResults), 100);
@@ -389,263 +395,375 @@ export default function App() {
         console.error(`Follow error for ${user.handle}:`, error);
       }
       
-      // Add small delay between follows to be respectful
+      // Add small delay between follows
       await new Promise(resolve => setTimeout(resolve, 500));
     }
   }
 
+  const totalSelected = searchResults.reduce((total, result) => 
+    total + (result.selectedMatches?.size || 0), 0
+  );
+  const totalFound = searchResults.filter(r => r.bskyMatches.length > 0).length;
+
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {!session ? (
-        <div className="space-y-4 max-w-md">
-          <h1 className="text-2xl font-bold">TikTok → Bluesky Follower Sync</h1>
-          <p className="text-gray-600">Login to your Bluesky account to start syncing your TikTok follows.</p>
-          <input
-            className="border border-gray-300 p-3 w-full rounded"
-            placeholder="yourhandle.bsky.social"
-            value={handle}
-            onChange={(e) => setHandle(e.target.value)}
-          />
-          <input
-            className="border border-gray-300 p-3 w-full rounded"
-            type="password"
-            placeholder="App password (not your regular password!)"
-            value={appPassword}
-            onChange={(e) => setAppPassword(e.target.value)}
-          />
-          <button 
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded w-full font-medium" 
-            onClick={login}
-          >
-            Login to Bluesky
-          </button>
-        </div>
-      ) : (
-        <div className="space-y-6">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold">TikTok → Bluesky Sync</h1>
-            <div className="flex items-center space-x-4">
-              <p className="text-gray-600">Logged in as {session.handle}</p>
-              {debugMode && (
-                <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs rounded">
-                  DEBUG MODE
-                </span>
-              )}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+      {/* Header */}
+      <div className="bg-white shadow-sm border-b">
+        <div className="px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <ArrowRight className="w-4 h-4 text-white" />
+              </div>
+              <h1 className="text-lg font-bold text-gray-900">ATlast</h1>
             </div>
-          </div>
-          
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">
-                Upload your TikTok Following.txt file:
-              </label>
-              <input 
-                type="file" 
-                accept=".txt" 
-                onChange={handleFileUpload}
-                className="border border-gray-300 p-2 rounded"
-              />
-            </div>
-            
-            {searchResults.length > 0 && (
-              <div className="flex flex-col space-y-4">
-                {isSearchingAll && (
-                  <div className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                    <span className="text-blue-700 font-medium">
-                      Searching Bluesky for all {searchResults.length} users...
-                    </span>
-                  </div>
-                )}
-                
-                {/* Debug Panel - Only show in debug mode */}
-                {debugMode && <DebugPanel session={session} />}
+            {session && (
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <User className="w-4 h-4" />
+                <span className="hidden sm:inline">@{session.handle}</span>
               </div>
             )}
           </div>
+        </div>
+      </div>
 
-          {searchResults.length > 0 && (
+      {/* Login Step */}
+      {currentStep === 'login' && (
+        <div className="p-6 max-w-md mx-auto mt-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <Users className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
+              <p className="text-gray-600">Connect your ATmosphere account (e.g. Bluesky, Skylight) to sync your TikTok follows</p>
+            </div>
+
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <h2 className="text-xl font-semibold">
-                  Results ({searchResults.filter(r => r.bskyMatches.length > 0).length}/{searchResults.length} found)
-                </h2>
-                
-                {/* Selection controls */}
-                <div className="flex items-center space-x-4">
-                  <span className="text-sm text-gray-600">
-                    {searchResults.reduce((total, result) => total + (result.selectedMatches?.size || 0), 0)} selected
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Bluesky Handle
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="yourhandle.bsky.social"
+                  value={handle}
+                  onChange={(e) => setHandle(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  App Password
+                </label>
+                <input
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  type="password"
+                  placeholder="Not your regular password!"
+                  value={appPassword}
+                  onChange={(e) => setAppPassword(e.target.value)}
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Generate this in your Bluesky settings
+                </p>
+              </div>
+              
+              <button 
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
+                onClick={login}
+              >
+                Connect to Bluesky
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Upload Step */}
+      {currentStep === 'upload' && (
+        <div className="p-6 max-w-md mx-auto mt-8">
+          <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <FileText className="w-8 h-8 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Data</h2>
+              <p className="text-gray-600">Upload your TikTok following data to find matches</p>
+            </div>
+
+            <div className="space-y-4">
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                <label className="cursor-pointer">
+                  <span className="text-lg font-medium text-gray-700 block mb-1">
+                    Choose File
                   </span>
-                  <div className="flex space-x-2">
-                    <button
-                      onClick={selectAllMatches}
-                      className="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded text-sm"
-                    >
-                      Select All
-                    </button>
-                    <button
-                      onClick={deselectAllMatches}
-                      className="px-3 py-1 bg-gray-500 hover:bg-gray-600 text-white rounded text-sm"
-                    >
-                      Deselect All
-                    </button>
-                    <button
-                      onClick={followSelectedUsers}
-                      className="px-4 py-1 bg-green-500 hover:bg-green-600 text-white rounded text-sm font-medium"
-                    >
-                      Follow Selected
-                    </button>
+                  <span className="text-sm text-gray-500 block mb-3">
+                    Following.txt or TikTok data ZIP
+                  </span>
+                  <input 
+                    type="file" 
+                    accept=".txt,.zip" 
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <div className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
+                    Browse Files
+                  </div>
+                </label>
+              </div>
+
+              <div className="bg-blue-50 rounded-xl p-4">
+                <h4 className="font-medium text-blue-900 mb-2">How to get your data:</h4>
+                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                  <li>Open TikTok app → Profile → Settings and privacy → Account → Download your data</li>
+                  <li>Request data → Select "Request data"</li>
+                  <li>Wait for notification your download is ready</li>
+                  <li>Navigate back to Download your data</li>
+                  <li>Download data → Select</li>
+                  <li>Upload the Following.txt file here</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Results Step */}
+      {currentStep === 'results' && (
+        <div className="pb-20">
+          {/* Search Progress */}
+          {isSearchingAll && (
+            <div className="bg-white border-b shadow-sm">
+              <div className="px-4 py-4">
+                <div className="flex items-center space-x-3">
+                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="text-sm font-medium text-gray-900">
+                      Searching Bluesky...
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Finding matches for {searchResults.length} TikTok users
+                    </div>
                   </div>
                 </div>
               </div>
-              
-              {searchResults.map((result, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 bg-white shadow-sm">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {/* TikTok User */}
-                    <div>
-                      <h3 className="font-semibold text-lg">TikTok: @{result.tiktokUser.username}</h3>
-                    </div>
-                    
-                    {/* Bluesky Results */}
-                    <div>
-                      {result.isSearching ? (
-                        <div className="flex items-center space-x-2">
-                          <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                          <span className="text-gray-600">Searching...</span>
-                        </div>
-                      ) : result.error ? (
-                        <div className="text-red-600">Error: {result.error}</div>
-                      ) : result.bskyMatches.length === 0 ? (
-                        <div className="text-gray-500 italic">No matches found</div>
-                      ) : (
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h4 className="font-medium">Bluesky matches:</h4>
-                            {result.bskyMatches.length > 1 && (
-                              <span className="text-xs text-gray-500">
-                                {result.selectedMatches?.size || 0} of {result.bskyMatches.length} selected
-                              </span>
-                            )}
-                          </div>
-                          {result.bskyMatches.map((match: any, matchIndex: number) => (
-                            <div key={matchIndex} className="flex items-center space-x-3 p-2 border rounded bg-gray-50">
-                              <input
-                                type="checkbox"
-                                checked={result.selectedMatches?.has(match.did) || false}
-                                onChange={() => toggleMatchSelection(index, match.did)}
-                                className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                disabled={match.followed}
-                              />
-                              <div className="flex-1">
-                                <div className="font-medium">
-                                  <a 
-                                    href={`https://bsky.app/profile/${match.handle}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:text-blue-800 hover:underline"
-                                  >
-                                    @{match.handle}
-                                  </a>
-                                </div>
-                                {match.displayName && (
-                                  <div className="text-sm text-gray-600">{match.displayName}</div>
-                                )}
-                                <div className="text-xs text-gray-400">
-                                  Match score: {match.matchScore}%
-                                </div>
-                              </div>
-                              {match.followed && (
-                                <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs">
-                                  ✓ Followed
-                                </span>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
             </div>
           )}
+
+          {/* Stats Header */}
+          <div className="bg-white border-b">
+            <div className="px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="text-lg font-bold text-gray-900">Results</h2>
+                  <p className="text-sm text-gray-600">
+                    {totalFound} of {searchResults.length} users found
+                  </p>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-blue-600">{totalSelected}</div>
+                  <div className="text-xs text-gray-500">selected</div>
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <button
+                  onClick={selectAllMatches}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={deselectAllMatches}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Results List */}
+          <div className="space-y-2 p-4">
+            {searchResults.map((result, index) => (
+              <div key={index} className="bg-white rounded-xl shadow-sm border">
+                <div className="p-4">
+                  {/* TikTok User Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-red-500 rounded-full flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">TT</span>
+                      </div>
+                      <div>
+                        <div className="font-semibold text-gray-900">
+                          @{result.tiktokUser.username}
+                        </div>
+                        <div className="text-xs text-gray-500">TikTok</div>
+                      </div>
+                    </div>
+                    
+                    {result.isSearching && (
+                      <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                    )}
+                  </div>
+
+                  {/* Bluesky Matches */}
+                  {result.bskyMatches.length > 0 ? (
+                    <div className="space-y-2">
+                      {result.bskyMatches.map((match, matchIndex) => (
+                        <div 
+                          key={matchIndex} 
+                          className={`flex items-center space-x-3 p-3 rounded-lg border transition-all ${
+                            result.selectedMatches?.has(match.did) 
+                              ? 'bg-blue-50 border-blue-200' 
+                              : 'bg-gray-50 border-gray-200'
+                          } ${match.followed ? 'opacity-60' : ''}`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={result.selectedMatches?.has(match.did) || false}
+                            onChange={() => toggleMatchSelection(index, match.did)}
+                            disabled={match.followed}
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          
+                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <span className="text-white font-bold text-xs">BS</span>
+                          </div>
+                          
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <div className="font-medium text-gray-900 truncate">
+                                @{match.handle}
+                              </div>
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded flex-shrink-0">
+                                {match.matchScore}% match
+                              </span>
+                            </div>
+                            {match.displayName && (
+                              <div className="text-sm text-gray-600 truncate">
+                                {match.displayName}
+                              </div>
+                            )}
+                          </div>
+                          
+                          {match.followed && (
+                            <div className="flex-shrink-0">
+                              <div className="flex items-center space-x-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                                <Check className="w-3 h-3" />
+                                <span>Followed</span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : result.isSearching ? (
+                    <div className="text-center py-4 text-gray-500">
+                      <Search className="w-6 h-6 mx-auto mb-2 animate-pulse" />
+                      <div className="text-sm">Searching for matches...</div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-gray-400">
+                      <X className="w-6 h-6 mx-auto mb-2" />
+                      <div className="text-sm">No matches found</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Fixed Bottom Action Bar */}
+      {currentStep === 'results' && totalSelected > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+          <div className="p-4">
+            <button
+              onClick={followSelectedUsers}
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-medium text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              Follow {totalSelected} Selected Users
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-// Debug Panel Component - Separated from main UI
-function DebugPanel({ session }: { session: BskySession }) {
-  // Debug function to test search
-  async function testSearch(username: string) {
-    console.log(`\n=== Testing search for: "${username}" ===`);
+// // Debug Panel Component - Separated from main UI
+// function DebugPanel({ session }: { session: BskySession }) {
+//   // Debug function to test search
+//   async function testSearch(username: string) {
+//     console.log(`\n=== Testing search for: "${username}" ===`);
     
-    try {
-      const res = await fetch(
-        `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
-        { headers: { Authorization: `Bearer ${session.accessJwt}` } }
-      );
+//     try {
+//       const res = await fetch(
+//         `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
+//         { headers: { Authorization: `Bearer ${session.accessJwt}` } }
+//       );
       
-      console.log('Response status:', res.status);
-      console.log('Response headers:', Object.fromEntries(res.headers.entries()));
+//       console.log('Response status:', res.status);
+//       console.log('Response headers:', Object.fromEntries(res.headers.entries()));
       
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.log('Error response:', errorText);
-        return;
-      }
+//       if (!res.ok) {
+//         const errorText = await res.text();
+//         console.log('Error response:', errorText);
+//         return;
+//       }
       
-      const data = await res.json();
-      console.log('Raw API response:', data);
-      console.log(`Found ${data.actors?.length || 0} actors`);
+//       const data = await res.json();
+//       console.log('Raw API response:', data);
+//       console.log(`Found ${data.actors?.length || 0} actors`);
       
-      if (data.actors && data.actors.length > 0) {
-        data.actors.forEach((actor: any, i: number) => {
-          console.log(`${i + 1}. Handle: ${actor.handle}`);
-          console.log(`   Display: ${actor.displayName || 'No display name'}`);
-          console.log(`   DID: ${actor.did}`);
-          console.log(`   Followers: ${actor.followersCount || 0}`);
-        });
-      } else {
-        console.log('No actors found in response');
-      }
+//       if (data.actors && data.actors.length > 0) {
+//         data.actors.forEach((actor: any, i: number) => {
+//           console.log(`${i + 1}. Handle: ${actor.handle}`);
+//           console.log(`   Display: ${actor.displayName || 'No display name'}`);
+//           console.log(`   DID: ${actor.did}`);
+//           console.log(`   Followers: ${actor.followersCount || 0}`);
+//         });
+//       } else {
+//         console.log('No actors found in response');
+//       }
       
-    } catch (error) {
-      console.error('Search test error:', error);
-    }
-  }
+//     } catch (error) {
+//       console.error('Search test error:', error);
+//     }
+//   }
 
-  return (
-    <div className="border border-yellow-300 rounded-lg p-4 bg-yellow-50">
-      <h3 className="text-lg font-semibold mb-2 text-yellow-800">Debug Tools</h3>
-      <p className="text-sm text-yellow-700 mb-3">
-        These tools are only visible in debug mode. Check console for detailed logs.
-      </p>
-      <div className="flex space-x-2">
-        <button
-          className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
-          onClick={() => testSearch('joebasser')}
-        >
-          Test Search "joebasser"
-        </button>
-        <button
-          className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
-          onClick={() => testSearch('skylight.social')}
-        >
-          Test Search "skylight.social"
-        </button>
-        <button
-          className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm"
-          onClick={() => {
-            localStorage.removeItem('debug');
-            window.location.reload();
-          }}
-        >
-          Exit Debug Mode
-        </button>
-      </div>
-    </div>
-  );
-}
+//   return (
+//     <div className="border border-yellow-300 rounded-lg p-4 bg-yellow-50">
+//       <h3 className="text-lg font-semibold mb-2 text-yellow-800">Debug Tools</h3>
+//       <p className="text-sm text-yellow-700 mb-3">
+//         These tools are only visible in debug mode. Check console for detailed logs.
+//       </p>
+//       <div className="flex space-x-2">
+//         <button
+//           className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
+//           onClick={() => testSearch('joebasser')}
+//         >
+//           Test Search "joebasser"
+//         </button>
+//         <button
+//           className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
+//           onClick={() => testSearch('skylight.social')}
+//         >
+//           Test Search "skylight.social"
+//         </button>
+//         <button
+//           className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm"
+//           onClick={() => {
+//             localStorage.removeItem('debug');
+//             window.location.reload();
+//           }}
+//         >
+//           Exit Debug Mode
+//         </button>
+//       </div>
+//     </div>
+//   );
+// }
