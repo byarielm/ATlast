@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Upload, User, Check, X, Search, Settings, ArrowRight, Users, FileText } from "lucide-react";
+import { Upload, User, Check, X, Search, ArrowRight, Users, FileText, ChevronRight } from "lucide-react";
 import JSZip from "jszip";
 import {
   CompositeDidDocumentResolver,
@@ -30,6 +30,130 @@ interface SearchResult {
   selectedMatches?: Set<string>; // Track selected match DIDs
 }
 
+// Match Carousel Component
+function MatchCarousel({ 
+  matches, 
+  selectedDids, 
+  onToggleSelection 
+}: { 
+  matches: any[]; 
+  selectedDids: Set<string>; 
+  onToggleSelection: (did: string) => void;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const currentMatch = matches[currentIndex];
+  const hasMore = matches.length > 1;
+  const hasPrev = currentIndex > 0;
+  const hasNext = currentIndex < matches.length - 1;
+  
+  const nextMatch = () => {
+    if (hasNext) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+  
+  const prevMatch = () => {
+    if (hasPrev) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+  
+  return (
+    <div className="relative">
+      <div 
+        className={`flex items-center space-x-3 p-3 rounded-lg border transition-all ${
+          selectedDids.has(currentMatch.did) 
+            ? 'bg-blue-50 border-blue-200' 
+            : 'bg-gray-50 border-gray-200'
+        } ${currentMatch.followed ? 'opacity-60' : ''}`}
+      >
+        <input
+          type="checkbox"
+          checked={selectedDids.has(currentMatch.did)}
+          onChange={() => onToggleSelection(currentMatch.did)}
+          disabled={currentMatch.followed}
+          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
+        />
+        
+        {currentMatch.avatar ? (
+          <img 
+            src={currentMatch.avatar} 
+            alt={currentMatch.handle}
+            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+          />
+        ) : (
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-bold text-sm">
+              {currentMatch.handle.charAt(0).toUpperCase()}
+            </span>
+          </div>
+        )}
+        
+        <div className="flex-1 min-w-0">
+          {currentMatch.displayName && (
+            <div className="font-medium text-gray-900 truncate">
+              {currentMatch.displayName}
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <div className="text-sm text-gray-600 truncate">
+              @{currentMatch.handle}
+            </div>
+            <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded flex-shrink-0">
+              {currentMatch.matchScore}%
+            </span>
+          </div>
+        </div>
+        
+        {currentMatch.followed && (
+          <div className="flex-shrink-0">
+            <div className="flex items-center space-x-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+              <Check className="w-3 h-3" />
+              <span>Followed</span>
+            </div>
+          </div>
+        )}
+        
+        <div className="flex items-center space-x-1 flex-shrink-0">
+          {hasPrev && (
+            <button
+              onClick={prevMatch}
+              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
+            </button>
+          )}
+          {hasNext && (
+            <button
+              onClick={nextMatch}
+              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+            >
+              <ChevronRight className="w-5 h-5 text-gray-600" />
+            </button>
+          )}
+        </div>
+      </div>
+      
+      {hasMore && (
+        <div className="flex items-center justify-center space-x-1 mt-2">
+          {matches.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentIndex(idx)}
+              className={`h-1.5 rounded-full transition-all ${
+                idx === currentIndex 
+                  ? 'w-6 bg-blue-500' 
+                  : 'w-1.5 bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [handle, setHandle] = useState("");
   const [appPassword, setAppPassword] = useState("");
@@ -37,6 +161,7 @@ export default function App() {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
+  const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
     methods: {
@@ -51,12 +176,6 @@ export default function App() {
       dns: new DohJsonHandleResolver({ dohUrl: "https://dns.google/resolve?" }),
       http: new WellKnownHandleResolver(),
     },
-  });
-
-  // Debug mode - enabled by URL parameter or localStorage
-  const [debugMode] = useState(() => {
-    return new URLSearchParams(window.location.search).has('debug') || 
-           localStorage.getItem('debug') === 'true';
   });
 
   async function login() {
@@ -252,9 +371,12 @@ export default function App() {
     
     setIsSearchingAll(true);
     setCurrentStep('loading');
+    setSearchProgress({ searched: 0, found: 0, total: targetResults.length });
     
     // Process users in batches to avoid rate limiting
     const batchSize = 3;
+    let totalSearched = 0;
+    let totalFound = 0;
     for (let i = 0; i < targetResults.length; i += batchSize) {
       const batch = targetResults.slice(i, i + batchSize);
       
@@ -278,6 +400,15 @@ export default function App() {
       
       const batchResults = await Promise.all(batchPromises);
       
+      // Update progress immediately after batch completes
+      batchResults.forEach(br => {
+        totalSearched++;
+        if (br.matches.length > 0) {
+          totalFound++;
+        }
+      });
+      setSearchProgress({ searched: totalSearched, found: totalFound, total: targetResults.length });
+
       // Update results
       setSearchResults(prev => prev.map((result, index) => {
         const batchResult = batchResults.find(br => br.globalIndex === index);
@@ -405,7 +536,7 @@ export default function App() {
     total + (result.selectedMatches?.size || 0), 0
   );
   const totalFound = searchResults.filter(r => r.bskyMatches.length > 0).length;
-  const totalSearched = searchResults.filter(r => !r.isSearching && (r.bskyMatches.length > 0 || r.error || (!r.isSearching && searchResults.indexOf(r) < searchResults.findIndex(sr => sr.isSearching)))).length;
+  const totalSearched = searchResults.filter(r => !r.isSearching).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
@@ -545,15 +676,15 @@ export default function App() {
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
               <div className="grid grid-cols-3 gap-4 text-center mb-4">
                 <div>
-                  <div className="text-3xl font-bold text-gray-900">{totalSearched}</div>
+                  <div className="text-3xl font-bold text-gray-900">{searchProgress.searched}</div>
                   <div className="text-sm text-gray-600">Searched</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-blue-600">{totalFound}</div>
+                  <div className="text-3xl font-bold text-blue-600">{searchProgress.found}</div>
                   <div className="text-sm text-gray-600">Found</div>
                 </div>
                 <div>
-                  <div className="text-3xl font-bold text-gray-400">{searchResults.length}</div>
+                  <div className="text-3xl font-bold text-gray-400">{searchProgress.total}</div>
                   <div className="text-sm text-gray-600">Total</div>
                 </div>
               </div>
@@ -561,49 +692,13 @@ export default function App() {
               <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
                 <div 
                   className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${(totalSearched / searchResults.length) * 100}%` }}
+                  style={{ width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%` }}
                 />
               </div>
               <div className="text-center mt-2 text-sm text-gray-600">
-                {Math.round((totalSearched / searchResults.length) * 100)}% complete
+                {searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0}% complete
               </div>
             </div>
-
-            {/* <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Currently searching:</h3>
-              {searchResults
-                .filter(r => r.isSearching)
-                .slice(0, 3)
-                .map((result, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                    <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">@{result.tiktokUser.username}</div>
-                    </div>
-                  </div>
-                ))}
-            </div>
-
-      {totalFound > 0 && (
-              <div className="space-y-2">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Recent matches:</h3>
-                {searchResults
-                  .filter(r => r.bskyMatches.length > 0 && !r.isSearching)
-                  .slice(-3)
-                  .reverse()
-                  .map((result, index) => (
-                    <div key={index} className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                      <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <div className="font-medium text-gray-900 truncate">@{result.tiktokUser.username}</div>
-                        <div className="text-sm text-gray-600 truncate">
-                          Found {result.bskyMatches.length} match{result.bskyMatches.length !== 1 ? 'es' : ''}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            )} */}
           </div>
         </div>
       )}
@@ -648,74 +743,24 @@ export default function App() {
               <div key={index} className="bg-white rounded-xl shadow-sm border">
                 <div className="p-4">
                   {/* TikTok User Header */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-red-500 rounded-full flex items-center justify-center">
-                        <span className="text-white font-bold text-sm">TT</span>
-                      </div>
-                      <div>
-                        <div className="font-semibold text-gray-900">
-                          @{result.tiktokUser.username}
-                        </div>
-                        <div className="text-xs text-gray-500">TikTok</div>
-                      </div>
+                  <div className="mb-3">
+                    <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">TikTok</div>
+                    <div className="font-semibold text-gray-900 text-lg">
+                      @{result.tiktokUser.username}
                     </div>
                   </div>
 
                   {/* Bluesky Matches */}
                   {result.bskyMatches.length > 0 ? (
                     <div className="space-y-2">
-                      {result.bskyMatches.map((match, matchIndex) => (
-                        <div 
-                          key={matchIndex} 
-                          className={`flex items-center space-x-3 p-3 rounded-lg border transition-all ${
-                            result.selectedMatches?.has(match.did) 
-                              ? 'bg-blue-50 border-blue-200' 
-                              : 'bg-gray-50 border-gray-200'
-                          } ${match.followed ? 'opacity-60' : ''}`}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={result.selectedMatches?.has(match.did) || false}
-                            onChange={() => toggleMatchSelection(index, match.did)}
-                            disabled={match.followed}
-                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                          />
-                          
-                          <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                            <span className="text-white font-bold text-xs">BS</span>
-                          </div>
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2">
-                              <div className="font-medium text-gray-900 truncate">
-                                @{match.handle}
-                              </div>
-                              <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded flex-shrink-0">
-                                {match.matchScore}% match
-                              </span>
-                            </div>
-                            {match.displayName && (
-                              <div className="text-sm text-gray-600 truncate">
-                                {match.displayName}
-                              </div>
-                            )}
-                          </div>
-                          
-                          {match.followed && (
-                            <div className="flex-shrink-0">
-                              <div className="flex items-center space-x-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                                <Check className="w-3 h-3" />
-                                <span>Followed</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                      <MatchCarousel 
+                        matches={result.bskyMatches}
+                        selectedDids={result.selectedMatches || new Set()}
+                        onToggleSelection={(did) => toggleMatchSelection(index, did)}
+                      />
                     </div>
                   ) : (
-                    <div className="text-center py-4 text-gray-400">
-                      <X className="w-6 h-6 mx-auto mb-2" />
+                    <div className="text-center py-2 text-gray-400">
                       <div className="text-sm">No matches found</div>
                     </div>
                   )}
@@ -742,77 +787,3 @@ export default function App() {
     </div>
   );
 }
-
-// // Debug Panel Component - Separated from main UI
-// function DebugPanel({ session }: { session: BskySession }) {
-//   // Debug function to test search
-//   async function testSearch(username: string) {
-//     console.log(`\n=== Testing search for: "${username}" ===`);
-    
-//     try {
-//       const res = await fetch(
-//         `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
-//         { headers: { Authorization: `Bearer ${session.accessJwt}` } }
-//       );
-      
-//       console.log('Response status:', res.status);
-//       console.log('Response headers:', Object.fromEntries(res.headers.entries()));
-      
-//       if (!res.ok) {
-//         const errorText = await res.text();
-//         console.log('Error response:', errorText);
-//         return;
-//       }
-      
-//       const data = await res.json();
-//       console.log('Raw API response:', data);
-//       console.log(`Found ${data.actors?.length || 0} actors`);
-      
-//       if (data.actors && data.actors.length > 0) {
-//         data.actors.forEach((actor: any, i: number) => {
-//           console.log(`${i + 1}. Handle: ${actor.handle}`);
-//           console.log(`   Display: ${actor.displayName || 'No display name'}`);
-//           console.log(`   DID: ${actor.did}`);
-//           console.log(`   Followers: ${actor.followersCount || 0}`);
-//         });
-//       } else {
-//         console.log('No actors found in response');
-//       }
-      
-//     } catch (error) {
-//       console.error('Search test error:', error);
-//     }
-//   }
-
-//   return (
-//     <div className="border border-yellow-300 rounded-lg p-4 bg-yellow-50">
-//       <h3 className="text-lg font-semibold mb-2 text-yellow-800">Debug Tools</h3>
-//       <p className="text-sm text-yellow-700 mb-3">
-//         These tools are only visible in debug mode. Check console for detailed logs.
-//       </p>
-//       <div className="flex space-x-2">
-//         <button
-//           className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
-//           onClick={() => testSearch('joebasser')}
-//         >
-//           Test Search "joebasser"
-//         </button>
-//         <button
-//           className="px-3 py-1 bg-yellow-500 hover:bg-yellow-600 text-white rounded text-sm"
-//           onClick={() => testSearch('skylight.social')}
-//         >
-//           Test Search "skylight.social"
-//         </button>
-//         <button
-//           className="px-3 py-1 bg-orange-500 hover:bg-orange-600 text-white rounded text-sm"
-//           onClick={() => {
-//             localStorage.removeItem('debug');
-//             window.location.reload();
-//           }}
-//         >
-//           Exit Debug Mode
-//         </button>
-//       </div>
-//     </div>
-//   );
-// }
