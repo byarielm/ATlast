@@ -36,7 +36,7 @@ export default function App() {
   const [session, setSession] = useState<BskySession | null>(null);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'results'>('login');
+  const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
     methods: {
@@ -166,7 +166,6 @@ export default function App() {
     
     for (const entry of entries) {
       const userMatch = entry.match(/Username:\s*(.+)/);
-      const dateMatch = entry.match(/Date:\s*(.+)/);
       if (userMatch) {
         users.push({
           username: userMatch[1].trim(),
@@ -178,7 +177,7 @@ export default function App() {
     console.log(`Loaded ${users.length} TikTok users from ${file.name}:`, users.map(u => u.username));
 
     if (users.length === 0) {
-      alert('No users found in the file. Please make sure it\'s a valid TikTok Following.txt file.');
+      alert('No users found in the file. Please make sure it\'s a valid TikTok data file.');
       return;
     }
 
@@ -252,6 +251,7 @@ export default function App() {
     if (!session || targetResults.length === 0) return;
     
     setIsSearchingAll(true);
+    setCurrentStep('loading');
     
     // Process users in batches to avoid rate limiting
     const batchSize = 3;
@@ -306,6 +306,7 @@ export default function App() {
     }
     
     setIsSearchingAll(false);
+    setCurrentStep('results');
   }
 
   // Toggle selection for a specific match
@@ -404,6 +405,7 @@ export default function App() {
     total + (result.selectedMatches?.size || 0), 0
   );
   const totalFound = searchResults.filter(r => r.bskyMatches.length > 0).length;
+  const totalSearched = searchResults.filter(r => !r.isSearching && (r.bskyMatches.length > 0 || r.error || (!r.isSearching && searchResults.indexOf(r) < searchResults.findIndex(sr => sr.isSearching)))).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
@@ -436,13 +438,13 @@ export default function App() {
                 <Users className="w-8 h-8 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
-              <p className="text-gray-600">Connect your ATmosphere account (e.g. Bluesky, Skylight) to sync your TikTok follows</p>
+              <p className="text-gray-600">Connect your ATmosphere account to sync your TikTok follows</p>
             </div>
 
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Bluesky Handle
+                  User Handle
                 </label>
                 <input
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -472,7 +474,7 @@ export default function App() {
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
                 onClick={login}
               >
-                Connect to Bluesky
+                Connect to the ATmosphere
               </button>
             </div>
           </div>
@@ -529,29 +531,85 @@ export default function App() {
         </div>
       )}
 
-      {/* Results Step */}
-      {currentStep === 'results' && (
-        <div className="pb-20">
-          {/* Search Progress */}
-          {isSearchingAll && (
-            <div className="bg-white border-b shadow-sm">
-              <div className="px-4 py-4">
-                <div className="flex items-center space-x-3">
-                  <div className="animate-spin h-5 w-5 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-900">
-                      Searching Bluesky...
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Finding matches for {searchResults.length} TikTok users
-                    </div>
-                  </div>
+      {currentStep === 'loading' && (
+        <div className="p-6 max-w-2xl mx-auto mt-8">
+          <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                <Search className="w-8 h-8 text-white animate-pulse" />
+              </div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Finding Your People</h2>
+              <p className="text-gray-600">Searching Bluesky for your TikTok follows...</p>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
+              <div className="grid grid-cols-3 gap-4 text-center mb-4">
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">{totalSearched}</div>
+                  <div className="text-sm text-gray-600">Searched</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-blue-600">{totalFound}</div>
+                  <div className="text-sm text-gray-600">Found</div>
+                </div>
+                <div>
+                  <div className="text-3xl font-bold text-gray-400">{searchResults.length}</div>
+                  <div className="text-sm text-gray-600">Total</div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Stats Header */}
+              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div 
+                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
+                  style={{ width: `${(totalSearched / searchResults.length) * 100}%` }}
+                />
+              </div>
+              <div className="text-center mt-2 text-sm text-gray-600">
+                {Math.round((totalSearched / searchResults.length) * 100)}% complete
+              </div>
+            </div>
+
+            {/* <div className="space-y-2">
+              <h3 className="text-sm font-medium text-gray-700 mb-3">Currently searching:</h3>
+              {searchResults
+                .filter(r => r.isSearching)
+                .slice(0, 3)
+                .map((result, index) => (
+                  <div key={index} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
+                    <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-900">@{result.tiktokUser.username}</div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+
+      {totalFound > 0 && (
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-gray-700 mb-3">Recent matches:</h3>
+                {searchResults
+                  .filter(r => r.bskyMatches.length > 0 && !r.isSearching)
+                  .slice(-3)
+                  .reverse()
+                  .map((result, index) => (
+                    <div key={index} className="flex items-center space-x-3 p-3 bg-green-50 rounded-lg border border-green-200">
+                      <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-gray-900 truncate">@{result.tiktokUser.username}</div>
+                        <div className="text-sm text-gray-600 truncate">
+                          Found {result.bskyMatches.length} match{result.bskyMatches.length !== 1 ? 'es' : ''}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )} */}
+          </div>
+        </div>
+      )}
+
+      {currentStep === 'results' && (
+        <div className="pb-20">
           <div className="bg-white border-b">
             <div className="px-4 py-4">
               <div className="flex items-center justify-between mb-3">
@@ -602,10 +660,6 @@ export default function App() {
                         <div className="text-xs text-gray-500">TikTok</div>
                       </div>
                     </div>
-                    
-                    {result.isSearching && (
-                      <div className="animate-spin h-4 w-4 border-2 border-blue-500 border-t-transparent rounded-full"></div>
-                    )}
                   </div>
 
                   {/* Bluesky Matches */}
@@ -658,11 +712,6 @@ export default function App() {
                           )}
                         </div>
                       ))}
-                    </div>
-                  ) : result.isSearching ? (
-                    <div className="text-center py-4 text-gray-500">
-                      <Search className="w-6 h-6 mx-auto mb-2 animate-pulse" />
-                      <div className="text-sm">Searching for matches...</div>
                     </div>
                   ) : (
                     <div className="text-center py-4 text-gray-400">
