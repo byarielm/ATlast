@@ -11,6 +11,7 @@ npm run dev
 #### Build and preview
 ```
 npm run build
+// npm run preview
 rm -r docs 
 mv dist docs
 ```

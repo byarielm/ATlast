@@ -231,72 +231,104 @@ export default function App() {
     console.error("Login error:", err);
     alert("Error during login. See console for details.");
   }
-}
+  }
+
+  async function parseJsonFile(jsonText: string): Promise<TikTokUser[]> {
+    const users: TikTokUser[] = [];
+    const jsonData = JSON.parse(jsonText);
+
+    const followingArray = jsonData?.["Your Activity"]?.["Following"]?.["Following"];
+
+    if (!followingArray || !Array.isArray(followingArray)) {
+      alert("Could not find following data in JSON. Expected path: Your Activity > Following > Following");
+      return [];
+    }
+
+    for (const entry of followingArray) {
+      users.push({
+        username: entry.UserName,
+        date: entry.Date || "",
+      });
+    }
+
+    return users;
+  }
+
+  function parseTxtFile(text: string): TikTokUser[] {
+    const users: TikTokUser[] = [];
+    const entries = text.split("\n\n").map((b) => b.trim()).filter(Boolean);
+
+    for (const entry of entries) {
+      const userMatch = entry.match(/Username:\s*(.+)/);
+      if (userMatch) {
+        users.push({ username: userMatch[1].trim(), date: "" });
+      }
+    }
+
+    return users;
+  }
 
   // Parse TikTok Following data from .txt or .zip file
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    let followingText: string;
+    let users: TikTokUser[] = [];
 
-    if (file.name.endsWith(".zip")) {
-      try {
+    try {
+      // Direct JSON upload
+      if (file.name.endsWith(".json")) {
+        users = await parseJsonFile(await file.text());
+        console.log(`Loaded ${users.length} TikTok users from JSON file`);
+      } else if (file.name.endsWith(".txt")) {
+      // Direct TXT upload
+        users = parseTxtFile(await file.text());
+        console.log(`Loaded ${users.length} TikTok users from TXT file`);
+      } else if (file.name.endsWith(".zip")) {
+      // ZIP upload - find Following.txt OR JSON
         const zip = await JSZip.loadAsync(file);
 
+        // Looking for Following.txt
         const followingFile =
-          zip.file("TikTok/Profile and Settings/Following.txt") ||
-          zip.file("Profile and Settings/Following.txt") ||
-          zip.files[
-            Object.keys(zip.files).find(
-              (path) => path.endsWith("Following.txt") && path.includes("Profile")
-            ) || ""
-          ];
+        zip.file("TikTok/Profile and Settings/Following.txt") ||
+        zip.file("Profile and Settings/Following.txt") ||
+        zip.files[
+          Object.keys(zip.files).find(
+            (path) => path.endsWith("Following.txt") && path.includes("Profile")
+          ) || ""
+        ];
 
-        if (!followingFile) {
-          alert(
-            "Could not find Following.txt in the ZIP file. Expected path: TikTok/Profile and Settings/Following.txt"
+        if(followingFile) {
+          const followingText = await followingFile.async("string");
+          users = parseTxtFile(followingText);
+          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+        } else {
+          // If no TXT, look for JSON at the top level
+          const jsonFileEntry = Object.values(zip.files).find(
+            (f) => f.name.endsWith(".json") && !f.dir
           );
-          return;
-        }
 
-        followingText = await followingFile.async("string");
-        console.log("Successfully extracted Following.txt from ZIP file");
-      } catch (error) {
-        console.error("Error processing ZIP file:", error);
-        alert(
-          "Error processing ZIP file. Please make sure it's a valid TikTok data export."
-        );
+          if (!jsonFileEntry) {
+            alert("Could not find Following.txt or a JSON file in the ZIP archive.");
+            return;
+          }
+
+          const jsonText = await jsonFileEntry.async("string");
+          users = await parseJsonFile(jsonText);
+          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+        }
+      } else {
+        alert("Please upload a .txt, .json, or .zip file");
         return;
       }
-    } else if (file.name.endsWith(".txt")) {
-      followingText = await file.text();
-      console.log("Processing direct Following.txt file");
-    } else {
-      alert(
-        "Please upload either a Following.txt file or a TikTok data export ZIP file"
-      );
+    } catch (error) {
+      console.error("Error processing file:", error);
+      alert("There was a problem processing the file. Please check that it's a valid TikTok data export.");
       return;
     }
-
-    // Parse the following text
-    const users: TikTokUser[] = [];
-    const entries = followingText.split("\n\n").map((b) => b.trim()).filter(Boolean);
     
-    for (const entry of entries) {
-      const userMatch = entry.match(/Username:\s*(.+)/);
-      if (userMatch) {
-        users.push({
-          username: userMatch[1].trim(),
-          date: "",
-        });
-      }
-    }
-
-    console.log(`Loaded ${users.length} TikTok users from ${file.name}:`, users.map(u => u.username));
-
     if (users.length === 0) {
-      alert('No users found in the file. Please make sure it\'s a valid TikTok data file.');
+      alert("No users found in the file.");
       return;
     }
 
@@ -670,7 +702,7 @@ export default function App() {
                 <Search className="w-8 h-8 text-white animate-pulse" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 mb-2">Finding Your People</h2>
-              <p className="text-gray-600">Searching Bluesky for your TikTok follows...</p>
+              <p className="text-gray-600">Searching the ATmosphere for your TikTok follows...</p>
             </div>
 
             <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
