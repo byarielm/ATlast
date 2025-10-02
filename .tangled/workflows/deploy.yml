@@ -13,4 +13,4 @@ dependencies:
 steps:
   - name: deploy
     command: |
-      curl -X POST -d '{}' $NETLIFY_WEBHOOK_URL
+      curl -X POST -d '{}' $NETLIFY_BUILD
