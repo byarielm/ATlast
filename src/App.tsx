@@ -268,7 +268,7 @@ export default function App() {
     return users;
   }
 
-  // Parse TikTok Following data from .txt or .zip file
+  // Parse TikTok Following data from .txt, .json, or .zip file
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -409,7 +409,15 @@ export default function App() {
     const batchSize = 3;
     let totalSearched = 0;
     let totalFound = 0;
+    const MAX_MATCHES = 1000;
+
     for (let i = 0; i < targetResults.length; i += batchSize) {
+      // Stop once MAX_MATCHES reached
+      if (totalFound >= MAX_MATCHES) {
+        console.log(`Reached limit of ${MAX_MATCHES} matches. Stopping search.`);
+        break;
+      }
+
       const batch = targetResults.slice(i, i + batchSize);
       
       // Mark current batch as searching
@@ -461,6 +469,11 @@ export default function App() {
         }
         return result;
       }));
+
+      // Check again if we've hit the limit after updating results
+      if (totalFound >= MAX_MATCHES) {
+        break;
+      }
       
       // Add delay between batches to be respectful of rate limits
       if (i + batchSize < targetResults.length) {
@@ -668,7 +681,7 @@ export default function App() {
                   </span>
                   <input 
                     type="file" 
-                    accept=".txt,.zip" 
+                    accept=".txt,.json,.zip"
                     onChange={handleFileUpload}
                     className="hidden"
                   />
@@ -694,6 +707,7 @@ export default function App() {
         </div>
       )}
 
+      {/* Loading Step */}
       {currentStep === 'loading' && (
         <div className="p-6 max-w-2xl mx-auto mt-8">
           <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
@@ -735,6 +749,7 @@ export default function App() {
         </div>
       )}
 
+      {/* Results */}
       {currentStep === 'results' && (
         <div className="pb-20">
           <div className="bg-white border-b">
@@ -782,7 +797,7 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Bluesky Matches */}
+                  {/* ATmosphere Matches */}
                   {result.bskyMatches.length > 0 ? (
                     <div className="space-y-2">
                       <MatchCarousel 
