@@ -1,0 +1,16 @@
+engine: nixery
+when:
+  - event: ["push"]
+    branch: ["main"]
+
+clone:
+  skip: true
+
+dependencies:
+  nixpkgs:
+    - curl
+
+steps:
+  - name: deploy
+    command: |
+      curl -X POST -d '{}' $NETLIFY_WEBHOOK_URL
