@@ -1,6 +1,6 @@
 import { neon } from '@neondatabase/serverless';
 
-const sql = neon(process.env.DATABASE_URL!);
+const sql = neon(process.env.NETLIFY_DATABASE_URL!);
 
 // Initialize database tables
 export async function initDB() {

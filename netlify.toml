@@ -1,12 +1,7 @@
 [build]
   command = "npm run build"
-  publish = "dist"
   functions = "netlify/functions"
-
-[dev]
-  command = "vite"
-  port = 8888        # Netlify Dev will serve on http://localhost:8888
-  targetPort = 5173  # Vite runs on 5173 and Netlify proxies it
+  publish = "dist"
 
 [[redirects]]
   from = "/oauth/callback"
