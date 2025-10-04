@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Upload, User, Check, X, Search, ArrowRight, Users, FileText, ChevronRight } from "lucide-react";
+import { Upload, User, Check, Search, ArrowRight, Users, FileText, ChevronRight } from "lucide-react";
 import JSZip from "jszip";
 import {
   CompositeDidDocumentResolver,
@@ -219,12 +219,15 @@ export default function App() {
   // Start OAuth login
   const loginWithOAuth = async () => {
     try {
-      const body = loginHint ? { login_hint: loginHint } : {};
+      if (!handle) {
+        alert("Please enter your handle");
+        return;
+      }
 
       const res = await fetch('/.netlify/functions/oauth-start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ login_hint: handle }),
       });
 
       if (!res.ok) {

@@ -28,6 +28,15 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       loginHint = parsed.login_hint;
     }
 
+    // Validate login hint is provided
+    if (!loginHint) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'login_hint (handle or DID) is required' }),
+      };
+    }
+
     // Validate private key
     const privateKeyEnv = process.env.OAUTH_PRIVATE_KEY;
     if (!privateKeyEnv) {
@@ -66,10 +75,9 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     });
 
     // Generate authorization URL
-    const authUrl = await client.authorize({
-      scope: 'atproto transition:generic',
-      login_hint: loginHint,
-    } as any); // cast to satisfy TS
+    const authUrl = await client.authorize(loginHint, {
+      scope: 'atproto transition:geeric'
+    });
 
     return {
       statusCode: 200,
