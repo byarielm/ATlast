@@ -163,6 +163,7 @@ export default function App() {
   const [isSearchingAll, setIsSearchingAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
   const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
+  const [loginHint, setLoginHint] = useState<string>('');
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
     methods: {
@@ -179,7 +180,7 @@ export default function App() {
     },
   });
 
-  // Check for OAuth callback on mount
+  // OAuth
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session');
@@ -194,21 +195,20 @@ export default function App() {
     if (sessionId) {
       // Fetch session data from backend
       fetch(`/.netlify/functions/session?session=${sessionId}`)
-        .then(res => {
+        .then((res) => {
           if (!res.ok) throw new Error('Failed to load session');
           return res.json();
         })
-        .then(data => {
+        .then((data) => {
           setSession({
             did: data.did,
             handle: data.handle,
             accessJwt: data.accessToken,
-            serviceEndpoint: data.serviceEndpoint
+            serviceEndpoint: data.serviceEndpoint,
           });
-          setCurrentStep('upload');
           window.history.replaceState({}, '', '/');
         })
-        .catch(err => {
+        .catch((err) => {
           console.error('Session error:', err);
           alert('Failed to load session');
           window.history.replaceState({}, '', '/');
@@ -216,19 +216,15 @@ export default function App() {
     }
   }, []);
 
-  // OAuth Login (Primary method)
-  async function loginWithOAuth() {
+  // Start OAuth login
+  const loginWithOAuth = async () => {
     try {
-      if (!handle) {
-        alert("Enter your handle");
-        return;
-      }
+      const body = loginHint ? { login_hint: loginHint } : {};
 
-      // Start OAuth flow via backend
       const res = await fetch('/.netlify/functions/oauth-start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ handle })
+        body: JSON.stringify(body),
       });
 
       if (!res.ok) {
@@ -237,11 +233,9 @@ export default function App() {
       }
 
       const { url } = await res.json();
-      
-      // Redirect to authorization server
-      window.location.href = url;
+      window.location.href = url; // redirect to authorization server
     } catch (err) {
-      console.error("OAuth error:", err);
+      console.error('OAuth error:', err);
       alert(`Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`);
     }
   }

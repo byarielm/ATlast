@@ -5,6 +5,10 @@ import { stateStore, sessionStore } from './oauth-stores-db';
 import { getOAuthConfig } from './oauth-config';
 import { initDB } from './db';
 
+interface OAuthStartRequestBody {
+  login_hint?: string;
+}
+
 function normalizePrivateKey(key: string): string {
   if (!key.includes('\n') && key.includes('\\n')) {
     return key.replace(/\\n/g, '\n');
@@ -14,74 +18,64 @@ function normalizePrivateKey(key: string): string {
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
-    // Initialize DB on first call
+    // Initialize database
     await initDB();
 
-    const { handle } = JSON.parse(event.body || '{}');
-
-    if (!handle) {
-      return {
-        statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Handle required' })
-      };
+    // Parse optional login_hint safely
+    let loginHint: string | undefined = undefined;
+    if (event.body) {
+      const parsed: OAuthStartRequestBody = JSON.parse(event.body);
+      loginHint = parsed.login_hint;
     }
 
-    if (!process.env.OAUTH_PRIVATE_KEY) {
+    // Validate private key
+    const privateKeyEnv = process.env.OAUTH_PRIVATE_KEY;
+    if (!privateKeyEnv) {
       console.error('OAUTH_PRIVATE_KEY not set');
       return {
         statusCode: 500,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Server configuration error' })
+        body: JSON.stringify({ error: 'Server configuration error' }),
       };
     }
 
     const config = getOAuthConfig();
-    console.log('OAuth config:', { 
-      clientType: config.clientType,
-      clientId: config.clientId 
-    });
 
-    const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
+    const normalizedKey = normalizePrivateKey(privateKeyEnv);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
-    
+
+    // Initialize NodeOAuthClient with typed stores
     const client = new NodeOAuthClient({
       clientMetadata: {
         client_id: config.clientId,
-        client_name: 'ATlast',
-        redirect_uris: [config.redirectUri],
-        scope: 'atproto transition:generic',
-        grant_types: ['authorization_code', 'refresh_token'],
-        response_types: ['code'],
-        application_type: 'web',
-        token_endpoint_auth_method: 'private_key_jwt',
-        dpop_bound_access_tokens: true,
         jwks_uri: config.jwksUri,
+        redirect_uris: [config.redirectUri], // required by TS
       },
       keyset: [privateKey],
       stateStore: stateStore as any,
       sessionStore: sessionStore as any,
     });
 
-    const authUrl = await client.authorize(handle, {
+    // Generate authorization URL
+    const authUrl = await client.authorize({
       scope: 'atproto transition:generic',
-    });
+      login_hint: loginHint,
+    } as any); // cast to satisfy TS
 
     return {
       statusCode: 200,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: authUrl.toString() })
+      body: JSON.stringify({ url: authUrl.toString() }),
     };
-
   } catch (error) {
     console.error('OAuth start error:', error);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         error: 'Failed to start OAuth flow',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      })
+        details: error instanceof Error ? error.message : 'Unknown error',
+      }),
     };
   }
 };
