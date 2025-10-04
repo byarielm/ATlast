@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Upload, User, Check, X, Search, ArrowRight, Users, FileText, ChevronRight } from "lucide-react";
 import JSZip from "jszip";
 import {
@@ -158,6 +158,7 @@ export default function App() {
   const [handle, setHandle] = useState("");
   const [appPassword, setAppPassword] = useState("");
   const [session, setSession] = useState<BskySession | null>(null);
+  const [useAppPassword, setUseAppPassword] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
@@ -178,7 +179,75 @@ export default function App() {
     },
   });
 
-  async function login() {
+  // Check for OAuth callback on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session');
+    const error = params.get('error');
+
+    if (error) {
+      alert(`Login failed: ${error}`);
+      window.history.replaceState({}, '', '/');
+      return;
+    }
+
+    if (sessionId) {
+      // Fetch session data from backend
+      fetch(`/.netlify/functions/session?session=${sessionId}`)
+        .then(res => {
+          if (!res.ok) throw new Error('Failed to load session');
+          return res.json();
+        })
+        .then(data => {
+          setSession({
+            did: data.did,
+            handle: data.handle,
+            accessJwt: data.accessToken,
+            serviceEndpoint: data.serviceEndpoint
+          });
+          setCurrentStep('upload');
+          window.history.replaceState({}, '', '/');
+        })
+        .catch(err => {
+          console.error('Session error:', err);
+          alert('Failed to load session');
+          window.history.replaceState({}, '', '/');
+        });
+    }
+  }, []);
+
+  // OAuth Login (Primary method)
+  async function loginWithOAuth() {
+    try {
+      if (!handle) {
+        alert("Enter your handle");
+        return;
+      }
+
+      // Start OAuth flow via backend
+      const res = await fetch('/.netlify/functions/oauth-start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ handle })
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Failed to start OAuth flow');
+      }
+
+      const { url } = await res.json();
+      
+      // Redirect to authorization server
+      window.location.href = url;
+    } catch (err) {
+      console.error("OAuth error:", err);
+      alert(`Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`);
+    }
+  }
+
+  // App Password Login (Fallback method)
+  async function loginWithAppPassword() {
   try {
     if (!handle || !appPassword) {
       alert("Enter handle and app password");
@@ -630,6 +699,24 @@ export default function App() {
                 />
               </div>
               
+              {!useAppPassword ? (
+                <>
+                  <button 
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
+                    onClick={loginWithOAuth}
+                  >
+                    Connect to the ATmosphere
+                  </button>
+                  
+                  <button
+                    onClick={() => setUseAppPassword(true)}
+                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline"
+                  >
+                    Use App Password instead
+                  </button>
+                </>
+              ) : (
+                <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   App Password
@@ -648,10 +735,19 @@ export default function App() {
               
               <button 
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
-                onClick={login}
+                onClick={loginWithAppPassword}
               >
-                Connect to the ATmosphere
+                Connect with App Password
               </button>
+
+              <button
+                    onClick={() => setUseAppPassword(false)}
+                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline"
+                  >
+                    Use OAuth instead (recommended)
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>

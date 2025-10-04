@@ -1,0 +1,28 @@
+{
+  "client_id": "https://atlast.byarielm.fyi/client-metadata.json",
+  "client_name": "ATlast - TikTok to Bluesky Sync",
+  "client_uri": "https://atlast.byarielm.fyi",
+  "redirect_uris": [
+    "https://atlast.byarielm.fyi/oauth/callback"
+  ],
+  "scope": "atproto transition:generic",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "application_type": "web",
+  "token_endpoint_auth_method": "private_key_jwt",
+  "dpop_bound_access_tokens": true,
+  "jwks_uri": "https://atlast.byarielm.fyi/.netlify/functions/jwks",
+  "jwks": {
+    "keys": [
+      {
+        "kty": "EC",
+        "x": "3sVbr4xwN7UtmG1L19vL0x9iN-FRcl7p-Wja_xPbhhk",       
+        "y": "Y1XKDaAyDwijp8aEIGHmO46huKjajSQH2cbfpWaWpQ4",       
+        "crv": "P-256",
+        "kid": "main-key",
+        "use": "sig",
+        "alg": "ES256"
+      }
+    ]
+  }
+}

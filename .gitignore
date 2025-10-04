@@ -1,4 +1,7 @@
+.env
 .vscode/
+.netlify/
 node_modules/
-# Local Netlify folder
-.netlify
+private-key.pem
+public-jwk.json
+keygen.js
