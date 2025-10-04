@@ -48,8 +48,16 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const client = new NodeOAuthClient({
       clientMetadata: {
         client_id: config.clientId,
+        client_name: 'ATlast - TikTok to Bluesky Sync',
+        client_uri: config.clientId.replace('/client-metadata.json', ''),
+        redirect_uris: [config.redirectUri],
+        scope: 'atproto transition:generic',
+        grant_types: ['authorization_code', 'refresh_token'],
+        response_types: ['code'],
+        application_type: 'web',
+        token_endpoint_auth_method: 'private_key_jwt',
+        dpop_bound_access_tokens: true,
         jwks_uri: config.jwksUri,
-        redirect_uris: [config.redirectUri], // required by TS
       },
       keyset: [privateKey],
       stateStore: stateStore as any,
