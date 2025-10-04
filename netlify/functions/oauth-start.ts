@@ -3,7 +3,7 @@ import { NodeOAuthClient } from '@atproto/oauth-client-node';
 import { JoseKey } from '@atproto/jwk-jose';
 import { stateStore, sessionStore } from './oauth-stores-db';
 import { getOAuthConfig } from './oauth-config';
-import { initDB } from './db';
+import { initDB } from './db'; // initDB is only kept for manual setup/migrations
 
 interface OAuthStartRequestBody {
   login_hint?: string;
@@ -18,8 +18,8 @@ function normalizePrivateKey(key: string): string {
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
-    // Initialize database
-    await initDB();
+    // The initDB() call is removed here. It should be run manually or as a scheduled function.
+    // await initDB(); 
 
     // Parse optional login_hint safely
     let loginHint: string | undefined = undefined;
@@ -38,8 +38,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     }
 
     // Validate private key
-    const privateKeyEnv = process.env.OAUTH_PRIVATE_KEY;
-    if (!privateKeyEnv) {
+    if (!process.env.OAUTH_PRIVATE_KEY) {
       console.error('OAUTH_PRIVATE_KEY not set');
       return {
         statusCode: 500,
@@ -48,9 +47,9 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
+    // Initialize OAuth client
     const config = getOAuthConfig();
-
-    const normalizedKey = normalizePrivateKey(privateKeyEnv);
+    const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
 
     // Initialize NodeOAuthClient with typed stores
@@ -76,7 +75,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Generate authorization URL
     const authUrl = await client.authorize(loginHint, {
-      scope: 'atproto transition:geeric'
+      scope: 'atproto transition:generic' // Fixed typo: 'geeric' -> 'generic'
     });
 
     return {
@@ -89,10 +88,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        error: 'Failed to start OAuth flow',
-        details: error instanceof Error ? error.message : 'Unknown error',
-      }),
+      body: JSON.stringify({ error: 'Failed to start OAuth flow' }),
     };
   }
 };

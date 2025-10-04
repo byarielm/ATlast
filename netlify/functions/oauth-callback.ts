@@ -3,6 +3,7 @@ import { NodeOAuthClient } from '@atproto/oauth-client-node';
 import { JoseKey } from '@atproto/jwk-jose';
 import { stateStore, sessionStore, userSessions } from './oauth-stores-db';
 import { getOAuthConfig } from './oauth-config';
+import * as crypto from 'crypto';
 
 function normalizePrivateKey(key: string): string {
   if (!key.includes('\n') && key.includes('\\n')) {
@@ -41,14 +42,16 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
+    // Initialize OAuth client
     const config = getOAuthConfig();
     const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
-    
+
     const client = new NodeOAuthClient({
       clientMetadata: {
         client_id: config.clientId,
         client_name: 'ATlast',
+        client_uri: config.clientId.replace('/client-metadata.json', ''),
         redirect_uris: [config.redirectUri],
         scope: 'atproto transition:generic',
         grant_types: ['authorization_code', 'refresh_token'],
@@ -65,24 +68,29 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     });
 
     const result = await client.callback(params);
-    
-    // Store just the DID - the OAuth client manages tokens via sessionStore
+
+    // The OAuth client has already stored the session in sessionStore
+    // We just need to create a mapping from session ID to DID
     const sessionId = crypto.randomUUID();
+    const did = result.session.did;
+
     await userSessions.set(sessionId, {
-      did: result.session.sub,
-      handle: result.session.sub, // Use DID, can resolve to handle later
-      serviceEndpoint: iss || 'https://bsky.social',
-      accessToken: result.session.sub, // Store DID as identifier for OAuth client restore
-      refreshToken: null,
-      tokens: { sub: result.session.sub },
+      did: did,
+      // The OAuth state is only needed for the callback, do not store it in the user session.
     });
 
     const baseUrl = process.env.URL || 'http://localhost:8888';
+    
+    // Determine if the 'Secure' flag should be set for the cookie
+    // Use 'Secure' in production (HTTPS) and omit it for local http:// development
+    const isSecure = baseUrl.startsWith('https');
+    const cookieFlags = `HttpOnly; SameSite=Lax; Max-Age=86400; Path=/${isSecure ? '; Secure' : ''}`;
+    
     return {
       statusCode: 302,
       headers: {
         'Location': `${baseUrl}/?session=${sessionId}`,
-        'Set-Cookie': `atlast_session=${sessionId}; HttpOnly; Secure; SameSite=Lax; Max-Age=86400; Path=/`
+        'Set-Cookie': `atlast_session=${sessionId}; ${cookieFlags}`
       },
       body: ''
     };
@@ -93,7 +101,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     return {
       statusCode: 302,
       headers: {
-        'Location': `${baseUrl}/?error=${encodeURIComponent(error instanceof Error ? error.message : 'OAuth failed')}`
+        'Location': `${baseUrl}/?error=OAuth failed`
       },
       body: ''
     };

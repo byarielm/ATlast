@@ -1,49 +1,57 @@
 import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
 import { userSessions } from './oauth-stores-db';
+import cookie from 'cookie';
+
+interface UserSession {
+  did: string;
+  handle: string;
+  service_endpoint: string;
+  // access_token removed for security: it should not be stored in the public user session.
+}
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
-    const sessionId = event.queryStringParameters?.session || 
-                     event.headers.cookie?.match(/atlast_session=([^;]+)/)?.[1];
+    const cookies = event.headers.cookie ? cookie.parse(event.headers.cookie) : {};
+    const sessionId =
+      event.queryStringParameters?.session || cookies.atlast_session;
 
     if (!sessionId) {
       return {
         statusCode: 401,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No session' })
+        body: JSON.stringify({ error: 'No session' }),
       };
     }
 
-    const session = await userSessions.get(sessionId);
+    const session = (await userSessions.get(sessionId)) as UserSession | undefined;
 
     if (!session) {
       return {
         statusCode: 401,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired session' })
+        body: JSON.stringify({ error: 'Invalid or expired session' }),
       };
     }
 
     return {
       statusCode: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // optional
+      },
       body: JSON.stringify({
         did: session.did,
         handle: session.handle,
         serviceEndpoint: session.service_endpoint,
-        accessToken: session.access_token
-      })
+        // accessToken: session.access_token, // ❌ omit for security
+      }),
     };
-
   } catch (error) {
     console.error('Session error:', error);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Failed to retrieve session',
-        details: error instanceof Error ? error.message : 'Unknown error'
-      })
+      body: JSON.stringify({ error: 'Internal server error' }),
     };
   }
 };
