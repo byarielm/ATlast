@@ -1,6 +1,6 @@
 {
   "client_id": "https://atlast.byarielm.fyi/client-metadata.json",
-  "client_name": "ATlast - TikTok to Bluesky Sync",
+  "client_name": "ATlast",
   "client_uri": "https://atlast.byarielm.fyi",
   "redirect_uris": [
     "https://atlast.byarielm.fyi/oauth/callback"

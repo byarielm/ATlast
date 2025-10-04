@@ -55,6 +55,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         response_types: ['code'],
         application_type: 'web',
         token_endpoint_auth_method: 'private_key_jwt',
+        token_endpoint_auth_signing_alg: 'ES256',
         dpop_bound_access_tokens: true,
         jwks_uri: config.jwksUri,
       },
