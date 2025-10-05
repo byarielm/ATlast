@@ -200,12 +200,15 @@ export default function App() {
           return res.json();
         })
         .then((data) => {
+          // Temporary: just store DID for now
+          // We'll add handle and serviceEndpoint when we build backend functions
           setSession({
             did: data.did,
-            handle: data.handle,
-            accessJwt: data.accessToken,
-            serviceEndpoint: data.serviceEndpoint,
+            handle: 'unknown', // placeholder
+            accessJwt: '', // no longer needed
+            serviceEndpoint: '', // no longer needed
           });
+          setCurrentStep('upload');
           window.history.replaceState({}, '', '/');
         })
         .catch((err) => {
