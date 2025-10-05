@@ -69,15 +69,12 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     const result = await client.callback(params);
 
-    // The OAuth client has already stored the session in sessionStore
-    // We just need to create a mapping from session ID to DID
+    // Store a simple session mapping: sessionId -> DID
+    // The OAuth client already stored the full session in sessionStore
     const sessionId = crypto.randomUUID();
     const did = result.session.did;
 
-    await userSessions.set(sessionId, {
-      did: did,
-      // The OAuth state is only needed for the callback, do not store it in the user session.
-    });
+    await userSessions.set(sessionId, { did });
 
     const baseUrl = process.env.URL || 'http://localhost:8888';
     

@@ -49,14 +49,18 @@ export class PostgresSessionStore {
     return (result as Record<string, any>[])[0]?.data as SessionData | undefined;
   }
 
-  async set(key: string, value: SessionData): Promise<void> {
+  async set(sessionId: string, data: { did: string; handle?: string; service_endpoint?: string; access_token?: string; state?: string }): Promise<void> {
     const sql = getDbClient();
-    // Session includes tokens, DPoP keys, etc.
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     await sql`
-      INSERT INTO oauth_sessions (key, data, expires_at)
-      VALUES (${key}, ${JSON.stringify(value)}, ${expiresAt})
-      ON CONFLICT (key) DO UPDATE SET data = ${JSON.stringify(value)}, expires_at = ${expiresAt}
+      INSERT INTO user_sessions (session_id, did, handle, service_endpoint, access_token, expires_at)
+      VALUES (${sessionId}, ${data.did}, ${data.handle || ''}, ${data.service_endpoint || ''}, ${data.access_token || ''}, ${expiresAt})
+      ON CONFLICT (session_id) DO UPDATE SET
+        did = ${data.did},
+        handle = ${data.handle || ''},
+        service_endpoint = ${data.service_endpoint || ''},
+        access_token = ${data.access_token || ''},
+        expires_at = ${expiresAt}
     `;
   }
 
@@ -67,17 +71,17 @@ export class PostgresSessionStore {
 }
 
 export class PostgresUserSessionStore {
-  async get(sessionId: string): Promise<any | undefined> {
+  async get(sessionId: string): Promise<{ did: string } | undefined> {
     const sql = getDbClient();
     const result = await sql`
-      SELECT * FROM user_sessions 
+      SELECT did FROM user_sessions 
       WHERE session_id = ${sessionId} AND expires_at > NOW()
     `;
-    // FIX: Cast result to an array of records to resolve TypeScript error 7053
-    return (result as Record<string, any>[])[0];
+    const row = (result as Record<string, any>[])[0];
+    return row ? { did: row.did } : undefined;
   }
 
-  async set(sessionId: string, data: { did: string; state?: string }): Promise<void> {
+  async set(sessionId: string, data: { did: string }): Promise<void> {
     const sql = getDbClient();
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
     await sql`
