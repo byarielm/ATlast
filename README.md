@@ -3,32 +3,7 @@ ATlast — you'll never need to find your favorites on another platform again. T
 
 ### Development  
 
-#### Test locally
+#### Deploy preview
 ```
-npm run dev
-```
-
-#### Build and preview
-```
-npm run build
-// npm run preview
-rm -r docs 
-mv dist docs
-```
-
-#### Enable debug mode
-```
-// Option 1: Add ?debug to URL
-// yourapp.com?debug
-
-// Option 2: Enable via browser console
-localStorage.setItem('debug', 'true');
-window.location.reload();
-```
-
-#### Disable debug mode
-```
-// Use the "Exit Debug Mode" button, or:
-localStorage.removeItem('debug');
-window.location.reload();
+netlify deploy
 ```

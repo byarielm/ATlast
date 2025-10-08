@@ -12,6 +12,7 @@
   "dependencies": {
     "@atcute/identity": "^1.1.0",
     "@atcute/identity-resolver": "^1.1.3",
+    "@atproto/api": "^0.17.0",
     "@atproto/identity": "^0.4.9",
     "@atproto/jwk-jose": "^0.1.10",
     "@atproto/oauth-client-node": "^0.3.8",

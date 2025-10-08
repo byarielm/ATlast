@@ -17,5 +17,5 @@
     "jsx": "react-jsx",
     "allowImportingTsExtensions": true
   },
-  "include": ["src"]
+  "include": ["src", "netlify/functions"]
 }

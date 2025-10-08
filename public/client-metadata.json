@@ -3,7 +3,8 @@
   "client_name": "ATlast",
   "client_uri": "https://atlast.byarielm.fyi",
   "redirect_uris": [
-    "https://atlast.byarielm.fyi/oauth/callback"
+    "https://atlast.byarielm.fyi/.netlify/functions/oauth-callback",
+    "https://*.netlify.app/.netlify/functions/oauth-callback"
   ],
   "scope": "atproto transition:generic",
   "grant_types": ["authorization_code", "refresh_token"],
