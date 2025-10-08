@@ -19,8 +19,10 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const state = params.get('state');
     const iss = params.get('iss');
 
+    console.log('OAuth callback running with baseUrl:', process.env.DEPLOY_PRIME_URL || process.env.URL);
+
     if (!code || !state) {
-      const baseUrl = process.env.URL || 'http://localhost:8888';
+      const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
       return {
         statusCode: 302,
         headers: {
@@ -32,7 +34,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     if (!process.env.OAUTH_PRIVATE_KEY) {
       console.error('OAUTH_PRIVATE_KEY not set');
-      const baseUrl = process.env.URL || 'http://localhost:8888';
+      const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
       return {
         statusCode: 302,
         headers: {
@@ -76,7 +78,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     await userSessions.set(sessionId, { did });
 
-    const baseUrl = process.env.URL || 'http://localhost:8888';
+    const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
     
     // Determine if the 'Secure' flag should be set for the cookie
     // Use 'Secure' in production (HTTPS) and omit it for local http:// development
@@ -94,7 +96,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
   } catch (error) {
     console.error('OAuth callback error:', error);
-    const baseUrl = process.env.URL || 'http://localhost:8888';
+    const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
     return {
       statusCode: 302,
       headers: {

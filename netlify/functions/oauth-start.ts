@@ -7,6 +7,7 @@ import { initDB } from './db'; // initDB is only kept for manual setup/migration
 
 interface OAuthStartRequestBody {
   login_hint?: string;
+  origin?: string; // The actual origin the frontend is running on
 }
 
 function normalizePrivateKey(key: string): string {
@@ -20,12 +21,22 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
   try {
     // The initDB() call is removed here. It should be run manually or as a scheduled function.
     // await initDB(); 
+    console.log('OAuth Start - Environment:', {
+      URL: process.env.URL,
+      DEPLOY_PRIME_URL: process.env.DEPLOY_PRIME_URL,
+      NETLIFY: process.env.NETLIFY,
+      hasPrivateKey: !!process.env.OAUTH_PRIVATE_KEY,
+      hasDbUrl: !!process.env.NETLIFY_DATABASE_URL
+    });
 
-    // Parse optional login_hint safely
+    // Parse request body
     let loginHint: string | undefined = undefined;
+    let requestOrigin: string | undefined = undefined;
+    
     if (event.body) {
       const parsed: OAuthStartRequestBody = JSON.parse(event.body);
       loginHint = parsed.login_hint;
+      requestOrigin = parsed.origin;
     }
 
     // Validate login hint is provided
@@ -36,6 +47,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         body: JSON.stringify({ error: 'login_hint (handle or DID) is required' }),
       };
     }
+    
+    console.log('OAuth Start - Request origin:', requestOrigin);
 
     // Validate private key
     if (!process.env.OAUTH_PRIVATE_KEY) {
@@ -52,13 +65,53 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
 
+     // CRITICAL: client_id must always be the production URL where metadata is hosted
+    // Only redirect_uri changes for preview deploys
+    const productionUrl = process.env.URL || 'https://atlast.byarielm.fyi';
+    const actualClientId = `${productionUrl}/client-metadata.json`;
+    const actualJwksUri = `${productionUrl}/.netlify/functions/jwks`;
+    
+    // But redirect should go to where the user actually is
+    const actualRedirectUri = requestOrigin 
+      ? `${requestOrigin}/.netlify/functions/oauth-callback`
+      : config.redirectUri;
+    
+    console.log('OAuth URLs:', {
+      clientId: actualClientId,
+      redirectUri: actualRedirectUri,
+      jwksUri: actualJwksUri,
+      requestOrigin
+    });
+
+    // DEBUG: Check what the client metadata will contain
+    const clientMetadata = {
+      client_id: actualClientId,
+      client_name: 'ATlast',
+      client_uri: productionUrl,
+      redirect_uris: [actualRedirectUri],
+      scope: 'atproto transition:generic',
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'],
+      application_type: 'web',
+      token_endpoint_auth_method: 'private_key_jwt',
+      token_endpoint_auth_signing_alg: 'ES256',
+      dpop_bound_access_tokens: true,
+      jwks_uri: actualJwksUri,
+    };
+    
+    console.log('Client metadata redirect_uris:', clientMetadata.redirect_uris);
+    console.log('Authorizing with redirect_uri:', actualRedirectUri);
+
     // Initialize NodeOAuthClient with typed stores
     const client = new NodeOAuthClient({
       clientMetadata: {
-        client_id: config.clientId,
+        client_id: actualClientId,
         client_name: 'ATlast',
-        client_uri: config.clientId.replace('/client-metadata.json', ''),
-        redirect_uris: [config.redirectUri],
+        client_uri: productionUrl,
+        redirect_uris: [
+          'https://atlast.byarielm.fyi/.netlify/functions/oauth-callback',
+          'https://*.netlify.app/.netlify/functions/oauth-callback'
+        ],
         scope: 'atproto transition:generic',
         grant_types: ['authorization_code', 'refresh_token'],
         response_types: ['code'],
@@ -73,9 +126,12 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       sessionStore: sessionStore as any,
     });
 
+    console.log('Attempting authorization with redirect_uri:', actualRedirectUri);
+
     // Generate authorization URL
     const authUrl = await client.authorize(loginHint, {
-      scope: 'atproto transition:generic' // Fixed typo: 'geeric' -> 'generic'
+      scope: 'atproto transition:generic',
+      redirect_uri: actualRedirectUri as `https://${string}`
     });
 
     return {
