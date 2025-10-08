@@ -227,10 +227,15 @@ export default function App() {
         return;
       }
 
+      const currentOrigin = window.location.origin;
+      
       const res = await fetch('/.netlify/functions/oauth-start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login_hint: handle }),
+        body: JSON.stringify({ 
+          login_hint: handle,
+          origin: currentOrigin // Tell backend what URL we're actually on
+        }),
       });
 
       if (!res.ok) {
@@ -337,136 +342,9 @@ export default function App() {
     return users;
   }
 
-  // Parse TikTok Following data from .txt, .json, or .zip file
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    let users: TikTokUser[] = [];
-
-    try {
-      // Direct JSON upload
-      if (file.name.endsWith(".json")) {
-        users = await parseJsonFile(await file.text());
-        console.log(`Loaded ${users.length} TikTok users from JSON file`);
-      } else if (file.name.endsWith(".txt")) {
-      // Direct TXT upload
-        users = parseTxtFile(await file.text());
-        console.log(`Loaded ${users.length} TikTok users from TXT file`);
-      } else if (file.name.endsWith(".zip")) {
-      // ZIP upload - find Following.txt OR JSON
-        const zip = await JSZip.loadAsync(file);
-
-        // Looking for Following.txt
-        const followingFile =
-        zip.file("TikTok/Profile and Settings/Following.txt") ||
-        zip.file("Profile and Settings/Following.txt") ||
-        zip.files[
-          Object.keys(zip.files).find(
-            (path) => path.endsWith("Following.txt") && path.includes("Profile")
-          ) || ""
-        ];
-
-        if(followingFile) {
-          const followingText = await followingFile.async("string");
-          users = parseTxtFile(followingText);
-          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
-        } else {
-          // If no TXT, look for JSON at the top level
-          const jsonFileEntry = Object.values(zip.files).find(
-            (f) => f.name.endsWith(".json") && !f.dir
-          );
-
-          if (!jsonFileEntry) {
-            alert("Could not find Following.txt or a JSON file in the ZIP archive.");
-            return;
-          }
-
-          const jsonText = await jsonFileEntry.async("string");
-          users = await parseJsonFile(jsonText);
-          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
-        }
-      } else {
-        alert("Please upload a .txt, .json, or .zip file");
-        return;
-      }
-    } catch (error) {
-      console.error("Error processing file:", error);
-      alert("There was a problem processing the file. Please check that it's a valid TikTok data export.");
-      return;
-    }
-    
-    if (users.length === 0) {
-      alert("No users found in the file.");
-      return;
-    }
-
-    // Initialize search results
-    const initialResults: SearchResult[] = users.map(user => ({
-      tiktokUser: user,
-      bskyMatches: [],
-      isSearching: false,
-      selectedMatches: new Set<string>(),
-    }));
-
-    setSearchResults(initialResults);
-
-    setCurrentStep('results');
-
-    // Automatically start searching once users are loaded
-    setTimeout(() => searchAllUsers(initialResults), 100);
-  }
-
-  // Search Bluesky by handle
-  async function searchSingleUser(username: string): Promise<any[]> {
-    if (!session) return [];
-
-    try {
-      // Search for exact username first
-      const res = await fetch(
-        `${session.serviceEndpoint}/xrpc/app.bsky.actor.searchActors?q=${encodeURIComponent(username)}&limit=20`,
-        { headers: { Authorization: `Bearer ${session.accessJwt}` } }
-      );
-
-      if (!res.ok) {
-        throw new Error(`Search failed: ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      // Filter and rank matches
-      const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
-      const normalizedUsername = normalize(username);
-
-      return data.actors.map((actor: any) => {
-        const handlePart = actor.handle.split('.')[0]; // get part before first dot
-        const normalizedHandle = normalize(handlePart);
-        const normalizedFullHandle = normalize(actor.handle);
-        const normalizedDisplayName = normalize(actor.displayName || '');
-
-        // Calculate match score
-        let score = 0;
-        if (normalizedHandle === normalizedUsername) score = 100;
-        else if (normalizedFullHandle === normalizedUsername) score = 90;
-        else if (normalizedDisplayName === normalizedUsername) score = 80;
-        else if (normalizedHandle.includes(normalizedUsername)) score = 60;
-        else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
-        else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
-        else if (normalizedUsername.includes(normalizedHandle)) score = 30;
-
-        return { ...actor, matchScore: score };
-      })
-      .filter((actor: any) => actor.matchScore > 0)
-      .sort((a: any, b: any) => b.matchScore - a.matchScore)
-      .slice(0, 5);
-    } catch (error) {
-      console.error(`Search error for ${username}:`, error);
-      return [];
-    }
-  }
-
   // Search all users
   async function searchAllUsers(resultsToSearch?: SearchResult[]) {
+    console.log('sau Session value:', session);
     const targetResults = resultsToSearch || searchResults;
     if (!session || targetResults.length === 0) return;
     
@@ -552,6 +430,131 @@ export default function App() {
     
     setIsSearchingAll(false);
     setCurrentStep('results');
+  }
+
+  // Parse TikTok Following data from .txt, .json, or .zip file
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    let users: TikTokUser[] = [];
+
+    try {
+      // Direct JSON upload
+      if (file.name.endsWith(".json")) {
+        users = await parseJsonFile(await file.text());
+        console.log(`Loaded ${users.length} TikTok users from JSON file`);
+      } else if (file.name.endsWith(".txt")) {
+      // Direct TXT upload
+        users = parseTxtFile(await file.text());
+        console.log(`Loaded ${users.length} TikTok users from TXT file`);
+      } else if (file.name.endsWith(".zip")) {
+      // ZIP upload - find Following.txt OR JSON
+        const zip = await JSZip.loadAsync(file);
+
+        // Looking for Following.txt
+        const followingFile =
+        zip.file("TikTok/Profile and Settings/Following.txt") ||
+        zip.file("Profile and Settings/Following.txt") ||
+        zip.files[
+          Object.keys(zip.files).find(
+            (path) => path.endsWith("Following.txt") && path.includes("Profile")
+          ) || ""
+        ];
+
+        if(followingFile) {
+          const followingText = await followingFile.async("string");
+          users = parseTxtFile(followingText);
+          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+        } else {
+          // If no TXT, look for JSON at the top level
+          const jsonFileEntry = Object.values(zip.files).find(
+            (f) => f.name.endsWith(".json") && !f.dir
+          );
+
+          if (!jsonFileEntry) {
+            alert("Could not find Following.txt or a JSON file in the ZIP archive.");
+            return;
+          }
+
+          const jsonText = await jsonFileEntry.async("string");
+          users = await parseJsonFile(jsonText);
+          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+        }
+      } else {
+        alert("Please upload a .txt, .json, or .zip file");
+        return;
+      }
+    } catch (error) {
+      console.error("Error processing file:", error);
+      alert("There was a problem processing the file. Please check that it's a valid TikTok data export.");
+      return;
+    }
+    
+    if (users.length === 0) {
+      alert("No users found in the file.");
+      return;
+    }
+
+    // Initialize search results
+    const initialResults: SearchResult[] = users.map(user => ({
+      tiktokUser: user,
+      bskyMatches: [],
+      isSearching: false,
+      selectedMatches: new Set<string>(),
+    }));
+
+    setSearchResults(initialResults);
+    await searchAllUsers(initialResults);
+
+    setCurrentStep('results');
+  }
+
+  // Search Bluesky by handle
+  async function searchSingleUser(username: string): Promise<any[]> {
+    if (!session) return [];
+
+    try {
+      // Always use backend proxy for OAuth
+      const res = await fetch(
+        `/.netlify/functions/search-actors?q=${encodeURIComponent(username)}`,
+        { credentials: 'include' }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Search failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // Filter and rank matches
+      const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
+      const normalizedUsername = normalize(username);
+
+      return (data.actors || []).map((actor: any) => {
+        const handlePart = actor.handle.split('.')[0];
+        const normalizedHandle = normalize(handlePart);
+        const normalizedFullHandle = normalize(actor.handle);
+        const normalizedDisplayName = normalize(actor.displayName || '');
+
+        let score = 0;
+        if (normalizedHandle === normalizedUsername) score = 100;
+        else if (normalizedFullHandle === normalizedUsername) score = 90;
+        else if (normalizedDisplayName === normalizedUsername) score = 80;
+        else if (normalizedHandle.includes(normalizedUsername)) score = 60;
+        else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
+        else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
+        else if (normalizedUsername.includes(normalizedHandle)) score = 30;
+
+        return { ...actor, matchScore: score };
+      })
+      .filter((actor: any) => actor.matchScore > 0)
+      .sort((a: any, b: any) => b.matchScore - a.matchScore)
+      .slice(0, 5);
+    } catch (error) {
+      console.error(`Search error for ${username}:`, error);
+      return [];
+    }
   }
 
   // Toggle selection for a specific match
