@@ -108,10 +108,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         client_id: actualClientId,
         client_name: 'ATlast',
         client_uri: productionUrl,
-        redirect_uris: [
-          'https://atlast.byarielm.fyi/.netlify/functions/oauth-callback',
-          'https://*.netlify.app/.netlify/functions/oauth-callback'
-        ],
+        redirect_uris: [actualRedirectUri],
         scope: 'atproto transition:generic',
         grant_types: ['authorization_code', 'refresh_token'],
         response_types: ['code'],
@@ -119,7 +116,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         token_endpoint_auth_method: 'private_key_jwt',
         token_endpoint_auth_signing_alg: 'ES256',
         dpop_bound_access_tokens: true,
-        jwks_uri: config.jwksUri,
+        jwks_uri: actualJwksUri,
       },
       keyset: [privateKey],
       stateStore: stateStore as any,
@@ -131,7 +128,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     // Generate authorization URL
     const authUrl = await client.authorize(loginHint, {
       scope: 'atproto transition:generic',
-      redirect_uri: actualRedirectUri as `https://${string}`
+      //redirect_uri: actualRedirectUri as `https://${string}`
     });
 
     return {
