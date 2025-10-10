@@ -17,7 +17,7 @@ export function getOAuthConfig() {
   const redirectUri = `${baseUrl}/.netlify/functions/oauth-callback`;
 
   return {
-    clientId: `${baseUrl}/client-metadata.json`, // discoverable client URL
+    clientId: `${baseUrl}/.netlify/functions/client-metadata`, // discoverable client URL
     redirectUri,
     jwksUri: `${baseUrl}/.netlify/functions/jwks`,
     clientType: 'discoverable' as const,

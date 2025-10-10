@@ -53,7 +53,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       clientMetadata: {
         client_id: config.clientId,
         client_name: 'ATlast',
-        client_uri: config.clientId.replace('/client-metadata.json', ''),
+        client_uri: config.clientId.replace('/client-metadata', ''),
         redirect_uris: [config.redirectUri],
         scope: 'atproto transition:generic',
         grant_types: ['authorization_code', 'refresh_token'],
@@ -78,12 +78,12 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     await userSessions.set(sessionId, { did });
 
-    const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
+    const baseUrl = process.env.URL || 'https://atlast.byarielm.fyi';
     
     // Determine if the 'Secure' flag should be set for the cookie
     // Use 'Secure' in production (HTTPS) and omit it for local http:// development
     const isSecure = baseUrl.startsWith('https');
-    const cookieFlags = `HttpOnly; SameSite=Lax; Max-Age=86400; Path=/${isSecure ? '; Secure' : ''}`;
+    const cookieFlags = 'HttpOnly; SameSite=Lax; Max-Age=86400; Path=/; Secure';
     
     return {
       statusCode: 302,

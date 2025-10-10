@@ -19,15 +19,7 @@ function normalizePrivateKey(key: string): string {
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
-    // The initDB() call is removed here. It should be run manually or as a scheduled function.
     // await initDB(); 
-    console.log('OAuth Start - Environment:', {
-      URL: process.env.URL,
-      DEPLOY_PRIME_URL: process.env.DEPLOY_PRIME_URL,
-      NETLIFY: process.env.NETLIFY,
-      hasPrivateKey: !!process.env.OAUTH_PRIVATE_KEY,
-      hasDbUrl: !!process.env.NETLIFY_DATABASE_URL
-    });
 
     // Parse request body
     let loginHint: string | undefined = undefined;
@@ -65,50 +57,29 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
 
-     // CRITICAL: client_id must always be the production URL where metadata is hosted
-    // Only redirect_uri changes for preview deploys
-    const productionUrl = process.env.URL || 'https://atlast.byarielm.fyi';
-    const actualClientId = `${productionUrl}/client-metadata.json`;
-    const actualJwksUri = `${productionUrl}/.netlify/functions/jwks`;
-    
-    // But redirect should go to where the user actually is
-    const actualRedirectUri = requestOrigin 
-      ? `${requestOrigin}/.netlify/functions/oauth-callback`
-      : config.redirectUri;
-    
+    // Use dynamic client-metadata, which will generate correct redirect_uri
+    const productionUrl = 'https://atlast.byarielm.fyi';
+    const clientMetadataUrl = `${productionUrl}/.netlify/functions/client-metadata`;
+    const jwksUri = `${productionUrl}/.netlify/functions/jwks`;
+
     console.log('OAuth URLs:', {
-      clientId: actualClientId,
-      redirectUri: actualRedirectUri,
-      jwksUri: actualJwksUri,
+      clientMetadataUrl,
       requestOrigin
     });
 
-    // DEBUG: Check what the client metadata will contain
-    const clientMetadata = {
-      client_id: actualClientId,
-      client_name: 'ATlast',
-      client_uri: productionUrl,
-      redirect_uris: [actualRedirectUri],
-      scope: 'atproto transition:generic',
-      grant_types: ['authorization_code', 'refresh_token'],
-      response_types: ['code'],
-      application_type: 'web',
-      token_endpoint_auth_method: 'private_key_jwt',
-      token_endpoint_auth_signing_alg: 'ES256',
-      dpop_bound_access_tokens: true,
-      jwks_uri: actualJwksUri,
-    };
-    
-    console.log('Client metadata redirect_uris:', clientMetadata.redirect_uris);
-    console.log('Authorizing with redirect_uri:', actualRedirectUri);
+    // Build a placeholder redirect_uri for the metadata
+    // OAuth client will fetch metadata from client_id and use that instead
+    const placeholderRedirectUri = requestOrigin 
+      ? `${requestOrigin}/.netlify/functions/oauth-callback`
+      : `${productionUrl}/.netlify/functions/oauth-callback`;
 
     // Initialize NodeOAuthClient with typed stores
     const client = new NodeOAuthClient({
       clientMetadata: {
-        client_id: actualClientId,
+        client_id: clientMetadataUrl,
         client_name: 'ATlast',
         client_uri: productionUrl,
-        redirect_uris: [actualRedirectUri],
+        redirect_uris: [placeholderRedirectUri], // placeholder; populated with metadata fetch
         scope: 'atproto transition:generic',
         grant_types: ['authorization_code', 'refresh_token'],
         response_types: ['code'],
@@ -116,19 +87,18 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         token_endpoint_auth_method: 'private_key_jwt',
         token_endpoint_auth_signing_alg: 'ES256',
         dpop_bound_access_tokens: true,
-        jwks_uri: actualJwksUri,
+        jwks_uri: jwksUri,
       },
       keyset: [privateKey],
       stateStore: stateStore as any,
       sessionStore: sessionStore as any,
     });
 
-    console.log('Attempting authorization with redirect_uri:', actualRedirectUri);
+    console.log('OAuth client initialized with placeholder redirect_uri:', placeholderRedirectUri);
 
     // Generate authorization URL
     const authUrl = await client.authorize(loginHint, {
       scope: 'atproto transition:generic',
-      //redirect_uri: actualRedirectUri as `https://${string}`
     });
 
     return {
