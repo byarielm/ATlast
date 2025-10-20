@@ -13,20 +13,23 @@ function normalizePrivateKey(key: string): string {
 }
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
+  let currentHost = event.headers.host;
+  let currentUrl = currentHost ? `https://${currentHost}` : process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://atlast.byarielm.fyi'; 
+  const fallbackUrl = currentUrl;
+
   try {
     const params = new URLSearchParams(event.rawUrl.split('?')[1] || '');
     const code = params.get('code');
     const state = params.get('state');
-    const iss = params.get('iss');
 
-    console.log('OAuth callback running with baseUrl:', process.env.DEPLOY_PRIME_URL || process.env.URL);
+    console.log('OAuth callback - Host:', event.headers.host);
+    console.log('OAuth callback - currentUrl resolved to:', currentUrl);
 
     if (!code || !state) {
-      const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
       return {
         statusCode: 302,
         headers: {
-          'Location': `${baseUrl}/?error=Missing OAuth parameters`
+          'Location': `${currentUrl}/?error=Missing OAuth parameters`
         },
         body: ''
       };
@@ -34,36 +37,49 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     if (!process.env.OAUTH_PRIVATE_KEY) {
       console.error('OAUTH_PRIVATE_KEY not set');
-      const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
       return {
         statusCode: 302,
         headers: {
-          'Location': `${baseUrl}/?error=Server configuration error`
+          'Location': `${currentUrl}/?error=Server configuration error`
         },
         body: ''
       };
     }
 
-    // Initialize OAuth client
-    const config = getOAuthConfig();
     const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
+    
+    // All URIs must now be based on the current deploy URL/host
+    const redirectUri = `${currentUrl}/.netlify/functions/oauth-callback`;
+    const jwksUri = `${currentUrl}/.netlify/functions/jwks`; // NOW DYNAMIC URL
+    const clientId = `${currentUrl}/.netlify/functions/client-metadata`; // NOW DYNAMIC URL
 
+    console.log('OAuth callback URLs:', {
+      redirectUri,
+      jwksUri,
+      clientId,
+      currentUrl
+    });
+
+    // Build metadata dynamically based on the current environment
+    const clientMetadata = {
+      client_id: clientId, // NOW DYNAMIC URL
+      client_name: 'ATlast',
+      client_uri: currentUrl,
+      redirect_uris: [redirectUri],
+      scope: 'atproto transition:generic',
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'],
+      application_type: 'web',
+      token_endpoint_auth_method: 'private_key_jwt',
+      token_endpoint_auth_signing_alg: 'ES256',
+      dpop_bound_access_tokens: true,
+      jwks_uri: jwksUri, // NOW DYNAMIC URL
+    };
+
+    // Initialize OAuth client with dynamic metadata
     const client = new NodeOAuthClient({
-      clientMetadata: {
-        client_id: config.clientId,
-        client_name: 'ATlast',
-        client_uri: config.clientId.replace('/client-metadata', ''),
-        redirect_uris: [config.redirectUri],
-        scope: 'atproto transition:generic',
-        grant_types: ['authorization_code', 'refresh_token'],
-        response_types: ['code'],
-        application_type: 'web',
-        token_endpoint_auth_method: 'private_key_jwt',
-        token_endpoint_auth_signing_alg: 'ES256',
-        dpop_bound_access_tokens: true,
-        jwks_uri: config.jwksUri,
-      },
+      clientMetadata: clientMetadata as any,
       keyset: [privateKey],
       stateStore: stateStore as any,
       sessionStore: sessionStore as any,
@@ -72,23 +88,17 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const result = await client.callback(params);
 
     // Store a simple session mapping: sessionId -> DID
-    // The OAuth client already stored the full session in sessionStore
     const sessionId = crypto.randomUUID();
     const did = result.session.did;
 
     await userSessions.set(sessionId, { did });
 
-    const baseUrl = process.env.URL || 'https://atlast.byarielm.fyi';
-    
-    // Determine if the 'Secure' flag should be set for the cookie
-    // Use 'Secure' in production (HTTPS) and omit it for local http:// development
-    const isSecure = baseUrl.startsWith('https');
     const cookieFlags = 'HttpOnly; SameSite=Lax; Max-Age=86400; Path=/; Secure';
     
     return {
       statusCode: 302,
       headers: {
-        'Location': `${baseUrl}/?session=${sessionId}`,
+        'Location': `${currentUrl}/?session=${sessionId}`,
         'Set-Cookie': `atlast_session=${sessionId}; ${cookieFlags}`
       },
       body: ''
@@ -96,11 +106,11 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
   } catch (error) {
     console.error('OAuth callback error:', error);
-    const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
+    
     return {
       statusCode: 302,
       headers: {
-        'Location': `${baseUrl}/?error=OAuth failed`
+        'Location': `${currentUrl}/?error=OAuth failed: ${error instanceof Error ? error.message : 'Unknown error'}`
       },
       body: ''
     };

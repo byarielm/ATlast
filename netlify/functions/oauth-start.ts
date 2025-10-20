@@ -53,48 +53,64 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     }
 
     // Initialize OAuth client
-    const config = getOAuthConfig();
     const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
 
-    // Use dynamic client-metadata, which will generate correct redirect_uri
-    const productionUrl = 'https://atlast.byarielm.fyi';
-    const clientMetadataUrl = `${productionUrl}/.netlify/functions/client-metadata`;
-    const jwksUri = `${productionUrl}/.netlify/functions/jwks`;
+    // Use the dynamic config that Netlify sets for the build
+    const currentHost = event.headers.host;
 
+    if (!currentHost) {
+      console.error('Missing host header in function request');
+      return {
+        statusCode: 500,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Server could not determine current host for redirect' }),
+      };
+    }
+
+    const currentUrl = `https://${currentHost}`;
+
+    // Now, dynamically define the URIs using the CURRENT HOST
+    const redirectUri = `${currentUrl}/.netlify/functions/oauth-callback`;
+    const appUrl = currentUrl;
+    const jwksUri = `${currentUrl}/.netlify/functions/jwks`;
+    const clientId = `${currentUrl}/.netlify/functions/client-metadata`;
+    
     console.log('OAuth URLs:', {
-      clientMetadataUrl,
+      redirectUri,
+      appUrl,
+      jwksUri,
+      clientId,
       requestOrigin
     });
 
-    // Build a placeholder redirect_uri for the metadata
-    // OAuth client will fetch metadata from client_id and use that instead
-    const placeholderRedirectUri = requestOrigin 
-      ? `${requestOrigin}/.netlify/functions/oauth-callback`
-      : `${productionUrl}/.netlify/functions/oauth-callback`;
+    // Build metadata dynamically from environment
+    const clientMetadata = {
+      client_id: clientId,
+      client_name: 'ATlast',
+      client_uri: appUrl,
+      redirect_uris: [redirectUri],
+      scope: 'atproto transition:generic',
+      grant_types: ['authorization_code', 'refresh_token'],
+      response_types: ['code'],
+      application_type: 'web',
+      token_endpoint_auth_method: 'private_key_jwt',
+      token_endpoint_auth_signing_alg: 'ES256',
+      dpop_bound_access_tokens: true,
+      jwks_uri: jwksUri,
+    };
+
+    console.log('Client metadata:', clientMetadata);
 
     // Initialize NodeOAuthClient with typed stores
     const client = new NodeOAuthClient({
-      clientMetadata: {
-        client_id: clientMetadataUrl,
-        client_name: 'ATlast',
-        client_uri: productionUrl,
-        redirect_uris: [placeholderRedirectUri], // placeholder; populated with metadata fetch
-        scope: 'atproto transition:generic',
-        grant_types: ['authorization_code', 'refresh_token'],
-        response_types: ['code'],
-        application_type: 'web',
-        token_endpoint_auth_method: 'private_key_jwt',
-        token_endpoint_auth_signing_alg: 'ES256',
-        dpop_bound_access_tokens: true,
-        jwks_uri: jwksUri,
-      },
+      clientMetadata: clientMetadata as any,
       keyset: [privateKey],
       stateStore: stateStore as any,
       sessionStore: sessionStore as any,
     });
 
-    console.log('OAuth client initialized with placeholder redirect_uri:', placeholderRedirectUri);
+    console.log('OAuth client initialized with redirect_uri:', redirectUri);
 
     // Generate authorization URL
     const authUrl = await client.authorize(loginHint, {

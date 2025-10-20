@@ -17,18 +17,14 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     // Build the redirect URI based on the requesting host
     const redirectUri = `https://${requestHost}/.netlify/functions/oauth-callback`;
     const appUrl = `https://${requestHost}`;
-    
-    // The jwksUri always points to production (must be publicly accessible and consistent)
-    const jwksUri = 'https://atlast.byarielm.fyi/.netlify/functions/jwks';
-    
-    // The client_id also always points to production
-    const clientId = 'https://atlast.byarielm.fyi/.netlify/functions/client-metadata';
+    const jwksUri = `https://${requestHost}/.netlify/functions/jwks`;
+    const clientId = `https://${requestHost}/.netlify/functions/client-metadata`;
 
     console.log('Client metadata generated for host:', {
       requestHost,
       redirectUri,
       appUrl,
-      clientId,
+      clientId, 
       jwksUri,
     });
 
