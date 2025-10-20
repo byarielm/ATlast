@@ -13,8 +13,8 @@ import {
 interface BskySession {
   did: string;
   handle: string;
-  accessJwt: string;
-  serviceEndpoint: string;
+  displayName?: string;
+  avatar?: string;
 }
 
 interface TikTokUser {
@@ -196,20 +196,20 @@ export default function App() {
     }
 
     if (sessionId) {
-      // Fetch session data from backend
-      fetch(`/.netlify/functions/session?session=${sessionId}`)
+      // Fetch profile data from backend
+      fetch(`/.netlify/functions/get-profile`, {
+        credentials: 'include'
+      })
         .then((res) => {
-          if (!res.ok) throw new Error('Failed to load session');
+          if (!res.ok) throw new Error('Failed to load profile');
           return res.json();
         })
         .then((data) => {
-          // Temporary: just store DID for now
-          // We'll add handle and serviceEndpoint when we build backend functions
           setSession({
             did: data.did,
-            handle: 'unknown', // placeholder
-            accessJwt: '', // no longer needed
-            serviceEndpoint: '', // no longer needed
+            handle: data.handle,
+            displayName: data.displayName,
+            avatar: data.avatar,
           });
           setCurrentStep('upload');
           window.history.replaceState({}, '', '/');
@@ -600,60 +600,57 @@ export default function App() {
   }
 
   // Follow all selected users
-  async function followSelectedUsers() {
-    if (!session || isFollowing) return; // prevent double-click
+async function followSelectedUsers() {
+  if (!session || isFollowing) return; // prevent double-click
 
-    const selectedUsers = searchResults.flatMap((result, resultIndex) => 
-      result.bskyMatches
-        .filter(match => result.selectedMatches?.has(match.did))
-        .map(match => ({ ...match, resultIndex }))
-    );
+  const selectedUsers = searchResults.flatMap((result, resultIndex) => 
+    result.bskyMatches
+      .filter(match => result.selectedMatches?.has(match.did))
+      .map(match => ({ ...match, resultIndex }))
+  );
 
-    if (selectedUsers.length === 0) {
-      alert("No users selected to follow");
-      return;
-    }
+  if (selectedUsers.length === 0) {
+    alert("No users selected to follow");
+    return;
+  }
 
-    setIsFollowing(true);
+  setIsFollowing(true);
 
-    try {
-      for (const user of selectedUsers) {
-        try {
-          const res = await fetch(`${session.serviceEndpoint}/xrpc/com.atproto.repo.createRecord`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${session.accessJwt}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              repo: session.did,
-              collection: "app.bsky.graph.follow",
-              record: {
-                $type: "app.bsky.graph.follow",
-                subject: user.did,
-                createdAt: new Date().toISOString(),
-              },
-            }),
-          });
-          
-          if (res.ok) {
-            // Mark as followed
-            setSearchResults(prev => prev.map((result, index) => 
-              index === user.resultIndex 
-                ? { ...result, bskyMatches: result.bskyMatches.map(match => 
-                    match.did === user.did ? { ...match, followed: true } : match
-                  )}
-                : result
-            ));
-          }
-        } catch (error) {
-          console.error(`Follow error for ${user.handle}:`, error);
-        }
+  try {
+    for (const user of selectedUsers) {
+      try {
+        const res = await fetch(`/.netlify/functions/follow-user`, {
+          method: "POST",
+          credentials: 'include',
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            did: user.did,
+          }),
+        });
         
-        // Add small delay between follows
-        await new Promise(resolve => setTimeout(resolve, 500));
+        if (res.ok) {
+          // Mark as followed
+          setSearchResults(prev => prev.map((result, index) => 
+            index === user.resultIndex 
+              ? { ...result, bskyMatches: result.bskyMatches.map(match => 
+                  match.did === user.did ? { ...match, followed: true } : match
+                )}
+              : result
+          ));
+        } else {
+          const errorData = await res.json();
+          console.error(`Follow error for ${user.handle}:`, errorData);
+        }
+      } catch (error) {
+        console.error(`Follow error for ${user.handle}:`, error);
       }
-    } catch (error) {
+      
+      // Add small delay between follows
+      await new Promise(resolve => setTimeout(resolve, 500));
+    }
+  } catch (error) {
     console.error("Batch follow error:", error);
   } finally {
     setIsFollowing(false);
