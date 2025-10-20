@@ -120,6 +120,7 @@ function MatchCarousel({
             <button
               onClick={prevMatch}
               className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              aria-label="Previous match"
             >
               <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
             </button>
@@ -128,6 +129,7 @@ function MatchCarousel({
             <button
               onClick={nextMatch}
               className="p-2 hover:bg-gray-200 rounded-full transition-colors"
+              aria-label="Next match"
             >
               <ChevronRight className="w-5 h-5 text-gray-600" />
             </button>
@@ -163,7 +165,8 @@ export default function App() {
   const [isSearchingAll, setIsSearchingAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
   const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
-  const [loginHint, setLoginHint] = useState<string>('');
+  const [isFollowing, setIsFollowing] = useState(false);
+
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
     methods: {
@@ -598,7 +601,7 @@ export default function App() {
 
   // Follow all selected users
   async function followSelectedUsers() {
-    if (!session) return;
+    if (!session || isFollowing) return; // prevent double-click
 
     const selectedUsers = searchResults.flatMap((result, resultIndex) => 
       result.bskyMatches
@@ -611,43 +614,51 @@ export default function App() {
       return;
     }
 
-    for (const user of selectedUsers) {
-      try {
-        const res = await fetch(`${session.serviceEndpoint}/xrpc/com.atproto.repo.createRecord`, {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${session.accessJwt}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            repo: session.did,
-            collection: "app.bsky.graph.follow",
-            record: {
-              $type: "app.bsky.graph.follow",
-              subject: user.did,
-              createdAt: new Date().toISOString(),
+    setIsFollowing(true);
+
+    try {
+      for (const user of selectedUsers) {
+        try {
+          const res = await fetch(`${session.serviceEndpoint}/xrpc/com.atproto.repo.createRecord`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${session.accessJwt}`,
+              "Content-Type": "application/json",
             },
-          }),
-        });
-        
-        if (res.ok) {
-          // Mark as followed
-          setSearchResults(prev => prev.map((result, index) => 
-            index === user.resultIndex 
-              ? { ...result, bskyMatches: result.bskyMatches.map(match => 
-                  match.did === user.did ? { ...match, followed: true } : match
-                )}
-              : result
-          ));
+            body: JSON.stringify({
+              repo: session.did,
+              collection: "app.bsky.graph.follow",
+              record: {
+                $type: "app.bsky.graph.follow",
+                subject: user.did,
+                createdAt: new Date().toISOString(),
+              },
+            }),
+          });
+          
+          if (res.ok) {
+            // Mark as followed
+            setSearchResults(prev => prev.map((result, index) => 
+              index === user.resultIndex 
+                ? { ...result, bskyMatches: result.bskyMatches.map(match => 
+                    match.did === user.did ? { ...match, followed: true } : match
+                  )}
+                : result
+            ));
+          }
+        } catch (error) {
+          console.error(`Follow error for ${user.handle}:`, error);
         }
-      } catch (error) {
-        console.error(`Follow error for ${user.handle}:`, error);
+        
+        // Add small delay between follows
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
-      
-      // Add small delay between follows
-      await new Promise(resolve => setTimeout(resolve, 500));
-    }
+    } catch (error) {
+    console.error("Batch follow error:", error);
+  } finally {
+    setIsFollowing(false);
   }
+}
 
   const totalSelected = searchResults.reduce((total, result) => 
     total + (result.selectedMatches?.size || 0), 0
@@ -689,29 +700,38 @@ export default function App() {
               <p className="text-gray-600">Connect your ATmosphere account to sync your TikTok follows</p>
             </div>
 
-            <div className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!useAppPassword) loginWithOAuth();
+                else loginWithAppPassword();
+              }}
+              className="space-y-4"
+            >
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="user-handle" className="block text-sm font-medium text-gray-700 mb-2">
                   User Handle
                 </label>
                 <input
+                  id="user-handle"
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="yourhandle.bsky.social"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value)}
                 />
               </div>
-              
+
               {!useAppPassword ? (
                 <>
-                  <button 
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
-                    onClick={loginWithOAuth}
+                  <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
                   >
                     Connect to the ATmosphere
                   </button>
-                  
+
                   <button
+                    type="button"
                     onClick={() => setUseAppPassword(true)}
                     className="w-full text-sm text-gray-600 hover:text-gray-900 underline"
                   >
@@ -720,30 +740,31 @@ export default function App() {
                 </>
               ) : (
                 <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  App Password
-                </label>
-                <input
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  type="password"
-                  placeholder="Not your regular password!"
-                  value={appPassword}
-                  onChange={(e) => setAppPassword(e.target.value)}
-                />
-                <p className="text-xs text-gray-500 mt-1">
-                  Generate this in your Bluesky settings
-                </p>
-              </div>
-              
-              <button 
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl" 
-                onClick={loginWithAppPassword}
-              >
-                Connect with App Password
-              </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      App Password
+                    </label>
+                    <input
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      type="password"
+                      placeholder="Not your regular password!"
+                      value={appPassword}
+                      onChange={(e) => setAppPassword(e.target.value)}
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Generate this in your Bluesky settings
+                    </p>
+                  </div>
 
-              <button
+                  <button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                  >
+                    Connect with App Password
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={() => setUseAppPassword(false)}
                     className="w-full text-sm text-gray-600 hover:text-gray-900 underline"
                   >
@@ -751,7 +772,7 @@ export default function App() {
                   </button>
                 </>
               )}
-            </div>
+            </form>
           </div>
         </div>
       )}
@@ -769,24 +790,25 @@ export default function App() {
             </div>
 
             <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 transition-colors">
+              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 focus-within:border-blue-400 transition-colors">
                 <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <label className="cursor-pointer">
-                  <span className="text-lg font-medium text-gray-700 block mb-1">
-                    Choose File
-                  </span>
-                  <span className="text-sm text-gray-500 block mb-3">
-                    Following.txt or TikTok data ZIP
-                  </span>
-                  <input 
-                    type="file" 
-                    accept=".txt,.json,.zip"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                  />
-                  <div className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors">
-                    Browse Files
-                  </div>
+                <p className="text-lg font-medium text-gray-700 mb-1">Choose File</p>
+                <p className="text-sm text-gray-500 mb-3">Following.txt or TikTok data ZIP</p>
+
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept=".txt,.json,.zip"
+                  onChange={handleFileUpload}
+                  className="sr-only"
+                />
+
+                {/* this is the visible, focusable label */}
+                <label
+                  htmlFor="file-upload"
+                  className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 cursor-pointer"
+                >
+                  Browse Files
                 </label>
               </div>
 
@@ -923,9 +945,13 @@ export default function App() {
           <div className="p-4">
             <button
               onClick={followSelectedUsers}
+              disabled={isFollowing}
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-medium text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-              Follow {totalSelected} Selected Users
+              {isFollowing 
+                ? "Following Users..." 
+                : `Follow ${totalSelected} Selected Users`
+              }
             </button>
           </div>
         </div>
