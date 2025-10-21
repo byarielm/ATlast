@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Upload, User, Check, Search, ArrowRight, Users, FileText, ChevronRight } from "lucide-react";
 import JSZip from "jszip";
 import {
@@ -34,18 +34,24 @@ interface SearchResult {
 function MatchCarousel({ 
   matches, 
   selectedDids, 
-  onToggleSelection 
+  onToggleSelection,
+  cardRef
 }: { 
   matches: any[]; 
   selectedDids: Set<string>; 
   onToggleSelection: (did: string) => void;
+  cardRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
   
   const currentMatch = matches[currentIndex];
   const hasMore = matches.length > 1;
   const hasPrev = currentIndex > 0;
   const hasNext = currentIndex < matches.length - 1;
+  
+  const minSwipeDistance = 50;
   
   const nextMatch = () => {
     if (hasNext) {
@@ -59,22 +65,92 @@ function MatchCarousel({
     }
   };
   
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      prevMatch();
+    } else if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextMatch();
+    } else if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      onToggleSelection(currentMatch.did);
+    }
+  };
+  
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+  
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe && hasNext) {
+      nextMatch();
+    } else if (isRightSwipe && hasPrev) {
+      prevMatch();
+    }
+  };
+  
   return (
-    <div className="relative">
-      <div 
-        className={`flex items-center space-x-3 p-3 rounded-lg border transition-all ${
-          selectedDids.has(currentMatch.did) 
-            ? 'bg-blue-50 border-blue-200' 
+    <div 
+      className="relative" 
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+      <div
+        ref={(el) => {
+          if (cardRef) {
+            cardRef.current = el;
+          }
+        }}
+        className={`flex items-center space-x-3 p-3 rounded-lg border transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 ${
+          selectedDids.has(currentMatch.did)
+            ? 'bg-blue-50 border-blue-200'
             : 'bg-gray-50 border-gray-200'
         } ${currentMatch.followed ? 'opacity-60' : ''}`}
+        onKeyDown={handleKeyDown}
+        onFocus={(e) => {
+          if (e.target === e.currentTarget) {
+            e.currentTarget.scrollIntoView({
+              behavior: 'smooth',
+              block: 'center',
+              inline: 'nearest'
+            });
+          }
+        }}
+        tabIndex={0}
+        role="group"
+        aria-label={`Match ${currentIndex + 1} of ${matches.length}: ${currentMatch.displayName || currentMatch.handle}. Use arrow keys to navigate matches, space or enter to select.`}
       >
-        <input
-          type="checkbox"
-          checked={selectedDids.has(currentMatch.did)}
-          onChange={() => onToggleSelection(currentMatch.did)}
-          disabled={currentMatch.followed}
-          className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 flex-shrink-0"
-        />
+        <div 
+          className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer flex-shrink-0"
+          onClick={() => !currentMatch.followed && onToggleSelection(currentMatch.did)}
+          role="checkbox"
+          aria-checked={selectedDids.has(currentMatch.did)}
+          aria-disabled={currentMatch.followed}
+          aria-label={`Select ${currentMatch.displayName || currentMatch.handle}`}
+        >
+          <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
+            selectedDids.has(currentMatch.did) 
+              ? 'bg-blue-600 border-blue-600' 
+              : 'bg-white border-gray-300'
+          } ${currentMatch.followed ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            {selectedDids.has(currentMatch.did) && (
+              <Check className="w-3 h-3 text-white" />
+            )}
+          </div>
+        </div>
         
         {currentMatch.avatar ? (
           <img 
@@ -115,34 +191,27 @@ function MatchCarousel({
           </div>
         )}
         
-        <div className="flex items-center space-x-1 flex-shrink-0">
-          {hasPrev && (
-            <button
-              onClick={prevMatch}
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              aria-label="Previous match"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600 rotate-180" />
-            </button>
-          )}
-          {hasNext && (
-            <button
-              onClick={nextMatch}
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              aria-label="Next match"
-            >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
-            </button>
-          )}
-        </div>
+        {hasMore && (
+          <div className="flex items-center space-x-1 flex-shrink-0" aria-hidden="true">
+            {hasPrev && (
+              <div className="p-2 text-gray-400">
+                <ChevronRight className="w-5 h-5 rotate-180" />
+              </div>
+            )}
+            {hasNext && (
+              <div className="p-2 text-gray-400">
+                <ChevronRight className="w-5 h-5" />
+              </div>
+            )}
+          </div>
+        )}
       </div>
       
       {hasMore && (
-        <div className="flex items-center justify-center space-x-1 mt-2">
+        <div className="flex items-center justify-center space-x-2 mt-2" aria-hidden="true">
           {matches.map((_, idx) => (
-            <button
+            <div
               key={idx}
-              onClick={() => setCurrentIndex(idx)}
               className={`h-1.5 rounded-full transition-all ${
                 idx === currentIndex 
                   ? 'w-6 bg-blue-500' 
@@ -166,6 +235,7 @@ export default function App() {
   const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
   const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
   const [isFollowing, setIsFollowing] = useState(false);
+  const resultCardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
@@ -711,10 +781,13 @@ async function followSelectedUsers() {
                 </label>
                 <input
                   id="user-handle"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  type="text"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                   placeholder="yourhandle.bsky.social"
                   value={handle}
                   onChange={(e) => setHandle(e.target.value)}
+                  aria-required="true"
+                  autoComplete="username"
                 />
               </div>
 
@@ -722,17 +795,16 @@ async function followSelectedUsers() {
                 <>
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
                   >
                     Connect to the ATmosphere
                   </button>
 
                   <button
-                    type="button"
-                    onClick={() => setUseAppPassword(true)}
-                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline"
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
                   >
-                    Use App Password instead
+                    Connect with App Password
                   </button>
                 </>
               ) : (
@@ -742,28 +814,33 @@ async function followSelectedUsers() {
                       App Password
                     </label>
                     <input
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      id="app-password"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
                       type="password"
                       placeholder="Not your regular password!"
                       value={appPassword}
                       onChange={(e) => setAppPassword(e.target.value)}
+                      aria-required="true"
+                      autoComplete="off"
+                      aria-describedby="password-help"
                     />
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p id="password-help" className="text-xs text-gray-500 mt-1">
                       Generate this in your Bluesky settings
                     </p>
                   </div>
 
                   <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl"
+                    type="button"
+                    onClick={() => setUseAppPassword(true)}
+                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
                   >
-                    Connect with App Password
+                    Use App Password instead
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setUseAppPassword(false)}
-                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline"
+                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
                   >
                     Use OAuth instead (recommended)
                   </button>
@@ -803,7 +880,14 @@ async function followSelectedUsers() {
                 {/* this is the visible, focusable label */}
                 <label
                   htmlFor="file-upload"
-                  className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 cursor-pointer"
+                  className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-blue-400 focus-within:ring-offset-2"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      document.getElementById('file-upload')?.click();
+                    }
+                  }}
                 >
                   Browse Files
                 </label>
@@ -888,13 +972,15 @@ async function followSelectedUsers() {
               <div className="flex space-x-2">
                 <button
                   onClick={selectAllMatches}
-                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-h-[44px]"
+                  type="button"
                 >
                   Select All
                 </button>
                 <button
                   onClick={deselectAllMatches}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 min-h-[44px]"
+                  type="button"
                 >
                   Clear
                 </button>
@@ -922,6 +1008,7 @@ async function followSelectedUsers() {
                         matches={result.bskyMatches}
                         selectedDids={result.selectedMatches || new Set()}
                         onToggleSelection={(did) => toggleMatchSelection(index, did)}
+                        cardRef={{ current: resultCardRefs.current[index] || null }}
                       />
                     </div>
                   ) : (
@@ -943,7 +1030,9 @@ async function followSelectedUsers() {
             <button
               onClick={followSelectedUsers}
               disabled={isFollowing}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-medium text-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-medium text-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
+              type="button"
+              aria-live="polite"
             >
               {isFollowing 
                 ? "Following Users..." 
