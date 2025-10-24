@@ -266,6 +266,9 @@ export default function App() {
     }
 
     if (sessionId) {
+      // Set to upload immediately to prevent login page flash
+      setCurrentStep('upload');
+
       // Fetch profile data from backend
       fetch(`/.netlify/functions/get-profile`, {
         credentials: 'include'
@@ -737,7 +740,7 @@ async function followSelectedUsers() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Header */}
       <div className="bg-white shadow-sm border-b">
-        <div className="px-4 py-4">
+        <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
@@ -801,10 +804,10 @@ async function followSelectedUsers() {
                   </button>
 
                   <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
+                    type="button"
+                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
                   >
-                    Connect with App Password
+                    Use App Password insted
                   </button>
                 </>
               ) : (
@@ -955,7 +958,7 @@ async function followSelectedUsers() {
       {currentStep === 'results' && (
         <div className="pb-20">
           <div className="bg-white border-b">
-            <div className="px-4 py-4">
+            <div className="px-4 py-4 max-w-2xl mx-auto">
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Results</h2>
@@ -989,7 +992,7 @@ async function followSelectedUsers() {
           </div>
 
           {/* Results List */}
-          <div className="space-y-2 p-4">
+          <div className="space-y-2 p-4 max-w-2xl mx-auto">
             {searchResults.map((result, index) => (
               <div key={index} className="bg-white rounded-xl shadow-sm border">
                 <div className="p-4">
@@ -1026,7 +1029,7 @@ async function followSelectedUsers() {
       {/* Fixed Bottom Action Bar */}
       {currentStep === 'results' && totalSelected > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
-          <div className="p-4">
+          <div className="p-4 max-w-2xl mx-auto">
             <button
               onClick={followSelectedUsers}
               disabled={isFollowing}
