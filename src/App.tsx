@@ -100,6 +100,8 @@ function MatchCarousel({
       prevMatch();
     }
   };
+
+  const matchLabel = `${currentMatch.displayName || currentMatch.handle}, ${currentMatch.matchScore} percent match${currentMatch.followed ? ', already followed' : ''}${hasMore ? `, match ${currentIndex + 1} of ${matches.length}` : ''}`;
   
   return (
     <div 
@@ -130,16 +132,15 @@ function MatchCarousel({
           }
         }}
         tabIndex={0}
-        role="group"
-        aria-label={`Match ${currentIndex + 1} of ${matches.length}: ${currentMatch.displayName || currentMatch.handle}. Use arrow keys to navigate matches, space or enter to select.`}
+        role="button"
+        aria-label={matchLabel}
+        aria-pressed={selectedDids.has(currentMatch.did)}
+        aria-disabled={currentMatch.followed}
       >
         <div 
           className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer flex-shrink-0"
           onClick={() => !currentMatch.followed && onToggleSelection(currentMatch.did)}
-          role="checkbox"
-          aria-checked={selectedDids.has(currentMatch.did)}
-          aria-disabled={currentMatch.followed}
-          aria-label={`Select ${currentMatch.displayName || currentMatch.handle}`}
+          aria-hidden="true"
         >
           <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
             selectedDids.has(currentMatch.did) 
@@ -155,18 +156,18 @@ function MatchCarousel({
         {currentMatch.avatar ? (
           <img 
             src={currentMatch.avatar} 
-            alt={currentMatch.handle}
+            alt=""
             className="w-12 h-12 rounded-full object-cover flex-shrink-0"
           />
         ) : (
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
             <span className="text-white font-bold text-sm">
               {currentMatch.handle.charAt(0).toUpperCase()}
             </span>
           </div>
         )}
         
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0" aria-hidden="true">
           {currentMatch.displayName && (
             <div className="font-medium text-gray-900 truncate">
               {currentMatch.displayName}
@@ -183,7 +184,7 @@ function MatchCarousel({
         </div>
         
         {currentMatch.followed && (
-          <div className="flex-shrink-0">
+          <div className="flex-shrink-0" aria-hidden="true">
             <div className="flex items-center space-x-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
               <Check className="w-3 h-3" />
               <span>Followed</span>
@@ -235,8 +236,8 @@ export default function App() {
   const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
   const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
   const [isFollowing, setIsFollowing] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const resultCardRefs = useRef<(HTMLDivElement | null)[]>([]);
-
 
   const didDocumentResolver = new CompositeDidDocumentResolver({
     methods: {
@@ -260,6 +261,7 @@ export default function App() {
     const error = params.get('error');
 
     if (error) {
+      setStatusMessage(`Login failed: ${error}`);
       alert(`Login failed: ${error}`);
       window.history.replaceState({}, '', '/');
       return;
@@ -268,6 +270,7 @@ export default function App() {
     if (sessionId) {
       // Set to upload immediately to prevent login page flash
       setCurrentStep('upload');
+      setStatusMessage('Loading your session...');
 
       // Fetch profile data from backend
       fetch(`/.netlify/functions/get-profile`, {
@@ -285,10 +288,12 @@ export default function App() {
             avatar: data.avatar,
           });
           setCurrentStep('upload');
+          setStatusMessage(`Successfully logged in as ${data.handle}`);
           window.history.replaceState({}, '', '/');
         })
         .catch((err) => {
           console.error('Session error:', err);
+          setStatusMessage('Failed to load session');
           alert('Failed to load session');
           window.history.replaceState({}, '', '/');
         });
@@ -299,10 +304,13 @@ export default function App() {
   const loginWithOAuth = async () => {
     try {
       if (!handle) {
-        alert("Please enter your handle");
+        const errorMsg = "Please enter your handle";
+        setStatusMessage(errorMsg);
+        alert(errorMsg);
         return;
       }
 
+      setStatusMessage("Starting authentication...");
       const currentOrigin = window.location.origin;
       
       const res = await fetch('/.netlify/functions/oauth-start', {
@@ -320,12 +328,15 @@ export default function App() {
       }
 
       const { url } = await res.json();
+      setStatusMessage("Redirecting to authentication...");
       window.location.href = url; // redirect to authorization server
     } catch (err) {
       console.error('OAuth error:', err);
-      alert(`Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      const errorMsg = `Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      setStatusMessage(errorMsg);
+      alert(errorMsg);
     }
-  }
+  };
 
   // App Password Login (Fallback method)
   async function loginWithAppPassword() {
@@ -427,6 +438,7 @@ export default function App() {
     setIsSearchingAll(true);
     setCurrentStep('loading');
     setSearchProgress({ searched: 0, found: 0, total: targetResults.length });
+    setStatusMessage(`Starting search for ${targetResults.length} users...`);
     
     // Process users in batches to avoid rate limiting
     const batchSize = 3;
@@ -438,6 +450,7 @@ export default function App() {
       // Stop once MAX_MATCHES reached
       if (totalFound >= MAX_MATCHES) {
         console.log(`Reached limit of ${MAX_MATCHES} matches. Stopping search.`);
+        setStatusMessage(`Search complete. Found ${totalFound} matches out of 1000 maximum.`);
         break;
       }
 
@@ -471,6 +484,7 @@ export default function App() {
         }
       });
       setSearchProgress({ searched: totalSearched, found: totalFound, total: targetResults.length });
+      setStatusMessage(`Searched ${totalSearched} of ${targetResults.length} users. Found ${totalFound} matches.`);
 
       // Update results
       setSearchResults(prev => prev.map((result, index) => {
@@ -506,6 +520,7 @@ export default function App() {
     
     setIsSearchingAll(false);
     setCurrentStep('results');
+    setStatusMessage(`Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`);
   }
 
   // Parse TikTok Following data from .txt, .json, or .zip file
@@ -513,6 +528,7 @@ export default function App() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setStatusMessage(`Processing ${file.name}...`);
     let users: TikTokUser[] = [];
 
     try {
@@ -520,10 +536,12 @@ export default function App() {
       if (file.name.endsWith(".json")) {
         users = await parseJsonFile(await file.text());
         console.log(`Loaded ${users.length} TikTok users from JSON file`);
+        setStatusMessage(`Loaded ${users.length} users from JSON file`);
       } else if (file.name.endsWith(".txt")) {
       // Direct TXT upload
         users = parseTxtFile(await file.text());
         console.log(`Loaded ${users.length} TikTok users from TXT file`);
+        setStatusMessage(`Loaded ${users.length} users from TXT file`);
       } else if (file.name.endsWith(".zip")) {
       // ZIP upload - find Following.txt OR JSON
         const zip = await JSZip.loadAsync(file);
@@ -542,6 +560,7 @@ export default function App() {
           const followingText = await followingFile.async("string");
           users = parseTxtFile(followingText);
           console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+          setStatusMessage(`Loaded ${users.length} users from ZIP file`);
         } else {
           // If no TXT, look for JSON at the top level
           const jsonFileEntry = Object.values(zip.files).find(
@@ -549,26 +568,35 @@ export default function App() {
           );
 
           if (!jsonFileEntry) {
-            alert("Could not find Following.txt or a JSON file in the ZIP archive.");
+            const errorMsg = "Could not find Following.txt or a JSON file in the ZIP archive.";
+            setStatusMessage(errorMsg);
+            alert(errorMsg);
             return;
           }
 
           const jsonText = await jsonFileEntry.async("string");
           users = await parseJsonFile(jsonText);
           console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+          setStatusMessage(`Loaded ${users.length} users from ZIP file`);
         }
       } else {
-        alert("Please upload a .txt, .json, or .zip file");
+        const errorMsg = "Please upload a .txt, .json, or .zip file";
+        setStatusMessage(errorMsg);
+        alert(errorMsg);
         return;
       }
     } catch (error) {
       console.error("Error processing file:", error);
-      alert("There was a problem processing the file. Please check that it's a valid TikTok data export.");
+      const errorMsg = "There was a problem processing the file. Please check that it's a valid TikTok data export.";
+      setStatusMessage(errorMsg);
+      alert(errorMsg);
       return;
     }
     
     if (users.length === 0) {
-      alert("No users found in the file.");
+      const errorMsg = "No users found in the file.";
+      setStatusMessage(errorMsg);
+      alert(errorMsg);
       return;
     }
 
@@ -581,6 +609,7 @@ export default function App() {
     }));
 
     setSearchResults(initialResults);
+    setStatusMessage(`Starting search for ${users.length} users...`);
     await searchAllUsers(initialResults);
 
     setCurrentStep('results');
@@ -662,6 +691,9 @@ export default function App() {
         selectedMatches: newSelectedMatches
       };
     }));
+
+    const totalToSelect = searchResults.filter(r => r.bskyMatches.length > 0).length;
+    setStatusMessage(`Selected ${totalToSelect} top matches`);
   }
 
   // Deselect all matches across all results
@@ -670,6 +702,7 @@ export default function App() {
       ...result,
       selectedMatches: new Set<string>()
     })));
+    setStatusMessage('Cleared all selections');
   }
 
   // Follow all selected users
@@ -683,11 +716,16 @@ async function followSelectedUsers() {
   );
 
   if (selectedUsers.length === 0) {
-    alert("No users selected to follow");
+    const msg = "No users selected to follow";
+      setStatusMessage(msg);
+      alert(msg);
     return;
   }
 
   setIsFollowing(true);
+  setStatusMessage(`Following ${selectedUsers.length} users...`);
+    let followedCount = 0;
+    let errorCount = 0;
 
   try {
     for (const user of selectedUsers) {
@@ -705,6 +743,8 @@ async function followSelectedUsers() {
         
         if (res.ok) {
           // Mark as followed
+          followedCount++;
+            setStatusMessage(`Followed ${followedCount} of ${selectedUsers.length} users`);
           setSearchResults(prev => prev.map((result, index) => 
             index === user.resultIndex 
               ? { ...result, bskyMatches: result.bskyMatches.map(match => 
@@ -713,18 +753,23 @@ async function followSelectedUsers() {
               : result
           ));
         } else {
+          errorCount++;
           const errorData = await res.json();
           console.error(`Follow error for ${user.handle}:`, errorData);
         }
       } catch (error) {
+        errorCount++;
         console.error(`Follow error for ${user.handle}:`, error);
       }
       
       // Add small delay between follows
       await new Promise(resolve => setTimeout(resolve, 500));
     }
+    const finalMsg = `Successfully followed ${followedCount} users${errorCount > 0 ? `. ${errorCount} failed.` : ''}`;
+    setStatusMessage(finalMsg);
   } catch (error) {
     console.error("Batch follow error:", error);
+    setStatusMessage("Error occurred while following users");
   } finally {
     setIsFollowing(false);
   }
@@ -739,292 +784,316 @@ async function followSelectedUsers() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div 
+        role="status" 
+        aria-live="polite" 
+        aria-atomic="true"
+        className="sr-only"
+      >
+        {statusMessage}
+      </div>
+
+      <a 
+        href="#main-content" 
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+      >
+        Skip to main content
+      </a>
+
+      <header className="bg-white shadow-sm border-b">
         <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center" aria-hidden="true">
                 <ArrowRight className="w-4 h-4 text-white" />
               </div>
               <h1 className="text-lg font-bold text-gray-900">ATlast</h1>
             </div>
             {session && (
               <div className="flex items-center space-x-2 text-sm text-gray-600">
-                <User className="w-4 h-4" />
-                <span className="hidden sm:inline">@{session.handle}</span>
+                <User className="w-4 h-4" aria-hidden="true" />
+                <span>@{session.handle}</span>
               </div>
             )}
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Login Step */}
-      {currentStep === 'login' && (
-        <div className="p-6 max-w-md mx-auto mt-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                <Users className="w-8 h-8 text-white" />
+      <main id="main-content">
+        {currentStep === 'login' && (
+          <div className="p-6 max-w-md mx-auto mt-8">
+            <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                  <Users className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
+                <p className="text-gray-600">Connect your ATmosphere account to sync your TikTok follows</p>
               </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
-              <p className="text-gray-600">Connect your ATmosphere account to sync your TikTok follows</p>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!useAppPassword) loginWithOAuth();
+                  else loginWithAppPassword();
+                }}
+                className="space-y-4"
+              >
+                <div>
+                  <label htmlFor="user-handle" className="block text-sm font-medium text-gray-700 mb-2">
+                    User Handle
+                  </label>
+                  <input
+                    id="user-handle"
+                    type="text"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
+                    placeholder="yourhandle.bsky.social"
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value)}
+                    aria-required="true"
+                    autoComplete="username"
+                  />
+                </div>
+
+                {!useAppPassword ? (
+                  <>
+                    <button
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
+                    >
+                      Connect to the ATmosphere
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setUseAppPassword(true)}
+                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                    >
+                      Use App Password instead
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <div>
+                      <label htmlFor="app-password" className="block text-sm font-medium text-gray-700 mb-2">
+                        App Password
+                      </label>
+                      <input
+                        id="app-password"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
+                        type="password"
+                        placeholder="Not your regular password!"
+                        value={appPassword}
+                        onChange={(e) => setAppPassword(e.target.value)}
+                        aria-required="true"
+                        autoComplete="off"
+                        aria-describedby="password-help"
+                      />
+                      <p id="password-help" className="text-xs text-gray-500 mt-1">
+                        Generate this in your Bluesky settings
+                      </p>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setUseAppPassword(true)}
+                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                    >
+                      Use App Password instead
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setUseAppPassword(false)}
+                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                    >
+                      Use OAuth instead (recommended)
+                    </button>
+                  </>
+                )}
+              </form>
             </div>
+          </div>
+        )}
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                if (!useAppPassword) loginWithOAuth();
-                else loginWithAppPassword();
-              }}
-              className="space-y-4"
-            >
-              <div>
-                <label htmlFor="user-handle" className="block text-sm font-medium text-gray-700 mb-2">
-                  User Handle
-                </label>
-                <input
-                  id="user-handle"
-                  type="text"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
-                  placeholder="yourhandle.bsky.social"
-                  value={handle}
-                  onChange={(e) => setHandle(e.target.value)}
-                  aria-required="true"
-                  autoComplete="username"
-                />
+        {/* Upload Step */}
+        {currentStep === 'upload' && (
+          <div className="p-6 max-w-md mx-auto mt-8">
+            <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                  <FileText className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Data</h2>
+                <p className="text-gray-600">Upload your TikTok following data to find matches</p>
               </div>
 
-              {!useAppPassword ? (
-                <>
-                  <button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
-                  >
-                    Connect to the ATmosphere
-                  </button>
+              <div className="space-y-4">
+                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 focus-within:border-blue-400 transition-colors">
+                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" aria-hidden="true" />
+                  <p className="text-lg font-medium text-gray-700 mb-1">Choose File</p>
+                  <p className="text-sm text-gray-500 mb-3">Following.txt or TikTok data ZIP</p>
 
-                  <button
-                    type="button"
-                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept=".txt,.json,.zip"
+                    onChange={handleFileUpload}
+                    className="sr-only"
+                    aria-label="Upload TikTok following data file"
+                  />
+
+                  {/* this is the visible, focusable label */}
+                  <label
+                    htmlFor="file-upload"
+                    className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-blue-400 focus-within:ring-offset-2"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        document.getElementById('file-upload')?.click();
+                      }
+                    }}
                   >
-                    Use App Password insted
-                  </button>
-                </>
-              ) : (
-                <>
+                    Browse Files
+                  </label>
+                </div>
+
+                <div className="bg-blue-50 rounded-xl p-4" role="region" aria-label="Instructions for getting your TikTok data">
+                  <h3 className="font-medium text-blue-900 mb-2">How to get your data:</h3>
+                  <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                    <li>Open TikTok app → Profile → Settings and privacy → Account → Download your data</li>
+                    <li>Request data → Select "Request data"</li>
+                    <li>Wait for notification your download is ready</li>
+                    <li>Navigate back to Download your data</li>
+                    <li>Download data → Select</li>
+                    <li>Upload the Following.txt file here</li>
+                  </ol>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading Step */}
+        {currentStep === 'loading' && (
+          <div className="p-6 max-w-2xl mx-auto mt-8">
+            <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                  <Search className="w-8 h-8 text-white animate-pulse" aria-hidden="true" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Finding Your People</h2>
+                <p className="text-gray-600">Searching the ATmosphere for your TikTok follows...</p>
+              </div>
+
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6" role="region" aria-label="Search progress">
+                <div className="grid grid-cols-3 gap-4 text-center mb-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      App Password
-                    </label>
-                    <input
-                      id="app-password"
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
-                      type="password"
-                      placeholder="Not your regular password!"
-                      value={appPassword}
-                      onChange={(e) => setAppPassword(e.target.value)}
-                      aria-required="true"
-                      autoComplete="off"
-                      aria-describedby="password-help"
-                    />
-                    <p id="password-help" className="text-xs text-gray-500 mt-1">
-                      Generate this in your Bluesky settings
+                    <div className="text-3xl font-bold text-gray-900" aria-label={`${searchProgress.searched} searched`}>{searchProgress.searched}</div>
+                    <div className="text-sm text-gray-600">Searched</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-blue-600" aria-label={`${searchProgress.found} found`}>{searchProgress.found}</div>
+                    <div className="text-sm text-gray-600">Found</div>
+                  </div>
+                  <div>
+                    <div className="text-3xl font-bold text-gray-400" aria-label={`${searchProgress.total} total`}>{searchProgress.total}</div>
+                    <div className="text-sm text-gray-600">Total</div>
+                  </div>
+                </div>
+
+                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden" role="progressbar" aria-valuenow={searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0} aria-valuemin={0} aria-valuemax={100}>
+                  <div 
+                    className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%` }}
+                  />
+                </div>
+                <div className="text-center mt-2 text-sm text-gray-600" aria-hidden="true">
+                  {searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0}% complete
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Results */}
+        {currentStep === 'results' && (
+          <div className="pb-20">
+            <div className="bg-white border-b">
+              <div className="px-4 py-4 max-w-2xl mx-auto">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h2 className="text-lg font-bold text-gray-900">Results</h2>
+                    <p className="text-sm text-gray-600">
+                      {totalFound} of {searchResults.length} users found
                     </p>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setUseAppPassword(true)}
-                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
-                  >
-                    Use App Password instead
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setUseAppPassword(false)}
-                    className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
-                  >
-                    Use OAuth instead (recommended)
-                  </button>
-                </>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Upload Step */}
-      {currentStep === 'upload' && (
-        <div className="p-6 max-w-md mx-auto mt-8">
-          <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                <FileText className="w-8 h-8 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Data</h2>
-              <p className="text-gray-600">Upload your TikTok following data to find matches</p>
-            </div>
-
-            <div className="space-y-4">
-              <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 focus-within:border-blue-400 transition-colors">
-                <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" />
-                <p className="text-lg font-medium text-gray-700 mb-1">Choose File</p>
-                <p className="text-sm text-gray-500 mb-3">Following.txt or TikTok data ZIP</p>
-
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept=".txt,.json,.zip"
-                  onChange={handleFileUpload}
-                  className="sr-only"
-                />
-
-                {/* this is the visible, focusable label */}
-                <label
-                  htmlFor="file-upload"
-                  className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-blue-400 focus-within:ring-offset-2"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      document.getElementById('file-upload')?.click();
-                    }
-                  }}
-                >
-                  Browse Files
-                </label>
-              </div>
-
-              <div className="bg-blue-50 rounded-xl p-4">
-                <h4 className="font-medium text-blue-900 mb-2">How to get your data:</h4>
-                <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
-                  <li>Open TikTok app → Profile → Settings and privacy → Account → Download your data</li>
-                  <li>Request data → Select "Request data"</li>
-                  <li>Wait for notification your download is ready</li>
-                  <li>Navigate back to Download your data</li>
-                  <li>Download data → Select</li>
-                  <li>Upload the Following.txt file here</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Loading Step */}
-      {currentStep === 'loading' && (
-        <div className="p-6 max-w-2xl mx-auto mt-8">
-          <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                <Search className="w-8 h-8 text-white animate-pulse" />
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Finding Your People</h2>
-              <p className="text-gray-600">Searching the ATmosphere for your TikTok follows...</p>
-            </div>
-
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6">
-              <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">{searchProgress.searched}</div>
-                  <div className="text-sm text-gray-600">Searched</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-blue-600">{searchProgress.found}</div>
-                  <div className="text-sm text-gray-600">Found</div>
-                </div>
-                <div>
-                  <div className="text-3xl font-bold text-gray-400">{searchProgress.total}</div>
-                  <div className="text-sm text-gray-600">Total</div>
-                </div>
-              </div>
-
-              <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                <div 
-                  className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
-                  style={{ width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%` }}
-                />
-              </div>
-              <div className="text-center mt-2 text-sm text-gray-600">
-                {searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0}% complete
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Results */}
-      {currentStep === 'results' && (
-        <div className="pb-20">
-          <div className="bg-white border-b">
-            <div className="px-4 py-4 max-w-2xl mx-auto">
-              <div className="flex items-center justify-between mb-3">
-                <div>
-                  <h2 className="text-lg font-bold text-gray-900">Results</h2>
-                  <p className="text-sm text-gray-600">
-                    {totalFound} of {searchResults.length} users found
-                  </p>
-                </div>
-                <div className="text-right">
-                  <div className="text-lg font-bold text-blue-600">{totalSelected}</div>
-                  <div className="text-xs text-gray-500">selected</div>
-                </div>
-              </div>
-              
-              <div className="flex space-x-2">
-                <button
-                  onClick={selectAllMatches}
-                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-h-[44px]"
-                  type="button"
-                >
-                  Select All
-                </button>
-                <button
-                  onClick={deselectAllMatches}
-                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 min-h-[44px]"
-                  type="button"
-                >
-                  Clear
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Results List */}
-          <div className="space-y-2 p-4 max-w-2xl mx-auto">
-            {searchResults.map((result, index) => (
-              <div key={index} className="bg-white rounded-xl shadow-sm border">
-                <div className="p-4">
-                  {/* TikTok User Header */}
-                  <div className="mb-3">
-                    <div className="text-xs text-gray-500 uppercase tracking-wide mb-1">TikTok</div>
-                    <div className="font-semibold text-gray-900 text-lg">
-                      @{result.tiktokUser.username}
-                    </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-600">{totalSelected}</div>
+                    <div className="text-xs text-gray-500">selected</div>
                   </div>
-
-                  {/* ATmosphere Matches */}
-                  {result.bskyMatches.length > 0 ? (
-                    <div className="space-y-2">
-                      <MatchCarousel 
-                        matches={result.bskyMatches}
-                        selectedDids={result.selectedMatches || new Set()}
-                        onToggleSelection={(did) => toggleMatchSelection(index, did)}
-                        cardRef={{ current: resultCardRefs.current[index] || null }}
-                      />
-                    </div>
-                  ) : (
-                    <div className="text-center py-2 text-gray-400">
-                      <div className="text-sm">No matches found</div>
-                    </div>
-                  )}
+                </div>
+                
+                <div className="flex space-x-2">
+                  <button
+                    onClick={selectAllMatches}
+                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-h-[44px]"
+                    type="button"
+                    aria-label="Select all top matches"
+                  >
+                    Select All
+                  </button>
+                  <button
+                    onClick={deselectAllMatches}
+                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 min-h-[44px]"
+                    type="button"
+                    aria-label="Clear all selections"
+                  >
+                    Clear
+                  </button>
                 </div>
               </div>
-            ))}
+            </div>
+
+            {/* Results List */}
+            <div className="space-y-2 p-4 max-w-2xl mx-auto" role="list" aria-label="Search results">
+              {searchResults.map((result, index) => (
+                <div key={index} className="bg-white rounded-xl shadow-sm border" role="listitem">
+                  <div className="p-4">
+                    {/* TikTok User Header */}
+                    <div className="mb-3">
+                      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1" aria-hidden="true">TikTok</div>
+                      <div className="font-semibold text-gray-900 text-lg">
+                        <span className="sr-only">TikTok user </span>
+                        @{result.tiktokUser.username}
+                      </div>
+                    </div>
+
+                    {/* ATmosphere Matches */}
+                    {result.bskyMatches.length > 0 ? (
+                      <div className="space-y-2">
+                        <div className="sr-only">AT matches:</div>
+                          <MatchCarousel 
+                            matches={result.bskyMatches}
+                            selectedDids={result.selectedMatches || new Set()}
+                            onToggleSelection={(did) => toggleMatchSelection(index, did)}
+                            cardRef={{ current: resultCardRefs.current[index] || null }}
+                          />
+                      </div>
+                    ) : (
+                      <div className="text-center py-2 text-gray-400" role="status">
+                        <div className="text-sm">No matches found</div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
 
       {/* Fixed Bottom Action Bar */}
       {currentStep === 'results' && totalSelected > 0 && (
@@ -1036,6 +1105,7 @@ async function followSelectedUsers() {
               className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-medium text-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
               type="button"
               aria-live="polite"
+              aria-label={isFollowing ? `Following users, please wait` : `Follow ${totalSelected} selected users`}
             >
               {isFollowing 
                 ? "Following Users..." 
