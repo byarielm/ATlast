@@ -23,14 +23,14 @@ export class PostgresStateStore {
   }
 
   async set(key: string, value: StateData): Promise<void> {
-    const sql = getDbClient();
-    const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    await sql`
-      INSERT INTO oauth_states (key, data, expires_at)
-      VALUES (${key}, ${JSON.stringify(value)}, ${expiresAt})
-      ON CONFLICT (key) DO UPDATE SET data = ${JSON.stringify(value)}, expires_at = ${expiresAt}
-    `;
-  }
+  const sql = getDbClient();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  await sql`
+    INSERT INTO oauth_states (key, data, expires_at)
+    VALUES (${key}, ${JSON.stringify(value)}, ${expiresAt.toISOString()})
+    ON CONFLICT (key) DO UPDATE SET data = ${JSON.stringify(value)}, expires_at = ${expiresAt.toISOString()}
+  `;
+}
 
   async del(key: string): Promise<void> {
     const sql = getDbClient();

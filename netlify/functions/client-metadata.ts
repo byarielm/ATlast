@@ -3,8 +3,10 @@ import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
     // Get the host that's requesting the metadata
-    // This will be different for production vs preview deploys
-    const requestHost = event.headers.host;
+    // This will be different for production vs preview deploys vs dev --live
+    const requestHost = process.env.DEPLOY_URL 
+    ? new URL(process.env.DEPLOY_URL).host
+    : (event.headers['x-forwarded-host'] || event.headers.host);
     
     if (!requestHost) {
       return {

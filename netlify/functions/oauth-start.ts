@@ -57,7 +57,9 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
 
     // Use the dynamic config that Netlify sets for the build
-    const currentHost = event.headers.host;
+    const currentHost = process.env.DEPLOY_URL 
+      ? new URL(process.env.DEPLOY_URL).host
+      : (event.headers['x-forwarded-host'] || event.headers.host);
 
     if (!currentHost) {
       console.error('Missing host header in function request');

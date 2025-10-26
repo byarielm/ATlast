@@ -13,7 +13,9 @@ function normalizePrivateKey(key: string): string {
 }
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
-  let currentHost = event.headers.host;
+  let currentHost = process.env.DEPLOY_URL 
+    ? new URL(process.env.DEPLOY_URL).host
+    : (event.headers['x-forwarded-host'] || event.headers.host);
   let currentUrl = currentHost ? `https://${currentHost}` : process.env.URL || process.env.DEPLOY_PRIME_URL || 'https://atlast.byarielm.fyi'; 
   const fallbackUrl = currentUrl;
 
@@ -22,7 +24,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     const code = params.get('code');
     const state = params.get('state');
 
-    console.log('OAuth callback - Host:', event.headers.host);
+    console.log('OAuth callback - Host:', currentHost);
     console.log('OAuth callback - currentUrl resolved to:', currentUrl);
 
     if (!code || !state) {
