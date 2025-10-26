@@ -93,7 +93,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     await userSessions.set(sessionId, { did });
 
-    const cookieFlags = 'HttpOnly; SameSite=Lax; Max-Age=86400; Path=/; Secure';
+    const cookieFlags = 'HttpOnly; SameSite=Lax; Max-Age=1209600; Path=/; Secure';
     
     return {
       statusCode: 302,

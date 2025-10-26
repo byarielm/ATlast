@@ -51,7 +51,7 @@ export class PostgresSessionStore {
   async set(key: string, value: SessionData): Promise<void> {
     const sql = getDbClient();
     // Session includes tokens, DPoP keys, etc.
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
     await sql`
       INSERT INTO oauth_sessions (key, data, expires_at)
       VALUES (${key}, ${JSON.stringify(value)}, ${expiresAt})
@@ -78,7 +78,7 @@ export class PostgresUserSessionStore {
 
   async set(sessionId: string, data: { did: string }): Promise<void> {
     const sql = getDbClient();
-    const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+    const expiresAt = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000); // 14 days
     await sql`
       INSERT INTO user_sessions (session_id, did, expires_at)
       VALUES (${sessionId}, ${data.did}, ${expiresAt})
