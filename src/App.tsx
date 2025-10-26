@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Upload, User, Check, Search, ArrowRight, Users, FileText, ChevronRight } from "lucide-react";
+import { Upload, User, Check, Search, ArrowRight, Users, FileText, ChevronRight, LogOut, Home } from "lucide-react";
 import JSZip from "jszip";
 import {
   CompositeDidDocumentResolver,
@@ -233,7 +233,7 @@ export default function App() {
   const [useAppPassword, setUseAppPassword] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
-  const [currentStep, setCurrentStep] = useState<'login' | 'upload' | 'loading' | 'results'>('login');
+  const [currentStep, setCurrentStep] = useState<'checking' | 'login' | 'home' | 'upload' | 'loading' | 'results'>('checking');
   const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
   const [isFollowing, setIsFollowing] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
@@ -254,51 +254,106 @@ export default function App() {
     },
   });
 
-  // OAuth
+  // Check for existing session on mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const sessionId = params.get('session');
-    const error = params.get('error');
-
-    if (error) {
-      setStatusMessage(`Login failed: ${error}`);
-      alert(`Login failed: ${error}`);
-      window.history.replaceState({}, '', '/');
-      return;
-    }
-
-    if (sessionId) {
-      // Set to upload immediately to prevent login page flash
-      setCurrentStep('upload');
-      setStatusMessage('Loading your session...');
-
-      // Fetch profile data from backend
-      fetch(`/.netlify/functions/get-profile`, {
-        credentials: 'include'
-      })
-        .then((res) => {
-          if (!res.ok) throw new Error('Failed to load profile');
-          return res.json();
-        })
-        .then((data) => {
-          setSession({
-            did: data.did,
-            handle: data.handle,
-            displayName: data.displayName,
-            avatar: data.avatar,
-          });
-          setCurrentStep('upload');
-          setStatusMessage(`Successfully logged in as ${data.handle}`);
-          window.history.replaceState({}, '', '/');
-        })
-        .catch((err) => {
-          console.error('Session error:', err);
-          setStatusMessage('Failed to load session');
-          alert('Failed to load session');
-          window.history.replaceState({}, '', '/');
-        });
-    }
+    checkExistingSession();
   }, []);
+
+  // Check if user already has a valid session
+  async function checkExistingSession() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session');
+      const error = params.get('error');
+
+      if (error) {
+        setStatusMessage(`Login failed: ${error}`);
+        setCurrentStep('login');
+        window.history.replaceState({}, '', '/');
+        return;
+      }
+
+    // If we have a session parameter in URL, this is an OAuth callback
+      if (sessionId) {
+        setStatusMessage('Loading your session...');
+        await fetchProfile();
+        setCurrentStep('home');
+        window.history.replaceState({}, '', '/');
+        return;
+      }
+
+      // Otherwise, check if there's an existing session cookie
+      const res = await fetch('/.netlify/functions/session', {
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setSession({
+          did: data.did,
+          handle: data.handle,
+          displayName: data.displayName,
+          avatar: data.avatar,
+        });
+        setCurrentStep('home');
+        setStatusMessage(`Welcome back, ${data.handle}!`);
+      } else {
+        // No valid session, show login
+        setCurrentStep('login');
+      }
+    } catch (error) {
+      console.error('Session check error:', error);
+      setCurrentStep('login');
+    }
+  }
+
+  // Fetch user profile
+  async function fetchProfile() {
+    try {
+      const res = await fetch('/.netlify/functions/get-profile', {
+        credentials: 'include'
+      });
+
+      if (!res.ok) throw new Error('Failed to load profile');
+
+      const data = await res.json();
+      setSession({
+        did: data.did,
+        handle: data.handle,
+        displayName: data.displayName,
+        avatar: data.avatar,
+      });
+      setStatusMessage(`Successfully logged in as ${data.handle}`);
+    } catch (err) {
+      console.error('Profile fetch error:', err);
+      setStatusMessage('Failed to load profile');
+      throw err;
+    }
+  }
+
+    // Logout function
+  async function handleLogout() {
+    try {
+      setStatusMessage('Logging out...');
+      const res = await fetch('/.netlify/functions/logout', {
+        method: 'POST',
+        credentials: 'include'
+      });
+
+      if (res.ok) {
+        setSession(null);
+        setSearchResults([]);
+        setCurrentStep('login');
+        setStatusMessage('Logged out successfully');
+      } else {
+        throw new Error('Logout failed');
+      }
+    } catch (error) {
+      console.error('Logout error:', error);
+      setStatusMessage('Error logging out');
+      alert('Failed to logout. Please try again.');
+    }
+  }
 
   // Start OAuth login
   const loginWithOAuth = async () => {
@@ -385,7 +440,7 @@ export default function App() {
       serviceEndpoint: pdsEndpoint,
     });
 
-    setCurrentStep('upload');
+    setCurrentStep('home');
 
     console.log("Logged in successfully!", sessionData, pdsEndpoint);
   } catch (err) {
@@ -783,7 +838,6 @@ async function followSelectedUsers() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
-      {/* Header */}
       <div 
         role="status" 
         aria-live="polite" 
@@ -800,6 +854,7 @@ async function followSelectedUsers() {
         Skip to main content
       </a>
 
+      {/* Header */}
       <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
@@ -810,17 +865,40 @@ async function followSelectedUsers() {
               <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">ATlast</h1>
             </div>
             {session && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                <User className="w-4 h-4" aria-hidden="true" />
-                <span>@{session.handle}</span>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
+                  <User className="w-4 h-4" aria-hidden="true" />
+                  <span>@{session.handle}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center space-x-1 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                  aria-label="Log out"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span className="hidden sm:inline">Logout</span>
+                </button>
               </div>
             )}
           </div>
         </div>
       </header>
 
-      {/* Login Step */}
       <main id="main-content">
+        {/* Checking Session */}
+        {currentStep === 'checking' && (
+          <div className="p-6 max-w-md mx-auto mt-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center space-y-4">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center">
+                <ArrowRight className="w-8 h-8 text-white animate-pulse" />
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Loading...</h2>
+              <p className="text-gray-600 dark:text-gray-300">Checking your session</p>
+            </div>
+          </div>
+        )}
+
+        {/* Login Step */}
         {currentStep === 'login' && (
           <div className="p-6 max-w-md mx-auto mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
@@ -906,7 +984,7 @@ async function followSelectedUsers() {
                     <button
                       type="button"
                       onClick={() => setUseAppPassword(false)}
-                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                      className="w-full text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
                     >
                       Use OAuth instead (recommended)
                     </button>
@@ -917,10 +995,59 @@ async function followSelectedUsers() {
           </div>
         )}
 
+        {/* Home/Dashboard Step - NEW */}
+        {currentStep === 'home' && (
+          <div className="p-6 max-w-md mx-auto mt-8">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                  <Home className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+                  Welcome back!
+                </h2>
+                <p className="text-gray-600 dark:text-gray-300">
+                  What would you like to do?
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <button
+                  onClick={() => setCurrentStep('upload')}
+                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[56px] flex items-center justify-center space-x-3"
+                >
+                  <Upload className="w-5 h-5" />
+                  <span>Upload TikTok Data</span>
+                </button>
+
+                <button
+                  onClick={() => alert('View previous results feature coming soon!')}
+                  className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-4 px-6 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 min-h-[56px] flex items-center justify-center space-x-3"
+                  disabled
+                >
+                  <FileText className="w-5 h-5" />
+                  <span>View Previous Results</span>
+                  <span className="text-xs bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded">Coming Soon</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Upload Step */}
         {currentStep === 'upload' && (
           <div className="p-6 max-w-md mx-auto mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={() => setCurrentStep('home')}
+                  className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded px-2 py-1"
+                >
+                  <ChevronRight className="w-4 h-4 rotate-180" />
+                  <span>Back</span>
+                </button>
+              </div>
+
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                   <FileText className="w-8 h-8 text-white" />
@@ -944,7 +1071,6 @@ async function followSelectedUsers() {
                     aria-label="Upload TikTok following data file"
                   />
 
-                  {/* this is the visible, focusable label */}
                   <label
                     htmlFor="file-upload"
                     className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-blue-400 focus-within:ring-offset-2"
@@ -1024,11 +1150,20 @@ async function followSelectedUsers() {
             <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
               <div className="px-4 py-4 max-w-2xl mx-auto">
                 <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Results</h2>
-                    <p className="text-sm text-gray-600 dark:text-gray-300">
-                      {totalFound} of {searchResults.length} users found
-                    </p>
+                  <div className="flex items-center space-x-3">
+                    <button
+                      onClick={() => setCurrentStep('home')}
+                      className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded px-2 py-1"
+                    >
+                      <ChevronRight className="w-4 h-4 rotate-180" />
+                      <span>Home</span>
+                    </button>
+                    <div>
+                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Results</h2>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">
+                        {totalFound} of {searchResults.length} users found
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{totalSelected}</div>
