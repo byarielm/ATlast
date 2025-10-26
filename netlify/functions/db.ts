@@ -12,6 +12,16 @@ export function getDbClient() {
 export async function initDB() {
   const sql = getDbClient();
 
+  console.log('🧠 Connecting to DB:', process.env.NETLIFY_DATABASE_URL);
+
+  try {
+    const res: any = await sql`SELECT current_database() AS db, current_user AS user, NOW() AS now`;
+    console.log('✅ Connected:', res[0]);
+  } catch (e) {
+    console.error('❌ Connection failed:', e);
+    throw e;
+  }
+
   // OAuth Tables
   await sql`
     CREATE TABLE IF NOT EXISTS oauth_states (
