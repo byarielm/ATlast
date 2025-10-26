@@ -118,8 +118,8 @@ function MatchCarousel({
         }}
         className={`flex items-center space-x-3 p-3 rounded-lg border transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 ${
           selectedDids.has(currentMatch.did)
-            ? 'bg-blue-50 border-blue-200'
-            : 'bg-gray-50 border-gray-200'
+            ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
+            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
         } ${currentMatch.followed ? 'opacity-60' : ''}`}
         onKeyDown={handleKeyDown}
         onFocus={(e) => {
@@ -145,7 +145,7 @@ function MatchCarousel({
           <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
             selectedDids.has(currentMatch.did) 
               ? 'bg-blue-600 border-blue-600' 
-              : 'bg-white border-gray-300'
+              : 'bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500'
           } ${currentMatch.followed ? 'opacity-50 cursor-not-allowed' : ''}`}>
             {selectedDids.has(currentMatch.did) && (
               <Check className="w-3 h-3 text-white" />
@@ -169,15 +169,15 @@ function MatchCarousel({
         
         <div className="flex-1 min-w-0" aria-hidden="true">
           {currentMatch.displayName && (
-            <div className="font-medium text-gray-900 truncate">
+            <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
               {currentMatch.displayName}
             </div>
           )}
           <div className="flex items-center space-x-2">
-            <div className="text-sm text-gray-600 truncate">
+            <div className="text-sm text-gray-600 dark:text-gray-300 truncate">
               @{currentMatch.handle}
             </div>
-            <span className="text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded flex-shrink-0">
+            <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-2 py-0.5 rounded flex-shrink-0">
               {currentMatch.matchScore}%
             </span>
           </div>
@@ -185,7 +185,7 @@ function MatchCarousel({
         
         {currentMatch.followed && (
           <div className="flex-shrink-0" aria-hidden="true">
-            <div className="flex items-center space-x-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+            <div className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-2 py-1 rounded-full text-xs">
               <Check className="w-3 h-3" />
               <span>Followed</span>
             </div>
@@ -195,12 +195,12 @@ function MatchCarousel({
         {hasMore && (
           <div className="flex items-center space-x-1 flex-shrink-0" aria-hidden="true">
             {hasPrev && (
-              <div className="p-2 text-gray-400">
+              <div className="p-2 text-gray-400 dark:text-gray-500">
                 <ChevronRight className="w-5 h-5 rotate-180" />
               </div>
             )}
             {hasNext && (
-              <div className="p-2 text-gray-400">
+              <div className="p-2 text-gray-400 dark:text-gray-500">
                 <ChevronRight className="w-5 h-5" />
               </div>
             )}
@@ -782,7 +782,7 @@ async function followSelectedUsers() {
   const totalSearched = searchResults.filter(r => !r.isSearching).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
       <div 
         role="status" 
@@ -800,17 +800,17 @@ async function followSelectedUsers() {
         Skip to main content
       </a>
 
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
         <div className="px-4 py-4 max-w-2xl mx-auto">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center" aria-hidden="true">
                 <ArrowRight className="w-4 h-4 text-white" />
               </div>
-              <h1 className="text-lg font-bold text-gray-900">ATlast</h1>
+              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">ATlast</h1>
             </div>
             {session && (
-              <div className="flex items-center space-x-2 text-sm text-gray-600">
+              <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                 <User className="w-4 h-4" aria-hidden="true" />
                 <span>@{session.handle}</span>
               </div>
@@ -823,13 +823,13 @@ async function followSelectedUsers() {
       <main id="main-content">
         {currentStep === 'login' && (
           <div className="p-6 max-w-md mx-auto mt-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                   <Users className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome!</h2>
-                <p className="text-gray-600">Connect your ATmosphere account to sync your TikTok follows</p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Welcome!</h2>
+                <p className="text-gray-600 dark:text-gray-300">Connect your ATmosphere account to sync your TikTok follows</p>
               </div>
 
               <form
@@ -841,13 +841,13 @@ async function followSelectedUsers() {
                 className="space-y-4"
               >
                 <div>
-                  <label htmlFor="user-handle" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="user-handle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     User Handle
                   </label>
                   <input
                     id="user-handle"
                     type="text"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
+                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                     placeholder="yourhandle.bsky.social"
                     value={handle}
                     onChange={(e) => setHandle(e.target.value)}
@@ -868,7 +868,7 @@ async function followSelectedUsers() {
                     <button
                       type="button"
                       onClick={() => setUseAppPassword(true)}
-                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                      className="w-full text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
                     >
                       Use App Password instead
                     </button>
@@ -876,12 +876,12 @@ async function followSelectedUsers() {
                 ) : (
                   <>
                     <div>
-                      <label htmlFor="app-password" className="block text-sm font-medium text-gray-700 mb-2">
+                      <label htmlFor="app-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                         App Password
                       </label>
                       <input
                         id="app-password"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px]"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                         type="password"
                         placeholder="Not your regular password!"
                         value={appPassword}
@@ -890,7 +890,7 @@ async function followSelectedUsers() {
                         autoComplete="off"
                         aria-describedby="password-help"
                       />
-                      <p id="password-help" className="text-xs text-gray-500 mt-1">
+                      <p id="password-help" className="text-xs text-gray-500 dark:text-gray-300 mt-1">
                         Generate this in your Bluesky settings
                       </p>
                     </div>
@@ -920,20 +920,20 @@ async function followSelectedUsers() {
         {/* Upload Step */}
         {currentStep === 'upload' && (
           <div className="p-6 max-w-md mx-auto mt-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                   <FileText className="w-8 h-8 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Your Data</h2>
-                <p className="text-gray-600">Upload your TikTok following data to find matches</p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Upload Your Data</h2>
+                <p className="text-gray-600 dark:text-gray-300">Upload your TikTok following data to find matches</p>
               </div>
 
               <div className="space-y-4">
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-400 focus-within:border-blue-400 transition-colors">
-                  <Upload className="w-12 h-12 text-gray-400 mx-auto mb-3" aria-hidden="true" />
-                  <p className="text-lg font-medium text-gray-700 mb-1">Choose File</p>
-                  <p className="text-sm text-gray-500 mb-3">Following.txt or TikTok data ZIP</p>
+                <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 focus-within:border-blue-400 dark:focus-within:border-blue-500 transition-colors">
+                  <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" aria-hidden="true" />
+                  <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Choose File</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300 mb-3">Following.txt or TikTok data ZIP</p>
 
                   <input
                     id="file-upload"
@@ -960,9 +960,9 @@ async function followSelectedUsers() {
                   </label>
                 </div>
 
-                <div className="bg-blue-50 rounded-xl p-4" role="region" aria-label="Instructions for getting your TikTok data">
-                  <h3 className="font-medium text-blue-900 mb-2">How to get your data:</h3>
-                  <ol className="text-sm text-blue-800 space-y-1 list-decimal list-inside">
+                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4" role="region" aria-label="Instructions for getting your TikTok data">
+                  <h3 className="font-medium text-blue-900 dark:text-blue-200 mb-2">How to get your data:</h3>
+                  <ol className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
                     <li>Open TikTok app → Profile → Settings and privacy → Account → Download your data</li>
                     <li>Request data → Select "Request data"</li>
                     <li>Wait for notification your download is ready</li>
@@ -979,28 +979,28 @@ async function followSelectedUsers() {
         {/* Loading Step */}
         {currentStep === 'loading' && (
           <div className="p-6 max-w-2xl mx-auto mt-8">
-            <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 space-y-6">
               <div className="text-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                   <Search className="w-8 h-8 text-white animate-pulse" aria-hidden="true" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">Finding Your People</h2>
-                <p className="text-gray-600">Searching the ATmosphere for your TikTok follows...</p>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Finding Your People</h2>
+                <p className="text-gray-600 dark:text-gray-300">Searching the ATmosphere for your TikTok follows...</p>
               </div>
 
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6" role="region" aria-label="Search progress">
+              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6" role="region" aria-label="Search progress">
                 <div className="grid grid-cols-3 gap-4 text-center mb-4">
                   <div>
-                    <div className="text-3xl font-bold text-gray-900" aria-label={`${searchProgress.searched} searched`}>{searchProgress.searched}</div>
-                    <div className="text-sm text-gray-600">Searched</div>
+                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-300" aria-label={`${searchProgress.searched} searched`}>{searchProgress.searched}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">Searched</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-blue-600" aria-label={`${searchProgress.found} found`}>{searchProgress.found}</div>
-                    <div className="text-sm text-gray-600">Found</div>
+                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-500" aria-label={`${searchProgress.found} found`}>{searchProgress.found}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">Found</div>
                   </div>
                   <div>
-                    <div className="text-3xl font-bold text-gray-400" aria-label={`${searchProgress.total} total`}>{searchProgress.total}</div>
-                    <div className="text-sm text-gray-600">Total</div>
+                    <div className="text-3xl font-bold text-gray-400 dark:text-gray-900" aria-label={`${searchProgress.total} total`}>{searchProgress.total}</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">Total</div>
                   </div>
                 </div>
 
@@ -1010,7 +1010,7 @@ async function followSelectedUsers() {
                     style={{ width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%` }}
                   />
                 </div>
-                <div className="text-center mt-2 text-sm text-gray-600" aria-hidden="true">
+                <div className="text-center mt-2 text-sm text-gray-600 dark:text-gray-300" aria-hidden="true">
                   {searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0}% complete
                 </div>
               </div>
@@ -1021,18 +1021,18 @@ async function followSelectedUsers() {
         {/* Results */}
         {currentStep === 'results' && (
           <div className="pb-20">
-            <div className="bg-white border-b">
+            <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
               <div className="px-4 py-4 max-w-2xl mx-auto">
                 <div className="flex items-center justify-between mb-3">
                   <div>
-                    <h2 className="text-lg font-bold text-gray-900">Results</h2>
-                    <p className="text-sm text-gray-600">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Results</h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">
                       {totalFound} of {searchResults.length} users found
                     </p>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-bold text-blue-600">{totalSelected}</div>
-                    <div className="text-xs text-gray-500">selected</div>
+                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{totalSelected}</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-200">selected</div>
                   </div>
                 </div>
                 
@@ -1060,12 +1060,12 @@ async function followSelectedUsers() {
             {/* Results List */}
             <div className="space-y-2 p-4 max-w-2xl mx-auto" role="list" aria-label="Search results">
               {searchResults.map((result, index) => (
-                <div key={index} className="bg-white rounded-xl shadow-sm border" role="listitem">
+                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700" role="listitem">
                   <div className="p-4">
                     {/* TikTok User Header */}
                     <div className="mb-3">
-                      <div className="text-xs text-gray-500 uppercase tracking-wide mb-1" aria-hidden="true">TikTok</div>
-                      <div className="font-semibold text-gray-900 text-lg">
+                      <div className="text-xs text-gray-500 dark:text-gray-200 uppercase tracking-wide mb-1" aria-hidden="true">TikTok</div>
+                      <div className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
                         <span className="sr-only">TikTok user </span>
                         @{result.tiktokUser.username}
                       </div>
@@ -1097,7 +1097,7 @@ async function followSelectedUsers() {
 
       {/* Fixed Bottom Action Bar */}
       {currentStep === 'results' && totalSelected > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-lg">
           <div className="p-4 max-w-2xl mx-auto">
             <button
               onClick={followSelectedUsers}

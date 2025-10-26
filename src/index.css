@@ -2,11 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: system-ui, sans-serif;
-  background: #f8fafc;
-  color: #111827;
-}
-button {
-  cursor: pointer;
+@layer base {
+  body {
+    font-family: system-ui, sans-serif;
+    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+  }
+  
+  button {
+    cursor: pointer;
+  }
 }
