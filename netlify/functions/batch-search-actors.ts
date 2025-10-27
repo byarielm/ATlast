@@ -14,25 +14,25 @@ function normalizePrivateKey(key: string): string {
 }
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
-  // Only allow POST
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
-  }
-
   try {
-    // Parse request body
+    // Parse batch request
     const body = JSON.parse(event.body || '{}');
-    const targetDid = body.did;
-
-    if (!targetDid) {
+    const usernames: string[] = body.usernames || [];
+    
+    if (!Array.isArray(usernames) || usernames.length === 0) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Missing required field: did' }),
+        body: JSON.stringify({ error: 'usernames array is required and must not be empty' }),
+      };
+    }
+
+    // Limit batch size to prevent timeouts
+    if (usernames.length > 50) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Maximum 50 usernames per batch' }),
       };
     }
 
@@ -89,16 +89,54 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     // Create agent from OAuth session
     const agent = new Agent(oauthSession);
 
-    // Create follow record
-    await agent.api.com.atproto.repo.createRecord({
-      repo: userSession.did,
-      collection: 'app.bsky.graph.follow',
-      record: {
-        $type: 'app.bsky.graph.follow',
-        subject: targetDid,
-        createdAt: new Date().toISOString(),
-      },
+    // Search all usernames in parallel
+    const searchPromises = usernames.map(async (username) => {
+      try {
+        const response = await agent.app.bsky.actor.searchActors({
+          q: username,
+          limit: 20,
+        });
+        
+        // Filter and rank matches (same logic as before)
+        const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
+        const normalizedUsername = normalize(username);
+
+        const rankedActors = response.data.actors.map((actor: any) => {
+          const handlePart = actor.handle.split('.')[0];
+          const normalizedHandle = normalize(handlePart);
+          const normalizedFullHandle = normalize(actor.handle);
+          const normalizedDisplayName = normalize(actor.displayName || '');
+
+          let score = 0;
+          if (normalizedHandle === normalizedUsername) score = 100;
+          else if (normalizedFullHandle === normalizedUsername) score = 90;
+          else if (normalizedDisplayName === normalizedUsername) score = 80;
+          else if (normalizedHandle.includes(normalizedUsername)) score = 60;
+          else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
+          else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
+          else if (normalizedUsername.includes(normalizedHandle)) score = 30;
+
+          return { ...actor, matchScore: score };
+        })
+        .filter((actor: any) => actor.matchScore > 0)
+        .sort((a: any, b: any) => b.matchScore - a.matchScore)
+        .slice(0, 5);
+
+        return {
+          username,
+          actors: rankedActors,
+          error: null
+        };
+      } catch (error) {
+        return {
+          username,
+          actors: [],
+          error: error instanceof Error ? error.message : 'Search failed'
+        };
+      }
     });
+
+    const results = await Promise.all(searchPromises);
 
     return {
       statusCode: 200,
@@ -106,19 +144,16 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: JSON.stringify({
-        success: true,
-        did: targetDid,
-      }),
+      body: JSON.stringify({ results }),
     };
 
   } catch (error) {
-    console.error('Follow user error:', error);
+    console.error('Batch search error:', error);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        error: 'Failed to follow user',
+        error: 'Failed to search actors',
         details: error instanceof Error ? error.message : 'Unknown error'
       }),
     };

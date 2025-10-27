@@ -273,7 +273,7 @@ export default function App() {
         return;
       }
 
-    // If we have a session parameter in URL, this is an OAuth callback
+      // If we have a session parameter in URL, this is an OAuth callback
       if (sessionId) {
         setStatusMessage('Loading your session...');
         await fetchProfile();
@@ -331,7 +331,7 @@ export default function App() {
     }
   }
 
-    // Logout function
+  // Logout function
   async function handleLogout() {
     try {
       setStatusMessage('Logging out...');
@@ -495,14 +495,13 @@ export default function App() {
     setSearchProgress({ searched: 0, found: 0, total: targetResults.length });
     setStatusMessage(`Starting search for ${targetResults.length} users...`);
     
-    // Process users in batches to avoid rate limiting
-    const batchSize = 3;
+    // Process in batches of 25 usernames per API call
+    const batchSize = 25;
     let totalSearched = 0;
     let totalFound = 0;
     const MAX_MATCHES = 1000;
 
     for (let i = 0; i < targetResults.length; i += batchSize) {
-      // Stop once MAX_MATCHES reached
       if (totalFound >= MAX_MATCHES) {
         console.log(`Reached limit of ${MAX_MATCHES} matches. Stopping search.`);
         setStatusMessage(`Search complete. Found ${totalFound} matches out of 1000 maximum.`);
@@ -510,6 +509,7 @@ export default function App() {
       }
 
       const batch = targetResults.slice(i, i + batchSize);
+      const usernames = batch.map(r => r.tiktokUser.username);
       
       // Mark current batch as searching
       setSearchResults(prev => prev.map((result, index) => 
@@ -518,58 +518,73 @@ export default function App() {
           : result
       ));
       
-      // Search batch in parallel
-      const batchPromises = batch.map(async (result, batchIndex) => {
-        const globalIndex = i + batchIndex;
-        try {
-          const matches = await searchSingleUser(result.tiktokUser.username);
-          return { globalIndex, matches, error: undefined };
-        } catch (error) {
-          return { globalIndex, matches: [], error: error instanceof Error ? error.message : 'Search failed' };
-        }
-      });
-      
-      const batchResults = await Promise.all(batchPromises);
-      
-      // Update progress immediately after batch completes
-      batchResults.forEach(br => {
-        totalSearched++;
-        if (br.matches.length > 0) {
-          totalFound++;
-        }
-      });
-      setSearchProgress({ searched: totalSearched, found: totalFound, total: targetResults.length });
-      setStatusMessage(`Searched ${totalSearched} of ${targetResults.length} users. Found ${totalFound} matches.`);
+      try {
+        // Single API call for entire batch
+        const res = await fetch('/.netlify/functions/batch-search-actors', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usernames })
+        });
 
-      // Update results
-      setSearchResults(prev => prev.map((result, index) => {
-        const batchResult = batchResults.find(br => br.globalIndex === index);
-        if (batchResult) {
-          const newSelectedMatches = new Set<string>();
-          // Auto-select only the first (highest scoring) match
-          if (batchResult.matches.length > 0) {
-            newSelectedMatches.add(batchResult.matches[0].did);
+        if (!res.ok) {
+          throw new Error(`Batch search failed: ${res.status}`);
+        }
+
+        const data = await res.json();
+        
+        // Process batch results
+        data.results.forEach((result: any, batchIndex: number) => {
+          const globalIndex = i + batchIndex;
+          totalSearched++;
+          if (result.actors.length > 0) {
+            totalFound++;
           }
+        });
 
-          return {
-            ...result,
-            bskyMatches: batchResult.matches,
-            isSearching: false,
-            error: batchResult.error,
-            selectedMatches: newSelectedMatches,
-          };
+        setSearchProgress({ searched: totalSearched, found: totalFound, total: targetResults.length });
+        setStatusMessage(`Searched ${totalSearched} of ${targetResults.length} users. Found ${totalFound} matches.`);
+
+        // Update results
+        setSearchResults(prev => prev.map((result, index) => {
+          const batchResultIndex = index - i;
+          if (batchResultIndex >= 0 && batchResultIndex < data.results.length) {
+            const batchResult = data.results[batchResultIndex];
+            const newSelectedMatches = new Set<string>();
+            
+            // Auto-select only the first (highest scoring) match
+            if (batchResult.actors.length > 0) {
+              newSelectedMatches.add(batchResult.actors[0].did);
+            }
+
+            return {
+              ...result,
+              bskyMatches: batchResult.actors,
+              isSearching: false,
+              error: batchResult.error,
+              selectedMatches: newSelectedMatches,
+            };
+          }
+          return result;
+        }));
+
+        if (totalFound >= MAX_MATCHES) {
+          break;
         }
-        return result;
-      }));
-
-      // Check again if we've hit the limit after updating results
-      if (totalFound >= MAX_MATCHES) {
-        break;
+        
+      } catch (error) {
+        console.error('Batch search error:', error);
+        // Mark batch as failed
+        setSearchResults(prev => prev.map((result, index) => 
+          i <= index && index < i + batchSize 
+            ? { ...result, isSearching: false, error: 'Search failed' }
+            : result
+        ));
       }
       
-      // Add delay between batches to be respectful of rate limits
-      if (i + batchSize < targetResults.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+      // Small delay between batches
+      if (i + batchSize < targetResults.length && totalFound < MAX_MATCHES) {
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
     
@@ -670,53 +685,6 @@ export default function App() {
     setCurrentStep('results');
   }
 
-  // Search Bluesky by handle
-  async function searchSingleUser(username: string): Promise<any[]> {
-    if (!session) return [];
-
-    try {
-      // Always use backend proxy for OAuth
-      const res = await fetch(
-        `/.netlify/functions/search-actors?q=${encodeURIComponent(username)}`,
-        { credentials: 'include' }
-      );
-
-      if (!res.ok) {
-        throw new Error(`Search failed: ${res.status}`);
-      }
-
-      const data = await res.json();
-
-      // Filter and rank matches
-      const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
-      const normalizedUsername = normalize(username);
-
-      return (data.actors || []).map((actor: any) => {
-        const handlePart = actor.handle.split('.')[0];
-        const normalizedHandle = normalize(handlePart);
-        const normalizedFullHandle = normalize(actor.handle);
-        const normalizedDisplayName = normalize(actor.displayName || '');
-
-        let score = 0;
-        if (normalizedHandle === normalizedUsername) score = 100;
-        else if (normalizedFullHandle === normalizedUsername) score = 90;
-        else if (normalizedDisplayName === normalizedUsername) score = 80;
-        else if (normalizedHandle.includes(normalizedUsername)) score = 60;
-        else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
-        else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
-        else if (normalizedUsername.includes(normalizedHandle)) score = 30;
-
-        return { ...actor, matchScore: score };
-      })
-      .filter((actor: any) => actor.matchScore > 0)
-      .sort((a: any, b: any) => b.matchScore - a.matchScore)
-      .slice(0, 5);
-    } catch (error) {
-      console.error(`Search error for ${username}:`, error);
-      return [];
-    }
-  }
-
   // Toggle selection for a specific match
   function toggleMatchSelection(resultIndex: number, did: string) {
     setSearchResults(prev => prev.map((result, index) => {
@@ -761,74 +729,92 @@ export default function App() {
   }
 
   // Follow all selected users
-async function followSelectedUsers() {
-  if (!session || isFollowing) return; // prevent double-click
+  async function followSelectedUsers() {
+    if (!session || isFollowing) return;
 
-  const selectedUsers = searchResults.flatMap((result, resultIndex) => 
-    result.bskyMatches
-      .filter(match => result.selectedMatches?.has(match.did))
-      .map(match => ({ ...match, resultIndex }))
-  );
+    const selectedUsers = searchResults.flatMap((result, resultIndex) => 
+      result.bskyMatches
+        .filter(match => result.selectedMatches?.has(match.did))
+        .map(match => ({ ...match, resultIndex }))
+    );
 
-  if (selectedUsers.length === 0) {
-    const msg = "No users selected to follow";
+    if (selectedUsers.length === 0) {
+      const msg = "No users selected to follow";
       setStatusMessage(msg);
       alert(msg);
-    return;
-  }
+      return;
+    }
 
-  setIsFollowing(true);
-  setStatusMessage(`Following ${selectedUsers.length} users...`);
-    let followedCount = 0;
-    let errorCount = 0;
+    setIsFollowing(true);
+    setStatusMessage(`Following ${selectedUsers.length} users...`);
+    let totalFollowed = 0;
+    let totalFailed = 0;
 
-  try {
-    for (const user of selectedUsers) {
-      try {
-        const res = await fetch(`/.netlify/functions/follow-user`, {
-          method: "POST",
-          credentials: 'include',
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            did: user.did,
-          }),
-        });
+    try {
+      // Process in batches of 50 follows per API call
+      const batchSize = 50;
+      
+      for (let i = 0; i < selectedUsers.length; i += batchSize) {
+        const batch = selectedUsers.slice(i, i + batchSize);
+        const dids = batch.map(user => user.did);
         
-        if (res.ok) {
-          // Mark as followed
-          followedCount++;
-            setStatusMessage(`Followed ${followedCount} of ${selectedUsers.length} users`);
-          setSearchResults(prev => prev.map((result, index) => 
-            index === user.resultIndex 
-              ? { ...result, bskyMatches: result.bskyMatches.map(match => 
-                  match.did === user.did ? { ...match, followed: true } : match
-                )}
-              : result
-          ));
-        } else {
-          errorCount++;
-          const errorData = await res.json();
-          console.error(`Follow error for ${user.handle}:`, errorData);
+        try {
+          const res = await fetch('/.netlify/functions/batch-follow-users', {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ dids }),
+          });
+          
+          if (res.ok) {
+            const data = await res.json();
+            totalFollowed += data.succeeded;
+            totalFailed += data.failed;
+            
+            // Mark successful follows in UI
+            data.results.forEach((result: any) => {
+              if (result.success) {
+                const user = batch.find(u => u.did === result.did);
+                if (user) {
+                  setSearchResults(prev => prev.map((searchResult, index) => 
+                    index === user.resultIndex 
+                      ? { 
+                          ...searchResult, 
+                          bskyMatches: searchResult.bskyMatches.map(match => 
+                            match.did === result.did ? { ...match, followed: true } : match
+                          )
+                        }
+                      : searchResult
+                  ));
+                }
+              }
+            });
+            
+            setStatusMessage(`Followed ${totalFollowed} of ${selectedUsers.length} users`);
+          } else {
+            totalFailed += batch.length;
+            console.error('Batch follow failed:', await res.text());
+          }
+        } catch (error) {
+          totalFailed += batch.length;
+          console.error('Batch follow error:', error);
         }
-      } catch (error) {
-        errorCount++;
-        console.error(`Follow error for ${user.handle}:`, error);
+        
+        // Small delay between batches
+        if (i + batchSize < selectedUsers.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
       
-      // Add small delay between follows
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const finalMsg = `Successfully followed ${totalFollowed} users${totalFailed > 0 ? `. ${totalFailed} failed.` : ''}`;
+      setStatusMessage(finalMsg);
+    } catch (error) {
+      console.error("Batch follow error:", error);
+      setStatusMessage("Error occurred while following users");
+    } finally {
+      setIsFollowing(false);
     }
-    const finalMsg = `Successfully followed ${followedCount} users${errorCount > 0 ? `. ${errorCount} failed.` : ''}`;
-    setStatusMessage(finalMsg);
-  } catch (error) {
-    console.error("Batch follow error:", error);
-    setStatusMessage("Error occurred while following users");
-  } finally {
-    setIsFollowing(false);
   }
-}
 
   const totalSelected = searchResults.reduce((total, result) => 
     total + (result.selectedMatches?.size || 0), 0
@@ -995,7 +981,7 @@ async function followSelectedUsers() {
           </div>
         )}
 
-        {/* Home/Dashboard Step - NEW */}
+        {/* Home/Dashboard Step */}
         {currentStep === 'home' && (
           <div className="p-6 max-w-md mx-auto mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">

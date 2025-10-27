@@ -14,14 +14,34 @@ function normalizePrivateKey(key: string): string {
 }
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
+  // Only allow POST
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Method not allowed' }),
+    };
+  }
+
   try {
-    // Get search query
-    const query = event.queryStringParameters?.q;
-    if (!query) {
+    // Parse request body
+    const body = JSON.parse(event.body || '{}');
+    const dids: string[] = body.dids || [];
+
+    if (!Array.isArray(dids) || dids.length === 0) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Missing query parameter: q' }),
+        body: JSON.stringify({ error: 'dids array is required and must not be empty' }),
+      };
+    }
+
+    // Limit batch size to prevent timeouts and respect rate limits
+    if (dids.length > 100) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Maximum 100 DIDs per batch' }),
       };
     }
 
@@ -78,11 +98,39 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     // Create agent from OAuth session
     const agent = new Agent(oauthSession);
 
-    // Search for actors
-    const response = await agent.app.bsky.actor.searchActors({
-      q: query,
-      limit: 20,
-    });
+    // Follow all users - process with small delays to respect rate limits
+    const results = [];
+    for (const did of dids) {
+      try {
+        await agent.api.com.atproto.repo.createRecord({
+          repo: userSession.did,
+          collection: 'app.bsky.graph.follow',
+          record: {
+            $type: 'app.bsky.graph.follow',
+            subject: did,
+            createdAt: new Date().toISOString(),
+          },
+        });
+        
+        results.push({
+          did,
+          success: true,
+          error: null
+        });
+      } catch (error) {
+        results.push({
+          did,
+          success: false,
+          error: error instanceof Error ? error.message : 'Follow failed'
+        });
+      }
+      
+      // Small delay between follows to be respectful of rate limits
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    const successCount = results.filter(r => r.success).length;
+    const failCount = results.filter(r => !r.success).length;
 
     return {
       statusCode: 200,
@@ -91,17 +139,21 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         'Access-Control-Allow-Origin': '*',
       },
       body: JSON.stringify({
-        actors: response.data.actors,
+        success: true,
+        total: dids.length,
+        succeeded: successCount,
+        failed: failCount,
+        results
       }),
     };
 
   } catch (error) {
-    console.error('Search actors error:', error);
+    console.error('Batch follow error:', error);
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        error: 'Failed to search actors',
+        error: 'Failed to follow users',
         details: error instanceof Error ? error.message : 'Unknown error'
       }),
     };
