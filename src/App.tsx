@@ -10,7 +10,7 @@ import {
   WellKnownHandleResolver
 } from "@atcute/identity-resolver";
 
-interface BskySession {
+interface atprotoSession {
   did: string;
   handle: string;
   displayName?: string;
@@ -24,7 +24,7 @@ interface TikTokUser {
 
 interface SearchResult {
   tiktokUser: TikTokUser;
-  bskyMatches: any[];
+  atprotoMatches: any[];
   isSearching: boolean;
   error?: string;
   selectedMatches?: Set<string>; // Track selected match DIDs
@@ -229,7 +229,7 @@ function MatchCarousel({
 export default function App() {
   const [handle, setHandle] = useState("");
   const [appPassword, setAppPassword] = useState("");
-  const [session, setSession] = useState<BskySession | null>(null);
+  const [session, setSession] = useState<atprotoSession | null>(null);
   const [useAppPassword, setUseAppPassword] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
@@ -559,7 +559,7 @@ export default function App() {
 
             return {
               ...result,
-              bskyMatches: batchResult.actors,
+              atprotoMatches: batchResult.actors,
               isSearching: false,
               error: batchResult.error,
               selectedMatches: newSelectedMatches,
@@ -591,6 +591,44 @@ export default function App() {
     setIsSearchingAll(false);
     setCurrentStep('results');
     setStatusMessage(`Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`);
+
+    try {
+      const uploadId = crypto.randomUUID();
+      
+      // Use targetResults directly, not searchResults from state
+      const resultsToSave = targetResults.map(r => ({
+        tiktokUser: r.tiktokUser,
+        atprotoMatches: r.atprotoMatches || []
+      }));
+      
+      console.log('Saving results:', {
+        uploadId,
+        count: resultsToSave.length,
+        sample: resultsToSave[0]
+      });
+      
+      const saveResponse = await fetch('/.netlify/functions/save-results', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uploadId,
+          sourcePlatform: 'tiktok',
+          results: resultsToSave
+        })
+      });
+
+      if (saveResponse.ok) {
+        const saveData = await saveResponse.json();
+        console.log('Results saved successfully:', saveData);
+      } else {
+        const errorText = await saveResponse.text();
+        console.error('Failed to save results:', errorText);
+      }
+    } catch (error) {
+      console.error('Error saving results:', error);
+      // Don't block user flow if save fails
+    }
   }
 
   // Parse TikTok Following data from .txt, .json, or .zip file
@@ -673,7 +711,7 @@ export default function App() {
     // Initialize search results
     const initialResults: SearchResult[] = users.map(user => ({
       tiktokUser: user,
-      bskyMatches: [],
+      atprotoMatches: [],
       isSearching: false,
       selectedMatches: new Set<string>(),
     }));
@@ -706,8 +744,8 @@ export default function App() {
     setSearchResults(prev => prev.map(result => {
       const newSelectedMatches = new Set<string>();
       // Only select the first (highest scoring) match for each TikTok user
-      if (result.bskyMatches.length > 0) {
-        newSelectedMatches.add(result.bskyMatches[0].did);
+      if (result.atprotoMatches.length > 0) {
+        newSelectedMatches.add(result.atprotoMatches[0].did);
       }
       return {
         ...result,
@@ -715,7 +753,7 @@ export default function App() {
       };
     }));
 
-    const totalToSelect = searchResults.filter(r => r.bskyMatches.length > 0).length;
+    const totalToSelect = searchResults.filter(r => r.atprotoMatches.length > 0).length;
     setStatusMessage(`Selected ${totalToSelect} top matches`);
   }
 
@@ -733,7 +771,7 @@ export default function App() {
     if (!session || isFollowing) return;
 
     const selectedUsers = searchResults.flatMap((result, resultIndex) => 
-      result.bskyMatches
+      result.atprotoMatches
         .filter(match => result.selectedMatches?.has(match.did))
         .map(match => ({ ...match, resultIndex }))
     );
@@ -780,7 +818,7 @@ export default function App() {
                     index === user.resultIndex 
                       ? { 
                           ...searchResult, 
-                          bskyMatches: searchResult.bskyMatches.map(match => 
+                          atprotoMatches: searchResult.atprotoMatches.map(match => 
                             match.did === result.did ? { ...match, followed: true } : match
                           )
                         }
@@ -819,7 +857,7 @@ export default function App() {
   const totalSelected = searchResults.reduce((total, result) => 
     total + (result.selectedMatches?.size || 0), 0
   );
-  const totalFound = searchResults.filter(r => r.bskyMatches.length > 0).length;
+  const totalFound = searchResults.filter(r => r.atprotoMatches.length > 0).length;
   const totalSearched = searchResults.filter(r => !r.isSearching).length;
 
   return (
@@ -912,7 +950,7 @@ export default function App() {
                     id="user-handle"
                     type="text"
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="yourhandle.bsky.social"
+                    placeholder="yourhandle.atproto.social"
                     value={handle}
                     onChange={(e) => setHandle(e.target.value)}
                     aria-required="true"
@@ -1193,11 +1231,11 @@ export default function App() {
                     </div>
 
                     {/* ATmosphere Matches */}
-                    {result.bskyMatches.length > 0 ? (
+                    {result.atprotoMatches.length > 0 ? (
                       <div className="space-y-2">
                         <div className="sr-only">AT matches:</div>
                           <MatchCarousel 
-                            matches={result.bskyMatches}
+                            matches={result.atprotoMatches}
                             selectedDids={result.selectedMatches || new Set()}
                             onToggleSelection={(did) => toggleMatchSelection(index, did)}
                             cardRef={{ current: resultCardRefs.current[index] || null }}

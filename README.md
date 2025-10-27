@@ -3,7 +3,12 @@ ATlast — you'll never need to find your favorites on another platform again. T
 
 ### Development  
 
-#### Deploy preview
+#### Local preview environment
+```
+netlify dev --live
+```
+
+#### Preview before deploy
 ```
 netlify deploy
 ```
