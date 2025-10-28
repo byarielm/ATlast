@@ -693,6 +693,44 @@ export default function App() {
       console.error('Error saving results:', error);
       // Don't block user flow if save fails
     }
+
+    try {
+      const uploadId = crypto.randomUUID();
+      
+      // Use targetResults directly, not searchResults from state
+      const resultsToSave = targetResults.map(r => ({
+        tiktokUser: r.tiktokUser,
+        atprotoMatches: r.atprotoMatches || []
+      }));
+      
+      console.log('Saving results:', {
+        uploadId,
+        count: resultsToSave.length,
+        sample: resultsToSave[0]
+      });
+      
+      const saveResponse = await fetch('/.netlify/functions/save-results', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          uploadId,
+          sourcePlatform: 'tiktok',
+          results: resultsToSave
+        })
+      });
+
+      if (saveResponse.ok) {
+        const saveData = await saveResponse.json();
+        console.log('Results saved successfully:', saveData);
+      } else {
+        const errorText = await saveResponse.text();
+        console.error('Failed to save results:', errorText);
+      }
+    } catch (error) {
+      console.error('Error saving results:', error);
+      // Don't block user flow if save fails
+    }
   }
 
   // Parse TikTok Following data from .txt, .json, or .zip file
