@@ -10,7 +10,7 @@ import {
   WellKnownHandleResolver
 } from "@atcute/identity-resolver";
 
-interface atprotoSession {
+interface BskySession {
   did: string;
   handle: string;
   displayName?: string;
@@ -24,10 +24,10 @@ interface TikTokUser {
 
 interface SearchResult {
   tiktokUser: TikTokUser;
-  atprotoMatches: any[];
+  bskyMatches: any[];
   isSearching: boolean;
   error?: string;
-  selectedMatches?: Set<string>; // Track selected match DIDs
+  selectedMatches?: Set<string>;
 }
 
 // Match Carousel Component
@@ -229,7 +229,7 @@ function MatchCarousel({
 export default function App() {
   const [handle, setHandle] = useState("");
   const [appPassword, setAppPassword] = useState("");
-  const [session, setSession] = useState<atprotoSession | null>(null);
+  const [session, setSession] = useState<BskySession | null>(null);
   const [useAppPassword, setUseAppPassword] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
@@ -373,7 +373,7 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           login_hint: handle,
-          origin: currentOrigin // Tell backend what URL we're actually on
+          origin: currentOrigin
         }),
       });
 
@@ -384,7 +384,7 @@ export default function App() {
 
       const { url } = await res.json();
       setStatusMessage("Redirecting to authentication...");
-      window.location.href = url; // redirect to authorization server
+      window.location.href = url;
     } catch (err) {
       console.error('OAuth error:', err);
       const errorMsg = `Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`;
@@ -395,58 +395,53 @@ export default function App() {
 
   // App Password Login (Fallback method)
   async function loginWithAppPassword() {
-  try {
-    if (!handle || !appPassword) {
-      alert("Enter handle and app password");
-      return;
+    try {
+      if (!handle || !appPassword) {
+        alert("Enter handle and app password");
+        return;
+      }
+
+      const did = await handleResolver.resolve(handle as `${string}.${string}`);
+      if (!did) {
+        alert("Failed to resolve handle to DID");
+        return;
+      }
+
+      const didDoc = await didDocumentResolver.resolve(did);
+      if (!didDoc?.service?.[0]?.serviceEndpoint) {
+        alert("Could not determine PDS endpoint from DID Document");
+        return;
+      }
+
+      const pdsEndpoint = didDoc.service[0].serviceEndpoint;
+
+      const sessionRes = await fetch(`${pdsEndpoint}/xrpc/com.atproto.server.createSession`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: handle, password: appPassword }),
+      });
+
+      if (!sessionRes.ok) {
+        const errText = await sessionRes.text();
+        console.error("Login failed:", errText);
+        alert("Login failed, check handle and app password");
+        return;
+      }
+
+      const sessionData = await sessionRes.json();
+
+      setSession({
+        ...sessionData,
+        serviceEndpoint: pdsEndpoint,
+      });
+
+      setCurrentStep('home');
+
+      console.log("Logged in successfully!", sessionData, pdsEndpoint);
+    } catch (err) {
+      console.error("Login error:", err);
+      alert("Error during login. See console for details.");
     }
-
-    // Step 1: Resolve handle → DID
-    const did = await handleResolver.resolve(handle as `${string}.${string}`);
-    if (!did) {
-      alert("Failed to resolve handle to DID");
-      return;
-    }
-
-    // Step 2: Resolve DID → DID Document
-    const didDoc = await didDocumentResolver.resolve(did);
-    if (!didDoc?.service?.[0]?.serviceEndpoint) {
-      alert("Could not determine PDS endpoint from DID Document");
-      return;
-    }
-
-    // Step 3: Extract PDS endpoint
-    const pdsEndpoint = didDoc.service[0].serviceEndpoint;
-
-    // Step 4: Authenticate via App Password
-    const sessionRes = await fetch(`${pdsEndpoint}/xrpc/com.atproto.server.createSession`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier: handle, password: appPassword }),
-    });
-
-    if (!sessionRes.ok) {
-      const errText = await sessionRes.text();
-      console.error("Login failed:", errText);
-      alert("Login failed, check handle and app password");
-      return;
-    }
-
-    const sessionData = await sessionRes.json();
-
-    // Step 5: Store session + PDS endpoint for future API calls
-    setSession({
-      ...sessionData,
-      serviceEndpoint: pdsEndpoint,
-    });
-
-    setCurrentStep('home');
-
-    console.log("Logged in successfully!", sessionData, pdsEndpoint);
-  } catch (err) {
-    console.error("Login error:", err);
-    alert("Error during login. See console for details.");
-  }
   }
 
   async function parseJsonFile(jsonText: string): Promise<TikTokUser[]> {
@@ -484,51 +479,6 @@ export default function App() {
     return users;
   }
 
-  // Save search results external to search/results
-  async function saveSearchResults(results: SearchResult[]) {
-  try {
-    const uploadId = crypto.randomUUID();
-    
-    const resultsToSave = results
-      .filter(r => !r.isSearching) // Only include completed searches
-      .map(r => ({
-        tiktokUser: r.tiktokUser,
-        atprotoMatches: r.atprotoMatches || []
-      }));
-    
-    console.log('Saving results:', {
-      uploadId,
-      count: resultsToSave.length,
-      withMatches: resultsToSave.filter(r => r.atprotoMatches.length > 0).length,
-      sample: resultsToSave.slice(0, 2)
-    });
-    
-    const saveResponse = await fetch('/.netlify/functions/save-results', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        uploadId,
-        sourcePlatform: 'tiktok',
-        results: resultsToSave
-      })
-    });
-
-    if (saveResponse.ok) {
-      const saveData = await saveResponse.json();
-      console.log('Results saved successfully:', saveData);
-      return saveData;
-    } else {
-      const errorText = await saveResponse.text();
-      console.error('Failed to save results:', errorText);
-      return null;
-    }
-  } catch (error) {
-    console.error('Error saving results:', error);
-    return null;
-  }
-}
-
   // Search all users
   async function searchAllUsers(resultsToSearch?: SearchResult[]) {
     console.log('sau Session value:', session);
@@ -540,8 +490,7 @@ export default function App() {
     setSearchProgress({ searched: 0, found: 0, total: targetResults.length });
     setStatusMessage(`Starting search for ${targetResults.length} users...`);
     
-    // Process in batches of 25 usernames per API call
-    const batchSize = 25;
+    const batchSize = 3;
     let totalSearched = 0;
     let totalFound = 0;
     const MAX_MATCHES = 1000;
@@ -554,145 +503,65 @@ export default function App() {
       }
 
       const batch = targetResults.slice(i, i + batchSize);
-      const usernames = batch.map(r => r.tiktokUser.username);
       
-      // Mark current batch as searching
       setSearchResults(prev => prev.map((result, index) => 
         i <= index && index < i + batchSize 
           ? { ...result, isSearching: true }
           : result
       ));
       
-      try {
-        // Single API call for entire batch
-        const res = await fetch('/.netlify/functions/batch-search-actors', {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ usernames })
-        });
-
-        if (!res.ok) {
-          throw new Error(`Batch search failed: ${res.status}`);
+      const batchPromises = batch.map(async (result, batchIndex) => {
+        const globalIndex = i + batchIndex;
+        try {
+          const matches = await searchSingleUser(result.tiktokUser.username);
+          return { globalIndex, matches, error: undefined };
+        } catch (error) {
+          return { globalIndex, matches: [], error: error instanceof Error ? error.message : 'Search failed' };
         }
-
-        const data = await res.json();
-        
-        // Process batch results
-        data.results.forEach((result: any, batchIndex: number) => {
-          const globalIndex = i + batchIndex;
-          totalSearched++;
-          if (result.actors.length > 0) {
-            totalFound++;
-          }
-        });
-
-        setSearchProgress({ searched: totalSearched, found: totalFound, total: targetResults.length });
-        setStatusMessage(`Searched ${totalSearched} of ${targetResults.length} users. Found ${totalFound} matches.`);
-
-        // Update results
-        setSearchResults(prev => prev.map((result, index) => {
-          const batchResultIndex = index - i;
-          if (batchResultIndex >= 0 && batchResultIndex < data.results.length) {
-            const batchResult = data.results[batchResultIndex];
-            const newSelectedMatches = new Set<string>();
-            
-            // Auto-select only the first (highest scoring) match
-            if (batchResult.actors.length > 0) {
-              newSelectedMatches.add(batchResult.actors[0].did);
-            }
-
-            return {
-              ...result,
-              atprotoMatches: batchResult.actors,
-              isSearching: false,
-              error: batchResult.error,
-              selectedMatches: newSelectedMatches,
-            };
-          }
-          return result;
-        }));
-
-        if (totalFound >= MAX_MATCHES) {
-          break;
+      });
+      
+      const batchResults = await Promise.all(batchPromises);
+      
+      batchResults.forEach(br => {
+        totalSearched++;
+        if (br.matches.length > 0) {
+          totalFound++;
         }
-        
-      } catch (error) {
-        console.error('Batch search error:', error);
-        // Mark batch as failed
-        setSearchResults(prev => prev.map((result, index) => 
-          i <= index && index < i + batchSize 
-            ? { ...result, isSearching: false, error: 'Search failed' }
-            : result
-        ));
+      });
+      setSearchProgress({ searched: totalSearched, found: totalFound, total: targetResults.length });
+      setStatusMessage(`Searched ${totalSearched} of ${targetResults.length} users. Found ${totalFound} matches.`);
+
+      setSearchResults(prev => prev.map((result, index) => {
+        const batchResult = batchResults.find(br => br.globalIndex === index);
+        if (batchResult) {
+          const newSelectedMatches = new Set<string>();
+          if (batchResult.matches.length > 0) {
+            newSelectedMatches.add(batchResult.matches[0].did);
+          }
+
+          return {
+            ...result,
+            bskyMatches: batchResult.matches,
+            isSearching: false,
+            error: batchResult.error,
+            selectedMatches: newSelectedMatches,
+          };
+        }
+        return result;
+      }));
+
+      if (totalFound >= MAX_MATCHES) {
+        break;
       }
       
-      // Small delay between batches
-      if (i + batchSize < targetResults.length && totalFound < MAX_MATCHES) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      if (i + batchSize < targetResults.length) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
       }
     }
     
     setIsSearchingAll(false);
     setCurrentStep('results');
     setStatusMessage(`Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`);
-
-    // Save after a short delay to ensure state has updated
-    setTimeout(() => {
-      setSearchResults(currentResults => {
-        saveSearchResults(currentResults);
-        return currentResults;
-      });
-    }, 100);
-
-    try {
-      const uploadId = crypto.randomUUID();
-      
-      // Log what we're about to save
-      console.log('targetResults before saving:', {
-        count: targetResults.length,
-        sample: targetResults.slice(0, 3).map(r => ({
-          username: r.tiktokUser.username,
-          matchCount: r.atprotoMatches?.length || 0,
-          hasMatches: !!r.atprotoMatches && r.atprotoMatches.length > 0
-        }))
-      });
-      
-      // Build the payload
-      const resultsToSave = targetResults.map(r => ({
-        tiktokUser: r.tiktokUser,
-        atprotoMatches: r.atprotoMatches || []
-      }));
-      
-      console.log('Payload to save:', {
-        uploadId,
-        count: resultsToSave.length,
-        sample: resultsToSave.slice(0, 3),
-        withMatches: resultsToSave.filter(r => r.atprotoMatches.length > 0).length
-      });
-      
-      const saveResponse = await fetch('/.netlify/functions/save-results', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          uploadId,
-          sourcePlatform: 'tiktok',
-          results: resultsToSave
-        })
-      });
-
-      if (saveResponse.ok) {
-        const saveData = await saveResponse.json();
-        console.log('Results saved successfully:', saveData);
-      } else {
-        const errorText = await saveResponse.text();
-        console.error('Failed to save results:', errorText);
-      }
-    } catch (error) {
-      console.error('Error saving results:', error);
-      // Don't block user flow if save fails
-    }
   }
 
   // Parse TikTok Following data from .txt, .json, or .zip file
@@ -704,21 +573,17 @@ export default function App() {
     let users: TikTokUser[] = [];
 
     try {
-      // Direct JSON upload
       if (file.name.endsWith(".json")) {
         users = await parseJsonFile(await file.text());
         console.log(`Loaded ${users.length} TikTok users from JSON file`);
         setStatusMessage(`Loaded ${users.length} users from JSON file`);
       } else if (file.name.endsWith(".txt")) {
-      // Direct TXT upload
         users = parseTxtFile(await file.text());
         console.log(`Loaded ${users.length} TikTok users from TXT file`);
         setStatusMessage(`Loaded ${users.length} users from TXT file`);
       } else if (file.name.endsWith(".zip")) {
-      // ZIP upload - find Following.txt OR JSON
         const zip = await JSZip.loadAsync(file);
 
-        // Looking for Following.txt
         const followingFile =
         zip.file("TikTok/Profile and Settings/Following.txt") ||
         zip.file("Profile and Settings/Following.txt") ||
@@ -734,7 +599,6 @@ export default function App() {
           console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
           setStatusMessage(`Loaded ${users.length} users from ZIP file`);
         } else {
-          // If no TXT, look for JSON at the top level
           const jsonFileEntry = Object.values(zip.files).find(
             (f) => f.name.endsWith(".json") && !f.dir
           );
@@ -772,10 +636,9 @@ export default function App() {
       return;
     }
 
-    // Initialize search results
     const initialResults: SearchResult[] = users.map(user => ({
       tiktokUser: user,
-      atprotoMatches: [],
+      bskyMatches: [],
       isSearching: false,
       selectedMatches: new Set<string>(),
     }));
@@ -787,7 +650,51 @@ export default function App() {
     setCurrentStep('results');
   }
 
-  // Toggle selection for a specific match
+  // Search Bluesky by handle
+  async function searchSingleUser(username: string): Promise<any[]> {
+    if (!session) return [];
+
+    try {
+      const res = await fetch(
+        `/.netlify/functions/search-actors?q=${encodeURIComponent(username)}`,
+        { credentials: 'include' }
+      );
+
+      if (!res.ok) {
+        throw new Error(`Search failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
+      const normalizedUsername = normalize(username);
+
+      return (data.actors || []).map((actor: any) => {
+        const handlePart = actor.handle.split('.')[0];
+        const normalizedHandle = normalize(handlePart);
+        const normalizedFullHandle = normalize(actor.handle);
+        const normalizedDisplayName = normalize(actor.displayName || '');
+
+        let score = 0;
+        if (normalizedHandle === normalizedUsername) score = 100;
+        else if (normalizedFullHandle === normalizedUsername) score = 90;
+        else if (normalizedDisplayName === normalizedUsername) score = 80;
+        else if (normalizedHandle.includes(normalizedUsername)) score = 60;
+        else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
+        else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
+        else if (normalizedUsername.includes(normalizedHandle)) score = 30;
+
+        return { ...actor, matchScore: score };
+      })
+      .filter((actor: any) => actor.matchScore > 0)
+      .sort((a: any, b: any) => b.matchScore - a.matchScore)
+      .slice(0, 5);
+    } catch (error) {
+      console.error(`Search error for ${username}:`, error);
+      return [];
+    }
+  }
+
   function toggleMatchSelection(resultIndex: number, did: string) {
     setSearchResults(prev => prev.map((result, index) => {
       if (index === resultIndex) {
@@ -803,13 +710,11 @@ export default function App() {
     }));
   }
 
-  // Select all matches across all results - only first match per TT user
   function selectAllMatches() {
     setSearchResults(prev => prev.map(result => {
       const newSelectedMatches = new Set<string>();
-      // Only select the first (highest scoring) match for each TikTok user
-      if (result.atprotoMatches.length > 0) {
-        newSelectedMatches.add(result.atprotoMatches[0].did);
+      if (result.bskyMatches.length > 0) {
+        newSelectedMatches.add(result.bskyMatches[0].did);
       }
       return {
         ...result,
@@ -817,11 +722,10 @@ export default function App() {
       };
     }));
 
-    const totalToSelect = searchResults.filter(r => r.atprotoMatches.length > 0).length;
+    const totalToSelect = searchResults.filter(r => r.bskyMatches.length > 0).length;
     setStatusMessage(`Selected ${totalToSelect} top matches`);
   }
 
-  // Deselect all matches across all results
   function deselectAllMatches() {
     setSearchResults(prev => prev.map(result => ({
       ...result,
@@ -830,12 +734,11 @@ export default function App() {
     setStatusMessage('Cleared all selections');
   }
 
-  // Follow all selected users
   async function followSelectedUsers() {
     if (!session || isFollowing) return;
 
     const selectedUsers = searchResults.flatMap((result, resultIndex) => 
-      result.atprotoMatches
+      result.bskyMatches
         .filter(match => result.selectedMatches?.has(match.did))
         .map(match => ({ ...match, resultIndex }))
     );
@@ -849,66 +752,46 @@ export default function App() {
 
     setIsFollowing(true);
     setStatusMessage(`Following ${selectedUsers.length} users...`);
-    let totalFollowed = 0;
-    let totalFailed = 0;
+    let followedCount = 0;
+    let errorCount = 0;
 
     try {
-      // Process in batches of 50 follows per API call
-      const batchSize = 50;
-      
-      for (let i = 0; i < selectedUsers.length; i += batchSize) {
-        const batch = selectedUsers.slice(i, i + batchSize);
-        const dids = batch.map(user => user.did);
-        
+      for (const user of selectedUsers) {
         try {
-          const res = await fetch('/.netlify/functions/batch-follow-users', {
-            method: 'POST',
+          const res = await fetch(`/.netlify/functions/follow-user`, {
+            method: "POST",
             credentials: 'include',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ dids }),
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              did: user.did,
+            }),
           });
           
           if (res.ok) {
-            const data = await res.json();
-            totalFollowed += data.succeeded;
-            totalFailed += data.failed;
-            
-            // Mark successful follows in UI
-            data.results.forEach((result: any) => {
-              if (result.success) {
-                const user = batch.find(u => u.did === result.did);
-                if (user) {
-                  setSearchResults(prev => prev.map((searchResult, index) => 
-                    index === user.resultIndex 
-                      ? { 
-                          ...searchResult, 
-                          atprotoMatches: searchResult.atprotoMatches.map(match => 
-                            match.did === result.did ? { ...match, followed: true } : match
-                          )
-                        }
-                      : searchResult
-                  ));
-                }
-              }
-            });
-            
-            setStatusMessage(`Followed ${totalFollowed} of ${selectedUsers.length} users`);
+            followedCount++;
+            setStatusMessage(`Followed ${followedCount} of ${selectedUsers.length} users`);
+            setSearchResults(prev => prev.map((result, index) => 
+              index === user.resultIndex 
+                ? { ...result, bskyMatches: result.bskyMatches.map(match => 
+                    match.did === user.did ? { ...match, followed: true } : match
+                  )}
+                : result
+            ));
           } else {
-            totalFailed += batch.length;
-            console.error('Batch follow failed:', await res.text());
+            errorCount++;
+            const errorData = await res.json();
+            console.error(`Follow error for ${user.handle}:`, errorData);
           }
         } catch (error) {
-          totalFailed += batch.length;
-          console.error('Batch follow error:', error);
+          errorCount++;
+          console.error(`Follow error for ${user.handle}:`, error);
         }
         
-        // Small delay between batches
-        if (i + batchSize < selectedUsers.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
-        }
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
-      
-      const finalMsg = `Successfully followed ${totalFollowed} users${totalFailed > 0 ? `. ${totalFailed} failed.` : ''}`;
+      const finalMsg = `Successfully followed ${followedCount} users${errorCount > 0 ? `. ${errorCount} failed.` : ''}`;
       setStatusMessage(finalMsg);
     } catch (error) {
       console.error("Batch follow error:", error);
@@ -921,7 +804,7 @@ export default function App() {
   const totalSelected = searchResults.reduce((total, result) => 
     total + (result.selectedMatches?.size || 0), 0
   );
-  const totalFound = searchResults.filter(r => r.atprotoMatches.length > 0).length;
+  const totalFound = searchResults.filter(r => r.bskyMatches.length > 0).length;
   const totalSearched = searchResults.filter(r => !r.isSearching).length;
 
   return (
@@ -1014,7 +897,7 @@ export default function App() {
                     id="user-handle"
                     type="text"
                     className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="yourhandle.atproto.social"
+                    placeholder="yourhandle.bsky.social"
                     value={handle}
                     onChange={(e) => setHandle(e.target.value)}
                     aria-required="true"
@@ -1062,11 +945,10 @@ export default function App() {
                     </div>
 
                     <button
-                      type="button"
-                      onClick={() => setUseAppPassword(true)}
-                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
                     >
-                      Use App Password instead
+                      Login with App Password
                     </button>
 
                     <button
@@ -1083,7 +965,7 @@ export default function App() {
           </div>
         )}
 
-        {/* Home/Dashboard Step */}
+        {/* Home/Dashboard Step - NEW */}
         {currentStep === 'home' && (
           <div className="p-6 max-w-md mx-auto mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
@@ -1285,7 +1167,6 @@ export default function App() {
               {searchResults.map((result, index) => (
                 <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700" role="listitem">
                   <div className="p-4">
-                    {/* TikTok User Header */}
                     <div className="mb-3">
                       <div className="text-xs text-gray-500 dark:text-gray-200 uppercase tracking-wide mb-1" aria-hidden="true">TikTok</div>
                       <div className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
@@ -1294,12 +1175,11 @@ export default function App() {
                       </div>
                     </div>
 
-                    {/* ATmosphere Matches */}
-                    {result.atprotoMatches.length > 0 ? (
+                    {result.bskyMatches.length > 0 ? (
                       <div className="space-y-2">
                         <div className="sr-only">AT matches:</div>
                           <MatchCarousel 
-                            matches={result.atprotoMatches}
+                            matches={result.bskyMatches}
                             selectedDids={result.selectedMatches || new Set()}
                             onToggleSelection={(did) => toggleMatchSelection(index, did)}
                             cardRef={{ current: resultCardRefs.current[index] || null }}
