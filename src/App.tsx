@@ -1,20 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Upload, User, Check, Search, ArrowRight, Users, FileText, ChevronRight, LogOut, Home } from "lucide-react";
+import { Upload, Check, Search, ArrowRight, ChevronRight, LogOut, Home, Heart, Clock, Trash2, UserPlus, ChevronDown, Twitter, Instagram, Video, Hash, Gamepad2, MessageCircle, Music, Menu, User } from "lucide-react";
 import JSZip from "jszip";
-import {
-  CompositeDidDocumentResolver,
-  CompositeHandleResolver,
-  PlcDidDocumentResolver,
-  AtprotoWebDidDocumentResolver,
-  DohJsonHandleResolver,
-  WellKnownHandleResolver
-} from "@atcute/identity-resolver";
 
 interface atprotoSession {
   did: string;
   handle: string;
   displayName?: string;
   avatar?: string;
+  description?: string;
 }
 
 interface TikTokUser {
@@ -30,229 +23,129 @@ interface SearchResult {
   selectedMatches?: Set<string>; // Track selected match DIDs
 }
 
-// Match Carousel Component
-function MatchCarousel({ 
-  matches, 
-  selectedDids, 
-  onToggleSelection,
-  cardRef
-}: { 
-  matches: any[]; 
-  selectedDids: Set<string>; 
-  onToggleSelection: (did: string) => void;
-  cardRef?: React.RefObject<HTMLDivElement | null>;
-}) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  
-  const currentMatch = matches[currentIndex];
-  const hasMore = matches.length > 1;
-  const hasPrev = currentIndex > 0;
-  const hasNext = currentIndex < matches.length - 1;
-  
-  const minSwipeDistance = 50;
-  
-  const nextMatch = () => {
-    if (hasNext) {
-      setCurrentIndex(currentIndex + 1);
-    }
-  };
-  
-  const prevMatch = () => {
-    if (hasPrev) {
-      setCurrentIndex(currentIndex - 1);
-    }
-  };
-  
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowLeft') {
-      e.preventDefault();
-      prevMatch();
-    } else if (e.key === 'ArrowRight') {
-      e.preventDefault();
-      nextMatch();
-    } else if (e.key === ' ' || e.key === 'Enter') {
-      e.preventDefault();
-      onToggleSelection(currentMatch.did);
-    }
-  };
-  
-  const onTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null);
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-  
-  const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-  
-  const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
-    
-    const distance = touchStart - touchEnd;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe && hasNext) {
-      nextMatch();
-    } else if (isRightSwipe && hasPrev) {
-      prevMatch();
-    }
-  };
+const PLATFORMS = {
+  twitter: {
+    name: 'Twitter/X',
+    icon: Twitter,
+    color: 'from-blue-400 to-blue-600',
+    accentBg: 'bg-blue-500',
+    fileHint: 'following.js or account data ZIP',
+  },
+  instagram: {
+    name: 'Instagram',
+    icon: Instagram,
+    color: 'from-pink-500 via-purple-500 to-orange-500',
+    accentBg: 'bg-pink-500',
+    fileHint: 'connections.json or data ZIP',
+  },
+  tiktok: {
+    name: 'TikTok',
+    icon: Video,
+    color: 'from-black via-gray-800 to-cyan-400',
+    accentBg: 'bg-black',
+    fileHint: 'Following.txt or data ZIP',
+  },
+  tumblr: {
+    name: 'Tumblr',
+    icon: Hash,
+    color: 'from-indigo-600 to-blue-800',
+    accentBg: 'bg-indigo-600',
+    fileHint: 'following.csv or data export',
+  },
+  twitch: {
+    name: 'Twitch',
+    icon: Gamepad2,
+    color: 'from-purple-600 to-purple-800',
+    accentBg: 'bg-purple-600',
+    fileHint: 'following.json or data export',
+  },
+  youtube: {
+    name: 'YouTube',
+    icon: Video,
+    color: 'from-red-600 to-red-700',
+    accentBg: 'bg-red-600',
+    fileHint: 'subscriptions.csv or Takeout ZIP',
+  },
+};
 
-  const matchLabel = `${currentMatch.displayName || currentMatch.handle}, ${currentMatch.matchScore} percent match${currentMatch.followed ? ', already followed' : ''}${hasMore ? `, match ${currentIndex + 1} of ${matches.length}` : ''}`;
-  
+function AppHeader({ session, onLogout, onNavigate, currentStep }: { session: atprotoSession | null; onLogout: () => void; onNavigate: (step: 'home' | 'login') => void; currentStep: string }) {
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div 
-      className="relative" 
-      onTouchStart={onTouchStart}
-      onTouchMove={onTouchMove}
-      onTouchEnd={onTouchEnd}
-    >
-      <div
-        ref={(el) => {
-          if (cardRef) {
-            cardRef.current = el;
-          }
-        }}
-        className={`flex items-center space-x-3 p-3 rounded-lg border transition-all focus-within:ring-2 focus-within:ring-blue-500 focus-within:ring-offset-2 ${
-          selectedDids.has(currentMatch.did)
-            ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-700'
-            : 'bg-gray-50 dark:bg-gray-700 border-gray-200 dark:border-gray-600'
-        } ${currentMatch.followed ? 'opacity-60' : ''}`}
-        onKeyDown={handleKeyDown}
-        onFocus={(e) => {
-          if (e.target === e.currentTarget) {
-            e.currentTarget.scrollIntoView({
-              behavior: 'smooth',
-              block: 'center',
-              inline: 'nearest'
-            });
-          }
-        }}
-        tabIndex={0}
-        role="button"
-        aria-label={matchLabel}
-        aria-pressed={selectedDids.has(currentMatch.did)}
-        aria-disabled={currentMatch.followed}
-      >
-        <div 
-          className="flex items-center justify-center min-w-[44px] min-h-[44px] cursor-pointer flex-shrink-0"
-          onClick={() => !currentMatch.followed && onToggleSelection(currentMatch.did)}
-          aria-hidden="true"
-        >
-          <div className={`w-5 h-5 border-2 rounded flex items-center justify-center transition-colors ${
-            selectedDids.has(currentMatch.did) 
-              ? 'bg-blue-600 border-blue-600' 
-              : 'bg-white dark:bg-gray-600 border-gray-300 dark:border-gray-500'
-          } ${currentMatch.followed ? 'opacity-50 cursor-not-allowed' : ''}`}>
-            {selectedDids.has(currentMatch.did) && (
-              <Check className="w-3 h-3 text-white" />
-            )}
-          </div>
-        </div>
-        
-        {currentMatch.avatar ? (
-          <img 
-            src={currentMatch.avatar} 
-            alt=""
-            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-          />
-        ) : (
-          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0" aria-hidden="true">
-            <span className="text-white font-bold text-sm">
-              {currentMatch.handle.charAt(0).toUpperCase()}
-            </span>
-          </div>
-        )}
-        
-        <div className="flex-1 min-w-0" aria-hidden="true">
-          {currentMatch.displayName && (
-            <div className="font-medium text-gray-900 dark:text-gray-100 truncate">
-              {currentMatch.displayName}
+    <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+      <div className="max-w-6xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <button onClick={() => onNavigate(session ? 'home' : 'login')} className="flex items-center space-x-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg px-2 py-1">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <Heart className="w-5 h-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-gray-100">ATlast</h1>
+          </button>
+
+          {session && (
+            <div className="relative" ref={menuRef}>
+              <button onClick={() => setShowMenu(!showMenu)} className="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500">
+                {session.avatar ? (
+                  <img src={session.avatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-bold text-sm">{session.handle.charAt(0).toUpperCase()}</span>
+                  </div>
+                )}
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100 hidden sm:inline">@{session.handle}</span>
+                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showMenu ? 'rotate-180' : ''}`} />
+              </button>
+
+              {showMenu && (
+                <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                  <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+                    <div className="font-medium text-gray-900 dark:text-gray-100">{session.displayName || session.handle}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400">@{session.handle}</div>
+                  </div>
+                  <button onClick={() => { setShowMenu(false); onNavigate('home'); }} className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left">
+                    <Home className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-900 dark:text-gray-100">Dashboard</span>
+                  </button>
+                  <button onClick={() => { setShowMenu(false); onNavigate('login'); }} className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-left">
+                    <Heart className="w-4 h-4 text-gray-500" />
+                    <span className="text-gray-900 dark:text-gray-100">About</span>
+                  </button>
+                  <div className="border-t border-gray-200 dark:border-gray-700 my-2"></div>
+                  <button onClick={() => { setShowMenu(false); onLogout(); }} className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400">
+                    <LogOut className="w-4 h-4" />
+                    <span>Log out</span>
+                  </button>
+                </div>
+              )}
             </div>
           )}
-          <div className="flex items-center space-x-2">
-            <div className="text-sm text-gray-600 dark:text-gray-300 truncate">
-              @{currentMatch.handle}
-            </div>
-            <span className="text-xs bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-2 py-0.5 rounded flex-shrink-0">
-              {currentMatch.matchScore}%
-            </span>
-          </div>
         </div>
-        
-        {currentMatch.followed && (
-          <div className="flex-shrink-0" aria-hidden="true">
-            <div className="flex items-center space-x-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400 px-2 py-1 rounded-full text-xs">
-              <Check className="w-3 h-3" />
-              <span>Followed</span>
-            </div>
-          </div>
-        )}
-        
-        {hasMore && (
-          <div className="flex items-center space-x-1 flex-shrink-0" aria-hidden="true">
-            {hasPrev && (
-              <div className="p-2 text-gray-400 dark:text-gray-500">
-                <ChevronRight className="w-5 h-5 rotate-180" />
-              </div>
-            )}
-            {hasNext && (
-              <div className="p-2 text-gray-400 dark:text-gray-500">
-                <ChevronRight className="w-5 h-5" />
-              </div>
-            )}
-          </div>
-        )}
       </div>
-      
-      {hasMore && (
-        <div className="flex items-center justify-center space-x-2 mt-2" aria-hidden="true">
-          {matches.map((_, idx) => (
-            <div
-              key={idx}
-              className={`h-1.5 rounded-full transition-all ${
-                idx === currentIndex 
-                  ? 'w-6 bg-blue-500' 
-                  : 'w-1.5 bg-gray-300'
-              }`}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
 
 export default function App() {
   const [handle, setHandle] = useState("");
-  const [appPassword, setAppPassword] = useState("");
   const [session, setSession] = useState<atprotoSession | null>(null);
-  const [useAppPassword, setUseAppPassword] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
   const [currentStep, setCurrentStep] = useState<'checking' | 'login' | 'home' | 'upload' | 'loading' | 'results'>('checking');
   const [searchProgress, setSearchProgress] = useState({ searched: 0, found: 0, total: 0 });
   const [isFollowing, setIsFollowing] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
-  const resultCardRefs = useRef<(HTMLDivElement | null)[]>([]);
-
-  const didDocumentResolver = new CompositeDidDocumentResolver({
-    methods: {
-      plc: new PlcDidDocumentResolver({ apiUrl: "https://plc.directory" }),
-      web: new AtprotoWebDidDocumentResolver(),
-    },
-  });
-
-  const handleResolver = new CompositeHandleResolver({
-    strategy: "dns-first",
-    methods: {
-      dns: new DohJsonHandleResolver({ dohUrl: "https://dns.google/resolve?" }),
-      http: new WellKnownHandleResolver(),
-    },
-  });
+  const [expandedResults, setExpandedResults] = useState<Set<number>>(new Set());
 
   // Check for existing session on mount
   useEffect(() => {
@@ -289,12 +182,7 @@ export default function App() {
 
       if (res.ok) {
         const data = await res.json();
-        setSession({
-          did: data.did,
-          handle: data.handle,
-          displayName: data.displayName,
-          avatar: data.avatar,
-        });
+        await fetchProfile();
         setCurrentStep('home');
         setStatusMessage(`Welcome back, ${data.handle}!`);
       } else {
@@ -322,6 +210,7 @@ export default function App() {
         handle: data.handle,
         displayName: data.displayName,
         avatar: data.avatar,
+        description: data.description,
       });
       setStatusMessage(`Successfully logged in as ${data.handle}`);
     } catch (err) {
@@ -356,7 +245,8 @@ export default function App() {
   }
 
   // Start OAuth login
-  const loginWithOAuth = async () => {
+  const loginWithOAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
       if (!handle) {
         const errorMsg = "Please enter your handle";
@@ -392,62 +282,6 @@ export default function App() {
       alert(errorMsg);
     }
   };
-
-  // App Password Login (Fallback method)
-  async function loginWithAppPassword() {
-  try {
-    if (!handle || !appPassword) {
-      alert("Enter handle and app password");
-      return;
-    }
-
-    // Step 1: Resolve handle → DID
-    const did = await handleResolver.resolve(handle as `${string}.${string}`);
-    if (!did) {
-      alert("Failed to resolve handle to DID");
-      return;
-    }
-
-    // Step 2: Resolve DID → DID Document
-    const didDoc = await didDocumentResolver.resolve(did);
-    if (!didDoc?.service?.[0]?.serviceEndpoint) {
-      alert("Could not determine PDS endpoint from DID Document");
-      return;
-    }
-
-    // Step 3: Extract PDS endpoint
-    const pdsEndpoint = didDoc.service[0].serviceEndpoint;
-
-    // Step 4: Authenticate via App Password
-    const sessionRes = await fetch(`${pdsEndpoint}/xrpc/com.atproto.server.createSession`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier: handle, password: appPassword }),
-    });
-
-    if (!sessionRes.ok) {
-      const errText = await sessionRes.text();
-      console.error("Login failed:", errText);
-      alert("Login failed, check handle and app password");
-      return;
-    }
-
-    const sessionData = await sessionRes.json();
-
-    // Step 5: Store session + PDS endpoint for future API calls
-    setSession({
-      ...sessionData,
-      serviceEndpoint: pdsEndpoint,
-    });
-
-    setCurrentStep('home');
-
-    console.log("Logged in successfully!", sessionData, pdsEndpoint);
-  } catch (err) {
-    console.error("Login error:", err);
-    alert("Error during login. See console for details.");
-  }
-  }
 
   async function parseJsonFile(jsonText: string): Promise<TikTokUser[]> {
     const users: TikTokUser[] = [];
@@ -531,7 +365,6 @@ export default function App() {
 
   // Search all users
   async function searchAllUsers(resultsToSearch?: SearchResult[]) {
-    console.log('sau Session value:', session);
     const targetResults = resultsToSearch || searchResults;
     if (!session || targetResults.length === 0) return;
     
@@ -579,8 +412,7 @@ export default function App() {
         const data = await res.json();
         
         // Process batch results
-        data.results.forEach((result: any, batchIndex: number) => {
-          const globalIndex = i + batchIndex;
+        data.results.forEach((result: any) => {
           totalSearched++;
           if (result.actors.length > 0) {
             totalFound++;
@@ -658,12 +490,12 @@ export default function App() {
       // Direct JSON upload
       if (file.name.endsWith(".json")) {
         users = await parseJsonFile(await file.text());
-        console.log(`Loaded ${users.length} TikTok users from JSON file`);
+        console.log(`Loaded ${users.length} users from JSON file`);
         setStatusMessage(`Loaded ${users.length} users from JSON file`);
       } else if (file.name.endsWith(".txt")) {
       // Direct TXT upload
         users = parseTxtFile(await file.text());
-        console.log(`Loaded ${users.length} TikTok users from TXT file`);
+        console.log(`Loaded ${users.length} users from TXT file`);
         setStatusMessage(`Loaded ${users.length} users from TXT file`);
       } else if (file.name.endsWith(".zip")) {
       // ZIP upload - find Following.txt OR JSON
@@ -682,7 +514,7 @@ export default function App() {
         if(followingFile) {
           const followingText = await followingFile.async("string");
           users = parseTxtFile(followingText);
-          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+          console.log(`Loaded ${users.length} users from .ZIP file`);
           setStatusMessage(`Loaded ${users.length} users from ZIP file`);
         } else {
           // If no TXT, look for JSON at the top level
@@ -699,7 +531,7 @@ export default function App() {
 
           const jsonText = await jsonFileEntry.async("string");
           users = await parseJsonFile(jsonText);
-          console.log(`Loaded ${users.length} TikTok users from .ZIP file`);
+          console.log(`Loaded ${users.length} users from .ZIP file`);
           setStatusMessage(`Loaded ${users.length} users from ZIP file`);
         }
       } else {
@@ -752,6 +584,15 @@ export default function App() {
       }
       return result;
     }));
+  }
+
+  function toggleExpandResult(index: number) {
+    setExpandedResults(prev => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
   }
 
   // Select all matches across all results - only first match per TT user
@@ -873,7 +714,6 @@ export default function App() {
     total + (result.selectedMatches?.size || 0), 0
   );
   const totalFound = searchResults.filter(r => r.atprotoMatches.length > 0).length;
-  const totalSearched = searchResults.filter(r => !r.isSearching).length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
@@ -893,36 +733,6 @@ export default function App() {
         Skip to main content
       </a>
 
-      {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow-sm border-b dark:border-gray-700">
-        <div className="px-4 py-4 max-w-2xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center" aria-hidden="true">
-                <ArrowRight className="w-4 h-4 text-white" />
-              </div>
-              <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">ATlast</h1>
-            </div>
-            {session && (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
-                  <User className="w-4 h-4" aria-hidden="true" />
-                  <span>@{session.handle}</span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center space-x-1 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                  aria-label="Log out"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span className="hidden sm:inline">Logout</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
-
       <main id="main-content">
         {/* Checking Session */}
         {currentStep === 'checking' && (
@@ -937,169 +747,216 @@ export default function App() {
           </div>
         )}
 
-        {/* Login Step */}
+        {/* Home / Login Step */}
         {currentStep === 'login' && (
-          <div className="p-6 max-w-md mx-auto mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                  <Users className="w-8 h-8 text-white" />
+          <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-850 dark:to-gray-800">
+            <div className="max-w-6xl mx-auto px-4 py-12">
+              {/* Welcome Section */}
+              <div className="text-center mb-16">
+                <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded-3xl mb-6 shadow-xl">
+                  <Heart className="w-12 h-12 text-white" />
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Welcome!</h2>
-                <p className="text-gray-600 dark:text-gray-300">Connect your ATmosphere account to sync your TikTok follows</p>
+                <h1 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                  Welcome to ATlast
+                </h1>
+                <p className="text-xl md:text-2xl text-gray-700 dark:text-gray-300 mb-8 max-w-2xl mx-auto">
+                  Reunite with your community on the ATmosphere
+                  </p>
+              </div>
+            {/* Value Props */}
+              <div className="grid md:grid-cols-3 gap-6 mb-16 max-w-5xl mx-auto">
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center mb-4">
+                    <Upload className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Upload Your Data
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Import your following lists from Twitter, TikTok, Instagram, and more. Your data stays private.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center mb-4">
+                    <Search className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Find Matches
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    We'll search the ATmosphere to find which of your follows have already migrated.
+                  </p>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-700">
+                  <div className="w-12 h-12 bg-pink-100 dark:bg-pink-900/30 rounded-xl flex items-center justify-center mb-4">
+                    <Heart className="w-6 h-6 text-pink-600 dark:text-pink-400" />
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">
+                    Reconnect Instantly
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400">
+                    Follow everyone at once or pick and choose. Build your community on the ATmosphere.
+                  </p>
+                </div>
               </div>
 
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (!useAppPassword) loginWithOAuth();
-                  else loginWithAppPassword();
-                }}
-                className="space-y-4"
-              >
-                <div>
-                  <label htmlFor="user-handle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    User Handle
-                  </label>
-                  <input
-                    id="user-handle"
-                    type="text"
-                    className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                    placeholder="yourhandle.atproto.social"
-                    value={handle}
-                    onChange={(e) => setHandle(e.target.value)}
-                    aria-required="true"
-                    autoComplete="username"
-                  />
-                </div>
+              {/* Login Card */}
+              <div className="max-w-md mx-auto">
+                <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 border border-gray-100 dark:border-gray-700">
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2 text-center">
+                    Get Started
+                  </h2>
+                  <p className="text-gray-600 dark:text-gray-400 text-center mb-6">
+                    Connect your ATmosphere account to begin finding your people
+                  </p>
 
-                {!useAppPassword ? (
-                  <>
-                    <button
-                      type="submit"
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[44px]"
-                    >
-                      Connect to the ATmosphere
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setUseAppPassword(true)}
-                      className="w-full text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
-                    >
-                      Use App Password instead
-                    </button>
-                  </>
-                ) : (
-                  <>
+                  <form onSubmit={loginWithOAuth} className="space-y-4">
                     <div>
-                      <label htmlFor="app-password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                        App Password
+                      <label htmlFor="atproto-handle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        Your ATmosphere Handle
                       </label>
                       <input
-                        id="app-password"
-                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[44px] bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                        type="password"
-                        placeholder="Not your regular password!"
-                        value={appPassword}
-                        onChange={(e) => setAppPassword(e.target.value)}
+                        id="atproto-handle"
+                        type="text"
+                        value={handle}
+                        onChange={(e) => setHandle(e.target.value)}
+                        placeholder="yourname.bsky.social"
+                        className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                         aria-required="true"
-                        autoComplete="off"
-                        aria-describedby="password-help"
+                        aria-describedby="handle-description"
                       />
-                      <p id="password-help" className="text-xs text-gray-500 dark:text-gray-300 mt-1">
-                        Generate this in your Bluesky settings
+                      <p id="handle-description" className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                        Enter your full ATmosphere handle (e.g., username.bsky.social)
                       </p>
                     </div>
 
                     <button
-                      type="button"
-                      onClick={() => setUseAppPassword(true)}
-                      className="w-full text-sm text-gray-600 hover:text-gray-900 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
+                      type="submit"
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800 focus:outline-none"
+                      aria-label="Connect to the ATmosphere"
                     >
-                      Use App Password instead
+                      Connect to the ATmosphere
                     </button>
+                  </form>
 
-                    <button
-                      type="button"
-                      onClick={() => setUseAppPassword(false)}
-                      className="w-full text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 underline py-2 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded min-h-[44px]"
-                    >
-                      Use OAuth instead (recommended)
-                    </button>
-                  </>
-                )}
-              </form>
+                  <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-start space-x-2 text-sm text-gray-600 dark:text-gray-400">
+                      <svg className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      <div>
+                        <p className="font-medium text-gray-700 dark:text-gray-300">Secure OAuth Connection</p>
+                        <p className="text-xs mt-1">We use official AT Protocol OAuth. We never see your password and you can revoke access anytime.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Privacy Notice */}
+                <div className="mt-8 text-center">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 max-w-md mx-auto">
+                    Your data is processed locally and never stored on our servers. We only help you find matches and reconnect with your community.
+                  </p>
+                </div>
+              </div>
+
+              {/* How It Works */}
+              <div className="mt-16 max-w-4xl mx-auto">
+                <h2 className="text-2xl font-bold text-center text-gray-900 dark:text-gray-100 mb-8">
+                  How It Works
+                </h2>
+                <div className="grid md:grid-cols-4 gap-4">
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg" aria-hidden="true">
+                      1
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Connect</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Sign in with your ATmosphere account</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-purple-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg" aria-hidden="true">
+                      2
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Upload</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Import your following data from other platforms</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-pink-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg" aria-hidden="true">
+                      3
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Match</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">We find your people on the ATmosphere</p>
+                  </div>
+                  <div className="text-center">
+                    <div className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg" aria-hidden="true">
+                      4
+                    </div>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">Follow</h3>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Reconnect with your community</p>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Home/Dashboard Step */}
         {currentStep === 'home' && (
-          <div className="p-6 max-w-md mx-auto mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                  <Home className="w-8 h-8 text-white" />
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+            {/* Header */}
+            <AppHeader session={session} onLogout={handleLogout} onNavigate={setCurrentStep} currentStep={currentStep} />
+
+            <div className="max-w-4xl mx-auto px-4 py-8">
+              {/* Upload New Data Section */}
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 mb-6">
+                <div className="flex items-center space-x-3 mb-4">
+                  <Upload className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                    Upload Following Data
+                  </h2>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
-                  Welcome back!
-                </h2>
-                <p className="text-gray-600 dark:text-gray-300">
-                  What would you like to do?
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Upload your exported data from any platform to find matches on the ATmosphere
                 </p>
-              </div>
-
-              <div className="space-y-3">
-                <button
-                  onClick={() => setCurrentStep('upload')}
-                  className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-medium transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 min-h-[56px] flex items-center justify-center space-x-3"
-                >
-                  <Upload className="w-5 h-5" />
-                  <span>Upload TikTok Data</span>
-                </button>
-
-                <button
-                  onClick={() => alert('View previous results feature coming soon!')}
-                  className="w-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 py-4 px-6 rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 min-h-[56px] flex items-center justify-center space-x-3"
-                  disabled
-                >
-                  <FileText className="w-5 h-5" />
-                  <span>View Previous Results</span>
-                  <span className="text-xs bg-gray-300 dark:bg-gray-600 px-2 py-1 rounded">Coming Soon</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Upload Step */}
-        {currentStep === 'upload' && (
-          <div className="p-6 max-w-md mx-auto mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
-              <div className="flex items-center justify-between">
-                <button
-                  onClick={() => setCurrentStep('home')}
-                  className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded px-2 py-1"
-                >
-                  <ChevronRight className="w-4 h-4 rotate-180" />
-                  <span>Back</span>
-                </button>
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                  <FileText className="w-8 h-8 text-white" />
+        
+                {/* Platform Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+                  {Object.entries(PLATFORMS).map(([key, p]) => {
+                    const PlatformIcon = p.icon;
+                    const isEnabled = key === 'tiktok';
+                    return (
+                      <div
+                        key={key}
+                        className={`relative p-4 rounded-xl border-2 transition-all ${
+                          isEnabled
+                            ? 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-lg cursor-pointer'
+                            : 'border-gray-200 dark:border-gray-800 opacity-50 cursor-not-allowed'
+                        }`}
+                        title={isEnabled ? `Upload ${p.name} data` : 'Coming soon'}
+                      >
+                        <PlatformIcon className={`w-8 h-8 mx-auto mb-2 ${isEnabled ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-700'}`} />
+                        <div className="text-sm font-medium text-center text-gray-900 dark:text-gray-100">
+                          {p.name}
+                        </div>
+                        {!isEnabled && (
+                          <div className="absolute top-2 right-2">
+                            <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-400 px-2 py-0.5 rounded-full">
+                              Soon
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Upload Your Data</h2>
-                <p className="text-gray-600 dark:text-gray-300">Upload your TikTok following data to find matches</p>
-              </div>
-
-              <div className="space-y-4">
+        
+                {/* Upload Area */}
                 <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl p-6 text-center hover:border-blue-400 dark:hover:border-blue-500 focus-within:border-blue-400 dark:focus-within:border-blue-500 transition-colors">
                   <Upload className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" aria-hidden="true" />
                   <p className="text-lg font-medium text-gray-700 dark:text-gray-300 mb-1">Choose File</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-300 mb-3">Following.txt or TikTok data ZIP</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-300 mb-3">TikTok Following.txt, JSON, or ZIP export</p>
 
                   <input
                     id="file-upload"
@@ -1125,16 +982,10 @@ export default function App() {
                   </label>
                 </div>
 
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4" role="region" aria-label="Instructions for getting your TikTok data">
-                  <h3 className="font-medium text-blue-900 dark:text-blue-200 mb-2">How to get your data:</h3>
-                  <ol className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
-                    <li>Open TikTok app → Profile → Settings and privacy → Account → Download your data</li>
-                    <li>Request data → Select "Request data"</li>
-                    <li>Wait for notification your download is ready</li>
-                    <li>Navigate back to Download your data</li>
-                    <li>Download data → Select</li>
-                    <li>Upload the Following.txt file here</li>
-                  </ol>
+                <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+                  <p className="text-sm text-blue-900 dark:text-blue-300">
+                    💡 <strong>How to get your TikTok data:</strong> Open TikTok → Profile → Settings → Account → Download your data → Request data → Wait for notification → Download → Upload Following.txt here
+                  </p>
                 </div>
               </div>
             </div>
@@ -1143,40 +994,51 @@ export default function App() {
 
         {/* Loading Step */}
         {currentStep === 'loading' && (
-          <div className="p-6 max-w-2xl mx-auto mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 space-y-6">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
-                  <Search className="w-8 h-8 text-white animate-pulse" aria-hidden="true" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Finding Your People</h2>
-                <p className="text-gray-600 dark:text-gray-300">Searching the ATmosphere for your TikTok follows...</p>
-              </div>
-
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 rounded-xl p-6" role="region" aria-label="Search progress">
-                <div className="grid grid-cols-3 gap-4 text-center mb-4">
-                  <div>
-                    <div className="text-3xl font-bold text-gray-900 dark:text-gray-300" aria-label={`${searchProgress.searched} searched`}>{searchProgress.searched}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">Searched</div>
+          <div>
+          <AppHeader session={session} onLogout={handleLogout} onNavigate={setCurrentStep} currentStep={currentStep} />
+            <div className="max-w-3xl mx-auto px-4 py-8">
+              <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8">
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+                    <Search className="w-8 h-8 text-white animate-pulse" aria-hidden="true" />
                   </div>
-                  <div>
-                    <div className="text-3xl font-bold text-blue-600 dark:text-blue-500" aria-label={`${searchProgress.found} found`}>{searchProgress.found}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">Found</div>
-                  </div>
-                  <div>
-                    <div className="text-3xl font-bold text-gray-400 dark:text-gray-900" aria-label={`${searchProgress.total} total`}>{searchProgress.total}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-300">Total</div>
-                  </div>
+                  <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Finding Your People</h2>
+                  <p className="text-gray-600 dark:text-gray-300">Searching the ATmosphere for your follows...</p>
                 </div>
 
-                <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden" role="progressbar" aria-valuenow={searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0} aria-valuemin={0} aria-valuemax={100}>
-                  <div 
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
-                    style={{ width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%` }}
-                  />
-                </div>
-                <div className="text-center mt-2 text-sm text-gray-600 dark:text-gray-300" aria-hidden="true">
-                  {searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0}% complete
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <div className="text-3xl font-bold text-gray-900 dark:text-gray-100" aria-label={`${searchProgress.searched} searched`}>{searchProgress.searched}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Searched</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400" aria-label={`${searchProgress.found} found`}>{searchProgress.found}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Found</div>
+                    </div>
+                    <div>
+                      <div className="text-3xl font-bold text-gray-400 dark:text-gray-500" aria-label={`${searchProgress.total} total`}>{searchProgress.total}</div>
+                      <div className="text-sm text-gray-600 dark:text-gray-300">Total</div>
+                    </div>
+                  </div>
+
+                  <div className="w-full bg-gray-200 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3" role="progressbar" aria-valuenow={searchProgress.total > 0 ? Math.round((searchProgress.searched / searchProgress.total) * 100) : 0} aria-valuemin={0} aria-valuemax={100}>
+                    <div 
+                      className="bg-gradient-to-r from-blue-500 to-purple-600 h-full rounded-full transition-all"
+                      style={{ width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%` }}
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    {[...Array(5)].map((_, i) => (
+                      <div key={i} className="animate-pulse flex items-center space-x-3 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl">
+                        <div className="w-12 h-12 bg-gray-200 dark:bg-gray-600 rounded-full" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-4 bg-gray-200 dark:bg-gray-600 rounded w-3/4" />
+                          <div className="h-3 bg-gray-200 dark:bg-gray-600 rounded w-1/2" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
@@ -1185,110 +1047,202 @@ export default function App() {
 
         {/* Results */}
         {currentStep === 'results' && (
-          <div className="pb-20">
-            <div className="bg-white dark:bg-gray-800 border-b dark:border-gray-700">
-              <div className="px-4 py-4 max-w-2xl mx-auto">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <button
-                      onClick={() => setCurrentStep('home')}
-                      className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 rounded px-2 py-1"
-                    >
-                      <ChevronRight className="w-4 h-4 rotate-180" />
-                      <span>Home</span>
-                    </button>
+          <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 pb-24">
+            <AppHeader session={session} onLogout={handleLogout} onNavigate={setCurrentStep} currentStep={currentStep} />
+            {/* Platform Info Banner */}
+            <div className="bg-gradient-to-r from-black via-gray-800 to-cyan-400 text-white">
+              <div className="max-w-3xl mx-auto px-4 py-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <Video className="w-12 h-12" />
                     <div>
-                      <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">Results</h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-300">
-                        {totalFound} of {searchResults.length} users found
+                      <h2 className="text-xl font-bold">TikTok Matches</h2>
+                      <p className="text-white/90 text-sm">
+                        {totalFound} matches from {searchResults.length} follows
                       </p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className="text-lg font-bold text-blue-600 dark:text-blue-400">{totalSelected}</div>
-                    <div className="text-xs text-gray-500 dark:text-gray-200">selected</div>
-                  </div>
-                </div>
-                
-                <div className="flex space-x-2">
-                  <button
-                    onClick={selectAllMatches}
-                    className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 min-h-[44px]"
-                    type="button"
-                    aria-label="Select all top matches"
-                  >
-                    Select All
-                  </button>
-                  <button
-                    onClick={deselectAllMatches}
-                    className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 min-h-[44px]"
-                    type="button"
-                    aria-label="Clear all selections"
-                  >
-                    Clear
-                  </button>
+                  {totalSelected > 0 && (
+                    <div className="text-right">
+                      <div className="text-2xl font-bold">{totalSelected}</div>
+                      <div className="text-xs text-white/80">selected</div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
-            {/* Results List */}
-            <div className="space-y-2 p-4 max-w-2xl mx-auto" role="list" aria-label="Search results">
-              {searchResults.map((result, index) => (
-                <div key={index} className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border dark:border-gray-700" role="listitem">
-                  <div className="p-4">
-                    {/* TikTok User Header */}
-                    <div className="mb-3">
-                      <div className="text-xs text-gray-500 dark:text-gray-200 uppercase tracking-wide mb-1" aria-hidden="true">TikTok</div>
-                      <div className="font-semibold text-gray-900 dark:text-gray-100 text-lg">
-                        <span className="sr-only">TikTok user </span>
-                        @{result.tiktokUser.username}
+            {/* Action Buttons */}
+            <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700  sticky top-0 z-10">
+              <div className="max-w-3xl mx-auto px-4 py-3 flex space-x-2">
+                <button
+                  onClick={selectAllMatches}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                  type="button"
+                >
+                  Select All
+                </button>
+                <button
+                  onClick={deselectAllMatches}
+                  className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+                  type="button"
+                >
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            {/* Feed Results */}
+            <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+              {searchResults.map((item, idx) => {
+                const isExpanded = expandedResults.has(idx);
+                const displayMatches = isExpanded ? item.atprotoMatches : item.atprotoMatches.slice(0, 1);
+                const hasMoreMatches = item.atprotoMatches.length > 1;
+
+                return (
+                  <div
+                    key={idx}
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden"
+                  >
+                    {/* Source User (minimal info - just username from TikTok) */}
+                    <div className="p-4 bg-gray-50 dark:bg-gray-750 border-b border-gray-200 dark:border-gray-700">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black via-gray-800 to-cyan-400 flex items-center justify-center text-white font-bold">
+                          {item.tiktokUser.username.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="flex-1">
+                          <div className="font-bold text-gray-900 dark:text-gray-100">
+                            @{item.tiktokUser.username}
+                          </div>
+                          <div className="text-sm text-gray-500 dark:text-gray-400">
+                            from TikTok
+                          </div>
+                        </div>
+                        <div className="text-xs px-2 py-1 rounded-full bg-black dark:bg-cyan-400 text-white dark:text-black">
+                          {item.atprotoMatches.length} {item.atprotoMatches.length === 1 ? 'match' : 'matches'}
+                        </div>
                       </div>
                     </div>
 
-                    {/* ATmosphere Matches */}
-                    {result.atprotoMatches.length > 0 ? (
-                      <div className="space-y-2">
-                        <div className="sr-only">AT matches:</div>
-                          <MatchCarousel 
-                            matches={result.atprotoMatches}
-                            selectedDids={result.selectedMatches || new Set()}
-                            onToggleSelection={(did) => toggleMatchSelection(index, did)}
-                            cardRef={{ current: resultCardRefs.current[index] || null }}
-                          />
-                      </div>
-                    ) : (
-                      <div className="text-center py-2 text-gray-400" role="status">
-                        <div className="text-sm">No matches found</div>
-                      </div>
-                    )}
+                    {/* Bluesky Matches (rich info from API) */}
+                    <div className="p-4">
+                      {item.atprotoMatches.length === 0 ? (
+                        <div className="text-center py-6 text-gray-500 dark:text-gray-400">
+                          <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                          <p className="text-sm">Not found on Bluesky yet</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-3">
+                          {displayMatches.map((match) => {
+                            const isFollowed = match.followed;
+                            const isSelected = item.selectedMatches?.has(match.did);
+                            return (
+                              <div
+                                key={match.did}
+                                className="flex items-start space-x-3 p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all"
+                              >
+                                {/* Avatar */}
+                                {match.avatar ? (
+                                  <img 
+                                    src={match.avatar} 
+                                    alt="User avatar, description not provided"
+                                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                                    <span className="text-white font-bold">
+                                      {match.handle.charAt(0).toUpperCase()}
+                                    </span>
+                                  </div>
+                                )}
+
+                                {/* Match Info */}
+                                <div className="flex-1 min-w-0">
+                                  {match.displayName && (
+                                    <div className="font-semibold text-gray-900 dark:text-gray-100">
+                                      {match.displayName}
+                                    </div>
+                                  )}
+                                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                                    @{match.handle}
+                                  </div>
+                                  {match.description && (
+                                    <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{match.description}</div>
+                                  )}
+                                  <div className="flex items-center space-x-3 mt-2">
+                                    <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full font-medium">
+                                      {match.matchScore}% match
+                                    </span>
+                                  </div>
+                                </div>
+
+                                {/* Select/Follow Button */}
+                                <button
+                                  onClick={() => toggleMatchSelection(idx, match.did)}
+                                  disabled={isFollowed}
+                                  className={`flex items-center space-x-1 px-3 py-2 rounded-full font-medium transition-all flex-shrink-0 ${
+                                    isFollowed
+                                      ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed opacity-60'
+                                      : isSelected
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                                  }`}
+                                >
+                                  {isFollowed ? (
+                                    <>
+                                      <Check className="w-4 h-4" />
+                                      <span className="text-sm">Followed</span>
+                                    </>
+                                  ) : isSelected ? (
+                                    <>
+                                      <Check className="w-4 h-4" />
+                                      <span className="text-sm">Selected</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <UserPlus className="w-4 h-4" />
+                                      <span className="text-sm">Select</span>
+                                    </>
+                                  )}
+                                </button>
+                              </div>
+                            );
+                          })}
+                          {hasMoreMatches && (
+                            <button
+                              onClick={() => toggleExpandResult(idx)}
+                              className="w-full py-2 text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors flex items-center justify-center space-x-1"
+                            >
+                              <span>{isExpanded ? 'Show less' : `Show ${item.atprotoMatches.length - 1} more ${item.atprotoMatches.length - 1 === 1 ? 'match' : 'matches'}`}</span>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+
+            {/* Fixed Bottom Action Bar */}
+            {totalSelected > 0 && (
+              <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pt-8 pb-6">
+                <div className="max-w-3xl mx-auto px-4">
+                  <button
+                    onClick={followSelectedUsers}
+                    disabled={isFollowing}
+                    className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
+                  >
+                    <Heart className="w-6 h-6" />
+                    <span>Follow {totalSelected} Selected {totalSelected === 1 ? 'User' : 'Users'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </main>
-
-      {/* Fixed Bottom Action Bar */}
-      {currentStep === 'results' && totalSelected > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-lg">
-          <div className="p-4 max-w-2xl mx-auto">
-            <button
-              onClick={followSelectedUsers}
-              disabled={isFollowing}
-              className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 rounded-xl font-medium text-lg transition-all duration-200 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed min-h-[56px]"
-              type="button"
-              aria-live="polite"
-              aria-label={isFollowing ? `Following users, please wait` : `Follow ${totalSelected} selected users`}
-            >
-              {isFollowing 
-                ? "Following Users..." 
-                : `Follow ${totalSelected} Selected Users`
-              }
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

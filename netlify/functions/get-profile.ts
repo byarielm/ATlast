@@ -82,6 +82,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         handle: profile.data.handle,
         displayName: profile.data.displayName,
         avatar: profile.data.avatar,
+        description: profile.data.description,
       }),
     };
 
