@@ -62,3 +62,12 @@ export interface SaveResultsResponse {
   matchedUsers: number;
   unmatchedUsers: number;
 }
+
+export interface Upload {
+  uploadId: string;
+  sourcePlatform: string;
+  createdAt: string;
+  totalUsers: number;
+  matchedUsers: number;
+  unmatchedUsers: number;
+}
