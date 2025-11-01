@@ -57,6 +57,42 @@ export const apiClient = {
     }
   },
 
+  // Upload History Operations
+  async getUploads(): Promise<{
+    uploads: Array<{
+      uploadId: string;
+      sourcePlatform: string;
+      createdAt: string;
+      totalUsers: number;
+      matchedUsers: number;
+      unmatchedUsers: number;
+    }>;
+  }> {
+    const res = await fetch('/.netlify/functions/get-uploads', {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch uploads');
+    }
+
+    return res.json();
+  },
+
+  async getUploadDetails(uploadId: string): Promise<{
+    results: SearchResult[];
+  }> {
+    const res = await fetch(`/.netlify/functions/get-upload-details?uploadId=${uploadId}`, {
+      credentials: 'include'
+    });
+
+    if (!res.ok) {
+      throw new Error('Failed to fetch upload details');
+    }
+
+    return res.json();
+  },
+
   // Search Operations
   async batchSearchActors(usernames: string[]): Promise<{ results: BatchSearchResult[] }> {
     const res = await fetch('/.netlify/functions/batch-search-actors', {

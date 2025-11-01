@@ -3,6 +3,7 @@ import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
 import LoadingPage from "./pages/Loading";
 import ResultsPage from "./pages/Results";
+import { apiClient } from "./lib/apiClient";
 import { useAuth } from "./hooks/useAuth";
 import { useSearch } from "./hooks/useSearch";
 import { useFollow } from "./hooks/useFollows";
@@ -48,6 +49,7 @@ export default function App() {
   } = useFileUpload(
     (initialResults) => {
       setSearchResults(initialResults);
+      setCurrentStep('loading');
       searchAllUsers(
         initialResults,
         setStatusMessage,
@@ -56,6 +58,37 @@ export default function App() {
     },
     setStatusMessage
   );
+
+  // Load previous upload handler
+  const handleLoadUpload = async (uploadId: string) => {
+    try {
+      setStatusMessage('Loading previous upload...');
+      setCurrentStep('loading');
+      
+      const data = await apiClient.getUploadDetails(uploadId);
+      
+      // Convert the loaded results to SearchResult format with selectedMatches
+      const loadedResults = data.results.map(result => ({
+        ...result,
+        isSearching: false,
+        selectedMatches: new Set<string>(
+          result.atprotoMatches
+            .filter(match => !match.followed)
+            .slice(0, 1)
+            .map(match => match.did)
+        ),
+      }));
+      
+      setSearchResults(loadedResults);
+      setCurrentStep('results');
+      setStatusMessage(`Loaded ${loadedResults.length} results from previous upload`);
+    } catch (error) {
+      console.error('Failed to load upload:', error);
+      setStatusMessage('Failed to load previous upload');
+      setCurrentStep('home');
+      alert('Failed to load previous upload. Please try again.');
+    }
+  };
 
   // Login handler
   const handleLogin = async (handle: string) => {
@@ -131,6 +164,7 @@ export default function App() {
             onLogout={handleLogout}
             onNavigate={setCurrentStep}
             onFileUpload={processFileUpload}
+            onLoadUpload={handleLoadUpload}
             currentStep={currentStep}
           />
         )}
