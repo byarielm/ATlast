@@ -1,12 +1,18 @@
+import { useState } from "react";
 import { Heart, Upload, Search } from "lucide-react";
 
 interface LoginPageProps {
-  handle: string;
-  setHandle: (handle: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
+  onSubmit: (handle: string) => void;
 }
 
-export default function LoginPage({ handle, setHandle, onSubmit }: LoginPageProps) {
+export default function LoginPage({ onSubmit }: LoginPageProps) {
+  const [handle, setHandle] = useState("");
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(handle);
+  };
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 dark:from-gray-900 dark:via-gray-850 dark:to-gray-800">
       <div className="max-w-6xl mx-auto px-4 py-12">
@@ -72,7 +78,7 @@ export default function LoginPage({ handle, setHandle, onSubmit }: LoginPageProp
               Connect your ATmosphere account to begin finding your people
             </p>
 
-            <form onSubmit={onSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4" method="post">
               <div>
                 <label htmlFor="atproto-handle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Your ATmosphere Handle
