@@ -34,16 +34,9 @@ export function useAuth() {
       }
 
       // Otherwise, check if there's an existing session cookie
-      const data = await apiClient.getSession();
-      setSession({
-        did: data.did,
-        handle: data.handle,
-        displayName: data.displayName,
-        avatar: data.avatar,
-        description: data.description,
-      });
+      await apiClient.getSession();
+      await fetchProfile();
       setCurrentStep('home');
-      setStatusMessage(`Welcome back, ${data.handle}!`);
     } catch (error) {
       console.error('Session check error:', error);
       setCurrentStep('login');
