@@ -24,9 +24,11 @@ export function useSearch(session: AtprotoSession | null) {
     setSearchProgress({ searched: 0, found: 0, total: resultsToSearch.length });
     onProgressUpdate(`Starting search for ${resultsToSearch.length} users...`);
     
-    const { BATCH_SIZE, MAX_MATCHES, BATCH_DELAY_MS } = SEARCH_CONFIG;
+    const { BATCH_SIZE, MAX_MATCHES } = SEARCH_CONFIG;
     let totalSearched = 0;
     let totalFound = 0;
+    let consecutiveErrors = 0;
+    const MAX_CONSECUTIVE_ERRORS = 3;
 
     for (let i = 0; i < resultsToSearch.length; i += BATCH_SIZE) {
       if (totalFound >= MAX_MATCHES) {
@@ -47,6 +49,9 @@ export function useSearch(session: AtprotoSession | null) {
       
       try {
         const data = await apiClient.batchSearchActors(usernames);
+        
+        // Reset error counter on success
+        consecutiveErrors = 0;
         
         // Process batch results
         data.results.forEach((result) => {
@@ -88,17 +93,22 @@ export function useSearch(session: AtprotoSession | null) {
         
       } catch (error) {
         console.error('Batch search error:', error);
+        consecutiveErrors++;
+        
         // Mark batch as failed
         setSearchResults(prev => prev.map((result, index) => 
           i <= index && index < i + BATCH_SIZE 
             ? { ...result, isSearching: false, error: 'Search failed' }
             : result
         ));
-      }
-      
-      // Small delay between batches
-      if (i + BATCH_SIZE < resultsToSearch.length && totalFound < MAX_MATCHES) {
-        await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
+        
+        // If we hit rate limits or repeated errors, add exponential backoff
+        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+          const backoffDelay = Math.min(1000 * Math.pow(2, consecutiveErrors - MAX_CONSECUTIVE_ERRORS), 5000);
+          console.log(`Rate limit detected. Backing off for ${backoffDelay}ms...`);
+          onProgressUpdate(`Rate limit detected. Pausing briefly...`);
+          await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        }
       }
     }
     

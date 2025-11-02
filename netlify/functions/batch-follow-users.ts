@@ -98,8 +98,11 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     // Create agent from OAuth session
     const agent = new Agent(oauthSession);
 
-    // Follow all users - process with small delays to respect rate limits
+    // Follow all users
     const results = [];
+    let consecutiveErrors = 0;
+    const MAX_CONSECUTIVE_ERRORS = 3;
+    
     for (const did of dids) {
       try {
         await agent.api.com.atproto.repo.createRecord({
@@ -117,16 +120,29 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           success: true,
           error: null
         });
+        
+        // Reset error counter on success
+        consecutiveErrors = 0;
       } catch (error) {
+        consecutiveErrors++;
+        
         results.push({
           did,
           success: false,
           error: error instanceof Error ? error.message : 'Follow failed'
         });
+        
+        // If we hit rate limits, implement exponential backoff
+        if (error instanceof Error && 
+            (error.message.includes('rate limit') || error.message.includes('429'))) {
+          const backoffDelay = Math.min(200 * Math.pow(2, consecutiveErrors), 2000);
+          console.log(`Rate limit hit. Backing off for ${backoffDelay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        } else if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
+          // For other repeated errors, small backoff
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
       }
-      
-      // Small delay between follows to be respectful of rate limits
-      await new Promise(resolve => setTimeout(resolve, 100));
     }
 
     const successCount = results.filter(r => r.success).length;
