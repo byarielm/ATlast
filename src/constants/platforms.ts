@@ -63,10 +63,8 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
 export const SEARCH_CONFIG = {
   BATCH_SIZE: 25,
   MAX_MATCHES: 1000,
-  BATCH_DELAY_MS: 500,
 };
 
 export const FOLLOW_CONFIG = {
   BATCH_SIZE: 50,
-  BATCH_DELAY_MS: 1000,
 };

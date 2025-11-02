@@ -34,7 +34,7 @@ export function useFollow(
     let totalFailed = 0;
 
     try {
-      const { BATCH_SIZE, BATCH_DELAY_MS } = FOLLOW_CONFIG;
+      const { BATCH_SIZE } = FOLLOW_CONFIG;
       
       for (let i = 0; i < selectedUsers.length; i += BATCH_SIZE) {
         const batch = selectedUsers.slice(i, i + BATCH_SIZE);
@@ -70,10 +70,7 @@ export function useFollow(
           console.error('Batch follow error:', error);
         }
         
-        // Small delay between batches
-        if (i + BATCH_SIZE < selectedUsers.length) {
-          await new Promise(resolve => setTimeout(resolve, BATCH_DELAY_MS));
-        }
+        // Rate limit handling is in the backend
       }
       
       const finalMsg = `Successfully followed ${totalFollowed} users${totalFailed > 0 ? `. ${totalFailed} failed.` : ''}`;
