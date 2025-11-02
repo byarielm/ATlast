@@ -1,10 +1,12 @@
 import { neon, NeonQueryFunction } from '@neondatabase/serverless';
 
 let sql: NeonQueryFunction<any, any> | undefined = undefined;
+let connectionInitialized = false;
 
 export function getDbClient() {
   if (!sql) {
     sql = neon(process.env.NETLIFY_DATABASE_URL!);
+    connectionInitialized = true;
   }
   return sql;
 }
