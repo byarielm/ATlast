@@ -91,55 +91,62 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       0 // We'll update this after processing
     );
 
-    // Process all results
-    for (const result of results) {
-      try {
+    const BATCH_SIZE = 100;
+    const batches = [];
+    for (let i = 0; i < results.length; i += BATCH_SIZE) {
+      batches.push(results.slice(i, i + BATCH_SIZE));
+    }
 
-        // 1. Get or create source account (handles race conditions)
-        const sourceAccountId = await getOrCreateSourceAccount(
-          sourcePlatform,
-          result.tiktokUser.username
-        );
+    for (const batch of batches) {
+      // Process batch in parallel
+      await Promise.all(batch.map(async (result) => {
+        try {
+          // 1. Get or create source account (handles race conditions)
+          const sourceAccountId = await getOrCreateSourceAccount(
+            sourcePlatform,
+            result.tiktokUser.username
+          );
 
-        // 2. Link this user to the source account
-        await linkUserToSourceAccount(
-          uploadId,
-          userSession.did,
-          sourceAccountId,
-          result.tiktokUser.date
-        );
+          // 2. Link this user to the source account
+          await linkUserToSourceAccount(
+            uploadId,
+            userSession.did,
+            sourceAccountId,
+            result.tiktokUser.date
+          );
 
-        // 3. If matches found, store them
-        if (result.atprotoMatches && result.atprotoMatches.length > 0) {
-          matchedCount++;
+          // 3. If matches found, store them
+          if (result.atprotoMatches && result.atprotoMatches.length > 0) {
+            matchedCount++;
 
-          // Mark source account as matched
-          await markSourceAccountMatched(sourceAccountId);
+            // Mark source account as matched
+            await markSourceAccountMatched(sourceAccountId);
 
-          // Store each match
-          for (const match of result.atprotoMatches) {
-            const atprotoMatchId = await storeAtprotoMatch(
-              sourceAccountId,
-              match.did,
-              match.handle,
-              match.displayName,
-              match.avatar,
-              match.matchScore
-            );
+            // Store each match
+            for (const match of result.atprotoMatches) {
+              const atprotoMatchId = await storeAtprotoMatch(
+                sourceAccountId,
+                match.did,
+                match.handle,
+                match.displayName,
+                match.avatar,
+                match.matchScore
+              );
 
-            // Create user match status (viewed = true since they just searched)
-            await createUserMatchStatus(
-              userSession.did,
-              atprotoMatchId,
-              sourceAccountId,
-              true
-            );
+              // Create user match status (viewed = true since they just searched)
+              await createUserMatchStatus(
+                userSession.did,
+                atprotoMatchId,
+                sourceAccountId,
+                true
+              );
+            }
           }
+        } catch (error) {
+          console.error(`Error processing result for ${result.tiktokUser.username}:`, error);
+          // Continue processing other results
         }
-      } catch (error) {
-        console.error(`Error processing result for ${result.tiktokUser.username}:`, error);
-        // Continue processing other results
-      }
+      }));
     }
 
     // Update upload record with final counts

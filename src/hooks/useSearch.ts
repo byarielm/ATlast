@@ -105,15 +105,6 @@ export function useSearch(session: AtprotoSession | null) {
     setIsSearchingAll(false);
     onProgressUpdate(`Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`);
     onComplete();
-
-    // Save results after a short delay
-    setTimeout(() => {
-      setSearchResults(currentResults => {
-        const uploadId = crypto.randomUUID();
-        apiClient.saveResults(uploadId, 'tiktok', currentResults);
-        return currentResults;
-      });
-    }, 100);
   }
 
   function toggleMatchSelection(resultIndex: number, did: string) {
