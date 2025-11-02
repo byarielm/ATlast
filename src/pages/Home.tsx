@@ -1,5 +1,5 @@
 import { Upload, History, FileText } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AppHeader from "../components/AppHeader";
 import PlatformSelector from "../components/PlatformSelector";
 import FileUploadZone from "../components/FileUploadZone";
@@ -18,7 +18,7 @@ interface HomePageProps {
   session: atprotoSession | null;
   onLogout: () => void;
   onNavigate: (step: 'home' | 'login') => void;
-  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onFileUpload: (e: React.ChangeEvent<HTMLInputElement>, platform: string) => void;
   onLoadUpload: (uploadId: string) => void;
   currentStep: string;
 }
@@ -33,6 +33,8 @@ export default function HomePage({
 }: HomePageProps) {
   const [uploads, setUploads] = useState<UploadType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedPlatform, setSelectedPlatform] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (session) {
@@ -51,6 +53,12 @@ export default function HomePage({
       setIsLoading(false);
     }
   }
+
+  const handlePlatformSelect = (platform: string) => {
+    setSelectedPlatform(platform);
+    // Trigger the file input
+    fileInputRef.current?.click();
+  };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -89,8 +97,10 @@ export default function HomePage({
             Upload your exported data from any platform to find matches on the ATmosphere
           </p>
   
-          <PlatformSelector />
-          <FileUploadZone onFileChange={onFileUpload} />
+          <PlatformSelector onPlatformSelect={handlePlatformSelect} />
+          <FileUploadZone 
+            onFileChange={(e) => onFileUpload(e, selectedPlatform || 'tiktok')} 
+            fileInputRef={fileInputRef} />
         </div>
 
         {/* Upload History Section */}

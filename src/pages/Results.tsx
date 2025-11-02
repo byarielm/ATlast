@@ -1,4 +1,5 @@
 import { Video, Heart } from "lucide-react";
+import { PLATFORMS } from "../constants/platforms";
 import AppHeader from "../components/AppHeader";
 import SearchResultCard from "../components/SearchResultCard";
 
@@ -21,6 +22,7 @@ interface SearchResult {
   isSearching: boolean;
   error?: string;
   selectedMatches?: Set<string>;
+  sourcePlatform: string;
 }
 
 interface ResultsPageProps {
@@ -38,6 +40,7 @@ interface ResultsPageProps {
   totalFound: number;
   isFollowing: boolean;
   currentStep: string;
+  sourcePlatform: string;
 }
 
 export default function ResultsPage({
@@ -54,20 +57,24 @@ export default function ResultsPage({
   totalSelected,
   totalFound,
   isFollowing,
-  currentStep
+  currentStep,
+  sourcePlatform
 }: ResultsPageProps) {
+  const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
+  const PlatformIcon = platform.icon;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 pb-24">
       <AppHeader session={session} onLogout={onLogout} onNavigate={onNavigate} currentStep={currentStep} />
       
       {/* Platform Info Banner */}
-      <div className="bg-gradient-to-r from-black via-gray-800 to-cyan-400 text-white">
+      <div className={`bg-gradient-to-r ${platform.color} text-white`}>
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Video className="w-12 h-12" />
+              <PlatformIcon className="w-12 h-12" />
               <div>
-                <h2 className="text-xl font-bold">TikTok Matches</h2>
+                <h2 className="text-xl font-bold">{platform.name} Matches</h2>
                 <p className="text-white/90 text-sm">
                   {totalFound} matches from {searchResults.length} follows
                 </p>
@@ -113,6 +120,7 @@ export default function ResultsPage({
             isExpanded={expandedResults.has(idx)}
             onToggleExpand={() => onToggleExpand(idx)}
             onToggleMatchSelection={(did) => onToggleMatchSelection(idx, did)}
+            sourcePlatform={sourcePlatform}
           />
         ))}
       </div>

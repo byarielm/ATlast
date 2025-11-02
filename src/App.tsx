@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
@@ -20,6 +21,9 @@ export default function App() {
     login,
     logout,
   } = useAuth();
+
+  // Add state to track current platform
+  const [currentPlatform, setCurrentPlatform] = useState<string>('tiktok');
 
   // Search hook
   const {
@@ -47,13 +51,25 @@ export default function App() {
   const {
     handleFileUpload: processFileUpload,
   } = useFileUpload(
-    (initialResults) => {
-      setSearchResults(initialResults);
+    (initialResults, platform) => {
+      setCurrentPlatform(platform);
+
+      const resultsWithPlatform = initialResults.map(res => ({
+        ...res,
+        sourcePlatform: platform,
+      }));
+      
+      setSearchResults(resultsWithPlatform);
       setCurrentStep('loading');
       searchAllUsers(
-        initialResults,
+        resultsWithPlatform,
         setStatusMessage,
-        () => setCurrentStep('results')
+        () => {
+          setCurrentStep('results');
+          // Save results after search completes (only once)
+          const uploadId = crypto.randomUUID();
+          apiClient.saveResults(uploadId, platform, resultsWithPlatform);
+        }
       );
     },
     setStatusMessage
@@ -67,9 +83,21 @@ export default function App() {
       
       const data = await apiClient.getUploadDetails(uploadId);
       
+      if (data.results.length === 0){
+        setSearchResults([]);
+        setCurrentPlatform('tiktok');
+        setCurrentStep('home');
+        setStatusMessage('No previous results found.');
+        return;
+      }
+
+      const platform = 'tiktok'; // Default, will be updated when we add platform to upload details
+      setCurrentPlatform(platform);
+      
       // Convert the loaded results to SearchResult format with selectedMatches
       const loadedResults = data.results.map(result => ({
         ...result,
+        sourcePlatform: platform,
         isSearching: false,
         selectedMatches: new Set<string>(
           result.atprotoMatches
@@ -100,12 +128,12 @@ export default function App() {
     
     try {
       await login(handle);
-      } catch (err) {
-        console.error('OAuth error:', err);
-        const errorMsg = `Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`;
-        setStatusMessage(errorMsg);
-        alert(errorMsg);
-      }
+    } catch (err) {
+      console.error('OAuth error:', err);
+      const errorMsg = `Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      setStatusMessage(errorMsg);
+      alert(errorMsg);
+    }
   };
 
   // Logout handler
@@ -113,6 +141,7 @@ export default function App() {
     try {
       await logout();
       setSearchResults([]);
+      setCurrentPlatform('tiktok');
     } catch (error) {
       alert('Failed to logout. Please try again.');
     }
@@ -153,7 +182,7 @@ export default function App() {
         {/* Login Page */}
         {currentStep === 'login' && (
           <LoginPage 
-            onSubmit={(handleLogin)}
+            onSubmit={handleLogin}
           />
         )}
 
@@ -197,6 +226,7 @@ export default function App() {
             totalFound={totalFound}
             isFollowing={isFollowing}
             currentStep={currentStep}
+            sourcePlatform={currentPlatform}
           />
         )}
       </main>

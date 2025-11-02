@@ -30,6 +30,7 @@ export interface SearchResult {
   isSearching: boolean;
   error?: string;
   selectedMatches?: Set<string>;
+  sourcePlatform: string;
 }
 
 // Progress Tracking

@@ -1,27 +1,7 @@
 import { Video, MessageCircle, Check, UserPlus, ChevronDown } from "lucide-react";
+import { PLATFORMS } from "../constants/platforms";
+import type { SearchResult, AtprotoMatch, TikTokUser } from '../types';
 
-interface TikTokUser {
-  username: string;
-  date: string;
-}
-
-interface AtprotoMatch {
-  did: string;
-  handle: string;
-  displayName?: string;
-  avatar?: string;
-  matchScore: number;
-  description?: string;
-  followed?: boolean;
-}
-
-interface SearchResult {
-  tiktokUser: TikTokUser;
-  atprotoMatches: AtprotoMatch[];
-  isSearching: boolean;
-  error?: string;
-  selectedMatches?: Set<string>;
-}
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -29,6 +9,7 @@ interface SearchResultCardProps {
   isExpanded: boolean;
   onToggleExpand: () => void;
   onToggleMatchSelection: (did: string) => void;
+  sourcePlatform: string;
 }
 
 export default function SearchResultCard({ 
@@ -36,17 +17,19 @@ export default function SearchResultCard({
   resultIndex, 
   isExpanded, 
   onToggleExpand, 
-  onToggleMatchSelection 
+  onToggleMatchSelection,
+  sourcePlatform
 }: SearchResultCardProps) {
   const displayMatches = isExpanded ? result.atprotoMatches : result.atprotoMatches.slice(0, 1);
   const hasMoreMatches = result.atprotoMatches.length > 1;
+  const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
       {/* Source User */}
       <div className="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-r from-black via-gray-800 to-cyan-400 flex items-center justify-center text-white font-bold">
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${platform.color} flex items-center justify-center text-white font-bold`}>
             {result.tiktokUser.username.charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
@@ -54,10 +37,10 @@ export default function SearchResultCard({
               @{result.tiktokUser.username}
             </div>
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              from TikTok
+              from {platform.name}
             </div>
           </div>
-          <div className="text-xs px-2 py-1 rounded-full bg-black dark:bg-cyan-400 text-white dark:text-black">
+          <div className={`text-xs px-2 py-1 rounded-full ${platform.accentBg} text-white`}>
             {result.atprotoMatches.length} {result.atprotoMatches.length === 1 ? 'match' : 'matches'}
           </div>
         </div>
