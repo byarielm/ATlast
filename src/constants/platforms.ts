@@ -15,7 +15,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     icon: Twitter,
     color: 'from-blue-400 to-blue-600',
     accentBg: 'bg-blue-500',
-    fileHint: 'following.js or account data ZIP',
+    fileHint: 'following.txt, data.json, or data.zip',
     enabled: false,
   },
   instagram: {
@@ -23,8 +23,8 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     icon: Instagram,
     color: 'from-pink-500 via-purple-500 to-orange-500',
     accentBg: 'bg-pink-500',
-    fileHint: 'connections.json or data ZIP',
-    enabled: false,
+    fileHint: 'following.html or data ZIP',
+    enabled: true,
   },
   tiktok: {
     name: 'TikTok',

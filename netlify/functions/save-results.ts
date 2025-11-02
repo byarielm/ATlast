@@ -78,13 +78,6 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
-    console.log('Received results:', {
-      uploadId,
-      sourcePlatform,
-      resultsCount: results.length,
-      firstResult: results[0]
-    });
-
     const sql = getDbClient();
     let matchedCount = 0;
 
@@ -101,20 +94,12 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     // Process all results
     for (const result of results) {
       try {
-        console.log(`Processing ${result.tiktokUser.username}:`, {
-          hasMatches: result.atprotoMatches?.length || 0
-        });
 
         // 1. Get or create source account (handles race conditions)
         const sourceAccountId = await getOrCreateSourceAccount(
           sourcePlatform,
           result.tiktokUser.username
         );
-
-        console.log(`Processing ${result.tiktokUser.username}:`, {
-          hasMatches: result.atprotoMatches?.length || 0,
-          sourceAccountId
-        });
 
         // 2. Link this user to the source account
         await linkUserToSourceAccount(
