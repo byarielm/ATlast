@@ -66,9 +66,11 @@ export default function App() {
         setStatusMessage,
         () => {
           setCurrentStep('results');
-          // Save results after search completes (only once)
+          // Save results in background (fire and forget)
           const uploadId = crypto.randomUUID();
-          apiClient.saveResults(uploadId, platform, resultsWithPlatform);
+          apiClient.saveResults(uploadId, platform, resultsWithPlatform).catch(err => {
+            console.error('Background save failed:', err);
+          });
         }
       );
     },

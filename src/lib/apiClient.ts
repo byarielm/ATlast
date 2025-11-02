@@ -145,6 +145,8 @@ export const apiClient = {
           atprotoMatches: r.atprotoMatches || []
         }));
       
+      console.log(`Saving ${resultsToSave.length} results in background...`);
+      
       const res = await fetch('/.netlify/functions/save-results', {
         method: 'POST',
         credentials: 'include',
@@ -157,13 +159,15 @@ export const apiClient = {
       });
 
       if (res.ok) {
-        return res.json();
+        const data = await res.json();
+        console.log(`Successfully saved ${data.matchedUsers} matches`);
+        return data;
       } else {
-        console.error('Failed to save results:', await res.text());
+        console.error('Failed to save results:', res.status, await res.text());
         return null;
       }
     } catch (error) {
-      console.error('Error saving results:', error);
+      console.error('Error saving results (will continue in background):', error);
       return null;
     }
   }
