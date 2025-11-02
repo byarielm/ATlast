@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ArrowRight } from "lucide-react";
 import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
@@ -24,6 +24,7 @@ export default function App() {
 
   // Add state to track current platform
   const [currentPlatform, setCurrentPlatform] = useState<string>('tiktok');
+  const saveCalledRef = useRef(false);
 
   // Search hook
   const {
@@ -66,13 +67,23 @@ export default function App() {
         setStatusMessage,
         () => {
           setCurrentStep('results');
-          setSearchResults(currentResults => {
-            const uploadId = crypto.randomUUID();
-            apiClient.saveResults(uploadId, platform, currentResults).catch(err => {
-              console.error('Background save failed:', err);
-            });
-            return currentResults;
-          });
+          // Prevent duplicate saves
+          if (!saveCalledRef.current) {
+            saveCalledRef.current = true;
+            // Need to wait for React to finish updating searchResults state
+            // Use a longer delay and access via setSearchResults callback to get final state
+            setTimeout(() => {
+              setSearchResults(currentResults => {
+                if (currentResults.length > 0) {
+                  const uploadId = crypto.randomUUID();
+                  apiClient.saveResults(uploadId, platform, currentResults).catch(err => {
+                    console.error('Background save failed:', err);
+                  });
+                }
+                return currentResults; // Don't modify, just return as-is
+              });
+            }, 1000); // Longer delay to ensure all state updates complete
+          }
         }
       );
     },
@@ -97,7 +108,8 @@ export default function App() {
 
       const platform = 'tiktok'; // Default, will be updated when we add platform to upload details
       setCurrentPlatform(platform);
-      
+      saveCalledRef.current = false;
+
       // Convert the loaded results to SearchResult format with selectedMatches
       const loadedResults = data.results.map(result => ({
         ...result,
