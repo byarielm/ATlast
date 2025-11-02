@@ -35,6 +35,7 @@ interface SaveResultsRequest {
 }
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
+  
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -80,6 +81,24 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     const sql = getDbClient();
     let matchedCount = 0;
+
+    // Check for recent uploads from this user
+    const recentUpload = await sql`
+      SELECT upload_id FROM user_uploads 
+      WHERE did = ${userSession.did} 
+      AND created_at > NOW() - INTERVAL '5 seconds'
+      ORDER BY created_at DESC
+      LIMIT 1
+    `;
+
+    if ((recentUpload as any[]).length > 0) {
+      console.log(`User ${userSession.did} already saved within 5 seconds, skipping duplicate`);
+      return {
+        statusCode: 200,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ success: true, message: 'Recently saved' }),
+      };
+    }
 
     // IMPORTANT: Create upload record FIRST before processing results
     // This is required because user_source_follows has a foreign key to user_uploads
