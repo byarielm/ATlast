@@ -2,12 +2,12 @@ import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
 import { userSessions } from './oauth-stores-db';
 import cookie from 'cookie';
 import {
-  getOrCreateSourceAccount,
-  linkUserToSourceAccount,
-  storeAtprotoMatch,
-  markSourceAccountMatched,
-  createUserMatchStatus,
-  createUpload
+  createUpload,
+  bulkCreateSourceAccounts,
+  bulkLinkUserToSourceAccounts,
+  bulkStoreAtprotoMatches,
+  bulkMarkSourceAccountsMatched,
+  bulkCreateUserMatchStatus
 } from './db-helpers';
 import { getDbClient } from './db';
 
@@ -100,72 +100,98 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
-    // IMPORTANT: Create upload record FIRST before processing results
-    // This is required because user_source_follows has a foreign key to user_uploads
+    // Create upload record FIRST
     await createUpload(
       uploadId,
       userSession.did,
       sourcePlatform,
       results.length,
-      0 // We'll update this after processing
+      0
     );
 
-    const BATCH_SIZE = 100;
-    const batches = [];
-    for (let i = 0; i < results.length; i += BATCH_SIZE) {
-      batches.push(results.slice(i, i + BATCH_SIZE));
-    }
-
-    for (const batch of batches) {
-      // Process batch in parallel
-      await Promise.all(batch.map(async (result) => {
-        try {
-          // 1. Get or create source account (handles race conditions)
-          const sourceAccountId = await getOrCreateSourceAccount(
-            sourcePlatform,
-            result.tiktokUser.username
-          );
-
-          // 2. Link this user to the source account
-          await linkUserToSourceAccount(
-            uploadId,
-            userSession.did,
+    // BULK OPERATION 1: Create all source accounts at once
+    const allUsernames = results.map(r => r.tiktokUser.username);
+    const sourceAccountIdMap = await bulkCreateSourceAccounts(sourcePlatform, allUsernames);
+    
+    // BULK OPERATION 2: Link all users to source accounts
+    const links = results.map(result => {
+      const normalized = result.tiktokUser.username.toLowerCase().replace(/[._-]/g, '');
+      const sourceAccountId = sourceAccountIdMap.get(normalized);
+      return {
+        sourceAccountId: sourceAccountId!,
+        sourceDate: result.tiktokUser.date
+      };
+    }).filter(link => link.sourceAccountId !== undefined);
+    
+    await bulkLinkUserToSourceAccounts(uploadId, userSession.did, links);
+    
+    // BULK OPERATION 3: Store all atproto matches at once
+    const allMatches: Array<{
+      sourceAccountId: number;
+      atprotoDid: string;
+      atprotoHandle: string;
+      atprotoDisplayName?: string;
+      atprotoAvatar?: string;
+      matchScore: number;
+    }> = [];
+    
+    const matchedSourceAccountIds: number[] = [];
+    
+    for (const result of results) {
+      const normalized = result.tiktokUser.username.toLowerCase().replace(/[._-]/g, '');
+      const sourceAccountId = sourceAccountIdMap.get(normalized);
+      
+      if (sourceAccountId && result.atprotoMatches && result.atprotoMatches.length > 0) {
+        matchedCount++;
+        matchedSourceAccountIds.push(sourceAccountId);
+        
+        for (const match of result.atprotoMatches) {
+          allMatches.push({
             sourceAccountId,
-            result.tiktokUser.date
-          );
-
-          // 3. If matches found, store them
-          if (result.atprotoMatches && result.atprotoMatches.length > 0) {
-            matchedCount++;
-
-            // Mark source account as matched
-            await markSourceAccountMatched(sourceAccountId);
-
-            // Store each match
-            for (const match of result.atprotoMatches) {
-              const atprotoMatchId = await storeAtprotoMatch(
-                sourceAccountId,
-                match.did,
-                match.handle,
-                match.displayName,
-                match.avatar,
-                match.matchScore
-              );
-
-              // Create user match status (viewed = true since they just searched)
-              await createUserMatchStatus(
-                userSession.did,
-                atprotoMatchId,
-                sourceAccountId,
-                true
-              );
-            }
-          }
-        } catch (error) {
-          console.error(`Error processing result for ${result.tiktokUser.username}:`, error);
-          // Continue processing other results
+            atprotoDid: match.did,
+            atprotoHandle: match.handle,
+            atprotoDisplayName: match.displayName,
+            atprotoAvatar: match.avatar,
+            matchScore: match.matchScore
+          });
         }
-      }));
+      }
+    }
+    
+    // Store all matches in one operation
+    let matchIdMap = new Map<string, number>();
+    if (allMatches.length > 0) {
+      matchIdMap = await bulkStoreAtprotoMatches(allMatches);
+    }
+    
+    // BULK OPERATION 4: Mark all matched source accounts
+    if (matchedSourceAccountIds.length > 0) {
+      await bulkMarkSourceAccountsMatched(matchedSourceAccountIds);
+    }
+    
+    // BULK OPERATION 5: Create all user match statuses
+    const statuses: Array<{
+      did: string;
+      atprotoMatchId: number;
+      sourceAccountId: number;
+      viewed: boolean;
+    }> = [];
+    
+    for (const match of allMatches) {
+      const key = `${match.sourceAccountId}:${match.atprotoDid}`;
+      const matchId = matchIdMap.get(key);
+      if (matchId) {
+        statuses.push({
+          did: userSession.did,
+          atprotoMatchId: matchId,
+          sourceAccountId: match.sourceAccountId,
+          viewed: true
+        });
+      }
+    }
+    
+    if (statuses.length > 0) {
+      await bulkCreateUserMatchStatus(statuses);
     }
 
     // Update upload record with final counts
