@@ -1,5 +1,6 @@
-import { fileParser, FileParseError } from '../lib/fileParser';
-import type { TikTokUser, SearchResult } from '../types';
+import { parseFile, PlatformParseError } from '../lib/platforms/parser';
+import type { SocialUser } from '../lib/platforms/types';
+import type { SearchResult } from '../types';
 
 export function useFileUpload(
   onSearchStart: (results: SearchResult[], platform: string) => void,
@@ -10,20 +11,18 @@ export function useFileUpload(
     if (!file) return;
 
     onStatusUpdate(`Processing ${file.name}...`);
-    let users: TikTokUser[] = [];
+    let users: SocialUser[] = [];
 
     try {
-      users = await fileParser.parseFile(file);
+      // Use the new platform-based parser
+      users = await parseFile(file, platform);
       
-      const fileType = file.name.endsWith('.zip') ? 'ZIP' : 
-                       file.name.endsWith('.json') ? 'JSON' : 
-                       file.name.endsWith('.html') ? 'HTML' : 'TXT';
-      console.log(`Loaded ${users.length} users from ${fileType} file`);
-      onStatusUpdate(`Loaded ${users.length} users from ${fileType} file`);
+      console.log(`Loaded ${users.length} users from ${platform} data`);
+      onStatusUpdate(`Loaded ${users.length} users from ${platform} data`);
     } catch (error) {
       console.error("Error processing file:", error);
       
-      const errorMsg = error instanceof FileParseError 
+      const errorMsg = error instanceof PlatformParseError 
         ? error.message
         : "There was a problem processing the file. Please check that it's a valid data export.";
       
@@ -41,7 +40,7 @@ export function useFileUpload(
 
     // Initialize search results
     const initialResults: SearchResult[] = users.map(user => ({
-      tiktokUser: user,
+      tiktokUser: user, // TODO: Rename to sourceUser in types
       atprotoMatches: [],
       isSearching: false,
       selectedMatches: new Set<string>(),
