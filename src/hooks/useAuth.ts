@@ -27,25 +27,26 @@ export function useAuth() {
       // If we have a session parameter in URL, this is an OAuth callback
       if (sessionId) {
         setStatusMessage('Loading your session...');
-        await fetchProfile();
+        
+        // Single call now gets both session AND profile data
+        const data = await apiClient.getSession();
+        setSession({
+          did: data.did,
+          handle: data.handle,
+          displayName: data.displayName,
+          avatar: data.avatar,
+          description: data.description,
+        });
         setCurrentStep('home');
+        setStatusMessage(`Welcome back, ${data.handle}!`);
+        
         window.history.replaceState({}, '', '/');
         return;
       }
 
       // Otherwise, check if there's an existing session cookie
-      await apiClient.getSession();
-      await fetchProfile();
-      setCurrentStep('home');
-    } catch (error) {
-      console.error('Session check error:', error);
-      setCurrentStep('login');
-    }
-  }
-
-  async function fetchProfile() {
-    try {
-      const data = await apiClient.getProfile();
+      // Single call now gets both session AND profile data
+      const data = await apiClient.getSession();
       setSession({
         did: data.did,
         handle: data.handle,
@@ -53,11 +54,11 @@ export function useAuth() {
         avatar: data.avatar,
         description: data.description,
       });
-      setStatusMessage(`Successfully logged in as ${data.handle}`);
-    } catch (err) {
-      console.error('Profile fetch error:', err);
-      setStatusMessage('Failed to load profile');
-      throw err;
+      setCurrentStep('home');
+      setStatusMessage(`Welcome back, ${data.handle}!`);
+    } catch (error) {
+      console.error('Session check error:', error);
+      setCurrentStep('login');
     }
   }
 
