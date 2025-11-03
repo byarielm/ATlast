@@ -139,7 +139,9 @@ export async function initDB() {
     )
   `;
 
-  // Create indexes
+  // ==================== ENHANCED INDEXES FOR PHASE 2 ====================
+  
+  // Existing indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_to_check ON source_accounts(source_platform, match_found, last_checked)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_platform ON source_accounts(source_platform)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_user_source_follows_did ON user_source_follows(did)`;
@@ -148,14 +150,49 @@ export async function initDB() {
   await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_did ON atproto_matches(atproto_did)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_user_match_status_did_notified ON user_match_status(did, notified, viewed)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_user_match_status_did_followed ON user_match_status(did, followed)`;
-  await sql`CREATE INDEX IF NOT EXISTS idx_notification_queue_pending ON notification_queue(sent, created_at) WHERE sent = FALSE`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_notification_queue_pending ON notification_queue(sent, created_at) WHERE sent = false`;
+
+  // NEW: Enhanced indexes for common query patterns
+  
+  // For session lookups (most frequent query)
+await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_did ON user_sessions(did)`;
+await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at)`;
+  
+  // For OAuth state/session cleanup
+  await sql`CREATE INDEX IF NOT EXISTS idx_oauth_states_expires ON oauth_states(expires_at)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_oauth_sessions_expires ON oauth_sessions(expires_at)`;
+  
+  // For upload queries by user
+  await sql`CREATE INDEX IF NOT EXISTS idx_user_uploads_did_created ON user_uploads(did, created_at DESC)`;
+  
+  // For upload details pagination (composite index for ORDER BY + JOIN)
+  await sql`CREATE INDEX IF NOT EXISTS idx_user_source_follows_upload_created ON user_source_follows(upload_id, source_account_id)`;
+  
+  // For match status queries
+  await sql`CREATE INDEX IF NOT EXISTS idx_user_match_status_match_id ON user_match_status(atproto_match_id)`;
+  
+  // Composite index for the common join pattern in get-upload-details
+  await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_source_active ON atproto_matches(source_account_id, is_active) WHERE is_active = true`;
+  
+  // For bulk operations - normalized username lookups
+  await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_normalized ON source_accounts(normalized_username, source_platform)`;
+
+  console.log('✅ Database indexes created/verified');
 }
 
 export async function cleanupExpiredSessions() {
   const sql = getDbClient();
-  await sql`DELETE FROM oauth_states WHERE expires_at < NOW()`;
-  await sql`DELETE FROM oauth_sessions WHERE expires_at < NOW()`;
-  await sql`DELETE FROM user_sessions WHERE expires_at < NOW()`;
+  
+  // Use indexes for efficient cleanup
+  const statesDeleted = await sql`DELETE FROM oauth_states WHERE expires_at < NOW()`;
+  const sessionsDeleted = await sql`DELETE FROM oauth_sessions WHERE expires_at < NOW()`;
+  const userSessionsDeleted = await sql`DELETE FROM user_sessions WHERE expires_at < NOW()`;
+  
+  console.log('🧹 Cleanup:', {
+    states: (statesDeleted as any).length,
+    sessions: (sessionsDeleted as any).length,
+    userSessions: (userSessionsDeleted as any).length
+  });
 }
 
 export { getDbClient as sql };
