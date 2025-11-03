@@ -24,7 +24,7 @@ export default function App() {
 
   // Add state to track current platform
   const [currentPlatform, setCurrentPlatform] = useState<string>('tiktok');
-  const saveCalledRef = useRef(false);
+  const saveCalledRef = useRef<string | null>(null); // Track by uploadId
 
   // Search hook
   const {
@@ -62,20 +62,22 @@ export default function App() {
       
       setSearchResults(resultsWithPlatform);
       setCurrentStep('loading');
+
+      const uploadId = crypto.randomUUID();
+
       searchAllUsers(
         resultsWithPlatform,
         setStatusMessage,
         () => {
           setCurrentStep('results');
           // Prevent duplicate saves
-          if (!saveCalledRef.current) {
-            saveCalledRef.current = true;
+          if (saveCalledRef.current !== uploadId) {
+            saveCalledRef.current = uploadId;
             // Need to wait for React to finish updating searchResults state
             // Use a longer delay and access via setSearchResults callback to get final state
             setTimeout(() => {
               setSearchResults(currentResults => {
                 if (currentResults.length > 0) {
-                  const uploadId = crypto.randomUUID();
                   apiClient.saveResults(uploadId, platform, currentResults).catch(err => {
                     console.error('Background save failed:', err);
                   });
@@ -108,7 +110,7 @@ export default function App() {
 
       const platform = 'tiktok'; // Default, will be updated when we add platform to upload details
       setCurrentPlatform(platform);
-      saveCalledRef.current = false;
+      saveCalledRef.current = null;
 
       // Convert the loaded results to SearchResult format with selectedMatches
       const loadedResults = data.results.map(result => ({
