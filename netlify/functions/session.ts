@@ -13,9 +13,17 @@ function normalizePrivateKey(key: string): string {
   return key;
 }
 
-// In-memory cache for profile data (lives for the function instance lifetime)
+// ENHANCED: Two-tier cache system
+// Tier 1: In-memory cache for profile data (lives for function instance)
 const profileCache = new Map<string, { data: any; timestamp: number }>();
-const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const PROFILE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+// Tier 2: Session metadata cache (DID -> basic info, faster than full OAuth restore)
+const sessionMetadataCache = new Map<string, { 
+  did: string; 
+  lastSeen: number;
+  profileFetchNeeded: boolean;
+}>();
 
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
@@ -30,32 +38,72 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
-    // Get the DID from our simple session store
-    const userSession = await userSessions.get(sessionId);
-    if (!userSession) {
-      return {
-        statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired session' }),
-      };
+    // OPTIMIZATION: Check session metadata cache first (avoids DB query)
+    const cachedMetadata = sessionMetadataCache.get(sessionId);
+    const now = Date.now();
+    
+    let did: string;
+    
+    if (cachedMetadata && (now - cachedMetadata.lastSeen < 60000)) {
+      // Session seen within last minute, trust the cache
+      did = cachedMetadata.did;
+      console.log('Session metadata from cache');
+    } else {
+      // Need to verify session from database
+      const userSession = await userSessions.get(sessionId);
+      if (!userSession) {
+        // Clear stale cache entry
+        sessionMetadataCache.delete(sessionId);
+        return {
+          statusCode: 401,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ error: 'Invalid or expired session' }),
+        };
+      }
+      
+      did = userSession.did;
+      
+      // Update session metadata cache
+      sessionMetadataCache.set(sessionId, {
+        did,
+        lastSeen: now,
+        profileFetchNeeded: true
+      });
+      
+      // Cleanup: Remove old session metadata entries
+      if (sessionMetadataCache.size > 200) {
+        for (const [sid, meta] of sessionMetadataCache.entries()) {
+          if (now - meta.lastSeen > 300000) { // 5 minutes
+            sessionMetadataCache.delete(sid);
+          }
+        }
+      }
     }
 
-    // Check cache first
-    const cached = profileCache.get(userSession.did);
-    if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
-      console.log('Returning cached profile for', userSession.did);
+    // Check profile cache (Tier 1)
+    const cached = profileCache.get(did);
+    if (cached && now - cached.timestamp < PROFILE_CACHE_TTL) {
+      console.log('Returning cached profile for', did);
+      
+      // Update session metadata last seen
+      const meta = sessionMetadataCache.get(sessionId);
+      if (meta) {
+        meta.lastSeen = now;
+      }
+      
       return {
         statusCode: 200,
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Cache-Control': 'private, max-age=300', // Browser can cache for 5 minutes
+          'X-Cache-Status': 'HIT'
         },
         body: JSON.stringify(cached.data),
       };
     }
 
-    // If not in cache, fetch full profile
+    // Cache miss - fetch full profile
     try {
       const config = getOAuthConfig();
       const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY!);
@@ -82,34 +130,40 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       });
 
       // Restore OAuth session
-      const oauthSession = await client.restore(userSession.did);
+      const oauthSession = await client.restore(did);
       
       // Create agent from OAuth session
       const agent = new Agent(oauthSession);
 
       // Get profile
-      const profile = await agent.getProfile({ actor: userSession.did });
+      const profile = await agent.getProfile({ actor: did });
 
       const profileData = {
-        did: userSession.did,
+        did: did,
         handle: profile.data.handle,
         displayName: profile.data.displayName,
         avatar: profile.data.avatar,
         description: profile.data.description,
       };
 
-      // Cache the profile data
-      profileCache.set(userSession.did, {
+      // Cache the profile data (Tier 1)
+      profileCache.set(did, {
         data: profileData,
-        timestamp: Date.now(),
+        timestamp: now,
       });
 
-      // Clean up old cache entries (simple cleanup)
+      // Update session metadata (Tier 2)
+      const meta = sessionMetadataCache.get(sessionId);
+      if (meta) {
+        meta.lastSeen = now;
+        meta.profileFetchNeeded = false;
+      }
+
+      // Clean up old profile cache entries
       if (profileCache.size > 100) {
-        const now = Date.now();
-        for (const [did, entry] of profileCache.entries()) {
-          if (now - entry.timestamp > CACHE_TTL) {
-            profileCache.delete(did);
+        for (const [cachedDid, entry] of profileCache.entries()) {
+          if (now - entry.timestamp > PROFILE_CACHE_TTL) {
+            profileCache.delete(cachedDid);
           }
         }
       }
@@ -119,7 +173,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'private, max-age=300', // Browser can cache for 5 minutes
+          'Cache-Control': 'private, max-age=300',
+          'X-Cache-Status': 'MISS'
         },
         body: JSON.stringify(profileData),
       };
@@ -132,9 +187,10 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         headers: {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
+          'X-Cache-Status': 'ERROR'
         },
         body: JSON.stringify({
-          did: userSession.did,
+          did: did,
           // Profile data unavailable
         }),
       };
