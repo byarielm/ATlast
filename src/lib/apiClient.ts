@@ -164,20 +164,33 @@ export const apiClient = {
     return data;
   },
 
-  async getUploadDetails(uploadId: string): Promise<{
+  async getUploadDetails(
+    uploadId: string, 
+    page: number = 1, 
+    pageSize: number = 50
+  ): Promise<{
     results: SearchResult[];
+    pagination?: {
+      page: number;
+      pageSize: number;
+      totalPages: number;
+      totalUsers: number;
+      hasNextPage: boolean;
+      hasPrevPage: boolean;
+    };
   }> {
-    // Check cache first
-    const cacheKey = `upload-details-${uploadId}`;
-    const cached = cache.get<any>(cacheKey, 10 * 60 * 1000); // 10 minute cache for specific upload
+    // Check cache first (cache by page)
+    const cacheKey = `upload-details-${uploadId}-p${page}-s${pageSize}`;
+    const cached = cache.get<any>(cacheKey, 10 * 60 * 1000);
     if (cached) {
-      console.log('Returning cached upload details for', uploadId);
+      console.log('Returning cached upload details for', uploadId, 'page', page);
       return cached;
     }
 
-    const res = await fetch(`/.netlify/functions/get-upload-details?uploadId=${uploadId}`, {
-      credentials: 'include'
-    });
+    const res = await fetch(
+      `/.netlify/functions/get-upload-details?uploadId=${uploadId}&page=${page}&pageSize=${pageSize}`, 
+      { credentials: 'include' }
+    );
 
     if (!res.ok) {
       throw new Error('Failed to fetch upload details');
@@ -185,17 +198,41 @@ export const apiClient = {
 
     const data = await res.json();
     
-    // Cache upload details for 10 minutes
+    // Cache upload details page for 10 minutes
     cache.set(cacheKey, data, 10 * 60 * 1000);
     
     return data;
+  },
+
+  // Helper to load all pages (for backwards compatibility)
+  async getAllUploadDetails(uploadId: string): Promise<{ results: SearchResult[] }> {
+    const firstPage = await this.getUploadDetails(uploadId, 1, 100);
+    
+    if (!firstPage.pagination || firstPage.pagination.totalPages === 1) {
+      return { results: firstPage.results };
+    }
+
+    // Load remaining pages
+    const allResults = [...firstPage.results];
+    const promises = [];
+    
+    for (let page = 2; page <= firstPage.pagination.totalPages; page++) {
+      promises.push(this.getUploadDetails(uploadId, page, 100));
+    }
+
+    const remainingPages = await Promise.all(promises);
+    for (const pageData of remainingPages) {
+      allResults.push(...pageData.results);
+    }
+
+    return { results: allResults };
   },
 
   // Search Operations
   async batchSearchActors(usernames: string[]): Promise<{ results: BatchSearchResult[] }> {
     // Create cache key from sorted usernames (so order doesn't matter)
     const cacheKey = `search-${usernames.slice().sort().join(',')}`;
-    const cached = cache.get<any>(cacheKey, 10 * 60 * 1000); // 10 minute cache for search results
+    const cached = cache.get<any>(cacheKey, 10 * 60 * 1000);
     if (cached) {
       console.log('Returning cached search results for', usernames.length, 'users');
       return cached;
@@ -241,6 +278,10 @@ export const apiClient = {
 
     const data = await res.json();
     
+    // Invalidate uploads cache after following
+    cache.invalidate('uploads');
+    cache.invalidatePattern('upload-details');
+    
     return data;
   },
 
@@ -275,9 +316,9 @@ export const apiClient = {
         const data = await res.json();
         console.log(`Successfully saved ${data.matchedUsers} matches`);
         
-        // Invalidate uploads cache after saving
+        // Invalidate caches after saving
         cache.invalidate('uploads');
-        cache.set(`upload-details-${uploadId}`, { results }, 10 * 60 * 1000);
+        cache.invalidatePattern('upload-details');
         
         return data;
       } else {

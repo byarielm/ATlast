@@ -3,15 +3,31 @@ import { userSessions } from './oauth-stores-db';
 import { getDbClient } from './db';
 import cookie from 'cookie';
 
+const DEFAULT_PAGE_SIZE = 50;
+const MAX_PAGE_SIZE = 100;
+
 export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
   try {
     const uploadId = event.queryStringParameters?.uploadId;
+    const page = parseInt(event.queryStringParameters?.page || '1');
+    const pageSize = Math.min(
+      parseInt(event.queryStringParameters?.pageSize || String(DEFAULT_PAGE_SIZE)),
+      MAX_PAGE_SIZE
+    );
 
     if (!uploadId) {
       return {
         statusCode: 400,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ error: 'uploadId is required' }),
+      };
+    }
+
+    if (page < 1 || pageSize < 1) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'Invalid page or pageSize parameters' }),
       };
     }
 
@@ -39,9 +55,9 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     const sql = getDbClient();
 
-    // Verify upload belongs to user
+    // Verify upload belongs to user and get total count
     const uploadCheck = await sql`
-      SELECT upload_id FROM user_uploads
+      SELECT upload_id, total_users FROM user_uploads
       WHERE upload_id = ${uploadId} AND did = ${userSession.did}
     `;
 
@@ -53,7 +69,11 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
-    // Fetch detailed results for this upload
+    const totalUsers = (uploadCheck as any[])[0].total_users;
+    const totalPages = Math.ceil(totalUsers / pageSize);
+    const offset = (page - 1) * pageSize;
+
+    // Fetch paginated results with optimized query
     const results = await sql`
       SELECT 
         sa.source_username,
@@ -72,6 +92,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       LEFT JOIN user_match_status ums ON am.id = ums.atproto_match_id AND ums.did = ${userSession.did}
       WHERE usf.upload_id = ${uploadId}
       ORDER BY sa.source_username
+      LIMIT ${pageSize}
+      OFFSET ${offset}
     `;
 
     // Group results by source username
@@ -110,8 +132,19 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       headers: {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'private, max-age=600', // 10 minute browser cache
       },
-      body: JSON.stringify({ results: searchResults }),
+      body: JSON.stringify({ 
+        results: searchResults,
+        pagination: {
+          page,
+          pageSize,
+          totalPages,
+          totalUsers,
+          hasNextPage: page < totalPages,
+          hasPrevPage: page > 1
+        }
+      }),
     };
 
   } catch (error) {
