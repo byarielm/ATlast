@@ -2,7 +2,6 @@ import { Upload, History, FileText } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import AppHeader from "../components/AppHeader";
 import PlatformSelector from "../components/PlatformSelector";
-import FileUploadZone from "../components/FileUploadZone";
 import { apiClient } from "../lib/apiClient";
 import type { Upload as UploadType } from "../types";
 
@@ -94,13 +93,33 @@ export default function HomePage({
             </h2>
           </div>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Upload your exported data from any platform to find matches on the ATmosphere
+            Click a platform below to upload your exported data and find matches on the ATmosphere
           </p>
   
           <PlatformSelector onPlatformSelect={handlePlatformSelect} />
-          <FileUploadZone 
-            onFileChange={(e) => onFileUpload(e, selectedPlatform || 'tiktok')} 
-            fileInputRef={fileInputRef} />
+          
+          {/* Hidden file input */}
+          <input
+            id="file-upload"
+            ref={fileInputRef}
+            type="file"
+            accept=".txt,.json,.html,.zip"
+            onChange={(e) => onFileUpload(e, selectedPlatform || 'tiktok')}
+            className="sr-only"
+            aria-label="Upload following data file"
+          />
+          
+          <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+            <p className="text-sm text-blue-900 dark:text-blue-300">
+              💡 <strong>How to get your data:</strong>
+            </p>
+            <p className="text-sm text-blue-900 dark:text-blue-300 mt-2">
+              <strong>TikTok:</strong> Profile → Settings → Account → Download your data → Upload Following.txt
+            </p>
+            <p className="text-sm text-blue-900 dark:text-blue-300 mt-1">
+              <strong>Instagram:</strong> Profile → Settings → Accounts Center → Your information and permissions → Download your information → Upload following.html
+            </p>
+          </div>
         </div>
 
         {/* Upload History Section */}
