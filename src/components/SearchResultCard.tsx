@@ -27,31 +27,28 @@ export default function SearchResultCard({
   return (
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
       {/* Source User */}
-      <div className="p-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center space-x-3">
-          <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${platform.color} flex items-center justify-center text-white font-bold`}>
-            {result.tiktokUser.username.charAt(0).toUpperCase()}
-          </div>
-          <div className="flex-1">
-            <div className="font-bold text-gray-900 dark:text-gray-100">
+      <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-gray-900 dark:text-gray-100 truncate">
               @{result.tiktokUser.username}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              from {platform.name}
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              {platform.name}
             </div>
           </div>
-          <div className={`text-xs px-2 py-1 rounded-full ${platform.accentBg} text-white`}>
+          <div className={`text-xs px-2 py-1 rounded-full ${platform.accentBg} text-white whitespace-nowrap ml-2`}>
             {result.atprotoMatches.length} {result.atprotoMatches.length === 1 ? 'match' : 'matches'}
           </div>
         </div>
       </div>
 
-      {/* Bluesky Matches */}
+      {/* ATProto Matches */}
       <div className="p-4">
         {result.atprotoMatches.length === 0 ? (
           <div className="text-center py-6 text-gray-500 dark:text-gray-400">
             <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">Not found on Bluesky yet</p>
+            <p className="text-sm">Not found on the ATmosphere yet</p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -102,29 +99,21 @@ export default function SearchResultCard({
                   <button
                     onClick={() => onToggleMatchSelection(match.did)}
                     disabled={isFollowed}
-                    className={`flex items-center space-x-1 px-3 py-2 rounded-full font-medium transition-all flex-shrink-0 ${
+                    className={`p-2 rounded-full font-medium transition-all flex-shrink-0 ${
                       isFollowed
                         ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 cursor-not-allowed opacity-60'
                         : isSelected
                         ? 'bg-blue-600 text-white'
                         : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
                     }`}
+                    title={isFollowed ? 'Already followed' : isSelected ? 'Selected to follow' : 'Select to follow'}
                   >
                     {isFollowed ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        <span className="text-sm">Followed</span>
-                      </>
+                      <Check className="w-4 h-4" />
                     ) : isSelected ? (
-                      <>
-                        <Check className="w-4 h-4" />
-                        <span className="text-sm">Selected</span>
-                      </>
+                      <Check className="w-4 h-4" />
                     ) : (
-                      <>
-                        <UserPlus className="w-4 h-4" />
-                        <span className="text-sm">Select</span>
-                      </>
+                      <UserPlus className="w-4 h-4" />
                     )}
                   </button>
                 </div>
