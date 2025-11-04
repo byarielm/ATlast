@@ -163,12 +163,12 @@ export default function HomePage({
                     <Upload className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <span className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                        {upload.sourcePlatform}
-                      </span>
-                      <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full">
-                        {upload.matchedUsers} matches
+                    <div className="font-semibold text-gray-900 dark:text-gray-100 capitalize mb-1">
+                      {upload.sourcePlatform}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full whitespace-nowrap">
+                        {upload.matchedUsers} {upload.matchedUsers === 1 ? 'match' : 'matches'}
                       </span>
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">

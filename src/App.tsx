@@ -201,6 +201,8 @@ export default function App() {
         {currentStep === 'login' && (
           <LoginPage 
             onSubmit={handleLogin}
+            session={session}
+            onNavigate={setCurrentStep}
           />
         )}
 
