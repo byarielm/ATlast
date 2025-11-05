@@ -28,16 +28,18 @@ export default function SearchResultCard({
     <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm overflow-hidden">
       {/* Source User */}
       <div className="px-4 py-3 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between gap-2">
           <div className="flex-1 min-w-0">
-            <div className="font-bold text-gray-900 dark:text-gray-100 truncate">
-              @{result.sourceUser.username}
-            </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              {platform.name}
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+              <span className="font-bold text-gray-900 dark:text-gray-100 truncate">
+                @{result.sourceUser.username}
+              </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                from {platform.name}
+              </span>
             </div>
           </div>
-          <div className={`text-xs px-2 py-1 rounded-full ${platform.accentBg} text-white whitespace-nowrap ml-2`}>
+          <div className={`text-xs px-2 py-1 rounded-full ${platform.accentBg} text-white whitespace-nowrap flex-shrink-0`}>
             {result.atprotoMatches.length} {result.atprotoMatches.length === 1 ? 'match' : 'matches'}
           </div>
         </div>

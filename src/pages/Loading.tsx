@@ -22,11 +22,11 @@ interface LoadingPageProps {
   onNavigate: (step: 'home' | 'login') => void;
   searchProgress: SearchProgress;
   currentStep: string;
+  sourcePlatform: string;
 }
 
-export default function LoadingPage({ session, onLogout, onNavigate, searchProgress, currentStep }: LoadingPageProps) {
-  // Default to TikTok styling for loading state
-  const platform = PLATFORMS.tiktok;
+export default function LoadingPage({ session, onLogout, onNavigate, searchProgress, currentStep, sourcePlatform }: LoadingPageProps) {
+  const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
   const PlatformIcon = platform.icon;
 
   return (
@@ -45,7 +45,7 @@ export default function LoadingPage({ session, onLogout, onNavigate, searchProgr
               <div>
                 <h2 className="text-xl font-bold">Finding Your People</h2>
                 <p className="text-white/90 text-sm">
-                  Searching the ATmosphere...
+                  Searching the ATmosphere for {platform.name} follows...
                 </p>
               </div>
             </div>
