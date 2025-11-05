@@ -55,18 +55,13 @@ export default function App() {
     (initialResults, platform) => {
       setCurrentPlatform(platform);
 
-      const resultsWithPlatform = initialResults.map(res => ({
-        ...res,
-        sourcePlatform: platform,
-      }));
-      
-      setSearchResults(resultsWithPlatform);
+      setSearchResults(initialResults);
       setCurrentStep('loading');
 
       const uploadId = crypto.randomUUID();
 
       searchAllUsers(
-        resultsWithPlatform,
+        initialResults,
         setStatusMessage,
         () => {
           setCurrentStep('results');

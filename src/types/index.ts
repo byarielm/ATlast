@@ -8,7 +8,7 @@ export interface AtprotoSession {
 }
 
 // TikTok Data Types
-export interface TikTokUser {
+export interface SourceUser {
   username: string;
   date: string;
 }
@@ -22,10 +22,13 @@ export interface AtprotoMatch {
   matchScore: number;
   description?: string;
   followed?: boolean;
+  postCount?: number;
+  followerCount?: number;
+  foundAt?: string;
 }
 
 export interface SearchResult {
-  tiktokUser: TikTokUser;
+  sourceUser: SourceUser;
   atprotoMatches: AtprotoMatch[];
   isSearching: boolean;
   error?: string;

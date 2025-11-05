@@ -1,6 +1,6 @@
 import { Video, MessageCircle, Check, UserPlus, ChevronDown } from "lucide-react";
 import { PLATFORMS } from "../constants/platforms";
-import type { SearchResult, AtprotoMatch, TikTokUser } from '../types';
+import type { SearchResult, AtprotoMatch, SourceUser } from '../types';
 
 
 interface SearchResultCardProps {
@@ -31,7 +31,7 @@ export default function SearchResultCard({
         <div className="flex items-center justify-between">
           <div className="flex-1 min-w-0">
             <div className="font-bold text-gray-900 dark:text-gray-100 truncate">
-              @{result.tiktokUser.username}
+              @{result.sourceUser.username}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
               {platform.name}
@@ -87,6 +87,16 @@ export default function SearchResultCard({
                     </div>
                     {match.description && (
                       <div className="text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">{match.description}</div>
+                    )}
+                    {(match.postCount || match.followerCount) && (
+                      <div className="flex items-center space-x-3 mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        {match.postCount && match.postCount > 0 && (
+                          <span>{match.postCount.toLocaleString()} posts</span>
+                        )}
+                        {match.followerCount && match.followerCount > 0 && (
+                          <span>{match.followerCount.toLocaleString()} followers</span>
+                        )}
+                      </div>
                     )}
                     <div className="flex items-center space-x-3 mt-2">
                       <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full font-medium">

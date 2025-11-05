@@ -100,6 +100,8 @@ export async function initDB() {
       atproto_handle TEXT NOT NULL,
       atproto_display_name TEXT,
       atproto_avatar TEXT,
+      post_count INTEGER,
+      follower_count INTEGER,
       match_score INTEGER NOT NULL,
       found_at TIMESTAMP DEFAULT NOW(),
       last_verified TIMESTAMP,
@@ -153,6 +155,9 @@ export async function initDB() {
   await sql`CREATE INDEX IF NOT EXISTS idx_notification_queue_pending ON notification_queue(sent, created_at) WHERE sent = false`;
 
   // NEW: Enhanced indexes for common query patterns
+
+  // For sorting
+  await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_stats ON atproto_matches(source_account_id, found_at DESC, post_count DESC, follower_count DESC)`;
   
   // For session lookups (most frequent query)
 await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_did ON user_sessions(did)`;

@@ -295,7 +295,7 @@ export const apiClient = {
       const resultsToSave = results
         .filter(r => !r.isSearching)
         .map(r => ({
-          tiktokUser: r.tiktokUser,
+          sourceUser: r.sourceUser,
           atprotoMatches: r.atprotoMatches || []
         }));
       
