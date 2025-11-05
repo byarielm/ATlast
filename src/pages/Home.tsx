@@ -157,27 +157,28 @@ export default function HomePage({
                 <button
                   key={upload.uploadId}
                   onClick={() => onLoadUpload(upload.uploadId)}
-                  className="w-full flex items-center space-x-4 p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors text-left"
+                  className="w-full flex items-start space-x-4 p-4 bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-xl transition-colors text-left"
                 >
                   <div className={`w-12 h-12 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0`}>
                     <Upload className="w-6 h-6 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-gray-900 dark:text-gray-100 capitalize mb-1">
-                      {upload.sourcePlatform}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full whitespace-nowrap">
-                        {upload.matchedUsers} {upload.matchedUsers === 1 ? 'match' : 'matches'}
-                      </span>
+                    <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 mb-1">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                        {upload.sourcePlatform}
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <span className="text-xs px-2 py-0.5 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-full whitespace-nowrap">
+                          {upload.matchedUsers} {upload.matchedUsers === 1 ? 'match' : 'matches'}
+                        </span>
+                        <div className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
+                          {Math.round((upload.matchedUsers / upload.totalUsers) * 100)}%
+                        </div>
+                      </div>
                     </div>
                     <div className="text-sm text-gray-600 dark:text-gray-400">
                       {upload.totalUsers} users • {formatDate(upload.createdAt)}
                     </div>
-                  </div>
-                  <div className="text-right text-sm text-gray-500 dark:text-gray-400">
-                    <div className="font-medium">{Math.round((upload.matchedUsers / upload.totalUsers) * 100)}%</div>
-                    <div className="text-xs">match rate</div>
                   </div>
                 </button>
               ))}

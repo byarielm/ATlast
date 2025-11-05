@@ -221,6 +221,7 @@ export default function App() {
             onNavigate={setCurrentStep}
             searchProgress={searchProgress}
             currentStep={currentStep}
+            sourcePlatform={currentPlatform}
           />
         )}
 
