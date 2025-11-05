@@ -1,5 +1,5 @@
 import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
-import { NodeOAuthClient } from '@atproto/oauth-client-node';
+import { NodeOAuthClient, atprotoLoopbackClientMetadata } from '@atproto/oauth-client-node';
 import { JoseKey } from '@atproto/jwk-jose';
 import { stateStore, sessionStore, userSessions } from './oauth-stores-db';
 import { getOAuthConfig } from './oauth-config';
@@ -67,30 +67,44 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       };
     }
 
-    // Initialize OAuth client
     const config = getOAuthConfig();
-    const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY!);
-    const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
+    const isDev = config.clientType === 'loopback';
 
-    const client = new NodeOAuthClient({
-      clientMetadata: {
-        client_id: config.clientId,
-        client_name: 'ATlast',
-        client_uri: config.clientId.replace('/client-metadata.json', ''),
-        redirect_uris: [config.redirectUri],
-        scope: 'atproto transition:generic',
-        grant_types: ['authorization_code', 'refresh_token'],
-        response_types: ['code'],
-        application_type: 'web',
-        token_endpoint_auth_method: 'private_key_jwt',
-        token_endpoint_auth_signing_alg: 'ES256',
-        dpop_bound_access_tokens: true,
-        jwks_uri: config.jwksUri,
-      },
-      keyset: [privateKey],
-      stateStore: stateStore as any,
-      sessionStore: sessionStore as any,
-    });
+    let client: NodeOAuthClient;
+
+    if (isDev) {
+      // Loopback
+      const clientMetadata = atprotoLoopbackClientMetadata(config.clientId);
+      client = new NodeOAuthClient({
+        clientMetadata: clientMetadata,
+        stateStore: stateStore as any,
+        sessionStore: sessionStore as any,
+      });
+    } else {
+      // Production with private key
+      const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY!);
+      const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
+
+      client = new NodeOAuthClient({
+        clientMetadata: {
+          client_id: config.clientId,
+          client_name: 'ATlast',
+          client_uri: config.clientId.replace('/client-metadata.json', ''),
+          redirect_uris: [config.redirectUri],
+          scope: 'atproto transition:generic',
+          grant_types: ['authorization_code', 'refresh_token'],
+          response_types: ['code'],
+          application_type: 'web',
+          token_endpoint_auth_method: 'private_key_jwt',
+          token_endpoint_auth_signing_alg: 'ES256',
+          dpop_bound_access_tokens: true,
+          jwks_uri: config.jwksUri,
+        },
+        keyset: [privateKey],
+        stateStore: stateStore as any,
+        sessionStore: sessionStore as any,
+      });
+    }
 
     // Restore OAuth session
     const oauthSession = await client.restore(userSession.did);

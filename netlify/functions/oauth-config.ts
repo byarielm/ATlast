@@ -1,9 +1,28 @@
 export function getOAuthConfig() {
-  // In Netlify, process.env.URL is automatically set to the public URL.
+  // Development: loopback client for local dev
+  const isDev = process.env.NODE_ENV === 'development' || process.env.NETLIFY_DEV === 'true';
+
+  if (isDev) {
+    const port = process.env.PORT || '8888';
+
+    // Special loopback client_id format with query params
+    const clientId = `http://localhost?${new URLSearchParams([
+      ['redirect_uri', `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`],
+      ['scope', 'atproto transition:generic'],
+    ])}`;
+    
+    return {
+      clientId: clientId,
+      redirectUri: `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`,
+      jwksUri: undefined,
+      clientType: 'loopback' as const,
+    };
+  }
+
+  // Production: discoverable client logic
   const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
   
   if (process.env.NETLIFY && !process.env.URL) {
-      // This is a safety check for a critical configuration issue on Netlify
       throw new Error('process.env.URL is required in Netlify environment');
   }
   
@@ -14,12 +33,11 @@ export function getOAuthConfig() {
     using: baseUrl
   });
 
-  const redirectUri = `${baseUrl}/.netlify/functions/oauth-callback`;
-
   return {
     clientId: `${baseUrl}/.netlify/functions/client-metadata`, // discoverable client URL
-    redirectUri,
+    redirectUri: `${baseUrl}/.netlify/functions/oauth-callback`,
     jwksUri: `${baseUrl}/.netlify/functions/jwks`,
     clientType: 'discoverable' as const,
+    usePrivateKey: true,
   };
 }
