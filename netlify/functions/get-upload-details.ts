@@ -84,48 +84,72 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         am.atproto_display_name,
         am.atproto_avatar,
         am.match_score,
+        am.post_count,
+        am.follower_count,
+        am.found_at,
         ums.followed,
-        ums.dismissed
+        ums.dismissed,
+        -- Calculate if this is a new match (found after upload creation)
+        CASE WHEN am.found_at > uu.created_at THEN 1 ELSE 0 END as is_new_match
       FROM user_source_follows usf
       JOIN source_accounts sa ON usf.source_account_id = sa.id
-      LEFT JOIN atproto_matches am ON sa.id = am.source_account_id
+      JOIN user_uploads uu ON usf.upload_id = uu.upload_id
+      LEFT JOIN atproto_matches am ON sa.id = am.source_account_id AND am.is_active = true
       LEFT JOIN user_match_status ums ON am.id = ums.atproto_match_id AND ums.did = ${userSession.did}
       WHERE usf.upload_id = ${uploadId}
-      ORDER BY sa.source_username
+      ORDER BY 
+        -- 1. Users with matches first
+        CASE WHEN am.atproto_did IS NOT NULL THEN 0 ELSE 1 END,
+        -- 2. New matches (found after initial upload)
+        is_new_match DESC,
+        -- 3. Highest post count
+        am.post_count DESC NULLS LAST,
+        -- 4. Highest follower count
+        am.follower_count DESC NULLS LAST,
+        -- 5. Username as tiebreaker
+        sa.source_username
       LIMIT ${pageSize}
       OFFSET ${offset}
     `;
 
     // Group results by source username
-    const groupedResults: any = {};
+    const groupedResults = new Map<string, any>();
     
     (results as any[]).forEach((row: any) => {
       const username = row.source_username;
       
-      if (!groupedResults[username]) {
-        groupedResults[username] = {
-          tiktokUser: {
+      // Get or create the entry for this username
+      let userResult = groupedResults.get(username);
+      
+      if (!userResult) {
+        userResult = {
+          sourceUser: {
             username: username,
             date: row.source_date || '',
           },
           atprotoMatches: [],
         };
+        groupedResults.set(username, userResult); // Add to map, this preserves the order
       }
       
+      // Add the match (if it exists) to the array
       if (row.atproto_did) {
-        groupedResults[username].atprotoMatches.push({
+        userResult.atprotoMatches.push({
           did: row.atproto_did,
           handle: row.atproto_handle,
           displayName: row.atproto_display_name,
           avatar: row.atproto_avatar,
           matchScore: row.match_score,
+          postCount: row.post_count,
+          followerCount: row.follower_count,
+          foundAt: row.found_at,
           followed: row.followed || false,
           dismissed: row.dismissed || false,
         });
       }
     });
 
-    const searchResults = Object.values(groupedResults);
+    const searchResults = Array.from(groupedResults.values());
 
     return {
       statusCode: 200,

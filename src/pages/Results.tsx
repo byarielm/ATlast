@@ -11,13 +11,13 @@ interface atprotoSession {
   description?: string;
 }
 
-interface TikTokUser {
+interface SourceUser {
   username: string;
   date: string;
 }
 
 interface SearchResult {
-  tiktokUser: TikTokUser;
+  sourceUser: SourceUser;
   atprotoMatches: any[];
   isSearching: boolean;
   error?: string;
@@ -112,17 +112,38 @@ export default function ResultsPage({
 
       {/* Feed Results */}
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-        {searchResults.map((result, idx) => (
-          <SearchResultCard
-            key={idx}
-            result={result}
-            resultIndex={idx}
-            isExpanded={expandedResults.has(idx)}
-            onToggleExpand={() => onToggleExpand(idx)}
-            onToggleMatchSelection={(did) => onToggleMatchSelection(idx, did)}
-            sourcePlatform={sourcePlatform}
-          />
-        ))}
+        {[...searchResults].sort((a, b) => {
+          // Sort logic here, match sortSearchResults function
+          const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
+          const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
+          if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
+          
+          if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
+            const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
+            const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
+            if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
+            
+            const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
+            const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
+            if (aTopFollowers !== bTopFollowers) return bTopFollowers - aTopFollowers;
+          }
+          
+          return a.sourceUser.username.localeCompare(b.sourceUser.username);
+        }).map((result, idx) => {
+          // Find the original index in unsorted array
+          const originalIndex = searchResults.findIndex(r => r.sourceUser.username === result.sourceUser.username);
+          return (
+            <SearchResultCard
+              key={originalIndex}
+              result={result}
+              resultIndex={originalIndex}  // Use original index for state updates
+              isExpanded={expandedResults.has(originalIndex)}
+              onToggleExpand={() => onToggleExpand(originalIndex)}
+              onToggleMatchSelection={(did) => onToggleMatchSelection(originalIndex, did)}
+              sourcePlatform={sourcePlatform}
+            />
+          );
+        })}
       </div>
 
       {/* Fixed Bottom Action Bar */}

@@ -40,7 +40,7 @@ export function useFileUpload(
 
     // Initialize search results
     const initialResults: SearchResult[] = users.map(user => ({
-      tiktokUser: user, // TODO: Rename to sourceUser in types
+      sourceUser: user,
       atprotoMatches: [],
       isSearching: false,
       selectedMatches: new Set<string>(),

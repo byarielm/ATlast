@@ -116,7 +116,12 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
           else if (normalizedUsername.includes(normalizedHandle)) score = 30;
 
-          return { ...actor, matchScore: score };
+          return { 
+            ...actor, 
+            matchScore: score,
+            postCount: actor.postCount || 0,
+            followerCount: actor.followerCount || 0
+          };
         })
         .filter((actor: any) => actor.matchScore > 0)
         .sort((a: any, b: any) => b.matchScore - a.matchScore)

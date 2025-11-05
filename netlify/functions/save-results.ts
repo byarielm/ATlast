@@ -12,7 +12,7 @@ import {
 import { getDbClient } from './db';
 
 interface SearchResult {
-  tiktokUser: {
+  sourceUser: {
     username: string;
     date: string;
   };
@@ -22,6 +22,8 @@ interface SearchResult {
     displayName?: string;
     avatar?: string;
     matchScore: number;
+    postCount: number;
+    followerCount: number;
   }>;
   isSearching?: boolean;
   error?: string;
@@ -110,16 +112,16 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     );
 
     // BULK OPERATION 1: Create all source accounts at once
-    const allUsernames = results.map(r => r.tiktokUser.username);
+    const allUsernames = results.map(r => r.sourceUser.username);
     const sourceAccountIdMap = await bulkCreateSourceAccounts(sourcePlatform, allUsernames);
     
     // BULK OPERATION 2: Link all users to source accounts
     const links = results.map(result => {
-      const normalized = result.tiktokUser.username.toLowerCase().replace(/[._-]/g, '');
+      const normalized = result.sourceUser.username.toLowerCase().replace(/[._-]/g, '');
       const sourceAccountId = sourceAccountIdMap.get(normalized);
       return {
         sourceAccountId: sourceAccountId!,
-        sourceDate: result.tiktokUser.date
+        sourceDate: result.sourceUser.date
       };
     }).filter(link => link.sourceAccountId !== undefined);
     
@@ -133,12 +135,14 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       atprotoDisplayName?: string;
       atprotoAvatar?: string;
       matchScore: number;
+      postCount: number;
+      followerCount: number;
     }> = [];
     
     const matchedSourceAccountIds: number[] = [];
     
     for (const result of results) {
-      const normalized = result.tiktokUser.username.toLowerCase().replace(/[._-]/g, '');
+      const normalized = result.sourceUser.username.toLowerCase().replace(/[._-]/g, '');
       const sourceAccountId = sourceAccountIdMap.get(normalized);
       
       if (sourceAccountId && result.atprotoMatches && result.atprotoMatches.length > 0) {
@@ -152,7 +156,9 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
             atprotoHandle: match.handle,
             atprotoDisplayName: match.displayName,
             atprotoAvatar: match.avatar,
-            matchScore: match.matchScore
+            matchScore: match.matchScore,
+            postCount: match.postCount || 0,
+            followerCount: match.followerCount || 0,
           });
         }
       }
