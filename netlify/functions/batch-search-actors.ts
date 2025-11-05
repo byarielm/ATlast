@@ -119,8 +119,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           return { 
             ...actor, 
             matchScore: score,
-            postCount: actor.postCount || 0,
-            followerCount: actor.followerCount || 0
+            did: actor.did
           };
         })
         .filter((actor: any) => actor.matchScore > 0)
@@ -142,6 +141,49 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     });
 
     const results = await Promise.all(searchPromises);
+
+    // Enrich results with follower and post counts using getProfiles
+    const allDids = results
+      .flatMap(r => r.actors.map((a: any) => a.did))
+      .filter((did): did is string => !!did);
+
+    if (allDids.length > 0) {
+      // Create a map to store enriched profile data
+      const profileDataMap = new Map<string, { postCount: number; followerCount: number }>();
+      
+      // Batch fetch profiles (25 at a time - API limit)
+      const PROFILE_BATCH_SIZE = 25;
+      for (let i = 0; i < allDids.length; i += PROFILE_BATCH_SIZE) {
+        const batch = allDids.slice(i, i + PROFILE_BATCH_SIZE);
+        try {
+          const profilesResponse = await agent.app.bsky.actor.getProfiles({
+            actors: batch
+          });
+          
+          profilesResponse.data.profiles.forEach((profile: any) => {
+            profileDataMap.set(profile.did, {
+              postCount: profile.postsCount || 0,
+              followerCount: profile.followersCount || 0
+            });
+          });
+        } catch (error) {
+          console.error('Failed to fetch profile batch:', error);
+          // Continue even if one batch fails
+        }
+      }
+      
+      // Merge enriched data back into results
+      results.forEach(result => {
+        result.actors = result.actors.map((actor: any) => {
+          const enrichedData = profileDataMap.get(actor.did);
+          return {
+            ...actor,
+            postCount: enrichedData?.postCount || 0,
+            followerCount: enrichedData?.followerCount || 0
+          };
+        });
+      });
+    }
 
     return {
       statusCode: 200,
