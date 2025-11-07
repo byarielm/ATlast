@@ -1,4 +1,5 @@
 .env
+.tangled/
 .vscode/
 .netlify/
 node_modules/
