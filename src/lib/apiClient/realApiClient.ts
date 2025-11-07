@@ -1,4 +1,4 @@
-import type { AtprotoSession, BatchSearchResult, BatchFollowResult, SaveResultsResponse, SearchResult } from '../types';
+import type { AtprotoSession, BatchSearchResult, BatchFollowResult, SaveResultsResponse, SearchResult } from '../../types';
 
 // Client-side cache with TTL
 interface CacheEntry<T> {
