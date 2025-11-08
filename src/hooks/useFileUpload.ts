@@ -1,5 +1,4 @@
-import { parseFile, PlatformParseError } from '../lib/platforms/parser';
-import type { SocialUser } from '../lib/platforms/types';
+import { parseDataFile } from '../lib/fileExtractor';
 import type { SearchResult } from '../types';
 
 export function useFileUpload(
@@ -11,18 +10,17 @@ export function useFileUpload(
     if (!file) return;
 
     onStatusUpdate(`Processing ${file.name}...`);
-    let users: SocialUser[] = [];
+    let usernames: string[] = [];
 
     try {
-      // Use the new platform-based parser
-      users = await parseFile(file, platform);
+      usernames = await parseDataFile(file, platform);
       
-      console.log(`Loaded ${users.length} users from ${platform} data`);
-      onStatusUpdate(`Loaded ${users.length} users from ${platform} data`);
+      console.log(`Loaded ${usernames.length} users from ${platform} data`);
+      onStatusUpdate(`Loaded ${usernames.length} users from ${platform} data`);
     } catch (error) {
       console.error("Error processing file:", error);
       
-      const errorMsg = error instanceof PlatformParseError 
+      const errorMsg = error instanceof Error 
         ? error.message
         : "There was a problem processing the file. Please check that it's a valid data export.";
       
@@ -31,23 +29,26 @@ export function useFileUpload(
       return;
     }
     
-    if (users.length === 0) {
+    if (usernames.length === 0) {
       const errorMsg = "No users found in the file.";
       onStatusUpdate(errorMsg);
       alert(errorMsg);
       return;
     }
 
-    // Initialize search results
-    const initialResults: SearchResult[] = users.map(user => ({
-      sourceUser: user,
+    // Initialize search results - convert usernames to SearchResult format
+    const initialResults: SearchResult[] = usernames.map(username => ({
+      sourceUser: {
+        username: username,
+        date: ''
+      },
       atprotoMatches: [],
       isSearching: false,
       selectedMatches: new Set<string>(),
       sourcePlatform: platform
     }));
 
-    onStatusUpdate(`Starting search for ${users.length} users...`);
+    onStatusUpdate(`Starting search for ${usernames.length} users...`);
     onSearchStart(initialResults, platform);
   }
 
