@@ -7,6 +7,7 @@ export interface PlatformConfig {
   accentBg: string;
   fileHint: string;
   enabled: boolean;
+  defaultApp: string;
 }
 
 export const PLATFORMS: Record<string, PlatformConfig> = {
@@ -17,6 +18,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     accentBg: 'bg-blue-500',
     fileHint: 'following.txt, data.json, or data.zip',
     enabled: false,
+    defaultApp: 'bluesky',
   },
   instagram: {
     name: 'Instagram',
@@ -25,6 +27,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     accentBg: 'bg-pink-500',
     fileHint: 'following.html or data ZIP',
     enabled: true,
+    defaultApp: 'bluesky',
   },
   tiktok: {
     name: 'TikTok',
@@ -33,6 +36,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     accentBg: 'bg-black',
     fileHint: 'Following.txt or data ZIP',
     enabled: true,
+    defaultApp: 'spark',
   },
   tumblr: {
     name: 'Tumblr',
@@ -41,6 +45,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     accentBg: 'bg-indigo-600',
     fileHint: 'following.csv or data export',
     enabled: false,
+    defaultApp: 'bluesky',
   },
   twitch: {
     name: 'Twitch',
@@ -49,6 +54,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     accentBg: 'bg-purple-600',
     fileHint: 'following.json or data export',
     enabled: false,
+    defaultApp: 'bluesky'
   },
   youtube: {
     name: 'YouTube',
@@ -57,6 +63,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     accentBg: 'bg-red-600',
     fileHint: 'subscriptions.csv or Takeout ZIP',
     enabled: false,
+    defaultApp: 'bluesky'
   },
 };
 

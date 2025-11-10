@@ -16,6 +16,16 @@
   }
 }
 
+/* Hide scrollbar but allow scrolling */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Firefly animation keyframes */
 @keyframes float {
   0%, 100% { 

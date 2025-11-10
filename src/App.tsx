@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowRight } from "lucide-react";
 import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
@@ -10,9 +10,9 @@ import { useSearch } from "./hooks/useSearch";
 import { useFollow } from "./hooks/useFollows";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useTheme } from "./hooks/useTheme";
-import ThemeControls from "./components/ThemeControls";
 import Firefly from "./components/Firefly";
-
+import { DEFAULT_SETTINGS } from "./types/settings";
+import type { UserSettings } from "./types/settings";
 
 export default function App() {
   // Auth hook
@@ -32,6 +32,21 @@ export default function App() {
   // Add state to track current platform
   const [currentPlatform, setCurrentPlatform] = useState<string>('tiktok');
   const saveCalledRef = useRef<string | null>(null); // Track by uploadId
+
+  // Settings state
+  const [userSettings, setUserSettings] = useState<UserSettings>(() => {
+    const saved = localStorage.getItem('atlast_settings');
+    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
+  });
+
+  // Save settings to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('atlast_settings', JSON.stringify(userSettings));
+  }, [userSettings]);
+
+  const handleSettingsUpdate = (newSettings: Partial<UserSettings>) => {
+    setUserSettings(prev => ({ ...prev, ...newSettings }));
+  };
 
   // Search hook
   const {
@@ -233,6 +248,8 @@ export default function App() {
             isDark={isDark}
             onToggleTheme={toggleTheme}
             onToggleMotion={toggleMotion}
+            userSettings={userSettings}
+            onSettingsUpdate={handleSettingsUpdate}
           />
         )}
 
