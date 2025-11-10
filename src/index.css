@@ -5,10 +5,42 @@
 @layer base {
   body {
     font-family: system-ui, sans-serif;
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    @apply bg-gradient-to-br from-amber-50 via-orange-50 to-pink-50 
+           dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900 
+           text-slate-900 dark:text-slate-100 
+           transition-colors duration-300;
   }
   
   button {
     cursor: pointer;
+  }
+}
+
+/* Firefly animation keyframes */
+@keyframes float {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1); 
+    opacity: 0.3; 
+  }
+  25% { 
+    transform: translate(10px, -20px) scale(1.2); 
+    opacity: 0.8; 
+  }
+  50% { 
+    transform: translate(-5px, -40px) scale(1); 
+    opacity: 0.5; 
+  }
+  75% { 
+    transform: translate(15px, -25px) scale(1.1); 
+    opacity: 0.9; 
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); 
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.3); 
   }
 }

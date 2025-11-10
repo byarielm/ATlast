@@ -9,6 +9,10 @@ import { useAuth } from "./hooks/useAuth";
 import { useSearch } from "./hooks/useSearch";
 import { useFollow } from "./hooks/useFollows";
 import { useFileUpload } from "./hooks/useFileUpload";
+import { useTheme } from "./hooks/useTheme";
+import ThemeControls from "./components/ThemeControls";
+import Firefly from "./components/Firefly";
+
 
 export default function App() {
   // Auth hook
@@ -21,6 +25,9 @@ export default function App() {
     login,
     logout,
   } = useAuth();
+
+  // Theme hook
+  const { isDark, reducedMotion, toggleTheme, toggleMotion } = useTheme();
 
   // Add state to track current platform
   const [currentPlatform, setCurrentPlatform] = useState<string>('tiktok');
@@ -161,7 +168,17 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Firefly particles - only render if motion not reduced */}
+      {!reducedMotion && (
+        <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+          {[...Array(15)].map((_, i) => (
+            <Firefly key={i} delay={i * 0.5} duration={3 + Math.random() * 2} />
+          ))}
+        </div>
+      )}
+
+      {/* Status message for screen readers */}
       <div 
         role="status" 
         aria-live="polite" 
@@ -171,9 +188,10 @@ export default function App() {
         {statusMessage}
       </div>
 
+      {/* Skip to main content link */}
       <a 
         href="#main-content" 
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-blue-600 focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-firefly-orange focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
       >
         Skip to main content
       </a>
@@ -183,7 +201,7 @@ export default function App() {
         {currentStep === 'checking' && (
           <div className="p-6 max-w-md mx-auto mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center space-y-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl mx-auto flex items-center justify-center">
+              <div className="w-16 h-16 bbg-firefly-banner dark:bg-firefly-banner-dark text-white rounded-2xl mx-auto flex items-center justify-center">
                 <ArrowRight className="w-8 h-8 text-white animate-pulse" />
               </div>
               <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Loading...</h2>
@@ -198,6 +216,7 @@ export default function App() {
             onSubmit={handleLogin}
             session={session}
             onNavigate={setCurrentStep}
+            reducedMotion={reducedMotion}
           />
         )}
 
@@ -210,6 +229,10 @@ export default function App() {
             onFileUpload={processFileUpload}
             onLoadUpload={handleLoadUpload}
             currentStep={currentStep}
+            reducedMotion={reducedMotion}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+            onToggleMotion={toggleMotion}
           />
         )}
 
@@ -222,6 +245,9 @@ export default function App() {
             searchProgress={searchProgress}
             currentStep={currentStep}
             sourcePlatform={currentPlatform}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+            onToggleMotion={toggleMotion}
           />
         )}
 
@@ -243,6 +269,10 @@ export default function App() {
             isFollowing={isFollowing}
             currentStep={currentStep}
             sourcePlatform={currentPlatform}
+            reducedMotion={reducedMotion}
+            isDark={isDark}
+            onToggleTheme={toggleTheme}
+            onToggleMotion={toggleMotion}
           />
         )}
       </main>
