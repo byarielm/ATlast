@@ -1,4 +1,4 @@
-import { Video, Heart } from "lucide-react";
+import { Sparkles, Heart } from "lucide-react";
 import { PLATFORMS } from "../constants/platforms";
 import AppHeader from "../components/AppHeader";
 import SearchResultCard from "../components/SearchResultCard";
@@ -41,6 +41,10 @@ interface ResultsPageProps {
   isFollowing: boolean;
   currentStep: string;
   sourcePlatform: string;
+  reducedMotion?: boolean;
+  isDark?: boolean;
+  onToggleTheme?: () => void;
+  onToggleMotion?: () => void;
 }
 
 export default function ResultsPage({
@@ -58,32 +62,63 @@ export default function ResultsPage({
   totalFound,
   isFollowing,
   currentStep,
-  sourcePlatform
+  sourcePlatform,
+  reducedMotion = false,
+  isDark = false,
+  onToggleTheme,
+  onToggleMotion
 }: ResultsPageProps) {
   const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
   const PlatformIcon = platform.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 pb-24">
-      <AppHeader session={session} onLogout={onLogout} onNavigate={onNavigate} currentStep={currentStep} />
+    <div className="min-h-screen pb-24">
+      <AppHeader 
+        session={session} 
+        onLogout={onLogout} 
+        onNavigate={onNavigate} 
+        currentStep={currentStep}
+        isDark={isDark}
+        reducedMotion={reducedMotion}
+        onToggleTheme={onToggleTheme}
+        onToggleMotion={onToggleMotion}
+      />
       
       {/* Platform Info Banner */}
-      <div className={`bg-gradient-to-r ${platform.color} text-white`}>
-        <div className="max-w-3xl mx-auto px-4 py-6">
+      <div className="bg-firefly-banner dark:bg-firefly-banner-dark text-white relative overflow-hidden">
+        {!reducedMotion && (
+          <div className="absolute inset-0 opacity-20" aria-hidden="true">
+            {[...Array(10)].map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1 h-1 bg-white rounded-full"
+                style={{
+                  left: `${Math.random() * 100}%`,
+                  top: `${Math.random() * 100}%`,
+                  animation: `float ${2 + Math.random()}s ease-in-out infinite`,
+                  animationDelay: `${Math.random()}s`
+                }}
+              />
+            ))}
+          </div>
+        )}
+        <div className="max-w-3xl mx-auto px-4 py-6 relative">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <PlatformIcon className="w-12 h-12" />
+              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
               <div>
-                <h2 className="text-xl font-bold">{platform.name} Matches</h2>
-                <p className="text-white/90 text-sm">
-                  {totalFound} matches from {searchResults.length} follows
+                <h2 className="text-xl font-bold">{totalFound} Connections Found!</h2>
+                <p className="text-white/95 text-sm">
+                  From {searchResults.length} {platform.name} follows
                 </p>
               </div>
             </div>
             {totalSelected > 0 && (
               <div className="text-right">
                 <div className="text-2xl font-bold">{totalSelected}</div>
-                <div className="text-xs text-white/80">selected</div>
+                <div className="text-xs font-medium">selected</div>
               </div>
             )}
           </div>
@@ -91,18 +126,18 @@ export default function ResultsPage({
       </div>
 
       {/* Action Buttons */}
-      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
+      <div className="bg-white/95 dark:bg-slate-800/95 border-b-2 border-slate-200 dark:border-slate-700 sticky top-0 z-10 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-3 flex space-x-2">
           <button
             onClick={onSelectAll}
-            className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-800"
             type="button"
           >
             Select All
           </button>
           <button
             onClick={onDeselectAll}
-            className="flex-1 bg-gray-500 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            className="flex-1 bg-slate-600 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-slate-400"
             type="button"
           >
             Clear
@@ -148,15 +183,15 @@ export default function ResultsPage({
 
       {/* Fixed Bottom Action Bar */}
       {totalSelected > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent dark:from-gray-900 dark:via-gray-900 dark:to-transparent pt-8 pb-6">
+        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-transparent pt-8 pb-6">
           <div className="max-w-3xl mx-auto px-4">
             <button
               onClick={onFollowSelected}
               disabled={isFollowing}
-              className="w-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none focus:outline-none focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-800"
+              className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus:outline-none focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-800"
             >
-              <Heart className="w-6 h-6" />
-              <span>Follow {totalSelected} Selected {totalSelected === 1 ? 'User' : 'Users'}</span>
+              <Sparkles className="w-6 h-6" />
+              <span>Light Up {totalSelected} Connection{totalSelected === 1 ? '' : 's'} ✨</span>
             </button>
           </div>
         </div>
