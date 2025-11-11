@@ -1,6 +1,17 @@
 export function getOAuthConfig() {
+  // Check if we have a public URL (production or --live mode)
+  const baseUrl = process.env.URL || process.env.DEPLOY_URL || process.env.DEPLOY_PRIME_URL;
+
   // Development: loopback client for local dev
-  const isDev = process.env.NODE_ENV === 'development' || process.env.NETLIFY_DEV === 'true';
+  // Check if we're running on localhost (true local dev)
+  const isLocalhost = !baseUrl || 
+                      baseUrl.includes('localhost') || 
+                      baseUrl.includes('127.0.0.1') ||
+                      baseUrl.startsWith('http://localhost') ||
+                      baseUrl.startsWith('http://127.0.0.1');
+  
+  // Use loopback for localhost, production for everything else
+  const isDev = isLocalhost;
 
   if (isDev) {
     const port = process.env.PORT || '8888';
@@ -10,6 +21,9 @@ export function getOAuthConfig() {
       ['redirect_uri', `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`],
       ['scope', 'atproto transition:generic'],
     ])}`;
+
+    console.log('Using loopback OAuth for local development');
+    console.log('Access your app at: http://127.0.0.1:' + port);
     
     return {
       clientId: clientId,
@@ -20,12 +34,11 @@ export function getOAuthConfig() {
   }
 
   // Production: discoverable client logic
-  const baseUrl = process.env.URL || process.env.DEPLOY_PRIME_URL;
-  
-  if (process.env.NETLIFY && !process.env.URL) {
-      throw new Error('process.env.URL is required in Netlify environment');
+  if (!baseUrl) {
+      throw new Error('No public URL available');
   }
   
+  console.log('Using confidential OAuth client for production');
   console.log('OAuth Config URLs:', {
     DEPLOY_PRIME_URL: process.env.DEPLOY_PRIME_URL,
     URL: process.env.URL,
