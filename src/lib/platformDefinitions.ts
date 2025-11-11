@@ -39,7 +39,7 @@ export const PLATFORM_RULES: Record<string, ParseRule[]> = {
             rule: "Username:\s*([^\r\n]+)"
         },
         {
-            zipPath: "tiktok.json",
+            zipPath: "user_data_tiktok.json",
             format: "JSON",
             // JSON key path to traverse: ['Your Activity'] -> ['Following'] -> ['Following'] -> 'UserName'
             rule: ["Your Activity", "Following", "Following", "UserName"]
