@@ -7,6 +7,7 @@ import { apiClient } from "../lib/apiClient";
 import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { Upload as UploadType } from "../types";
 import type { UserSettings } from "../types/settings";
+import SettingsPage from "./Settings";
 
 interface atprotoSession {
   did: string;
@@ -113,7 +114,6 @@ export default function HomePage({
   ];
 
   return (
-    // Updated background from changes.js
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
       <SetupWizard
         isOpen={showWizard}
@@ -124,7 +124,6 @@ export default function HomePage({
 
       {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-        {/* Updated AppHeader props from changes.js */}
         <AppHeader 
           session={session} 
           onLogout={onLogout} 
@@ -164,12 +163,11 @@ export default function HomePage({
 
       {/* Tab Content */}
       <div className="max-w-6xl mx-auto px-4 py-8">
-        {/* Upload Tab */}
         {activeTab === 'upload' && (
           <div className="space-y-6">
-            {/* Setup Assistant  */}
+            {/* Setup Assistant Banner - Only show if wizard not completed */}
             {!userSettings.wizardCompleted && (
-              <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
+              <div className="bg-firefly-banner dark:bg-firefly-banner-dark rounded-2xl p-6 text-white">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex-1">
                     <h2 className="text-2xl font-bold mb-2">Need help getting started?</h2>
@@ -177,7 +175,7 @@ export default function HomePage({
                   </div>
                   <button
                     onClick={() => setShowWizard(true)}
-                    className="bg-white text-blue-600 px-6 py-3 rounded-xl font-semibold hover:bg-blue-50 transition-all flex items-center space-x-2 whitespace-nowrap"
+                    className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition-all flex items-center space-x-2 whitespace-nowrap shadow-lg"
                   >
                     <span>Start Setup</span>
                     <ChevronRight className="w-4 h-4" />
@@ -187,29 +185,32 @@ export default function HomePage({
             )}
 
             {/* Upload Section */}
-            <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-lg p-6 border-2 border-slate-200 dark:border-slate-700">
-              <div className="flex items-center space-x-3 mb-4">
-                <div 
-                  className={`w-12 h-12 bg-gradient-to-br from-firefly-amber to-firefly-orange rounded-xl flex items-center justify-center shadow-md ${
-                    reducedMotion ? '' : 'animate-glow-pulse'
-                  }`}
-                >
-                  <Upload className="w-6 h-6 text-slate-900" />
+            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-2 border-slate-200 dark:border-slate-700">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-firefly-amber via-firefly-orange to-firefly-pink rounded-xl flex items-center justify-center shadow-md">
+                    <Upload className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                      Upload Following Data
+                    </h2>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      Find your people on the ATmosphere
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-                    Light Up Your Network
-                  </h2>
-                  <p className="text-sm text-slate-700 dark:text-slate-300">
-                    Upload your data to find your fireflies
-                  </p>
-                </div>
+                {userSettings.wizardCompleted && (
+                  <button
+                    onClick={() => setShowWizard(true)}
+                    className="text-sm text-firefly-orange hover:text-firefly-pink font-medium transition-colors flex items-center space-x-1"
+                  >
+                    <Settings className="w-4 h-4" />
+                    <span>Reconfigure</span>
+                  </button>
+                )}
               </div>
               
-              <p className="text-slate-700 dark:text-slate-300 mb-6">
-                Click a platform below to upload your exported data and discover matches in the ATmosphere
-              </p>
-      
               <PlatformSelector onPlatformSelect={handlePlatformSelect} />
               
               <input
@@ -301,15 +302,13 @@ export default function HomePage({
           </div>
         )}
 
-        {/* Settings Tab - Placeholder */}
+        {/* Settings Tab */}
         {activeTab === 'settings' && (
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6">
-            <div className="flex items-center space-x-3 mb-6">
-              <Settings className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Settings</h2>
-            </div>
-            <p className="text-gray-600 dark:text-gray-400">Settings page coming soon...</p>
-          </div>
+          <SettingsPage
+            userSettings={userSettings}
+            onSettingsUpdate={onSettingsUpdate}
+            onOpenWizard={() => setShowWizard(true)}
+          />
         )}
 
         {/* Guides Tab - Placeholder */}

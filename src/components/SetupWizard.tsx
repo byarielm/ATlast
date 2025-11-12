@@ -21,7 +21,7 @@ const wizardSteps = [
 
 export default function SetupWizard({ isOpen, onClose, onComplete, currentSettings }: SetupWizardProps) {
   const [wizardStep, setWizardStep] = useState(0);
-  const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
+  const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(new Set());
   const [platformDestinations, setPlatformDestinations] = useState<PlatformDestinations>(
     currentSettings.platformDestinations
   );
@@ -42,14 +42,29 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
     onClose();
   };
 
+  const togglePlatform = (platformKey: string) => {
+    const newSelected = new Set(selectedPlatforms);
+    if (newSelected.has(platformKey)) {
+      newSelected.delete(platformKey);
+    } else {
+      newSelected.add(platformKey);
+    }
+    setSelectedPlatforms(newSelected);
+  };
+
+  // Get platforms to show on destinations page (only selected ones)
+  const platformsToShow = selectedPlatforms.size > 0 
+    ? Object.entries(PLATFORMS).filter(([key]) => selectedPlatforms.has(key))
+    : Object.entries(PLATFORMS);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700 sticky top-0 bg-white dark:bg-gray-800 z-10">
+        <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-firefly-amber via-firefly-orange to-firefly-pink rounded-xl flex items-center justify-center shadow-md">
                 <Heart className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Setup Assistant</h2>
@@ -64,7 +79,7 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
               <div key={idx} className="flex-1">
                 <div
                   className={`h-2 rounded-full transition-all ${
-                    idx <= wizardStep ? 'bg-gradient-to-r from-blue-500 to-purple-600' : 'bg-gray-200 dark:bg-gray-700'
+                    idx <= wizardStep ? 'bg-gradient-to-r from-firefly-cyan via-firefly-orange to-firefly-pink' : 'bg-gray-200 dark:bg-gray-700'
                   }`}
                 />
               </div>
@@ -75,8 +90,8 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
           </div>
         </div>
 
-        {/* Content */}
-        <div className="p-6 min-h-[300px]">
+        {/* Content - Scrollable */}
+        <div className="p-6 overflow-y-auto flex-1">
           {wizardStep === 0 && (
             <div className="text-center space-y-4">
               <div className="text-6xl mb-4">👋</div>
@@ -92,27 +107,40 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
             <div className="space-y-4">
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">Which platforms will you import from?</h3>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Select the platforms you follow people on. We'll help you find them on the ATmosphere.
+                Select one or more platforms you follow people on. We'll help you find them on the ATmosphere.
               </p>
               <div className="grid grid-cols-3 gap-3 mt-4">
                 {Object.entries(PLATFORMS).map(([key, p]) => {
                   const Icon = p.icon;
+                  const isSelected = selectedPlatforms.has(key);
                   return (
                     <button
                       key={key}
-                      onClick={() => setSelectedPlatform(key)}
-                      className={`p-4 rounded-xl border-2 transition-all ${
-                        selectedPlatform === key
-                          ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                          : 'border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                      onClick={() => togglePlatform(key)}
+                      className={`p-4 rounded-xl border-2 transition-all relative ${
+                        isSelected
+                          ? 'border-firefly-orange bg-firefly-orange/10 dark:bg-firefly-orange/20'
+                          : 'border-gray-200 dark:border-gray-700 hover:border-firefly-cyan'
                       }`}
                     >
+                      {isSelected && (
+                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-firefly-orange rounded-full flex items-center justify-center">
+                          <Check className="w-4 h-4 text-white" />
+                        </div>
+                      )}
                       <Icon className="w-8 h-8 mx-auto mb-2 text-gray-700 dark:text-gray-300" />
                       <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{p.name}</div>
                     </button>
                   );
                 })}
               </div>
+              {selectedPlatforms.size > 0 && (
+                <div className="mt-4 p-3 bg-firefly-amber/10 dark:bg-firefly-amber/20 rounded-lg border border-firefly-amber/30">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">
+                    ✨ {selectedPlatforms.size} platform{selectedPlatforms.size !== 1 ? 's' : ''} selected
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -123,7 +151,7 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
                 Choose which ATmosphere app to use for each platform. You can change this later.
               </p>
               <div className="space-y-3 mt-4">
-                {Object.entries(PLATFORMS).map(([key, p]) => {
+                {platformsToShow.map(([key, p]) => {
                   const Icon = p.icon;
                   return (
                     <div key={key} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 rounded-xl">
@@ -155,14 +183,14 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
           )}
 
           {wizardStep === 3 && (
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Privacy & Automation</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Control how your data is used.</p>
               </div>
 
-              <div className="space-y-4">
-                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl">
+              <div className="space-y-3">
+                <div className="p-4 bg-firefly-cyan/10 dark:bg-firefly-cyan/20 rounded-xl border border-firefly-cyan/30">
                   <div className="flex items-start space-x-3">
                     <input
                       type="checkbox"
@@ -182,7 +210,7 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
                   </div>
                 </div>
 
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl">
+                <div className="p-4 bg-firefly-pink/10 dark:bg-firefly-pink/20 rounded-xl border border-firefly-pink/30">
                   <div className="flex items-start space-x-3">
                     <input
                       type="checkbox"
@@ -223,19 +251,23 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
               <p className="text-gray-600 dark:text-gray-400 max-w-md mx-auto">
                 Your preferences have been saved. You can change them anytime in Settings.
               </p>
-              <div className="bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 rounded-xl p-4 mt-4">
+              <div className="bg-gradient-to-r from-firefly-cyan/20 via-firefly-orange/20 to-firefly-pink/20 dark:from-firefly-cyan/10 dark:via-firefly-orange/10 dark:to-firefly-pink/10 rounded-xl p-4 mt-4 border border-firefly-orange/30">
                 <h4 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">Quick Summary:</h4>
                 <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 text-left max-w-sm mx-auto">
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 text-firefly-orange" />
                     <span>Data saving: {saveData ? 'Enabled' : 'Disabled'}</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 text-firefly-orange" />
                     <span>Automation: {enableAutomation ? 'Enabled' : 'Disabled'}</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-green-500" />
+                    <Check className="w-4 h-4 text-firefly-orange" />
+                    <span>Platforms: {selectedPlatforms.size > 0 ? selectedPlatforms.size : 'All'} selected</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <Check className="w-4 h-4 text-firefly-orange" />
                     <span>Ready to upload your first file!</span>
                   </li>
                 </ul>
@@ -245,11 +277,11 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between sticky bottom-0 bg-white dark:bg-gray-800">
+        <div className="p-6 border-t border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
           <button
             onClick={() => wizardStep > 0 && setWizardStep(wizardStep - 1)}
             disabled={wizardStep === 0}
-            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             Back
           </button>
@@ -261,7 +293,7 @@ export default function SetupWizard({ isOpen, onClose, onComplete, currentSettin
                 handleComplete();
               }
             }}
-            className="px-6 py-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 transition-all flex items-center space-x-2"
+            className="px-6 py-2 bg-gradient-to-r from-firefly-amber via-firefly-orange to-firefly-pink text-white rounded-lg font-medium hover:shadow-lg transition-all flex items-center space-x-2"
           >
             <span>{wizardStep === wizardSteps.length - 1 ? 'Get Started' : 'Next'}</span>
             {wizardStep < wizardSteps.length - 1 && <ChevronRight className="w-4 h-4" />}
