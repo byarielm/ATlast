@@ -21,6 +21,7 @@ interface SearchResult {
     handle: string;
     displayName?: string;
     avatar?: string;
+    description?: string;
     matchScore: number;
     postCount: number;
     followerCount: number;
@@ -134,6 +135,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       atprotoHandle: string;
       atprotoDisplayName?: string;
       atprotoAvatar?: string;
+      atprotoDescription?: string;
       matchScore: number;
       postCount: number;
       followerCount: number;
@@ -156,6 +158,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
             atprotoHandle: match.handle,
             atprotoDisplayName: match.displayName,
             atprotoAvatar: match.avatar,
+            atprotoDescription: (match as any).description,
             matchScore: match.matchScore,
             postCount: match.postCount || 0,
             followerCount: match.followerCount || 0,

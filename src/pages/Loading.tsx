@@ -62,9 +62,11 @@ export default function LoadingPage({
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative">
+              <div className="relative w-14 h-14">
                 <PlatformIcon className="w-12 h-12" />
-                <Search className="w-6 h-6 absolute -bottom-1 -right-1 animate-pulse" aria-hidden="true" />
+                <div className="absolute -bottom-1 -right-1 w-7 h-7 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center">
+                  <Search className="w-4 h-4 animate-pulse" aria-hidden="true" />
+                </div>
               </div>
               <div>
                 <h2 className="text-xl font-bold">Finding Your Fireflies</h2>

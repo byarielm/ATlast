@@ -106,13 +106,26 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     };
   } catch (error) {
     console.error('OAuth start error:', error);
+
+    // Provide user-friendly error messages
+    let userMessage = 'Failed to start authentication';
+    
+    if (error instanceof Error) {
+      if (error.message.includes('resolve') || error.message.includes('not found')) {
+        userMessage = 'Account not found. Please check your handle and try again.';
+      } else if (error.message.includes('network') || error.message.includes('timeout')) {
+        userMessage = 'Network error. Please check your connection and try again.';
+      } else if (error.message.includes('Invalid identifier')) {
+        userMessage = 'Invalid handle format. Please use the format: username.bsky.social';
+      }
+    }
+    
     return {
       statusCode: 500,
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
-        error: 'Failed to start OAuth flow',
+        error: userMessage,
         details: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
       }),
     };
   }

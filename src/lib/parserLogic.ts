@@ -15,7 +15,7 @@ export function parseTextOrHtml(content: string, regexPattern: string): string[]
         const matches = [...content.matchAll(pattern)];
         
         // We map the results to the first captured group (match[1]), filtering out empty results.
-        return matches.map(match => match[1]).filter(name => !!name); 
+        return matches.map(match => match[1].trim()).filter(name => !!name); 
         
     } catch (e) {
         console.error(`ERROR: Invalid regex pattern '${regexPattern}':`, e);
