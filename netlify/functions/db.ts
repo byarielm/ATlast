@@ -100,6 +100,7 @@ export async function initDB() {
       atproto_handle TEXT NOT NULL,
       atproto_display_name TEXT,
       atproto_avatar TEXT,
+      atproto_description TEXT,
       post_count INTEGER,
       follower_count INTEGER,
       match_score INTEGER NOT NULL,

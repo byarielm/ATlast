@@ -84,24 +84,25 @@ export default function SearchResultCard({
                         {match.displayName}
                       </div>
                     )}
-                    <div className="text-sm text-gray-800 dark:text-gray-200">
+                    <a 
+                      href={`https://bsky.app/profile/${match.handle}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                    >
                       @{match.handle}
-                    </div>
+                    </a>
                     {match.description && (
                       <div className="text-sm text-gray-700 dark:text-gray-300 mt-1 line-clamp-2">{match.description}</div>
                     )}
-                    {(match.postCount || match.followerCount) && (
-                      <div className="flex items-center space-x-3 mt-2 text-xs text-gray-700 dark:text-gray-300">
-                        {match.postCount && match.postCount > 0 && (
-                          <span>{match.postCount.toLocaleString()} posts</span>
-                        )}
-                        {match.followerCount && match.followerCount > 0 && (
-                          <span>{match.followerCount.toLocaleString()} followers</span>
-                        )}
-                      </div>
-                    )}
-                    <div className="flex items-center space-x-3 mt-2">
-                      <span className="text-xs bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full font-medium">
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mt-2 text-xs text-gray-700 dark:text-gray-300">
+                      {match.postCount && match.postCount > 0 && (
+                        <span>{match.postCount.toLocaleString()} posts</span>
+                      )}
+                      {match.followerCount && match.followerCount > 0 && (
+                        <span>{match.followerCount.toLocaleString()} followers</span>
+                      )}
+                      <span className="bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 px-2 py-1 rounded-full font-medium">
                         {match.matchScore}% match
                       </span>
                     </div>

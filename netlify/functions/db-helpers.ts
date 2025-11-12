@@ -150,7 +150,6 @@ export async function bulkCreateSourceAccounts(
   return idMap;
 }
 
-// ==================== THIS FUNCTION IS NOW FIXED ====================
 export async function bulkLinkUserToSourceAccounts(
   uploadId: string,
   did: string,
@@ -190,6 +189,7 @@ export async function bulkStoreAtprotoMatches(
     atprotoHandle: string;
     atprotoDisplayName?: string;
     atprotoAvatar?: string;
+    atprotoDescription?: string;
     matchScore: number;
     postCount?: number;
     followerCount?: number;
@@ -203,7 +203,8 @@ export async function bulkStoreAtprotoMatches(
   const atprotoDid = matches.map(m => m.atprotoDid)
   const atprotoHandle = matches.map(m => m.atprotoHandle)
   const atprotoDisplayName = matches.map(m => m.atprotoDisplayName || null)
-  const atprotoAvatar = matches.map(m => m.atprotoAvatar  || null)
+  const atprotoAvatar = matches.map(m => m.atprotoAvatar || null)
+  const atprotoDescription = matches.map(m => m.atprotoDescription || null)
   const matchScore = matches.map(m => m.matchScore)
   const postCount = matches.map(m => m.postCount || 0)
   const followerCount = matches.map(m => m.followerCount || 0)
@@ -211,8 +212,8 @@ export async function bulkStoreAtprotoMatches(
   const result = await sql`
     INSERT INTO atproto_matches (
       source_account_id, atproto_did, atproto_handle, 
-      atproto_display_name, atproto_avatar, match_score,
-      post_count, follower_count
+      atproto_display_name, atproto_avatar, atproto_description,
+      match_score, post_count, follower_count
     )
     SELECT * FROM UNNEST(
       ${sourceAccountId}::integer[],
@@ -220,6 +221,7 @@ export async function bulkStoreAtprotoMatches(
       ${atprotoHandle}::text[],
       ${atprotoDisplayName}::text[],
       ${atprotoAvatar}::text[],
+      ${atprotoDescription}::text[],
       ${matchScore}::integer[],
       ${postCount}::integer[],
       ${followerCount}::integer[]
@@ -232,6 +234,7 @@ export async function bulkStoreAtprotoMatches(
       atproto_handle = EXCLUDED.atproto_handle,
       atproto_display_name = EXCLUDED.atproto_display_name,
       atproto_avatar = EXCLUDED.atproto_avatar,
+      atproto_description = EXCLUDED.atproto_description,
       match_score = EXCLUDED.match_score,
       post_count = EXCLUDED.post_count,
       follower_count = EXCLUDED.follower_count,
