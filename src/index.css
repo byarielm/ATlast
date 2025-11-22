@@ -3,54 +3,128 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    font-family: system-ui, sans-serif;
-    @apply bg-gradient-to-br from-amber-50 via-orange-50 to-pink-50 
-           dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900 
-           text-slate-900 dark:text-slate-100 
+    body {
+        font-family: system-ui, sans-serif;
+        @apply bg-gradient-to-br from-amber-50 via-orange-50 to-pink-50
+           dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900
+           text-slate-900 dark:text-slate-100
            transition-colors duration-300;
-  }
-  
-  button {
-    cursor: pointer;
-  }
+    }
+
+    button {
+        cursor: pointer;
+    }
 }
 
 /* Hide scrollbar but allow scrolling */
 .scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+    display: none;
 }
 
 /* Firefly animation keyframes */
 @keyframes float {
-  0%, 100% { 
-    transform: translate(0, 0) scale(1); 
-    opacity: 0.3; 
-  }
-  25% { 
-    transform: translate(10px, -20px) scale(1.2); 
-    opacity: 0.8; 
-  }
-  50% { 
-    transform: translate(-5px, -40px) scale(1); 
-    opacity: 0.5; 
-  }
-  75% { 
-    transform: translate(15px, -25px) scale(1.1); 
-    opacity: 0.9; 
-  }
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+        opacity: 0.3;
+    }
+    25% {
+        transform: translate(10px, -20px) scale(1.2);
+        opacity: 0.8;
+    }
+    50% {
+        transform: translate(-5px, -40px) scale(1);
+        opacity: 0.5;
+    }
+    75% {
+        transform: translate(15px, -25px) scale(1.1);
+        opacity: 0.9;
+    }
 }
 
 @keyframes glow-pulse {
-  0%, 100% { 
-    box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); 
-  }
-  50% { 
-    box-shadow: 0 0 40px rgba(251, 191, 36, 0.6), 0 0 60px rgba(251, 191, 36, 0.3); 
-  }
+    0%,
+    100% {
+        box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 0 40px rgba(251, 191, 36, 0.6),
+            0 0 60px rgba(251, 191, 36, 0.3);
+    }
+}
+
+@keyframes svg-glow-left {
+    0%,
+    100% {
+        opacity: 0.5;
+        filter: blur(10px);
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        filter: blur(15px);
+        transform: scale(1.2);
+    }
+}
+
+@keyframes svg-glow-right {
+    0%,
+    100% {
+        opacity: 0.5;
+        filter: blur(10px);
+        transform: scale(1);
+    }
+    50% {
+        opacity: 1;
+        filter: blur(15px);
+        transform: scale(1.2);
+    }
+}
+
+.logo-glow-container {
+    position: relative;
+    display: inline-block;
+}
+
+.logo-glow-container::before,
+.logo-glow-container::after {
+    content: "";
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: -1; /* Places glow behind the SVG */
+}
+
+/* Left firefly glow - cyan tint */
+.logo-glow-container::before {
+    bottom: 0;
+    left: 6%;
+    background: radial-gradient(
+        circle,
+        rgba(253, 224, 71, 1) 0%,
+        rgba(245, 158, 11, 0.8) 30%,
+        transparent 80%
+    );
+    animation: svg-glow-left 3s ease-in-out infinite;
+}
+
+/* Right firefly glow - orange/amber tint */
+.logo-glow-container::after {
+    bottom: 0;
+    right: 4%;
+    background: radial-gradient(
+        circle,
+        rgba(253, 224, 71, 1) 0%,
+        rgba(245, 158, 11, 0.8) 30%,
+        transparent 80%
+    );
+    animation: svg-glow-right 3s ease-in-out infinite 0.5s; /* offset timing */
 }
