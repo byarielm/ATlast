@@ -281,9 +281,9 @@ export default function SetupWizard({
                         onChange={(e) =>
                           setAutomationFrequency(
                             e.target.value as
-                              | "weekly"
-                              | "monthly"
-                              | "quarterly",
+                              | "Weekly"
+                              | "Monthly"
+                              | "Quarterly",
                           )
                         }
                         className="mt-2 px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm w-full text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"

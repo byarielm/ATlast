@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { Heart, Home, LogOut, ChevronDown } from "lucide-react";
 import ThemeControls from "./ThemeControls";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
@@ -33,11 +34,18 @@ export default function AppHeader({
   onToggleMotion,
 }: AppHeaderProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ top: 0, right: 0 });
   const menuRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target as Node)
+      ) {
         setShowMenu(false);
       }
     }
@@ -45,8 +53,18 @@ export default function AppHeader({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (showMenu && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      setMenuPosition({
+        top: rect.bottom + 8,
+        right: window.innerWidth - rect.right,
+      });
+    }
+  }, [showMenu]);
+
   return (
-    <div className="bg-white dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl relative z-[100]">
+    <div className="bg-white dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl relative z-50">
       <div className="max-w-6xl mx-auto px-4 py-1">
         <div className="flex items-center justify-between">
           <button
@@ -69,8 +87,9 @@ export default function AppHeader({
               />
             )}
             {session && (
-              <div className="relative z-[9999]" ref={menuRef}>
+              <>
                 <button
+                  ref={buttonRef}
                   onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center space-x-3 px-3 py-1 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400"
                 >
@@ -95,53 +114,62 @@ export default function AppHeader({
                   />
                 </button>
 
-                {showMenu && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-lg border-2 border-cyan-500/30 dark:border-purple-500/30 py-2 z-[9999]">
-                    <div className="px-4 py-3">
-                      <div className="font-semibold text-purple-950 dark:text-cyan-50">
-                        {session?.displayName || session.handle}
+                {showMenu &&
+                  createPortal(
+                    <div
+                      ref={menuRef}
+                      className="fixed w-64 bg-white dark:bg-slate-900 rounded-lg shadow-2xl border-2 border-cyan-500/30 dark:border-purple-500/30 py-2 z-[9999]"
+                      style={{
+                        top: `${menuPosition.top}px`,
+                        right: `${menuPosition.right}px`,
+                      }}
+                    >
+                      <div className="px-4 py-3">
+                        <div className="font-semibold text-purple-950 dark:text-cyan-50">
+                          {session?.displayName || session.handle}
+                        </div>
+                        <div className="text-sm text-purple-750 dark:text-cyan-250">
+                          @{session?.handle}
+                        </div>
                       </div>
-                      <div className="text-sm text-purple-750 dark:text-cyan-250">
-                        @{session?.handle}
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowMenu(false);
-                        onNavigate("home");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
-                    >
-                      <Home className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
-                      <span className="text-purple-950 dark:text-cyan-50">
-                        Dashboard
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowMenu(false);
-                        onNavigate("login");
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
-                    >
-                      <Heart className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
-                      <span className="text-purple-950 dark:text-cyan-50">
-                        Login screen
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setShowMenu(false);
-                        onLogout();
-                      }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Log out</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          onNavigate("home");
+                        }}
+                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
+                      >
+                        <Home className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
+                        <span className="text-purple-950 dark:text-cyan-50">
+                          Dashboard
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          onNavigate("login");
+                        }}
+                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
+                      >
+                        <Heart className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
+                        <span className="text-purple-950 dark:text-cyan-50">
+                          Login screen
+                        </span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setShowMenu(false);
+                          onLogout();
+                        }}
+                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Log out</span>
+                      </button>
+                    </div>,
+                    document.body,
+                  )}
+              </>
             )}
           </div>
         </div>
