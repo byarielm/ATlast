@@ -1,10 +1,10 @@
-export type AtprotoAppId = 'bluesky' | 'tangled' | 'spark' | 'bsky list';
+export type AtprotoAppId = "bluesky" | "tangled" | "spark" | "bsky list";
 
 export interface AtprotoApp {
   id: AtprotoAppId;
   name: string;
   description: string;
-  color: string;
+  link: string;
   icon: string;
   action: string;
   enabled: boolean;
@@ -24,22 +24,22 @@ export interface UserSettings {
   platformDestinations: PlatformDestinations;
   saveData: boolean;
   enableAutomation: boolean;
-  automationFrequency: 'weekly' | 'monthly' | 'quarterly';
+  automationFrequency: "Weekly" | "Monthly" | "Quarterly";
   wizardCompleted: boolean;
 }
 
 export const DEFAULT_SETTINGS: UserSettings = {
   platformDestinations: {
-    twitter: 'bluesky',
-    instagram: 'bluesky',
-    tiktok: 'spark',
-    github: 'tangled',
-    twitch: 'bluesky',
-    youtube: 'bluesky',
-    tumblr: 'bluesky',
+    twitter: "bluesky",
+    instagram: "bluesky",
+    tiktok: "spark",
+    github: "tangled",
+    twitch: "bluesky",
+    youtube: "spark",
+    tumblr: "bluesky",
   },
   saveData: true,
   enableAutomation: false,
-  automationFrequency: 'monthly',
+  automationFrequency: "Monthly",
   wizardCompleted: false,
 };

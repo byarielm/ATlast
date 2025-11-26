@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, Upload, Search, ArrowRight } from "lucide-react";
+import { Heart, Upload, Search, ArrowRight, Sparkles } from "lucide-react";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
 
 interface LoginPageProps {
@@ -39,13 +39,13 @@ export default function LoginPage({
               </div>
             </div>
 
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-3 md:mb-4">
+            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-500 dark:from-cyan-300 dark:via-purple-300 dark:to-pink-300 bg-clip-text text-transparent mb-3 md:mb-4">
               ATlast
             </h1>
-            <p className="text-lg md:text-xl lg:text-2xl text-slate-800 dark:text-slate-100 mb-2 font-medium">
+            <p className="text-xl md:text-2xl lg:text-2xl text-purple-900 dark:text-cyan-100 mb-2 font-medium">
               Find Your Light in the ATmosphere
             </p>
-            <p className="text-slate-700 dark:text-slate-300 mb-6">
+            <p className="text-purple-750 dark:text-cyan-250 mb-6">
               Reconnect with your internet, one firefly at a time ✨
             </p>
 
@@ -58,7 +58,7 @@ export default function LoginPage({
                 {[...Array(5)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-2 h-2 rounded-full bg-firefly-amber dark:bg-firefly-glow"
+                    className="w-2 h-2 rounded-full bg-orange-500 dark:bg-amber-400"
                     style={{
                       opacity: 1 - i * 0.15,
                       animation: `float ${2 + i * 0.3}s ease-in-out infinite`,
@@ -68,46 +68,35 @@ export default function LoginPage({
                 ))}
               </div>
             )}
-
-            {/* Privacy Notice - visible on mobile */}
-            <div className="md:hidden mt-6">
-              <p className="text-sm text-slate-600 dark:text-slate-400">
-                Your data is processed and stored by our servers. This helps you
-                find matches and reconnect with your community.
-              </p>
-            </div>
           </div>
 
           {/* Right: Login Card or Dashboard Button */}
           <div className="w-full">
             {session ? (
-              <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border-2 border-slate-200 dark:border-slate-700">
+              <div className="bg-white/50 dark:bg-slate-900/50 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-2 shadow-2xl">
                 <div className="text-center mb-6">
-                  <div className="w-16 h-16 bg-gradient-to-br from-firefly-amber via-firefly-orange to-firefly-pink rounded-full mx-auto mb-4 flex items-center justify-center shadow-md">
-                    <Heart className="w-8 h-8 text-slate-900" />
-                  </div>
-                  <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">
+                  <h2 className="text-2xl font-bold text-purple-950 dark:text-cyan-50 mb-2">
                     You're logged in!
                   </h2>
-                  <p className="text-slate-700 dark:text-slate-300">
+                  <p className="text-purple-750 dark:text-cyan-250">
                     Welcome back, @{session.handle}
                   </p>
                 </div>
 
                 <button
                   onClick={() => onNavigate?.("home")}
-                  className="w-full bg-gradient-to-r from-firefly-amber via-firefly-orange to-firefly-pink hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-800 focus:outline-none flex items-center justify-center space-x-2"
+                  className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-500 dark:focus:ring-amber-400 focus:outline-none flex items-center justify-center space-x-2"
                 >
                   <span>Go to Dashboard</span>
                   <ArrowRight className="w-5 h-5" />
                 </button>
               </div>
             ) : (
-              <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl shadow-2xl p-6 md:p-8 border-2 border-slate-200 dark:border-slate-700">
-                <h2 className="text-xl md:text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2 text-center">
+              <div className="bg-white/50 dark:bg-slate-900/50 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-2 shadow-2xl">
+                <h2 className="text-2xl font-bold text-purple-950 dark:text-cyan-50 mb-2 text-center">
                   Light Up Your Network
                 </h2>
-                <p className="text-slate-700 dark:text-slate-300 text-center mb-6">
+                <p className="text-purple-750 dark:text-cyan-250 text-center mb-6">
                   Connect your ATmosphere account to begin
                 </p>
 
@@ -119,7 +108,7 @@ export default function LoginPage({
                   <div>
                     <label
                       htmlFor="atproto-handle"
-                      className="block text-sm font-semibold text-slate-900 dark:text-slate-100 mb-2"
+                      className="block text-sm font-semibold text-purple-900 dark:text-cyan-100 mb-2"
                     >
                       Your ATmosphere Handle
                     </label>
@@ -129,30 +118,30 @@ export default function LoginPage({
                       value={handle}
                       onChange={(e) => setHandle(e.target.value)}
                       placeholder="yourname.bsky.social"
-                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-300 dark:border-slate-600 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-firefly-orange focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 border-cyan-500/50 dark:border-purple-500/30 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
                       aria-required="true"
                       aria-describedby="handle-description"
                     />
-                    <p
+                    {/*<p
                       id="handle-description"
                       className="text-xs text-slate-600 dark:text-slate-400 mt-2"
                     >
                       Enter your full ATmosphere handle (e.g.,
                       username.bsky.social or yourname.com)
-                    </p>
+                    </p>*/}
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-gradient-to-r from-firefly-amber via-firefly-orange to-firefly-pink hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-800 focus:outline-none"
+                    className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-500 dark:focus:ring-amber-400 focus:outline-none"
                     aria-label="Connect to the ATmosphere"
                   >
-                    Join the Swarm ✨
+                    Join the Swarm
                   </button>
                 </form>
 
-                <div className="mt-6 pt-6 border-t-2 border-slate-200 dark:border-slate-700">
-                  <div className="flex items-start space-x-2 text-sm text-slate-700 dark:text-slate-300">
+                <div className="mt-6 pt-6 border-t-2 border-cyan-500/30 dark:border-purple-500/30">
+                  <div className="flex items-start space-x-2 text-sm text-purple-900 dark:text-cyan-100">
                     <svg
                       className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
                       fill="currentColor"
@@ -166,7 +155,7 @@ export default function LoginPage({
                       />
                     </svg>
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-slate-100">
+                      <p className="font-semibold text-purple-950 dark:text-cyan-50">
                         Secure OAuth Connection
                       </p>
                       <p className="text-xs mt-1">
@@ -183,91 +172,83 @@ export default function LoginPage({
 
         {/* Value Props */}
         <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 max-w-5xl mx-auto">
-          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl p-6 shadow-lg border-2 border-slate-200 dark:border-slate-700 hover:border-firefly-orange dark:hover:border-firefly-orange transition-all">
-            <div className="w-12 h-12 bg-gradient-to-br from-firefly-amber to-firefly-orange rounded-xl flex items-center justify-center mb-4 shadow-md">
+          <div className="bg-white/50 border-cyan-500/30 hover:border-cyan-400 dark:bg-slate-900/50 dark:border-purple-500/30 dark:hover:border-purple-400 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all hover:scale-105 shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
               <Upload className="w-6 h-6 text-slate-900" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="text-lg font-bold text-purple-950 dark:text-cyan-50 mb-2">
               Share Your Light
             </h3>
-            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+            <p className="text-purple-750 dark:text-cyan-250 text-sm leading-relaxed">
               Import your following lists. Your data stays private, your
               connections shine bright.
             </p>
           </div>
 
-          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl p-6 shadow-lg border-2 border-slate-200 dark:border-slate-700 hover:border-firefly-orange dark:hover:border-firefly-orange transition-all">
-            <div className="w-12 h-12 bg-gradient-to-br from-firefly-cyan to-blue-500 rounded-xl flex items-center justify-center mb-4 shadow-md">
+          <div className="bg-white/50 border-cyan-500/30 hover:border-cyan-400 dark:bg-slate-900/50 dark:border-purple-500/30 dark:hover:border-purple-400 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all hover:scale-105 shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
               <Search className="w-6 h-6 text-slate-900" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="text-lg font-bold text-purple-950 dark:text-cyan-50 mb-2">
               Find Your Swarm
             </h3>
-            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+            <p className="text-purple-750 dark:text-cyan-250 text-sm leading-relaxed">
               Watch as fireflies light up - discover which friends have already
               migrated to the ATmosphere.
             </p>
           </div>
 
-          <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl p-6 shadow-lg border-2 border-slate-200 dark:border-slate-700 hover:border-firefly-orange dark:hover:border-firefly-orange transition-all">
-            <div className="w-12 h-12 bg-gradient-to-br from-firefly-pink to-purple-500 rounded-xl flex items-center justify-center mb-4 shadow-md">
+          <div className="bg-white/50 border-cyan-500/30 hover:border-cyan-400 dark:bg-slate-900/50 dark:border-purple-500/30 dark:hover:border-purple-400 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all hover:scale-105 shadow-lg">
+            <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
               <Heart className="w-6 h-6 text-slate-900" />
             </div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">
+            <h3 className="text-lg font-bold text-purple-950 dark:text-cyan-50 mb-2">
               Sync Your Glow
             </h3>
-            <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed">
+            <p className="text-purple-750 dark:text-cyan-250 text-sm leading-relaxed">
               Reconnect instantly. Follow everyone at once or pick and choose -
               light up together.
             </p>
           </div>
         </div>
 
-        {/* Privacy Notice - desktop only */}
-        <div className="hidden md:block text-center mb-8">
-          <p className="text-sm text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Your data is processed and stored by our servers. This helps you
-            find matches and reconnect with your community.
-          </p>
-        </div>
-
         {/* How It Works */}
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center text-slate-900 dark:text-slate-100 mb-8">
+          <h2 className="text-2xl font-bold text-center text-purple-950 dark:text-cyan-50 mb-8">
             How It Works
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="text-center">
               <div
-                className="w-12 h-12 bg-firefly-orange text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
+                className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
                 aria-hidden="true"
               >
                 1
               </div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
                 Connect
               </h3>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-purple-900 dark:text-cyan-100">
                 Sign in with your ATmosphere account
               </p>
             </div>
             <div className="text-center">
               <div
-                className="w-12 h-12 bg-firefly-pink text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
+                className="w-12 h-12 bg-cyan-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
                 aria-hidden="true"
               >
                 2
               </div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
                 Upload
               </h3>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-purple-900 dark:text-cyan-100">
                 Import your following data from other platforms
               </p>
             </div>
             <div className="text-center">
               <div
-                className="w-12 h-12 bg-firefly-cyan text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
+                className="w-12 h-12 bg-pink-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
                 aria-hidden="true"
               >
                 3
@@ -275,21 +256,21 @@ export default function LoginPage({
               <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
                 Match
               </h3>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-purple-900 dark:text-cyan-100">
                 We find your fireflies in the ATmosphere
               </p>
             </div>
             <div className="text-center">
               <div
-                className="w-12 h-12 bg-firefly-amber text-slate-900 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
+                className="w-12 h-12 bg-amber-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
                 aria-hidden="true"
               >
                 4
               </div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
+              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
                 Follow
               </h3>
-              <p className="text-sm text-slate-700 dark:text-slate-300">
+              <p className="text-sm text-purple-900 dark:text-cyan-100">
                 Reconnect with your community
               </p>
             </div>

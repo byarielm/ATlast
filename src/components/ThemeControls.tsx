@@ -1,4 +1,4 @@
-import { Sun, Moon, Pause, Play } from 'lucide-react';
+import { Sun, Moon, Pause, Play } from "lucide-react";
 
 interface ThemeControlsProps {
   isDark: boolean;
@@ -7,11 +7,11 @@ interface ThemeControlsProps {
   onToggleMotion: () => void;
 }
 
-export default function ThemeControls({ 
-  isDark, 
-  reducedMotion, 
-  onToggleTheme, 
-  onToggleMotion 
+export default function ThemeControls({
+  isDark,
+  reducedMotion,
+  onToggleTheme,
+  onToggleMotion,
 }: ThemeControlsProps) {
   return (
     <div className="flex items-center space-x-2">

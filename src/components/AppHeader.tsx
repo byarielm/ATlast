@@ -46,14 +46,14 @@ export default function AppHeader({
   }, []);
 
   return (
-    <div className="bg-white/50 dark:bg-slate-900/50 backdrop-blur-xl relative z-[100]">
+    <div className="bg-white dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl relative z-[100]">
       <div className="max-w-6xl mx-auto px-4 py-1">
         <div className="flex items-center justify-between">
           <button
             onClick={() => onNavigate(session ? "home" : "login")}
-            className="flex items-center space-x-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-500 rounded-lg px-2 py-1"
+            className="flex items-center space-x-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 rounded-lg px-2 py-1"
           >
-            <FireflyLogo className="w-12 h-12" />
+            <FireflyLogo className="w-14 h-10" />
             <h1 className="font-display text-2xl font-bold text-purple-950 dark:text-cyan-50">
               ATlast
             </h1>
@@ -72,7 +72,7 @@ export default function AppHeader({
               <div className="relative z-[9999]" ref={menuRef}>
                 <button
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-3 px-3 py-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors focus:outline-none focus:ring-2 focus:ring-firefly-orange"
+                  className="flex items-center space-x-3 px-3 py-1 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400"
                 >
                   {session?.avatar ? (
                     <img
@@ -81,7 +81,7 @@ export default function AppHeader({
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-purple-500 rounded-full flex items-center justify-center shadow-sm">
+                    <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-sm">
                       <span className="text-white font-bold text-sm">
                         {session?.handle?.charAt(0).toUpperCase()}
                       </span>
@@ -91,17 +91,17 @@ export default function AppHeader({
                     @{session?.handle}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-slate-600 dark:text-slate-400 transition-transform ${showMenu ? "rotate-180" : ""}`}
+                    className={`w-4 h-4 text-purple-750 dark:text-cyan-250 transition-transform ${showMenu ? "rotate-180" : ""}`}
                   />
                 </button>
 
                 {showMenu && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-800 rounded-lg shadow-lg border-2 border-cyan-500/30 dark:border-purple-500/30 py-2 z-[9999]">
+                  <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-slate-900 rounded-lg shadow-lg border-2 border-cyan-500/30 dark:border-purple-500/30 py-2 z-[9999]">
                     <div className="px-4 py-3">
                       <div className="font-semibold text-purple-950 dark:text-cyan-50">
                         {session?.displayName || session.handle}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-400">
+                      <div className="text-sm text-purple-750 dark:text-cyan-250">
                         @{session?.handle}
                       </div>
                     </div>
@@ -110,10 +110,10 @@ export default function AppHeader({
                         setShowMenu(false);
                         onNavigate("home");
                       }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-left"
+                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
                     >
-                      <Home className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      <span className="text-slate-900 dark:text-slate-100">
+                      <Home className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
+                      <span className="text-purple-950 dark:text-cyan-50">
                         Dashboard
                       </span>
                     </button>
@@ -122,20 +122,19 @@ export default function AppHeader({
                         setShowMenu(false);
                         onNavigate("login");
                       }}
-                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors text-left"
+                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
                     >
-                      <Heart className="w-4 h-4 text-slate-600 dark:text-slate-400" />
-                      <span className="text-slate-900 dark:text-slate-100">
-                        About
+                      <Heart className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
+                      <span className="text-purple-950 dark:text-cyan-50">
+                        Login screen
                       </span>
                     </button>
-                    <div className="my-2"></div>
                     <button
                       onClick={() => {
                         setShowMenu(false);
                         onLogout();
                       }}
-                      className="w-full flex items-center space-x-3 px-4 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"
+                      className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"
                     >
                       <LogOut className="w-4 h-4" />
                       <span>Log out</span>

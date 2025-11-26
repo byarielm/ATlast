@@ -28,7 +28,7 @@ interface SearchResult {
 interface ResultsPageProps {
   session: atprotoSession | null;
   onLogout: () => void;
-  onNavigate: (step: 'home' | 'login') => void;
+  onNavigate: (step: "home" | "login") => void;
   searchResults: SearchResult[];
   expandedResults: Set<number>;
   onToggleExpand: (index: number) => void;
@@ -66,24 +66,24 @@ export default function ResultsPage({
   reducedMotion = false,
   isDark = false,
   onToggleTheme,
-  onToggleMotion
+  onToggleMotion,
 }: ResultsPageProps) {
   const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
   const PlatformIcon = platform.icon;
 
   return (
     <div className="min-h-screen pb-24">
-      <AppHeader 
-        session={session} 
-        onLogout={onLogout} 
-        onNavigate={onNavigate} 
+      <AppHeader
+        session={session}
+        onLogout={onLogout}
+        onNavigate={onNavigate}
         currentStep={currentStep}
         isDark={isDark}
         reducedMotion={reducedMotion}
         onToggleTheme={onToggleTheme}
         onToggleMotion={onToggleMotion}
       />
-      
+
       {/* Platform Info Banner */}
       <div className="bg-firefly-banner dark:bg-firefly-banner-dark text-white relative overflow-hidden">
         {!reducedMotion && (
@@ -96,7 +96,7 @@ export default function ResultsPage({
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
                   animation: `float ${2 + Math.random()}s ease-in-out infinite`,
-                  animationDelay: `${Math.random()}s`
+                  animationDelay: `${Math.random()}s`,
                 }}
               />
             ))}
@@ -109,7 +109,9 @@ export default function ResultsPage({
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-xl font-bold">{totalFound} Connections Found!</h2>
+                <h2 className="text-xl font-bold">
+                  {totalFound} Connections Found!
+                </h2>
                 <p className="text-white/95 text-sm">
                   From {searchResults.length} {platform.name} follows
                 </p>
@@ -126,11 +128,11 @@ export default function ResultsPage({
       </div>
 
       {/* Action Buttons */}
-      <div className="bg-white/95 dark:bg-slate-800/95 border-b-2 border-slate-200 dark:border-slate-700 sticky top-0 z-10 backdrop-blur-sm">
+      <div className="bg-white/95 dark:bg-slate-900 border-b-2 border-slate-200 dark:border-purple-500/30 sticky top-0 z-10 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-3 flex space-x-2">
           <button
             onClick={onSelectAll}
-            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-800"
+            className="flex-1 bg-orange-600 hover:bg-orange-500 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg"
             type="button"
           >
             Select All
@@ -147,38 +149,45 @@ export default function ResultsPage({
 
       {/* Feed Results */}
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-        {[...searchResults].sort((a, b) => {
-          // Sort logic here, match sortSearchResults function
-          const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
-          const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
-          if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
-          
-          if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
-            const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
-            const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
-            if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
-            
-            const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
-            const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
-            if (aTopFollowers !== bTopFollowers) return bTopFollowers - aTopFollowers;
-          }
-          
-          return a.sourceUser.username.localeCompare(b.sourceUser.username);
-        }).map((result, idx) => {
-          // Find the original index in unsorted array
-          const originalIndex = searchResults.findIndex(r => r.sourceUser.username === result.sourceUser.username);
-          return (
-            <SearchResultCard
-              key={originalIndex}
-              result={result}
-              resultIndex={originalIndex}  // Use original index for state updates
-              isExpanded={expandedResults.has(originalIndex)}
-              onToggleExpand={() => onToggleExpand(originalIndex)}
-              onToggleMatchSelection={(did) => onToggleMatchSelection(originalIndex, did)}
-              sourcePlatform={sourcePlatform}
-            />
-          );
-        })}
+        {[...searchResults]
+          .sort((a, b) => {
+            // Sort logic here, match sortSearchResults function
+            const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
+            const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
+            if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
+
+            if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
+              const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
+              const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
+              if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
+
+              const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
+              const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
+              if (aTopFollowers !== bTopFollowers)
+                return bTopFollowers - aTopFollowers;
+            }
+
+            return a.sourceUser.username.localeCompare(b.sourceUser.username);
+          })
+          .map((result, idx) => {
+            // Find the original index in unsorted array
+            const originalIndex = searchResults.findIndex(
+              (r) => r.sourceUser.username === result.sourceUser.username,
+            );
+            return (
+              <SearchResultCard
+                key={originalIndex}
+                result={result}
+                resultIndex={originalIndex} // Use original index for state updates
+                isExpanded={expandedResults.has(originalIndex)}
+                onToggleExpand={() => onToggleExpand(originalIndex)}
+                onToggleMatchSelection={(did) =>
+                  onToggleMatchSelection(originalIndex, did)
+                }
+                sourcePlatform={sourcePlatform}
+              />
+            );
+          })}
       </div>
 
       {/* Fixed Bottom Action Bar */}
@@ -188,10 +197,13 @@ export default function ResultsPage({
             <button
               onClick={onFollowSelected}
               disabled={isFollowing}
-              className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 text-white py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 focus:outline-none focus:ring-4 focus:ring-orange-300 dark:focus:ring-orange-800"
+              className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               <Sparkles className="w-6 h-6" />
-              <span>Light Up {totalSelected} Connection{totalSelected === 1 ? '' : 's'} ✨</span>
+              <span>
+                Light Up {totalSelected} Connection
+                {totalSelected === 1 ? "" : "s"} ✨
+              </span>
             </button>
           </div>
         </div>
