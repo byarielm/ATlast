@@ -1,14 +1,30 @@
+@import url("https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700;800&family=Rubik:wght@400;500;600;700&display=swap");
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
+    * {
+        font-family:
+            "Fira Sans",
+            system-ui,
+            -apple-system,
+            sans-serif;
+    }
+
+    h1,
+    h2,
+    h3,
+    .font-display {
+        font-family: "Rubik", "Fira Sans", sans-serif;
+    }
+
     body {
-        font-family: system-ui, sans-serif;
-        @apply bg-gradient-to-br from-amber-50 via-orange-50 to-pink-50
-           dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900
-           text-slate-900 dark:text-slate-100
-           transition-colors duration-300;
+        @apply bg-gradient-to-br
+            from-cyan-50 via-purple-50 to-pink-50
+            dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900
+            text-slate-900 dark:text-slate-100
+            transition-colors duration-300;
     }
 
     button {

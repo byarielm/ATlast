@@ -166,19 +166,62 @@ npm run dev:full
 ```
 atlast/
 ├── src/
-│   ├── components/     # React components
+│   ├── assets/         # Logo
+│   ├── components/     # UI components (React)
+│   ├── constants/      # 
 │   ├── pages/          # Page components
 │   ├── hooks/          # Custom hooks
 │   ├── lib/
 │   │   ├── apiClient/  # API client (real + mock)
-│   │   ├── platforms/  # File parsers
+│   │   ├── fileExtractor.ts  # Chooses parser, handles file upload and data extraction
+│   │   ├── parserLogic.ts  # Parses file for usernames
+│   │   ├── platformDefinitions.ts  # File types and username locations 
 │   │   └── config.ts   # Environment config
 │   └── types/          # TypeScript types
 ├── netlify/
 │   └── functions/      # Backend API
-├── scripts/            # Build scripts
-└── test-data/          # Sample upload files (git-ignored)
+└── public/             # 
 ```
+
+### UI Color System
+
+| **Element** | **Light Mode** | **Dark Mode** | **Notes** |
+|:---:|:---:|:---:|:---:|
+| Text Primary | purple-950 | cyan-50 | Headings, labels |
+| Text Secondary | purple-750 | cyan-250 | Body text, descriptions |
+| Text Tertiary | purple-600 | cyan-400 | Metadata, hints, icons |
+| Borders (Rest) | cyan-500/30 | purple-500/30 | Cards, inputs default |
+| Borders (Hover) | cyan-400 | purple-400 | Interactive hover |
+| Borders (Active/Selected) | cyan-500 | purple-500 | Active tabs, selected items |
+| Backgrounds (Primary) | white | slate-900 | Modal/card base |
+| Backgrounds (Secondary) | purple-50 | slate-900 (nested sections) | Nested cards, sections |
+| Backgrounds (Selected) | cyan-50 | purple-950/30 | Selected platform cards |
+| Buttons Primary | orange-600 | orange-600 | CTAs |
+| Buttons Primary Hover | orange-500 | orange-500 | CTA hover |
+| Buttons Secondary | slate-600 | slate-700 | Cancel, secondary actions |
+| Buttons Secondary Hover | slate-700 | slate-600 | Secondary hover |
+| Interactive Selected | bg-cyan-50 border-cyan-500 | bg-purple-950/30 border-purple-500 | Platform selection cards |
+| Accent/Badge | orange-500 | orange-500 (or amber-500) | Match counts, checkmarks, progress |
+| Progress Complete | orange-500 | orange-500 | Completed progress bars |
+| Progress Incomplete | cyan-500/30 | purple-500/30 | Incomplete progress bars |
+| Success/Green | green-100/800 | green-900/300 | Followed status |
+| Error/Red | red-600 | red-400 | Logout, errors |
+
+### UI Color System: Patterns
+**Disabled States**:
+- Light: Reduce opacity to 50%, use purple-500/50
+- Dark: Reduce opacity to 50%, use cyan-500/50
+
+**Success/Match indicators**:
+Both modes: amber-* or orange-* backgrounds with accessible text contrast
+
+**Tab Navigation**:
+- Inactive: Use text secondary colors
+- Active border: orange-500 (light), amber-500 (dark)
+- Active text: orange-650 (light), amber-400 (dark)
+
+**Gradient Banners**:
+- Both modes: from-amber-* via-orange-* to-pink-* (keep dramatic, adjust shades for mode)
 
 ---
 
