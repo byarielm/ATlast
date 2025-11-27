@@ -30,22 +30,22 @@ export default function App() {
   const { isDark, reducedMotion, toggleTheme, toggleMotion } = useTheme();
 
   // Add state to track current platform
-  const [currentPlatform, setCurrentPlatform] = useState<string>('tiktok');
+  const [currentPlatform, setCurrentPlatform] = useState<string>("tiktok");
   const saveCalledRef = useRef<string | null>(null); // Track by uploadId
 
   // Settings state
   const [userSettings, setUserSettings] = useState<UserSettings>(() => {
-    const saved = localStorage.getItem('atlast_settings');
+    const saved = localStorage.getItem("atlast_settings");
     return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
   });
 
   // Save settings to localStorage whenever they change
   useEffect(() => {
-    localStorage.setItem('atlast_settings', JSON.stringify(userSettings));
+    localStorage.setItem("atlast_settings", JSON.stringify(userSettings));
   }, [userSettings]);
 
   const handleSettingsUpdate = (newSettings: Partial<UserSettings>) => {
-    setUserSettings(prev => ({ ...prev, ...newSettings }));
+    setUserSettings((prev) => ({ ...prev, ...newSettings }));
   };
 
   // Search hook
@@ -65,91 +65,90 @@ export default function App() {
   } = useSearch(session);
 
   // Follow hook
-  const {
-    isFollowing,
-    followSelectedUsers,
-  } = useFollow(session, searchResults, setSearchResults);
+  const { isFollowing, followSelectedUsers } = useFollow(
+    session,
+    searchResults,
+    setSearchResults,
+  );
 
   // File upload hook
-  const {
-    handleFileUpload: processFileUpload,
-  } = useFileUpload(
+  const { handleFileUpload: processFileUpload } = useFileUpload(
     (initialResults, platform) => {
       setCurrentPlatform(platform);
 
       setSearchResults(initialResults);
-      setCurrentStep('loading');
+      setCurrentStep("loading");
 
       const uploadId = crypto.randomUUID();
 
-      searchAllUsers(
-        initialResults,
-        setStatusMessage,
-        () => {
-          setCurrentStep('results');
-          // Prevent duplicate saves
-          if (saveCalledRef.current !== uploadId) {
-            saveCalledRef.current = uploadId;
-            // Need to wait for React to finish updating searchResults state
-            // Use a longer delay and access via setSearchResults callback to get final state
-            setTimeout(() => {
-              setSearchResults(currentResults => {
-                if (currentResults.length > 0) {
-                  apiClient.saveResults(uploadId, platform, currentResults).catch(err => {
-                    console.error('Background save failed:', err);
+      searchAllUsers(initialResults, setStatusMessage, () => {
+        setCurrentStep("results");
+        // Prevent duplicate saves
+        if (saveCalledRef.current !== uploadId) {
+          saveCalledRef.current = uploadId;
+          // Need to wait for React to finish updating searchResults state
+          // Use a longer delay and access via setSearchResults callback to get final state
+          setTimeout(() => {
+            setSearchResults((currentResults) => {
+              if (currentResults.length > 0) {
+                apiClient
+                  .saveResults(uploadId, platform, currentResults)
+                  .catch((err) => {
+                    console.error("Background save failed:", err);
                   });
-                }
-                return currentResults; // Don't modify, just return as-is
-              });
-            }, 1000); // Longer delay to ensure all state updates complete
-          }
+              }
+              return currentResults; // Don't modify, just return as-is
+            });
+          }, 1000); // Longer delay to ensure all state updates complete
         }
-      );
+      });
     },
-    setStatusMessage
+    setStatusMessage,
   );
 
   // Load previous upload handler
   const handleLoadUpload = async (uploadId: string) => {
     try {
-      setStatusMessage('Loading previous upload...');
-      setCurrentStep('loading');
-      
+      setStatusMessage("Loading previous upload...");
+      setCurrentStep("loading");
+
       const data = await apiClient.getUploadDetails(uploadId);
-      
-      if (data.results.length === 0){
+
+      if (data.results.length === 0) {
         setSearchResults([]);
-        setCurrentPlatform('tiktok');
-        setCurrentStep('home');
-        setStatusMessage('No previous results found.');
+        setCurrentPlatform("tiktok");
+        setCurrentStep("home");
+        setStatusMessage("No previous results found.");
         return;
       }
 
-      const platform = 'tiktok'; // Default, will be updated when we add platform to upload details
+      const platform = "tiktok"; // Default, will be updated when we add platform to upload details
       setCurrentPlatform(platform);
       saveCalledRef.current = null;
 
       // Convert the loaded results to SearchResult format with selectedMatches
-      const loadedResults = data.results.map(result => ({
+      const loadedResults = data.results.map((result) => ({
         ...result,
         sourcePlatform: platform,
         isSearching: false,
         selectedMatches: new Set<string>(
           result.atprotoMatches
-            .filter(match => !match.followed)
+            .filter((match) => !match.followed)
             .slice(0, 1)
-            .map(match => match.did)
+            .map((match) => match.did),
         ),
       }));
-      
+
       setSearchResults(loadedResults);
-      setCurrentStep('results');
-      setStatusMessage(`Loaded ${loadedResults.length} results from previous upload`);
+      setCurrentStep("results");
+      setStatusMessage(
+        `Loaded ${loadedResults.length} results from previous upload`,
+      );
     } catch (error) {
-      console.error('Failed to load upload:', error);
-      setStatusMessage('Failed to load previous upload');
-      setCurrentStep('home');
-      alert('Failed to load previous upload. Please try again.');
+      console.error("Failed to load upload:", error);
+      setStatusMessage("Failed to load previous upload");
+      setCurrentStep("home");
+      alert("Failed to load previous upload. Please try again.");
     }
   };
 
@@ -160,12 +159,12 @@ export default function App() {
       alert("Please enter your handle");
       return;
     }
-    
+
     try {
       await login(handle);
     } catch (err) {
-      console.error('OAuth error:', err);
-      const errorMsg = `Error starting OAuth: ${err instanceof Error ? err.message : 'Unknown error'}`;
+      console.error("OAuth error:", err);
+      const errorMsg = `Error starting OAuth: ${err instanceof Error ? err.message : "Unknown error"}`;
       setStatusMessage(errorMsg);
       alert(errorMsg);
     }
@@ -176,9 +175,9 @@ export default function App() {
     try {
       await logout();
       setSearchResults([]);
-      setCurrentPlatform('tiktok');
+      setCurrentPlatform("tiktok");
     } catch (error) {
-      alert('Failed to logout. Please try again.');
+      alert("Failed to logout. Please try again.");
     }
   };
 
@@ -194,9 +193,9 @@ export default function App() {
       )}
 
       {/* Status message for screen readers */}
-      <div 
-        role="status" 
-        aria-live="polite" 
+      <div
+        role="status"
+        aria-live="polite"
         aria-atomic="true"
         className="sr-only"
       >
@@ -204,8 +203,8 @@ export default function App() {
       </div>
 
       {/* Skip to main content link */}
-      <a 
-        href="#main-content" 
+      <a
+        href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-firefly-orange focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
       >
         Skip to main content
@@ -213,21 +212,25 @@ export default function App() {
 
       <main id="main-content">
         {/* Checking Session */}
-        {currentStep === 'checking' && (
+        {currentStep === "checking" && (
           <div className="p-6 max-w-md mx-auto mt-8">
             <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center space-y-4">
               <div className="w-16 h-16 bbg-firefly-banner dark:bg-firefly-banner-dark text-white rounded-2xl mx-auto flex items-center justify-center">
                 <ArrowRight className="w-8 h-8 text-white animate-pulse" />
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">Loading...</h2>
-              <p className="text-gray-600 dark:text-gray-300">Checking your session</p>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+                Loading...
+              </h2>
+              <p className="text-gray-600 dark:text-gray-300">
+                Checking your session
+              </p>
             </div>
           </div>
         )}
 
         {/* Login Page */}
-        {currentStep === 'login' && (
-          <LoginPage 
+        {currentStep === "login" && (
+          <LoginPage
             onSubmit={handleLogin}
             session={session}
             onNavigate={setCurrentStep}
@@ -236,7 +239,7 @@ export default function App() {
         )}
 
         {/* Home/Dashboard Page */}
-        {currentStep === 'home' && (
+        {currentStep === "home" && (
           <HomePage
             session={session}
             onLogout={handleLogout}
@@ -254,7 +257,7 @@ export default function App() {
         )}
 
         {/* Loading Page */}
-        {currentStep === 'loading' && (
+        {currentStep === "loading" && (
           <LoadingPage
             session={session}
             onLogout={handleLogout}
@@ -269,7 +272,7 @@ export default function App() {
         )}
 
         {/* Results Page */}
-        {currentStep === 'results' && (
+        {currentStep === "results" && (
           <ResultsPage
             session={session}
             onLogout={handleLogout}

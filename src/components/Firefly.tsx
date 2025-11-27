@@ -11,7 +11,7 @@ export default function Firefly({ delay = 0, duration = 3 }: FireflyProps) {
   };
 
   return (
-    <div 
+    <div
       className="absolute w-1 h-1 bg-firefly-amber dark:bg-firefly-glow rounded-full opacity-40 pointer-events-none"
       style={style}
       aria-hidden="true"

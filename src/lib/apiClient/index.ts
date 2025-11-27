@@ -1,8 +1,8 @@
-import { isLocalMockMode } from '../config';
+import { isLocalMockMode } from "../config";
 
 // Import both clients
-import { apiClient as realApiClient } from './realApiClient';
-import { mockApiClient } from './mockApiClient';
+import { apiClient as realApiClient } from "./realApiClient";
+import { mockApiClient } from "./mockApiClient";
 
 // Export the appropriate client
 export const apiClient = isLocalMockMode() ? mockApiClient : realApiClient;

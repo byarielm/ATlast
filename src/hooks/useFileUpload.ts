@@ -1,11 +1,14 @@
-import { parseDataFile } from '../lib/fileExtractor';
-import type { SearchResult } from '../types';
+import { parseDataFile } from "../lib/fileExtractor";
+import type { SearchResult } from "../types";
 
 export function useFileUpload(
   onSearchStart: (results: SearchResult[], platform: string) => void,
-  onStatusUpdate: (message: string) => void
+  onStatusUpdate: (message: string) => void,
 ) {
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, platform: string = 'tiktok') {
+  async function handleFileUpload(
+    e: React.ChangeEvent<HTMLInputElement>,
+    platform: string = "tiktok",
+  ) {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -14,21 +17,22 @@ export function useFileUpload(
 
     try {
       usernames = await parseDataFile(file, platform);
-      
+
       console.log(`Loaded ${usernames.length} users from ${platform} data`);
       onStatusUpdate(`Loaded ${usernames.length} users from ${platform} data`);
     } catch (error) {
       console.error("Error processing file:", error);
-      
-      const errorMsg = error instanceof Error 
-        ? error.message
-        : "There was a problem processing the file. Please check that it's a valid data export.";
-      
+
+      const errorMsg =
+        error instanceof Error
+          ? error.message
+          : "There was a problem processing the file. Please check that it's a valid data export.";
+
       onStatusUpdate(errorMsg);
       alert(errorMsg);
       return;
     }
-    
+
     if (usernames.length === 0) {
       const errorMsg = "No users found in the file.";
       onStatusUpdate(errorMsg);
@@ -37,15 +41,15 @@ export function useFileUpload(
     }
 
     // Initialize search results - convert usernames to SearchResult format
-    const initialResults: SearchResult[] = usernames.map(username => ({
+    const initialResults: SearchResult[] = usernames.map((username) => ({
       sourceUser: {
         username: username,
-        date: ''
+        date: "",
       },
       atprotoMatches: [],
       isSearching: false,
       selectedMatches: new Set<string>(),
-      sourcePlatform: platform
+      sourcePlatform: platform,
     }));
 
     onStatusUpdate(`Starting search for ${usernames.length} users...`);

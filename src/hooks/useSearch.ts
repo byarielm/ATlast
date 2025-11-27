@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { apiClient } from '../lib/apiClient';
-import { SEARCH_CONFIG } from '../constants/platforms';
-import type { SearchResult, SearchProgress, AtprotoSession } from '../types';
+import { useState } from "react";
+import { apiClient } from "../lib/apiClient";
+import { SEARCH_CONFIG } from "../constants/platforms";
+import type { SearchResult, SearchProgress, AtprotoSession } from "../types";
 
 function sortSearchResults(results: SearchResult[]): SearchResult[] {
   return [...results].sort((a, b) => {
@@ -9,19 +9,19 @@ function sortSearchResults(results: SearchResult[]): SearchResult[] {
     const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
     const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
     if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
-    
+
     // 2. For matched users, sort by highest posts count of their top match
     if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
       const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
       const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
       if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
-      
+
       // 3. Then by followers count
       const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
       const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
       if (aTopFollowers !== bTopFollowers) return bTopFollowers - aTopFollowers;
     }
-    
+
     // 4. Username as tiebreaker
     return a.sourceUser.username.localeCompare(b.sourceUser.username);
   });
@@ -30,24 +30,26 @@ function sortSearchResults(results: SearchResult[]): SearchResult[] {
 export function useSearch(session: AtprotoSession | null) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);
-  const [searchProgress, setSearchProgress] = useState<SearchProgress>({ 
-    searched: 0, 
-    found: 0, 
-    total: 0 
+  const [searchProgress, setSearchProgress] = useState<SearchProgress>({
+    searched: 0,
+    found: 0,
+    total: 0,
   });
-  const [expandedResults, setExpandedResults] = useState<Set<number>>(new Set());
+  const [expandedResults, setExpandedResults] = useState<Set<number>>(
+    new Set(),
+  );
 
   async function searchAllUsers(
     resultsToSearch: SearchResult[],
     onProgressUpdate: (message: string) => void,
-    onComplete: () => void
+    onComplete: () => void,
   ) {
     if (!session || resultsToSearch.length === 0) return;
-    
+
     setIsSearchingAll(true);
     setSearchProgress({ searched: 0, found: 0, total: resultsToSearch.length });
     onProgressUpdate(`Starting search for ${resultsToSearch.length} users...`);
-    
+
     const { BATCH_SIZE, MAX_MATCHES } = SEARCH_CONFIG;
     let totalSearched = 0;
     let totalFound = 0;
@@ -56,27 +58,33 @@ export function useSearch(session: AtprotoSession | null) {
 
     for (let i = 0; i < resultsToSearch.length; i += BATCH_SIZE) {
       if (totalFound >= MAX_MATCHES) {
-        console.log(`Reached limit of ${MAX_MATCHES} matches. Stopping search.`);
-        onProgressUpdate(`Search complete. Found ${totalFound} matches out of ${MAX_MATCHES} maximum.`);
+        console.log(
+          `Reached limit of ${MAX_MATCHES} matches. Stopping search.`,
+        );
+        onProgressUpdate(
+          `Search complete. Found ${totalFound} matches out of ${MAX_MATCHES} maximum.`,
+        );
         break;
       }
 
       const batch = resultsToSearch.slice(i, i + BATCH_SIZE);
-      const usernames = batch.map(r => r.sourceUser.username);
-      
+      const usernames = batch.map((r) => r.sourceUser.username);
+
       // Mark current batch as searching
-      setSearchResults(prev => prev.map((result, index) => 
-        i <= index && index < i + BATCH_SIZE 
-          ? { ...result, isSearching: true }
-          : result
-      ));
-      
+      setSearchResults((prev) =>
+        prev.map((result, index) =>
+          i <= index && index < i + BATCH_SIZE
+            ? { ...result, isSearching: true }
+            : result,
+        ),
+      );
+
       try {
         const data = await apiClient.batchSearchActors(usernames);
-        
+
         // Reset error counter on success
         consecutiveErrors = 0;
-        
+
         // Process batch results
         data.results.forEach((result) => {
           totalSearched++;
@@ -85,100 +93,126 @@ export function useSearch(session: AtprotoSession | null) {
           }
         });
 
-        setSearchProgress({ searched: totalSearched, found: totalFound, total: resultsToSearch.length });
-        onProgressUpdate(`Searched ${totalSearched} of ${resultsToSearch.length} users. Found ${totalFound} matches.`);
+        setSearchProgress({
+          searched: totalSearched,
+          found: totalFound,
+          total: resultsToSearch.length,
+        });
+        onProgressUpdate(
+          `Searched ${totalSearched} of ${resultsToSearch.length} users. Found ${totalFound} matches.`,
+        );
 
         // Update results
-        setSearchResults(prev => prev.map((result, index) => {
-          const batchResultIndex = index - i;
-          if (batchResultIndex >= 0 && batchResultIndex < data.results.length) {
-            const batchResult = data.results[batchResultIndex];
-            const newSelectedMatches = new Set<string>();
-            
-            // Auto-select only the first (highest scoring) match
-            if (batchResult.actors.length > 0) {
-              newSelectedMatches.add(batchResult.actors[0].did);
+        setSearchResults((prev) =>
+          prev.map((result, index) => {
+            const batchResultIndex = index - i;
+            if (
+              batchResultIndex >= 0 &&
+              batchResultIndex < data.results.length
+            ) {
+              const batchResult = data.results[batchResultIndex];
+              const newSelectedMatches = new Set<string>();
+
+              // Auto-select only the first (highest scoring) match
+              if (batchResult.actors.length > 0) {
+                newSelectedMatches.add(batchResult.actors[0].did);
+              }
+
+              return {
+                ...result,
+                atprotoMatches: batchResult.actors,
+                isSearching: false,
+                error: batchResult.error,
+                selectedMatches: newSelectedMatches,
+              };
             }
+            return result;
+          }),
+        );
 
-            return {
-              ...result,
-              atprotoMatches: batchResult.actors,
-              isSearching: false,
-              error: batchResult.error,
-              selectedMatches: newSelectedMatches,
-            };
-          }
-          return result;
-        }));
+        setSearchResults((prev) =>
+          prev.map((result, index) => {
+            const batchResultIndex = index - i;
+            if (
+              batchResultIndex >= 0 &&
+              batchResultIndex < data.results.length
+            ) {
+              const batchResult = data.results[batchResultIndex];
+              const newSelectedMatches = new Set<string>();
 
-        setSearchResults(prev => prev.map((result, index) => {
-          const batchResultIndex = index - i;
-          if (batchResultIndex >= 0 && batchResultIndex < data.results.length) {
-            const batchResult = data.results[batchResultIndex];
-            const newSelectedMatches = new Set<string>();
-            
-            if (batchResult.actors.length > 0) {
-              newSelectedMatches.add(batchResult.actors[0].did);
+              if (batchResult.actors.length > 0) {
+                newSelectedMatches.add(batchResult.actors[0].did);
+              }
+
+              return {
+                ...result,
+                atprotoMatches: batchResult.actors,
+                isSearching: false,
+                error: batchResult.error,
+                selectedMatches: newSelectedMatches,
+              };
             }
-
-            return {
-              ...result,
-              atprotoMatches: batchResult.actors,
-              isSearching: false,
-              error: batchResult.error,
-              selectedMatches: newSelectedMatches,
-            };
-          }
-          return result;
-        }));
+            return result;
+          }),
+        );
 
         if (totalFound >= MAX_MATCHES) {
           break;
         }
-        
       } catch (error) {
-        console.error('Batch search error:', error);
+        console.error("Batch search error:", error);
         consecutiveErrors++;
-        
+
         // Mark batch as failed
-        setSearchResults(prev => prev.map((result, index) => 
-          i <= index && index < i + BATCH_SIZE 
-            ? { ...result, isSearching: false, error: 'Search failed' }
-            : result
-        ));
-        
+        setSearchResults((prev) =>
+          prev.map((result, index) =>
+            i <= index && index < i + BATCH_SIZE
+              ? { ...result, isSearching: false, error: "Search failed" }
+              : result,
+          ),
+        );
+
         // If we hit rate limits or repeated errors, add exponential backoff
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-          const backoffDelay = Math.min(1000 * Math.pow(2, consecutiveErrors - MAX_CONSECUTIVE_ERRORS), 5000);
-          console.log(`Rate limit detected. Backing off for ${backoffDelay}ms...`);
+          const backoffDelay = Math.min(
+            1000 * Math.pow(2, consecutiveErrors - MAX_CONSECUTIVE_ERRORS),
+            5000,
+          );
+          console.log(
+            `Rate limit detected. Backing off for ${backoffDelay}ms...`,
+          );
           onProgressUpdate(`Rate limit detected. Pausing briefly...`);
-          await new Promise(resolve => setTimeout(resolve, backoffDelay));
+          await new Promise((resolve) => setTimeout(resolve, backoffDelay));
         }
       }
     }
-    
+
     setIsSearchingAll(false);
-    onProgressUpdate(`Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`);
+    onProgressUpdate(
+      `Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`,
+    );
     onComplete();
   }
 
   function toggleMatchSelection(resultIndex: number, did: string) {
-    setSearchResults(prev => prev.map((result, index) => {
-      if (index === resultIndex) {
-        const newSelectedMatches = new Set(result.selectedMatches);
-        if (newSelectedMatches.has(did)) {
-          newSelectedMatches.delete(did);
-        } else {
-          newSelectedMatches.add(did);
+    setSearchResults((prev) =>
+      prev.map((result, index) => {
+        if (index === resultIndex) {
+          const newSelectedMatches = new Set(result.selectedMatches);
+          if (newSelectedMatches.has(did)) {
+            newSelectedMatches.delete(did);
+          } else {
+            newSelectedMatches.add(did);
+          }
+          return { ...result, selectedMatches: newSelectedMatches };
         }
-        return { ...result, selectedMatches: newSelectedMatches };
-      }
-      return result;
-    }));
+        return result;
+      }),
+    );
   }
 
   function toggleExpandResult(index: number) {
-    setExpandedResults(prev => {
+    setExpandedResults((prev) => {
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
@@ -187,34 +221,43 @@ export function useSearch(session: AtprotoSession | null) {
   }
 
   function selectAllMatches(onUpdate: (message: string) => void) {
-    setSearchResults(prev => prev.map(result => {
-      const newSelectedMatches = new Set<string>();
-      if (result.atprotoMatches.length > 0) {
-        newSelectedMatches.add(result.atprotoMatches[0].did);
-      }
-      return {
-        ...result,
-        selectedMatches: newSelectedMatches
-      };
-    }));
+    setSearchResults((prev) =>
+      prev.map((result) => {
+        const newSelectedMatches = new Set<string>();
+        if (result.atprotoMatches.length > 0) {
+          newSelectedMatches.add(result.atprotoMatches[0].did);
+        }
+        return {
+          ...result,
+          selectedMatches: newSelectedMatches,
+        };
+      }),
+    );
 
-    const totalToSelect = searchResults.filter(r => r.atprotoMatches.length > 0).length;
+    const totalToSelect = searchResults.filter(
+      (r) => r.atprotoMatches.length > 0,
+    ).length;
     onUpdate(`Selected ${totalToSelect} top matches`);
   }
 
   function deselectAllMatches(onUpdate: (message: string) => void) {
-    setSearchResults(prev => prev.map(result => ({
-      ...result,
-      selectedMatches: new Set<string>()
-    })));
-    onUpdate('Cleared all selections');
+    setSearchResults((prev) =>
+      prev.map((result) => ({
+        ...result,
+        selectedMatches: new Set<string>(),
+      })),
+    );
+    onUpdate("Cleared all selections");
   }
 
-  const totalSelected = searchResults.reduce((total, result) => 
-    total + (result.selectedMatches?.size || 0), 0
+  const totalSelected = searchResults.reduce(
+    (total, result) => total + (result.selectedMatches?.size || 0),
+    0,
   );
-  
-  const totalFound = searchResults.filter(r => r.atprotoMatches.length > 0).length;
+
+  const totalFound = searchResults.filter(
+    (r) => r.atprotoMatches.length > 0,
+  ).length;
 
   return {
     searchResults,
