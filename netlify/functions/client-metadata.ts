@@ -56,13 +56,15 @@ export const handler: Handler = async (
     const redirectUri = `https://${requestHost}/.netlify/functions/oauth-callback`;
     const appUrl = `https://${requestHost}`;
     const jwksUri = `https://${requestHost}/.netlify/functions/jwks`;
-    const clientId = `https://${requestHost}/.netlify/functions/client-metadata`;
+    const clientId = `https://${requestHost}/oauth-client-metadata.json`;
+    const logoUri = `https://${requestHost}/favicon.svg`;
 
     const metadata = {
       client_id: clientId,
       client_name: "ATlast",
       client_uri: appUrl,
       redirect_uris: [redirectUri],
+      logo_uri: logoUri,
       scope: "atproto transition:generic",
       grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],
