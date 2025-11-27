@@ -75,7 +75,7 @@ export default function SettingsPage({
           onClick={onOpenWizard}
           className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/50 dark:border-amber-400/50 hover:border-orange-500 dark:hover:border-amber-400 shadow-md hover:shadow-lg"
         >
-          <div className="w-12 h-12 bg-gradient-to-r from-firefly-amber via-firefly-orange to-firefly-pink rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
+          <div className="w-12 h-12 bg-firefly-banner dark:bg-firefly-banner-dark rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
             <SettingsIcon className="w-6 h-6 text-white" />
           </div>
           <div className="flex-1 min-w-0">

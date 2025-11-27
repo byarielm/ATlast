@@ -75,7 +75,7 @@ export default function SetupWizard({
         <div className="px-6 py-4 border-b-2 border-cyan-500/30 dark:border-purple-500/30 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-firefly-amber via-firefly-orange to-firefly-pink rounded-xl flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 bg-firefly-banner dark:bg-firefly-banner-dark rounded-xl flex items-center justify-center shadow-md">
                 <Heart className="w-5 h-5 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-purple-950 dark:text-cyan-50">

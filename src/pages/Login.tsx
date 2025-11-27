@@ -31,11 +31,7 @@ export default function LoginPage({
           <div className="text-center md:text-left">
             <div className="justify-center md:justify-start mb-4">
               <div className="logo-glow-container">
-                <img
-                  src="src/assets/at-firefly-logo.svg"
-                  className="w-50 h-15"
-                  alt="ATlast logo"
-                />
+                <FireflyLogo className="w-50 h-15" />
               </div>
             </div>
 
