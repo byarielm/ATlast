@@ -1,4 +1,11 @@
-import { Twitter, Instagram, Video, Hash, Gamepad2, LucideIcon } from "lucide-react";
+import {
+  Twitter,
+  Instagram,
+  Video,
+  Hash,
+  Gamepad2,
+  LucideIcon,
+} from "lucide-react";
 
 export interface PlatformConfig {
   name: string;
@@ -12,58 +19,58 @@ export interface PlatformConfig {
 
 export const PLATFORMS: Record<string, PlatformConfig> = {
   twitter: {
-    name: 'Twitter/X',
+    name: "Twitter/X",
     icon: Twitter,
-    color: 'from-blue-400 to-blue-600',
-    accentBg: 'bg-blue-500',
-    fileHint: 'following.txt, data.json, or data.zip',
+    color: "from-blue-400 to-blue-600",
+    accentBg: "bg-blue-500",
+    fileHint: "following.txt, data.json, or data.zip",
     enabled: false,
-    defaultApp: 'bluesky',
+    defaultApp: "bluesky",
   },
   instagram: {
-    name: 'Instagram',
+    name: "Instagram",
     icon: Instagram,
-    color: 'from-pink-500 via-purple-500 to-orange-500',
-    accentBg: 'bg-pink-500',
-    fileHint: 'following.html or data ZIP',
+    color: "from-pink-500 via-purple-500 to-orange-500",
+    accentBg: "bg-pink-500",
+    fileHint: "following.html or data ZIP",
     enabled: true,
-    defaultApp: 'bluesky',
+    defaultApp: "bluesky",
   },
   tiktok: {
-    name: 'TikTok',
+    name: "TikTok",
     icon: Video,
-    color: 'from-black via-gray-800 to-cyan-400',
-    accentBg: 'bg-black',
-    fileHint: 'Following.txt or data ZIP',
+    color: "from-black via-gray-800 to-cyan-400",
+    accentBg: "bg-black",
+    fileHint: "Following.txt or data ZIP",
     enabled: true,
-    defaultApp: 'spark',
+    defaultApp: "spark",
   },
   tumblr: {
-    name: 'Tumblr',
+    name: "Tumblr",
     icon: Hash,
-    color: 'from-indigo-600 to-blue-800',
-    accentBg: 'bg-indigo-600',
-    fileHint: 'following.csv or data export',
+    color: "from-indigo-600 to-blue-800",
+    accentBg: "bg-indigo-600",
+    fileHint: "following.csv or data export",
     enabled: false,
-    defaultApp: 'bluesky',
+    defaultApp: "bluesky",
   },
   twitch: {
-    name: 'Twitch',
+    name: "Twitch",
     icon: Gamepad2,
-    color: 'from-purple-600 to-purple-800',
-    accentBg: 'bg-purple-600',
-    fileHint: 'following.json or data export',
+    color: "from-purple-600 to-purple-800",
+    accentBg: "bg-purple-600",
+    fileHint: "following.json or data export",
     enabled: false,
-    defaultApp: 'bluesky'
+    defaultApp: "bluesky",
   },
   youtube: {
-    name: 'YouTube',
+    name: "YouTube",
     icon: Video,
-    color: 'from-red-600 to-red-700',
-    accentBg: 'bg-red-600',
-    fileHint: 'subscriptions.csv or Takeout ZIP',
+    color: "from-red-600 to-red-700",
+    accentBg: "bg-red-600",
+    fileHint: "subscriptions.csv or Takeout ZIP",
     enabled: false,
-    defaultApp: 'bluesky'
+    defaultApp: "bluesky",
   },
 };
 

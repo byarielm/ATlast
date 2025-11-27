@@ -1,4 +1,10 @@
-import type { AtprotoSession, BatchSearchResult, BatchFollowResult, SaveResultsResponse, SearchResult } from '../../types';
+import type {
+  AtprotoSession,
+  BatchSearchResult,
+  BatchFollowResult,
+  SaveResultsResponse,
+  SearchResult,
+} from "../../types";
 
 // Client-side cache with TTL
 interface CacheEntry<T> {
@@ -66,46 +72,52 @@ export const apiClient = {
   // OAuth and Authentication
   async startOAuth(handle: string): Promise<{ url: string }> {
     const currentOrigin = window.location.origin;
-    
-    const res = await fetch('/.netlify/functions/oauth-start', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+
+    const res = await fetch("/.netlify/functions/oauth-start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
         login_hint: handle,
-        origin: currentOrigin
+        origin: currentOrigin,
       }),
     });
 
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.error || 'Failed to start OAuth flow');
+      throw new Error(errorData.error || "Failed to start OAuth flow");
     }
 
     return res.json();
   },
 
-  async getSession(): Promise<{ did: string; handle: string; displayName?: string; avatar?: string; description?: string }> {
+  async getSession(): Promise<{
+    did: string;
+    handle: string;
+    displayName?: string;
+    avatar?: string;
+    description?: string;
+  }> {
     // Check cache first
-    const cacheKey = 'session';
+    const cacheKey = "session";
     const cached = cache.get<AtprotoSession>(cacheKey);
     if (cached) {
-      console.log('Returning cached session');
+      console.log("Returning cached session");
       return cached;
     }
 
-    const res = await fetch('/.netlify/functions/session', {
-      credentials: 'include'
+    const res = await fetch("/.netlify/functions/session", {
+      credentials: "include",
     });
 
     if (!res.ok) {
-      throw new Error('No valid session');
+      throw new Error("No valid session");
     }
 
     const data = await res.json();
-    
+
     // Cache the session data for 5 minutes
     cache.set(cacheKey, data, 5 * 60 * 1000);
-    
+
     return data;
   },
 
@@ -116,13 +128,13 @@ export const apiClient = {
   },
 
   async logout(): Promise<void> {
-    const res = await fetch('/.netlify/functions/logout', {
-      method: 'POST',
-      credentials: 'include'
+    const res = await fetch("/.netlify/functions/logout", {
+      method: "POST",
+      credentials: "include",
     });
 
     if (!res.ok) {
-      throw new Error('Logout failed');
+      throw new Error("Logout failed");
     }
 
     // Clear all caches on logout
@@ -141,33 +153,33 @@ export const apiClient = {
     }>;
   }> {
     // Check cache first
-    const cacheKey = 'uploads';
+    const cacheKey = "uploads";
     const cached = cache.get<any>(cacheKey, 2 * 60 * 1000); // 2 minute cache for uploads list
     if (cached) {
-      console.log('Returning cached uploads');
+      console.log("Returning cached uploads");
       return cached;
     }
 
-    const res = await fetch('/.netlify/functions/get-uploads', {
-      credentials: 'include'
+    const res = await fetch("/.netlify/functions/get-uploads", {
+      credentials: "include",
     });
 
     if (!res.ok) {
-      throw new Error('Failed to fetch uploads');
+      throw new Error("Failed to fetch uploads");
     }
 
     const data = await res.json();
-    
+
     // Cache uploads list for 2 minutes
     cache.set(cacheKey, data, 2 * 60 * 1000);
-    
+
     return data;
   },
 
   async getUploadDetails(
-    uploadId: string, 
-    page: number = 1, 
-    pageSize: number = 50
+    uploadId: string,
+    page: number = 1,
+    pageSize: number = 50,
   ): Promise<{
     results: SearchResult[];
     pagination?: {
@@ -183,31 +195,38 @@ export const apiClient = {
     const cacheKey = `upload-details-${uploadId}-p${page}-s${pageSize}`;
     const cached = cache.get<any>(cacheKey, 10 * 60 * 1000);
     if (cached) {
-      console.log('Returning cached upload details for', uploadId, 'page', page);
+      console.log(
+        "Returning cached upload details for",
+        uploadId,
+        "page",
+        page,
+      );
       return cached;
     }
 
     const res = await fetch(
-      `/.netlify/functions/get-upload-details?uploadId=${uploadId}&page=${page}&pageSize=${pageSize}`, 
-      { credentials: 'include' }
+      `/.netlify/functions/get-upload-details?uploadId=${uploadId}&page=${page}&pageSize=${pageSize}`,
+      { credentials: "include" },
     );
 
     if (!res.ok) {
-      throw new Error('Failed to fetch upload details');
+      throw new Error("Failed to fetch upload details");
     }
 
     const data = await res.json();
-    
+
     // Cache upload details page for 10 minutes
     cache.set(cacheKey, data, 10 * 60 * 1000);
-    
+
     return data;
   },
 
   // Helper to load all pages (for backwards compatibility)
-  async getAllUploadDetails(uploadId: string): Promise<{ results: SearchResult[] }> {
+  async getAllUploadDetails(
+    uploadId: string,
+  ): Promise<{ results: SearchResult[] }> {
     const firstPage = await this.getUploadDetails(uploadId, 1, 100);
-    
+
     if (!firstPage.pagination || firstPage.pagination.totalPages === 1) {
       return { results: firstPage.results };
     }
@@ -215,7 +234,7 @@ export const apiClient = {
     // Load remaining pages
     const allResults = [...firstPage.results];
     const promises = [];
-    
+
     for (let page = 2; page <= firstPage.pagination.totalPages; page++) {
       promises.push(this.getUploadDetails(uploadId, page, 100));
     }
@@ -229,20 +248,26 @@ export const apiClient = {
   },
 
   // Search Operations
-  async batchSearchActors(usernames: string[]): Promise<{ results: BatchSearchResult[] }> {
+  async batchSearchActors(
+    usernames: string[],
+  ): Promise<{ results: BatchSearchResult[] }> {
     // Create cache key from sorted usernames (so order doesn't matter)
-    const cacheKey = `search-${usernames.slice().sort().join(',')}`;
+    const cacheKey = `search-${usernames.slice().sort().join(",")}`;
     const cached = cache.get<any>(cacheKey, 10 * 60 * 1000);
     if (cached) {
-      console.log('Returning cached search results for', usernames.length, 'users');
+      console.log(
+        "Returning cached search results for",
+        usernames.length,
+        "users",
+      );
       return cached;
     }
 
-    const res = await fetch('/.netlify/functions/batch-search-actors', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ usernames })
+    const res = await fetch("/.netlify/functions/batch-search-actors", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ usernames }),
     });
 
     if (!res.ok) {
@@ -250,83 +275,86 @@ export const apiClient = {
     }
 
     const data = await res.json();
-    
+
     // Cache search results for 10 minutes
     cache.set(cacheKey, data, 10 * 60 * 1000);
-    
+
     return data;
   },
 
   // Follow Operations
-  async batchFollowUsers(dids: string[]): Promise<{ 
+  async batchFollowUsers(dids: string[]): Promise<{
     success: boolean;
     total: number;
     succeeded: number;
     failed: number;
     results: BatchFollowResult[];
   }> {
-    const res = await fetch('/.netlify/functions/batch-follow-users', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
+    const res = await fetch("/.netlify/functions/batch-follow-users", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ dids }),
     });
 
     if (!res.ok) {
-      throw new Error('Batch follow failed');
+      throw new Error("Batch follow failed");
     }
 
     const data = await res.json();
-    
+
     // Invalidate uploads cache after following
-    cache.invalidate('uploads');
-    cache.invalidatePattern('upload-details');
-    
+    cache.invalidate("uploads");
+    cache.invalidatePattern("upload-details");
+
     return data;
   },
 
   // Save Results
   async saveResults(
-    uploadId: string, 
-    sourcePlatform: string, 
-    results: SearchResult[]
+    uploadId: string,
+    sourcePlatform: string,
+    results: SearchResult[],
   ): Promise<SaveResultsResponse | null> {
     try {
       const resultsToSave = results
-        .filter(r => !r.isSearching)
-        .map(r => ({
+        .filter((r) => !r.isSearching)
+        .map((r) => ({
           sourceUser: r.sourceUser,
-          atprotoMatches: r.atprotoMatches || []
+          atprotoMatches: r.atprotoMatches || [],
         }));
-      
+
       console.log(`Saving ${resultsToSave.length} results in background...`);
-      
-      const res = await fetch('/.netlify/functions/save-results', {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
+
+      const res = await fetch("/.netlify/functions/save-results", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           uploadId,
           sourcePlatform,
-          results: resultsToSave
-        })
+          results: resultsToSave,
+        }),
       });
 
       if (res.ok) {
         const data = await res.json();
         console.log(`Successfully saved ${data.matchedUsers} matches`);
-        
+
         // Invalidate caches after saving
-        cache.invalidate('uploads');
-        cache.invalidatePattern('upload-details');
-        
+        cache.invalidate("uploads");
+        cache.invalidatePattern("upload-details");
+
         return data;
       } else {
-        console.error('Failed to save results:', res.status, await res.text());
+        console.error("Failed to save results:", res.status, await res.text());
         return null;
       }
     } catch (error) {
-      console.error('Error saving results (will continue in background):', error);
+      console.error(
+        "Error saving results (will continue in background):",
+        error,
+      );
       return null;
     }
   },
@@ -336,5 +364,5 @@ export const apiClient = {
     clear: () => cache.clear(),
     invalidate: (key: string) => cache.invalidate(key),
     invalidatePattern: (pattern: string) => cache.invalidatePattern(pattern),
-  }
+  },
 };

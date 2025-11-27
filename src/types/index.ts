@@ -44,7 +44,13 @@ export interface SearchProgress {
 }
 
 // App State
-export type AppStep = 'checking' | 'login' | 'home' | 'upload' | 'loading' | 'results';
+export type AppStep =
+  | "checking"
+  | "login"
+  | "home"
+  | "upload"
+  | "loading"
+  | "results";
 
 // API Response Types
 export interface BatchSearchResult {
