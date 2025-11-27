@@ -122,6 +122,8 @@ export default function HomePage({
 
             {activeTab === "history" && (
               <HistoryTab
+                wizardCompleted={userSettings.wizardCompleted}
+                onShowWizard={() => setShowWizard(true)}
                 uploads={uploads}
                 isLoading={isLoading}
                 userSettings={userSettings}

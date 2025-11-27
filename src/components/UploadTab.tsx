@@ -1,4 +1,4 @@
-import { Upload, ChevronRight, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import { useRef } from "react";
 import PlatformSelector from "../components/PlatformSelector";
 
@@ -29,30 +29,6 @@ export default function UploadTab({
 
   return (
     <div className="p-6">
-      {/* Setup Assistant Banner - Only show if wizard not completed */}
-      {!wizardCompleted && (
-        <div className="bg-firefly-banner dark:bg-firefly-banner-dark rounded-2xl p-6 text-white">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-2">
-                Need help getting started?
-              </h2>
-              <p className="text-white/90">
-                Run the setup assistant to configure your preferences in
-                minutes.
-              </p>
-            </div>
-            <button
-              onClick={onShowWizard}
-              className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition-all flex items-center space-x-2 whitespace-nowrap shadow-lg"
-            >
-              <span>Start Setup</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Upload Section */}
       <div className="space-y-3">
         <div className="flex items-center justify-between mb-4">
