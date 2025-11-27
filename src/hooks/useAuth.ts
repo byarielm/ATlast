@@ -1,10 +1,10 @@
-import { useState, useEffect } from 'react';
-import { apiClient } from '../lib/apiClient';
-import type { AtprotoSession, AppStep } from '../types';
+import { useState, useEffect } from "react";
+import { apiClient } from "../lib/apiClient";
+import type { AtprotoSession, AppStep } from "../types";
 
 export function useAuth() {
   const [session, setSession] = useState<AtprotoSession | null>(null);
-  const [currentStep, setCurrentStep] = useState<AppStep>('checking');
+  const [currentStep, setCurrentStep] = useState<AppStep>("checking");
   const [statusMessage, setStatusMessage] = useState("");
 
   useEffect(() => {
@@ -13,21 +13,24 @@ export function useAuth() {
 
   async function checkExistingSession() {
     try {
+      console.log("[useAuth] Checking existing session...");
       const params = new URLSearchParams(window.location.search);
-      const sessionId = params.get('session');
-      const error = params.get('error');
+      const sessionId = params.get("session");
+      const error = params.get("error");
 
       if (error) {
+        console.log("[useAuth] Error in URL:", error);
         setStatusMessage(`Login failed: ${error}`);
-        setCurrentStep('login');
-        window.history.replaceState({}, '', '/');
+        setCurrentStep("login");
+        window.history.replaceState({}, "", "/");
         return;
       }
 
       // If we have a session parameter in URL, this is an OAuth callback
       if (sessionId) {
-        setStatusMessage('Loading your session...');
-        
+        console.log("[useAuth] Session ID in URL:", sessionId);
+        setStatusMessage("Loading your session...");
+
         // Single call now gets both session AND profile data
         const data = await apiClient.getSession();
         setSession({
@@ -37,16 +40,18 @@ export function useAuth() {
           avatar: data.avatar,
           description: data.description,
         });
-        setCurrentStep('home');
+        setCurrentStep("home");
         setStatusMessage(`Welcome back, ${data.handle}!`);
-        
-        window.history.replaceState({}, '', '/');
+
+        window.history.replaceState({}, "", "/");
         return;
       }
 
       // Otherwise, check if there's an existing session cookie
       // Single call now gets both session AND profile data
+      console.log("[useAuth] Checking for existing session cookie...");
       const data = await apiClient.getSession();
+      console.log("[useAuth] Found existing session:", data);
       setSession({
         did: data.did,
         handle: data.handle,
@@ -54,11 +59,11 @@ export function useAuth() {
         avatar: data.avatar,
         description: data.description,
       });
-      setCurrentStep('home');
+      setCurrentStep("home");
       setStatusMessage(`Welcome back, ${data.handle}!`);
     } catch (error) {
-      console.error('Session check error:', error);
-      setCurrentStep('login');
+      console.log("[useAuth] No valid session found:", error);
+      setCurrentStep("login");
     }
   }
 
@@ -70,7 +75,7 @@ export function useAuth() {
     }
 
     setStatusMessage("Starting authentication...");
-    
+
     const { url } = await apiClient.startOAuth(handle);
     setStatusMessage("Redirecting to authentication...");
     window.location.href = url;
@@ -78,14 +83,20 @@ export function useAuth() {
 
   async function logout() {
     try {
-      setStatusMessage('Logging out...');
+      console.log("[useAuth] Cookies before logout:", document.cookie);
+      console.log("[useAuth] Starting logout...");
+      setStatusMessage("Logging out...");
       await apiClient.logout();
+      console.log("[useAuth] Cookies after logout:", document.cookie);
+
+      apiClient.cache.clear(); // Clear client-side cache
+      console.log("[useAuth] Cache cleared");
       setSession(null);
-      setCurrentStep('login');
-      setStatusMessage('Logged out successfully');
+      setCurrentStep("login");
+      setStatusMessage("Logged out successfully");
     } catch (error) {
-      console.error('Logout error:', error);
-      setStatusMessage('Error logging out');
+      console.error("Logout error:", error);
+      setStatusMessage("Error logging out");
       throw error;
     }
   }
