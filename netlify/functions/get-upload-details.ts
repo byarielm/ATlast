@@ -1,45 +1,51 @@
-import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
-import { userSessions } from './oauth-stores-db';
-import { getDbClient } from './db';
-import cookie from 'cookie';
+import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
+import { userSessions } from "./oauth-stores-db";
+import { getDbClient } from "./db";
+import cookie from "cookie";
 
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 100;
 
-export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
+export const handler: Handler = async (
+  event: HandlerEvent,
+): Promise<HandlerResponse> => {
   try {
     const uploadId = event.queryStringParameters?.uploadId;
-    const page = parseInt(event.queryStringParameters?.page || '1');
+    const page = parseInt(event.queryStringParameters?.page || "1");
     const pageSize = Math.min(
-      parseInt(event.queryStringParameters?.pageSize || String(DEFAULT_PAGE_SIZE)),
-      MAX_PAGE_SIZE
+      parseInt(
+        event.queryStringParameters?.pageSize || String(DEFAULT_PAGE_SIZE),
+      ),
+      MAX_PAGE_SIZE,
     );
 
     if (!uploadId) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'uploadId is required' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "uploadId is required" }),
       };
     }
 
     if (page < 1 || pageSize < 1) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid page or pageSize parameters' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid page or pageSize parameters" }),
       };
     }
 
     // Get session from cookie
-    const cookies = event.headers.cookie ? cookie.parse(event.headers.cookie) : {};
+    const cookies = event.headers.cookie
+      ? cookie.parse(event.headers.cookie)
+      : {};
     const sessionId = cookies.atlast_session;
 
     if (!sessionId) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No session cookie' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "No session cookie" }),
       };
     }
 
@@ -48,8 +54,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     if (!userSession) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired session' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid or expired session" }),
       };
     }
 
@@ -64,8 +70,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     if ((uploadCheck as any[]).length === 0) {
       return {
         statusCode: 404,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Upload not found' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Upload not found" }),
       };
     }
 
@@ -75,7 +81,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Fetch paginated results with optimized query
     const results = await sql`
-      SELECT 
+      SELECT
         sa.source_username,
         sa.normalized_username,
         usf.source_date,
@@ -98,7 +104,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       LEFT JOIN atproto_matches am ON sa.id = am.source_account_id AND am.is_active = true
       LEFT JOIN user_match_status ums ON am.id = ums.atproto_match_id AND ums.did = ${userSession.did}
       WHERE usf.upload_id = ${uploadId}
-      ORDER BY 
+      ORDER BY
         -- 1. Users with matches first
         CASE WHEN am.atproto_did IS NOT NULL THEN 0 ELSE 1 END,
         -- 2. New matches (found after initial upload)
@@ -115,24 +121,24 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Group results by source username
     const groupedResults = new Map<string, any>();
-    
+
     (results as any[]).forEach((row: any) => {
       const username = row.source_username;
-      
+
       // Get or create the entry for this username
       let userResult = groupedResults.get(username);
-      
+
       if (!userResult) {
         userResult = {
           sourceUser: {
             username: username,
-            date: row.source_date || '',
+            date: row.source_date || "",
           },
           atprotoMatches: [],
         };
         groupedResults.set(username, userResult); // Add to map, this preserves the order
       }
-      
+
       // Add the match (if it exists) to the array
       if (row.atproto_did) {
         userResult.atprotoMatches.push({
@@ -156,11 +162,11 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'private, max-age=600', // 10 minute browser cache
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "private, max-age=600", // 10 minute browser cache
       },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         results: searchResults,
         pagination: {
           page,
@@ -168,19 +174,18 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           totalPages,
           totalUsers,
           hasNextPage: page < totalPages,
-          hasPrevPage: page > 1
-        }
+          hasPrevPage: page > 1,
+        },
       }),
     };
-
   } catch (error) {
-    console.error('Get upload details error:', error);
+    console.error("Get upload details error:", error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Failed to fetch upload details',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Failed to fetch upload details",
+        details: error instanceof Error ? error.message : "Unknown error",
       }),
     };
   }
