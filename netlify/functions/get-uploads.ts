@@ -1,19 +1,23 @@
-import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
-import { userSessions } from './oauth-stores-db';
-import { getDbClient } from './db';
-import cookie from 'cookie';
+import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
+import { userSessions } from "./oauth-stores-db";
+import { getDbClient } from "./db";
+import cookie from "cookie";
 
-export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
+export const handler: Handler = async (
+  event: HandlerEvent,
+): Promise<HandlerResponse> => {
   try {
     // Get session from cookie
-    const cookies = event.headers.cookie ? cookie.parse(event.headers.cookie) : {};
+    const cookies = event.headers.cookie
+      ? cookie.parse(event.headers.cookie)
+      : {};
     const sessionId = cookies.atlast_session;
 
     if (!sessionId) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No session cookie' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "No session cookie" }),
       };
     }
 
@@ -22,8 +26,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     if (!userSession) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired session' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid or expired session" }),
       };
     }
 
@@ -31,7 +35,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Fetch all uploads for this user
     const uploads = await sql`
-      SELECT 
+      SELECT
         upload_id,
         source_platform,
         created_at,
@@ -46,8 +50,8 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({
         uploads: (uploads as any[]).map((upload: any) => ({
@@ -57,18 +61,17 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           totalUsers: upload.total_users,
           matchedUsers: upload.matched_users,
           unmatchedUsers: upload.unmatched_users,
-        }))
+        })),
       }),
     };
-
   } catch (error) {
-    console.error('Get uploads error:', error);
+    console.error("Get uploads error:", error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Failed to fetch uploads',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Failed to fetch uploads",
+        details: error instanceof Error ? error.message : "Unknown error",
       }),
     };
   }

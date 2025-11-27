@@ -1,4 +1,4 @@
-import { getDbClient } from './db';
+import { getDbClient } from "./db";
 
 interface StateData {
   dpopKey: any;
@@ -17,7 +17,7 @@ const sql = getDbClient();
 export class PostgresStateStore {
   async get(key: string): Promise<StateData | undefined> {
     const result = await sql`
-      SELECT data FROM oauth_states 
+      SELECT data FROM oauth_states
       WHERE key = ${key} AND expires_at > NOW()
     `;
     return (result as Record<string, any>[])[0]?.data as StateData | undefined;
@@ -40,10 +40,12 @@ export class PostgresStateStore {
 export class PostgresSessionStore {
   async get(key: string): Promise<SessionData | undefined> {
     const result = await sql`
-      SELECT data FROM oauth_sessions 
+      SELECT data FROM oauth_sessions
       WHERE key = ${key} AND expires_at > NOW()
     `;
-    return (result as Record<string, any>[])[0]?.data as SessionData | undefined;
+    return (result as Record<string, any>[])[0]?.data as
+      | SessionData
+      | undefined;
   }
 
   async set(key: string, value: SessionData): Promise<void> {
@@ -64,7 +66,7 @@ export class PostgresSessionStore {
 export class PostgresUserSessionStore {
   async get(sessionId: string): Promise<{ did: string } | undefined> {
     const result = await sql`
-      SELECT did FROM user_sessions 
+      SELECT did FROM user_sessions
       WHERE session_id = ${sessionId} AND expires_at > NOW()
     `;
     const row = (result as Record<string, any>[])[0];

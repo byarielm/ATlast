@@ -1,15 +1,15 @@
-import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
-import { userSessions } from './oauth-stores-db';
-import cookie from 'cookie';
+import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
+import { userSessions } from "./oauth-stores-db";
+import cookie from "cookie";
 import {
   createUpload,
   bulkCreateSourceAccounts,
   bulkLinkUserToSourceAccounts,
   bulkStoreAtprotoMatches,
   bulkMarkSourceAccountsMatched,
-  bulkCreateUserMatchStatus
-} from './db-helpers';
-import { getDbClient } from './db';
+  bulkCreateUserMatchStatus,
+} from "./db-helpers";
+import { getDbClient } from "./db";
 
 interface SearchResult {
   sourceUser: {
@@ -37,26 +37,29 @@ interface SaveResultsRequest {
   results: SearchResult[];
 }
 
-export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
-  
-  if (event.httpMethod !== 'POST') {
+export const handler: Handler = async (
+  event: HandlerEvent,
+): Promise<HandlerResponse> => {
+  if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Method not allowed' }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ error: "Method not allowed" }),
     };
   }
 
   try {
     // Get session from cookie
-    const cookies = event.headers.cookie ? cookie.parse(event.headers.cookie) : {};
+    const cookies = event.headers.cookie
+      ? cookie.parse(event.headers.cookie)
+      : {};
     const sessionId = cookies.atlast_session;
 
     if (!sessionId) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No session cookie' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "No session cookie" }),
       };
     }
 
@@ -65,20 +68,22 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     if (!userSession) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired session' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid or expired session" }),
       };
     }
 
     // Parse request body
-    const body: SaveResultsRequest = JSON.parse(event.body || '{}');
+    const body: SaveResultsRequest = JSON.parse(event.body || "{}");
     const { uploadId, sourcePlatform, results } = body;
 
     if (!uploadId || !sourcePlatform || !Array.isArray(results)) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'uploadId, sourcePlatform, and results are required' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: "uploadId, sourcePlatform, and results are required",
+        }),
       };
     }
 
@@ -87,19 +92,21 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Check for recent uploads from this user
     const recentUpload = await sql`
-      SELECT upload_id FROM user_uploads 
-      WHERE did = ${userSession.did} 
+      SELECT upload_id FROM user_uploads
+      WHERE did = ${userSession.did}
       AND created_at > NOW() - INTERVAL '5 seconds'
       ORDER BY created_at DESC
       LIMIT 1
     `;
 
     if ((recentUpload as any[]).length > 0) {
-      console.log(`User ${userSession.did} already saved within 5 seconds, skipping duplicate`);
+      console.log(
+        `User ${userSession.did} already saved within 5 seconds, skipping duplicate`,
+      );
       return {
         statusCode: 200,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ success: true, message: 'Recently saved' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ success: true, message: "Recently saved" }),
       };
     }
 
@@ -109,25 +116,32 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       userSession.did,
       sourcePlatform,
       results.length,
-      0
+      0,
     );
 
     // BULK OPERATION 1: Create all source accounts at once
-    const allUsernames = results.map(r => r.sourceUser.username);
-    const sourceAccountIdMap = await bulkCreateSourceAccounts(sourcePlatform, allUsernames);
-    
+    const allUsernames = results.map((r) => r.sourceUser.username);
+    const sourceAccountIdMap = await bulkCreateSourceAccounts(
+      sourcePlatform,
+      allUsernames,
+    );
+
     // BULK OPERATION 2: Link all users to source accounts
-    const links = results.map(result => {
-      const normalized = result.sourceUser.username.toLowerCase().replace(/[._-]/g, '');
-      const sourceAccountId = sourceAccountIdMap.get(normalized);
-      return {
-        sourceAccountId: sourceAccountId!,
-        sourceDate: result.sourceUser.date
-      };
-    }).filter(link => link.sourceAccountId !== undefined);
-    
+    const links = results
+      .map((result) => {
+        const normalized = result.sourceUser.username
+          .toLowerCase()
+          .replace(/[._-]/g, "");
+        const sourceAccountId = sourceAccountIdMap.get(normalized);
+        return {
+          sourceAccountId: sourceAccountId!,
+          sourceDate: result.sourceUser.date,
+        };
+      })
+      .filter((link) => link.sourceAccountId !== undefined);
+
     await bulkLinkUserToSourceAccounts(uploadId, userSession.did, links);
-    
+
     // BULK OPERATION 3: Store all atproto matches at once
     const allMatches: Array<{
       sourceAccountId: number;
@@ -140,17 +154,23 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       postCount: number;
       followerCount: number;
     }> = [];
-    
+
     const matchedSourceAccountIds: number[] = [];
-    
+
     for (const result of results) {
-      const normalized = result.sourceUser.username.toLowerCase().replace(/[._-]/g, '');
+      const normalized = result.sourceUser.username
+        .toLowerCase()
+        .replace(/[._-]/g, "");
       const sourceAccountId = sourceAccountIdMap.get(normalized);
-      
-      if (sourceAccountId && result.atprotoMatches && result.atprotoMatches.length > 0) {
+
+      if (
+        sourceAccountId &&
+        result.atprotoMatches &&
+        result.atprotoMatches.length > 0
+      ) {
         matchedCount++;
         matchedSourceAccountIds.push(sourceAccountId);
-        
+
         for (const match of result.atprotoMatches) {
           allMatches.push({
             sourceAccountId,
@@ -166,18 +186,18 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
         }
       }
     }
-    
+
     // Store all matches in one operation
     let matchIdMap = new Map<string, number>();
     if (allMatches.length > 0) {
       matchIdMap = await bulkStoreAtprotoMatches(allMatches);
     }
-    
+
     // BULK OPERATION 4: Mark all matched source accounts
     if (matchedSourceAccountIds.length > 0) {
       await bulkMarkSourceAccountsMatched(matchedSourceAccountIds);
     }
-    
+
     // BULK OPERATION 5: Create all user match statuses
     const statuses: Array<{
       did: string;
@@ -185,7 +205,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
       sourceAccountId: number;
       viewed: boolean;
     }> = [];
-    
+
     for (const match of allMatches) {
       const key = `${match.sourceAccountId}:${match.atprotoDid}`;
       const matchId = matchIdMap.get(key);
@@ -194,18 +214,18 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           did: userSession.did,
           atprotoMatchId: matchId,
           sourceAccountId: match.sourceAccountId,
-          viewed: true
+          viewed: true,
         });
       }
     }
-    
+
     if (statuses.length > 0) {
       await bulkCreateUserMatchStatus(statuses);
     }
 
     // Update upload record with final counts
     await sql`
-      UPDATE user_uploads 
+      UPDATE user_uploads
       SET matched_users = ${matchedCount},
           unmatched_users = ${results.length - matchedCount}
       WHERE upload_id = ${uploadId}
@@ -214,26 +234,25 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({
         success: true,
         uploadId,
         totalUsers: results.length,
         matchedUsers: matchedCount,
-        unmatchedUsers: results.length - matchedCount
+        unmatchedUsers: results.length - matchedCount,
       }),
     };
-
   } catch (error) {
-    console.error('Save results error:', error);
+    console.error("Save results error:", error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Failed to save results',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Failed to save results",
+        details: error instanceof Error ? error.message : "Unknown error",
       }),
     };
   }

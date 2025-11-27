@@ -1,4 +1,4 @@
-import { neon, NeonQueryFunction } from '@neondatabase/serverless';
+import { neon, NeonQueryFunction } from "@neondatabase/serverless";
 
 let sql: NeonQueryFunction<any, any> | undefined = undefined;
 let connectionInitialized = false;
@@ -14,13 +14,14 @@ export function getDbClient() {
 export async function initDB() {
   const sql = getDbClient();
 
-  console.log('🧠 Connecting to DB:', process.env.NETLIFY_DATABASE_URL);
+  console.log("🧠 Connecting to DB:", process.env.NETLIFY_DATABASE_URL);
 
   try {
-    const res: any = await sql`SELECT current_database() AS db, current_user AS user, NOW() AS now`;
-    console.log('✅ Connected:', res[0]);
+    const res: any =
+      await sql`SELECT current_database() AS db, current_user AS user, NOW() AS now`;
+    console.log("✅ Connected:", res[0]);
   } catch (e) {
-    console.error('❌ Connection failed:', e);
+    console.error("❌ Connection failed:", e);
     throw e;
   }
 
@@ -143,7 +144,7 @@ export async function initDB() {
   `;
 
   // ==================== ENHANCED INDEXES FOR PHASE 2 ====================
-  
+
   // Existing indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_to_check ON source_accounts(source_platform, match_found, last_checked)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_platform ON source_accounts(source_platform)`;
@@ -159,45 +160,48 @@ export async function initDB() {
 
   // For sorting
   await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_stats ON atproto_matches(source_account_id, found_at DESC, post_count DESC, follower_count DESC)`;
-  
+
   // For session lookups (most frequent query)
-await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_did ON user_sessions(did)`;
-await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at)`;
-  
+  await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_did ON user_sessions(did)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_user_sessions_expires ON user_sessions(expires_at)`;
+
   // For OAuth state/session cleanup
   await sql`CREATE INDEX IF NOT EXISTS idx_oauth_states_expires ON oauth_states(expires_at)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_oauth_sessions_expires ON oauth_sessions(expires_at)`;
-  
+
   // For upload queries by user
   await sql`CREATE INDEX IF NOT EXISTS idx_user_uploads_did_created ON user_uploads(did, created_at DESC)`;
-  
+
   // For upload details pagination (composite index for ORDER BY + JOIN)
   await sql`CREATE INDEX IF NOT EXISTS idx_user_source_follows_upload_created ON user_source_follows(upload_id, source_account_id)`;
-  
+
   // For match status queries
   await sql`CREATE INDEX IF NOT EXISTS idx_user_match_status_match_id ON user_match_status(atproto_match_id)`;
-  
+
   // Composite index for the common join pattern in get-upload-details
   await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_source_active ON atproto_matches(source_account_id, is_active) WHERE is_active = true`;
-  
+
   // For bulk operations - normalized username lookups
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_normalized ON source_accounts(normalized_username, source_platform)`;
 
-  console.log('✅ Database indexes created/verified');
+  console.log("✅ Database indexes created/verified");
 }
 
 export async function cleanupExpiredSessions() {
   const sql = getDbClient();
-  
+
   // Use indexes for efficient cleanup
-  const statesDeleted = await sql`DELETE FROM oauth_states WHERE expires_at < NOW()`;
-  const sessionsDeleted = await sql`DELETE FROM oauth_sessions WHERE expires_at < NOW()`;
-  const userSessionsDeleted = await sql`DELETE FROM user_sessions WHERE expires_at < NOW()`;
-  
-  console.log('🧹 Cleanup:', {
+  const statesDeleted =
+    await sql`DELETE FROM oauth_states WHERE expires_at < NOW()`;
+  const sessionsDeleted =
+    await sql`DELETE FROM oauth_sessions WHERE expires_at < NOW()`;
+  const userSessionsDeleted =
+    await sql`DELETE FROM user_sessions WHERE expires_at < NOW()`;
+
+  console.log("🧹 Cleanup:", {
     states: (statesDeleted as any).length,
     sessions: (sessionsDeleted as any).length,
-    userSessions: (userSessionsDeleted as any).length
+    userSessions: (userSessionsDeleted as any).length,
   });
 }
 

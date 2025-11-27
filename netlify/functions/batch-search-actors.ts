@@ -1,29 +1,36 @@
-import { Handler, HandlerEvent, HandlerResponse } from '@netlify/functions';
-import { NodeOAuthClient, atprotoLoopbackClientMetadata } from '@atproto/oauth-client-node';
-import { JoseKey } from '@atproto/jwk-jose';
-import { stateStore, sessionStore, userSessions } from './oauth-stores-db';
-import { getOAuthConfig } from './oauth-config';
-import { Agent } from '@atproto/api';
-import cookie from 'cookie';
+import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
+import {
+  NodeOAuthClient,
+  atprotoLoopbackClientMetadata,
+} from "@atproto/oauth-client-node";
+import { JoseKey } from "@atproto/jwk-jose";
+import { stateStore, sessionStore, userSessions } from "./oauth-stores-db";
+import { getOAuthConfig } from "./oauth-config";
+import { Agent } from "@atproto/api";
+import cookie from "cookie";
 
 function normalizePrivateKey(key: string): string {
-  if (!key.includes('\n') && key.includes('\\n')) {
-    return key.replace(/\\n/g, '\n');
+  if (!key.includes("\n") && key.includes("\\n")) {
+    return key.replace(/\\n/g, "\n");
   }
   return key;
 }
 
-export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResponse> => {
+export const handler: Handler = async (
+  event: HandlerEvent,
+): Promise<HandlerResponse> => {
   try {
     // Parse batch request
-    const body = JSON.parse(event.body || '{}');
+    const body = JSON.parse(event.body || "{}");
     const usernames: string[] = body.usernames || [];
-    
+
     if (!Array.isArray(usernames) || usernames.length === 0) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'usernames array is required and must not be empty' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          error: "usernames array is required and must not be empty",
+        }),
       };
     }
 
@@ -31,20 +38,22 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     if (usernames.length > 50) {
       return {
         statusCode: 400,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Maximum 50 usernames per batch' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Maximum 50 usernames per batch" }),
       };
     }
 
     // Get session from cookie
-    const cookies = event.headers.cookie ? cookie.parse(event.headers.cookie) : {};
+    const cookies = event.headers.cookie
+      ? cookie.parse(event.headers.cookie)
+      : {};
     const sessionId = cookies.atlast_session;
 
     if (!sessionId) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'No session cookie' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "No session cookie" }),
       };
     }
 
@@ -53,13 +62,13 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     if (!userSession) {
       return {
         statusCode: 401,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ error: 'Invalid or expired session' }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid or expired session" }),
       };
     }
 
     const config = getOAuthConfig();
-    const isDev = config.clientType === 'loopback';
+    const isDev = config.clientType === "loopback";
 
     let client: NodeOAuthClient;
 
@@ -74,20 +83,23 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     } else {
       // Production with private key
       const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY!);
-      const privateKey = await JoseKey.fromImportable(normalizedKey, 'main-key');
+      const privateKey = await JoseKey.fromImportable(
+        normalizedKey,
+        "main-key",
+      );
 
       client = new NodeOAuthClient({
         clientMetadata: {
           client_id: config.clientId,
-          client_name: 'ATlast',
-          client_uri: config.clientId.replace('/client-metadata.json', ''),
+          client_name: "ATlast",
+          client_uri: config.clientId.replace("/client-metadata.json", ""),
           redirect_uris: [config.redirectUri],
-          scope: 'atproto transition:generic',
-          grant_types: ['authorization_code', 'refresh_token'],
-          response_types: ['code'],
-          application_type: 'web',
-          token_endpoint_auth_method: 'private_key_jwt',
-          token_endpoint_auth_signing_alg: 'ES256',
+          scope: "atproto transition:generic",
+          grant_types: ["authorization_code", "refresh_token"],
+          response_types: ["code"],
+          application_type: "web",
+          token_endpoint_auth_method: "private_key_jwt",
+          token_endpoint_auth_signing_alg: "ES256",
           dpop_bound_access_tokens: true,
           jwks_uri: config.jwksUri,
         },
@@ -99,7 +111,7 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Restore OAuth session
     const oauthSession = await client.restore(userSession.did);
-    
+
     // Create agent from OAuth session
     const agent = new Agent(oauthSession);
 
@@ -110,46 +122,49 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
           q: username,
           limit: 20,
         });
-        
+
         // Filter and rank matches (same logic as before)
         const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
         const normalizedUsername = normalize(username);
 
-        const rankedActors = response.data.actors.map((actor: any) => {
-          const handlePart = actor.handle.split('.')[0];
-          const normalizedHandle = normalize(handlePart);
-          const normalizedFullHandle = normalize(actor.handle);
-          const normalizedDisplayName = normalize(actor.displayName || '');
+        const rankedActors = response.data.actors
+          .map((actor: any) => {
+            const handlePart = actor.handle.split(".")[0];
+            const normalizedHandle = normalize(handlePart);
+            const normalizedFullHandle = normalize(actor.handle);
+            const normalizedDisplayName = normalize(actor.displayName || "");
 
-          let score = 0;
-          if (normalizedHandle === normalizedUsername) score = 100;
-          else if (normalizedFullHandle === normalizedUsername) score = 90;
-          else if (normalizedDisplayName === normalizedUsername) score = 80;
-          else if (normalizedHandle.includes(normalizedUsername)) score = 60;
-          else if (normalizedFullHandle.includes(normalizedUsername)) score = 50;
-          else if (normalizedDisplayName.includes(normalizedUsername)) score = 40;
-          else if (normalizedUsername.includes(normalizedHandle)) score = 30;
+            let score = 0;
+            if (normalizedHandle === normalizedUsername) score = 100;
+            else if (normalizedFullHandle === normalizedUsername) score = 90;
+            else if (normalizedDisplayName === normalizedUsername) score = 80;
+            else if (normalizedHandle.includes(normalizedUsername)) score = 60;
+            else if (normalizedFullHandle.includes(normalizedUsername))
+              score = 50;
+            else if (normalizedDisplayName.includes(normalizedUsername))
+              score = 40;
+            else if (normalizedUsername.includes(normalizedHandle)) score = 30;
 
-          return { 
-            ...actor, 
-            matchScore: score,
-            did: actor.did
-          };
-        })
-        .filter((actor: any) => actor.matchScore > 0)
-        .sort((a: any, b: any) => b.matchScore - a.matchScore)
-        .slice(0, 5);
+            return {
+              ...actor,
+              matchScore: score,
+              did: actor.did,
+            };
+          })
+          .filter((actor: any) => actor.matchScore > 0)
+          .sort((a: any, b: any) => b.matchScore - a.matchScore)
+          .slice(0, 5);
 
         return {
           username,
           actors: rankedActors,
-          error: null
+          error: null,
         };
       } catch (error) {
         return {
           username,
           actors: [],
-          error: error instanceof Error ? error.message : 'Search failed'
+          error: error instanceof Error ? error.message : "Search failed",
         };
       }
     });
@@ -158,42 +173,45 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
 
     // Enrich results with follower and post counts using getProfiles
     const allDids = results
-      .flatMap(r => r.actors.map((a: any) => a.did))
+      .flatMap((r) => r.actors.map((a: any) => a.did))
       .filter((did): did is string => !!did);
 
     if (allDids.length > 0) {
       // Create a map to store enriched profile data
-      const profileDataMap = new Map<string, { postCount: number; followerCount: number }>();
-      
+      const profileDataMap = new Map<
+        string,
+        { postCount: number; followerCount: number }
+      >();
+
       // Batch fetch profiles (25 at a time - API limit)
       const PROFILE_BATCH_SIZE = 25;
       for (let i = 0; i < allDids.length; i += PROFILE_BATCH_SIZE) {
         const batch = allDids.slice(i, i + PROFILE_BATCH_SIZE);
         try {
           const profilesResponse = await agent.app.bsky.actor.getProfiles({
-            actors: batch
+            actors: batch,
           });
-          
+
           profilesResponse.data.profiles.forEach((profile: any) => {
             profileDataMap.set(profile.did, {
               postCount: profile.postsCount || 0,
-              followerCount: profile.followersCount || 0
+              followerCount: profile.followersCount || 0,
             });
           });
         } catch (error) {
-          console.error('Failed to fetch profile batch:', error);
+          console.error("Failed to fetch profile batch:", error);
           // Continue even if one batch fails
         }
       }
-      
+
       // Merge enriched data back into results
-      results.forEach(result => {
+      results.forEach((result) => {
         result.actors = result.actors.map((actor: any) => {
           const enrichedData = profileDataMap.get(actor.did);
           return {
             ...actor,
             postCount: enrichedData?.postCount || 0,
-            followerCount: enrichedData?.followerCount || 0
+            followerCount: enrichedData?.followerCount || 0,
           };
         });
       });
@@ -202,20 +220,19 @@ export const handler: Handler = async (event: HandlerEvent): Promise<HandlerResp
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*',
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
       },
       body: JSON.stringify({ results }),
     };
-
   } catch (error) {
-    console.error('Batch search error:', error);
+    console.error("Batch search error:", error);
     return {
       statusCode: 500,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        error: 'Failed to search actors',
-        details: error instanceof Error ? error.message : 'Unknown error'
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        error: "Failed to search actors",
+        details: error instanceof Error ? error.message : "Unknown error",
       }),
     };
   }
