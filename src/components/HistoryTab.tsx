@@ -41,7 +41,7 @@ export default function HistoryTab({
   };
 
   return (
-    <div className="p-6 mb-3">
+    <div className="p-3">
       {/* Setup Assistant Banner - Only show if wizard not completed */}
       {!wizardCompleted && (
         <div className="bg-firefly-banner-dark dark:bg-firefly-banner-dark rounded-2xl p-6 text-white">
@@ -66,7 +66,7 @@ export default function HistoryTab({
         </div>
       )}
 
-      <div className="flex items-center space-x-3 mb-3">
+      <div className="flex items-center space-x-3 mt-3 mb-3">
         <div>
           <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
             Previously Uploaded
