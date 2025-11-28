@@ -1,4 +1,4 @@
-import { Upload, Sparkles, ChevronRight } from "lucide-react";
+import { Upload, Sparkles, ChevronRight, Database } from "lucide-react";
 import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { Upload as UploadType } from "../types";
 import type { UserSettings } from "../types/settings";
@@ -77,6 +77,24 @@ export default function HistoryTab({
         </div>
       </div>
 
+      {/* Data Storage Disabled Notice */}
+      {!userSettings.saveData && (
+        <div className="mb-4 p-4 border-2 rounded-xl border-orange-650/50 dark:border-amber-400/50 bg-purple-100/50 dark:bg-slate-900/50">
+          <div className="flex items-start space-x-3">
+            <Database className="w-5 h-5 text-orange-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <div>
+              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
+                Data Storage Disabled
+              </h3>
+              <p className="text-sm text-purple-900 dark:text-cyan-100">
+                You've disabled data storage in your settings. Enable "Save my
+                data" in the Settings tab to save your upload history.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {isLoading ? (
         <div className="space-y-6">
           {[...Array(3)].map((_, i) => (
@@ -94,11 +112,11 @@ export default function HistoryTab({
         </div>
       ) : uploads.length === 0 ? (
         <div className="text-center py-12">
-          <Upload className="w-16 h-16 text-purple-300 dark:text-slate-600 mx-auto mb-4" />
+          <Upload className="w-16 h-16 text-purple-900 dark:text-cyan-100 mx-auto mb-4" />
           <p className="text-purple-750 dark:text-cyan-250 font-medium">
             No previous uploads yet
           </p>
-          <p className="text-sm text-purple-750/70 dark:text-cyan-250/70 mt-2">
+          <p className="text-sm text-purple-950 dark:text-cyan-50 mt-2">
             Upload your first file to get started
           </p>
         </div>

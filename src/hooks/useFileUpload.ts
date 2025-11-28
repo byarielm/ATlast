@@ -1,9 +1,10 @@
 import { parseDataFile } from "../lib/fileExtractor";
-import type { SearchResult } from "../types";
+import type { SearchResult, UserSettings } from "../types";
 
 export function useFileUpload(
   onSearchStart: (results: SearchResult[], platform: string) => void,
   onStatusUpdate: (message: string) => void,
+  userSettings: UserSettings,
 ) {
   async function handleFileUpload(
     e: React.ChangeEvent<HTMLInputElement>,
