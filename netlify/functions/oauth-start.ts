@@ -82,7 +82,7 @@ export const handler: Handler = async (
       const currentUrl = `https://${currentHost}`;
       const redirectUri = `${currentUrl}/.netlify/functions/oauth-callback`;
       const jwksUri = `${currentUrl}/.netlify/functions/jwks`;
-      const clientId = `${currentUrl}/.netlify/functions/client-metadata`;
+      const clientId = `${currentUrl}/oauth-client-metadata.json`;
 
       client = new NodeOAuthClient({
         clientMetadata: {
