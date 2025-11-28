@@ -1,12 +1,13 @@
 import {
-  Twitter,
-  Instagram,
-  Youtube,
-  Hash,
-  Twitch,
-  Video,
-  LucideIcon,
-} from "lucide-react";
+  SiX,
+  SiInstagram,
+  SiYoutube,
+  SiTwitch,
+  SiTiktok,
+  SiTumblr,
+} from "@icons-pack/react-simple-icons";
+
+import { LucideIcon } from "lucide-react";
 
 export interface PlatformConfig {
   name: string;
@@ -21,7 +22,7 @@ export interface PlatformConfig {
 export const PLATFORMS: Record<string, PlatformConfig> = {
   twitter: {
     name: "Twitter/X",
-    icon: Twitter,
+    icon: SiX,
     color: "from-blue-400 to-blue-600",
     accentBg: "bg-blue-500",
     fileHint: "following.txt, data.json, or data.zip",
@@ -30,7 +31,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   instagram: {
     name: "Instagram",
-    icon: Instagram,
+    icon: SiInstagram,
     color: "from-pink-500 via-purple-500 to-orange-500",
     accentBg: "bg-pink-500",
     fileHint: "following.html or data ZIP",
@@ -39,7 +40,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   tiktok: {
     name: "TikTok",
-    icon: Video,
+    icon: SiTiktok,
     color: "from-black via-gray-800 to-cyan-400",
     accentBg: "bg-black",
     fileHint: "Following.txt or data ZIP",
@@ -48,7 +49,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   tumblr: {
     name: "Tumblr",
-    icon: Hash,
+    icon: SiTumblr,
     color: "from-indigo-600 to-blue-800",
     accentBg: "bg-indigo-600",
     fileHint: "following.csv or data export",
@@ -57,7 +58,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   twitch: {
     name: "Twitch",
-    icon: Twitch,
+    icon: SiTwitch,
     color: "from-purple-600 to-purple-800",
     accentBg: "bg-purple-600",
     fileHint: "following.json or data export",
@@ -66,7 +67,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   youtube: {
     name: "YouTube",
-    icon: Youtube,
+    icon: SiYoutube,
     color: "from-red-600 to-red-700",
     accentBg: "bg-red-600",
     fileHint: "subscriptions.csv or Takeout ZIP",

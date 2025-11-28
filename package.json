@@ -18,6 +18,7 @@
     "@atproto/identity": "^0.4.9",
     "@atproto/jwk-jose": "^0.1.10",
     "@atproto/oauth-client-node": "^0.3.8",
+    "@icons-pack/react-simple-icons": "^13.8.0",
     "@neondatabase/serverless": "^1.0.2",
     "@netlify/functions": "^4.2.7",
     "cookie": "^1.0.2",
