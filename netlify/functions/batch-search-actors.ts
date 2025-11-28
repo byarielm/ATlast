@@ -92,7 +92,10 @@ export const handler: Handler = async (
         clientMetadata: {
           client_id: config.clientId,
           client_name: "ATlast",
-          client_uri: config.clientId.replace("/client-metadata.json", ""),
+          client_uri: config.clientId.replace(
+            "/oauth-client-metadata.json",
+            "",
+          ),
           redirect_uris: [config.redirectUri],
           scope: "atproto transition:generic",
           grant_types: ["authorization_code", "refresh_token"],
