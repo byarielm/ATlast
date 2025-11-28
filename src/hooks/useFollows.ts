@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { apiClient } from "../lib/apiClient";
 import { FOLLOW_CONFIG } from "../constants/platforms";
-import type { SearchResult, AtprotoSession } from "../types";
+import { ATPROTO_APPS } from "../constants/atprotoApps";
+import type { SearchResult, AtprotoSession, AtprotoAppId } from "../types";
 
 export function useFollow(
   session: AtprotoSession | null,
@@ -9,6 +10,7 @@ export function useFollow(
   setSearchResults: (
     results: SearchResult[] | ((prev: SearchResult[]) => SearchResult[]),
   ) => void,
+  destinationAppId: AtprotoAppId,
 ) {
   const [isFollowing, setIsFollowing] = useState(false);
 
@@ -17,6 +19,19 @@ export function useFollow(
   ): Promise<void> {
     if (!session || isFollowing) return;
 
+    // Determine source platform for results
+    const followLexicon = ATPROTO_APPS[destinationAppId]?.followLexicon;
+    const destinationName =
+      ATPROTO_APPS[destinationAppId]?.name || "Undefined App";
+
+    if (!followLexicon) {
+      onUpdate(
+        `Error: Invalid destination app or lexicon for ${destinationAppId}`,
+      );
+      return;
+    }
+
+    // Follow users
     const selectedUsers = searchResults.flatMap((result, resultIndex) =>
       result.atprotoMatches
         .filter((match) => result.selectedMatches?.has(match.did))
@@ -31,7 +46,9 @@ export function useFollow(
     }
 
     setIsFollowing(true);
-    onUpdate(`Following ${selectedUsers.length} users...`);
+    onUpdate(
+      `Following ${selectedUsers.length} users on ${destinationName}...`,
+    );
     let totalFollowed = 0;
     let totalFailed = 0;
 
@@ -43,7 +60,7 @@ export function useFollow(
         const dids = batch.map((user) => user.did);
 
         try {
-          const data = await apiClient.batchFollowUsers(dids);
+          const data = await apiClient.batchFollowUsers(dids, followLexicon);
           totalFollowed += data.succeeded;
           totalFailed += data.failed;
 

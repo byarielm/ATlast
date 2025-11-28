@@ -1,9 +1,11 @@
 import {
   Twitter,
   Instagram,
-  Video,
+  Github,
+  Youtube,
   Hash,
-  Gamepad2,
+  Twitch,
+  Video,
   LucideIcon,
 } from "lucide-react";
 
@@ -56,7 +58,7 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   twitch: {
     name: "Twitch",
-    icon: Gamepad2,
+    icon: Twitch,
     color: "from-purple-600 to-purple-800",
     accentBg: "bg-purple-600",
     fileHint: "following.json or data export",
@@ -65,12 +67,21 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
   },
   youtube: {
     name: "YouTube",
-    icon: Video,
+    icon: Youtube,
     color: "from-red-600 to-red-700",
     accentBg: "bg-red-600",
     fileHint: "subscriptions.csv or Takeout ZIP",
     enabled: false,
     defaultApp: "bluesky",
+  },
+  github: {
+    name: "Github",
+    icon: Github,
+    color: "from-red-600 to-red-700",
+    accentBg: "bg-red-600",
+    fileHint: "subscriptions.csv or Takeout ZIP",
+    enabled: false,
+    defaultApp: "tangled",
   },
 };
 

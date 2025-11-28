@@ -283,7 +283,10 @@ export const apiClient = {
   },
 
   // Follow Operations
-  async batchFollowUsers(dids: string[]): Promise<{
+  async batchFollowUsers(
+    dids: string[],
+    followLexicon: string,
+  ): Promise<{
     success: boolean;
     total: number;
     succeeded: number;
@@ -294,7 +297,7 @@ export const apiClient = {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ dids }),
+      body: JSON.stringify({ dids, followLexicon }),
     });
 
     if (!res.ok) {

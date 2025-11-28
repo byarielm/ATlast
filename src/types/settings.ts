@@ -6,6 +6,7 @@ export interface AtprotoApp {
   description: string;
   link: string;
   icon: string;
+  followLexicon: string;
   action: string;
   enabled: boolean;
 }
