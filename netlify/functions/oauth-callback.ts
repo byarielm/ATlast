@@ -1,19 +1,8 @@
 import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
-import {
-  NodeOAuthClient,
-  atprotoLoopbackClientMetadata,
-} from "@atproto/oauth-client-node";
-import { JoseKey } from "@atproto/jwk-jose";
-import { stateStore, sessionStore, userSessions } from "./oauth-stores-db";
+import { createOAuthClient } from "./client";
+import { userSessions } from "./oauth-stores-db";
 import { getOAuthConfig } from "./oauth-config";
 import * as crypto from "crypto";
-
-function normalizePrivateKey(key: string): string {
-  if (!key.includes("\n") && key.includes("\\n")) {
-    return key.replace(/\\n/g, "\n");
-  }
-  return key;
-}
 
 export const handler: Handler = async (
   event: HandlerEvent,
@@ -34,8 +23,11 @@ export const handler: Handler = async (
     const code = params.get("code");
     const state = params.get("state");
 
-    console.log("OAuth callback - Mode:", isDev ? "loopback" : "production");
-    console.log("OAuth callback - URL:", currentUrl);
+    console.log(
+      "[oauth-callback] Processing callback - Mode:",
+      isDev ? "loopback" : "production",
+    );
+    console.log("[oauth-callback] URL:", currentUrl);
 
     if (!code || !state) {
       return {
@@ -47,75 +39,23 @@ export const handler: Handler = async (
       };
     }
 
-    let client: NodeOAuthClient;
+    // Create OAuth client using shared helper
+    const client = await createOAuthClient();
 
-    if (isDev) {
-      // LOOPBACK MODE: Use atprotoLoopbackClientMetadata and NO keyset
-      console.log("🔧 Loopback callback");
-
-      const clientMetadata = atprotoLoopbackClientMetadata(config.clientId);
-
-      client = new NodeOAuthClient({
-        clientMetadata: clientMetadata,
-        // No keyset for loopback!
-        stateStore: stateStore as any,
-        sessionStore: sessionStore as any,
-      });
-    } else {
-      // PRODUCTION MODE
-      if (!process.env.OAUTH_PRIVATE_KEY) {
-        console.error("OAUTH_PRIVATE_KEY not set");
-        return {
-          statusCode: 302,
-          headers: {
-            Location: `${currentUrl}/?error=Server configuration error`,
-          },
-          body: "",
-        };
-      }
-
-      const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
-      const privateKey = await JoseKey.fromImportable(
-        normalizedKey,
-        "main-key",
-      );
-
-      const currentHost = process.env.DEPLOY_URL
-        ? new URL(process.env.DEPLOY_URL).host
-        : event.headers["x-forwarded-host"] || event.headers.host;
-
-      currentUrl = `https://${currentHost}`;
-      const redirectUri = `${currentUrl}/.netlify/functions/oauth-callback`;
-      const jwksUri = `${currentUrl}/.netlify/functions/jwks`;
-      const clientId = `${currentUrl}/oauth-client-metadata.json`;
-
-      client = new NodeOAuthClient({
-        clientMetadata: {
-          client_id: clientId,
-          client_name: "ATlast",
-          client_uri: currentUrl,
-          redirect_uris: [redirectUri],
-          scope: "atproto transition:generic",
-          grant_types: ["authorization_code", "refresh_token"],
-          response_types: ["code"],
-          application_type: "web",
-          token_endpoint_auth_method: "private_key_jwt",
-          token_endpoint_auth_signing_alg: "ES256",
-          dpop_bound_access_tokens: true,
-          jwks_uri: jwksUri,
-        } as any,
-        keyset: [privateKey],
-        stateStore: stateStore as any,
-        sessionStore: sessionStore as any,
-      });
-    }
-
+    // Process the OAuth callback
     const result = await client.callback(params);
+
+    console.log(
+      "[oauth-callback] Successfully authenticated DID:",
+      result.session.did,
+    );
 
     // Store session
     const sessionId = crypto.randomUUID();
     const did = result.session.did;
     await userSessions.set(sessionId, { did });
+
+    console.log("[oauth-callback] Created user session:", sessionId);
 
     // Cookie flags - no Secure flag for loopback
     const cookieFlags = isDev
