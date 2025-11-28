@@ -83,27 +83,34 @@ export default function App() {
 
       searchAllUsers(initialResults, setStatusMessage, () => {
         setCurrentStep("results");
-        // Prevent duplicate saves
-        if (saveCalledRef.current !== uploadId) {
-          saveCalledRef.current = uploadId;
-          // Need to wait for React to finish updating searchResults state
-          // Use a longer delay and access via setSearchResults callback to get final state
-          setTimeout(() => {
-            setSearchResults((currentResults) => {
-              if (currentResults.length > 0) {
-                apiClient
-                  .saveResults(uploadId, platform, currentResults)
-                  .catch((err) => {
-                    console.error("Background save failed:", err);
-                  });
-              }
-              return currentResults; // Don't modify, just return as-is
-            });
-          }, 1000); // Longer delay to ensure all state updates complete
+
+        // CONDITIONAL SAVE: Only save if user has enabled data storage
+        if (userSettings.saveData) {
+          // Prevent duplicate saves
+          if (saveCalledRef.current !== uploadId) {
+            saveCalledRef.current = uploadId;
+            // Need to wait for React to finish updating searchResults state
+            // Use a longer delay and access via setSearchResults callback to get final state
+            setTimeout(() => {
+              setSearchResults((currentResults) => {
+                if (currentResults.length > 0) {
+                  apiClient
+                    .saveResults(uploadId, platform, currentResults)
+                    .catch((err) => {
+                      console.error("Background save failed:", err);
+                    });
+                }
+                return currentResults; // Don't modify, just return as-is
+              });
+            }, 1000); // Longer delay to ensure all state updates complete
+          }
+        } else {
+          console.log("Data storage disabled - skipping save to database");
         }
       });
     },
     setStatusMessage,
+    userSettings, // Pass userSettings to hook
   );
 
   // Load previous upload handler

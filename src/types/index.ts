@@ -81,3 +81,11 @@ export interface Upload {
   matchedUsers: number;
   unmatchedUsers: number;
 }
+
+// Re-export settings types for convenience
+export type {
+  UserSettings,
+  PlatformDestinations,
+  AtprotoApp,
+  AtprotoAppId,
+} from "./settings";

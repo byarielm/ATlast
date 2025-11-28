@@ -35,6 +35,7 @@ interface SaveResultsRequest {
   uploadId: string;
   sourcePlatform: string;
   results: SearchResult[];
+  saveData?: boolean;
 }
 
 export const handler: Handler = async (
@@ -75,7 +76,7 @@ export const handler: Handler = async (
 
     // Parse request body
     const body: SaveResultsRequest = JSON.parse(event.body || "{}");
-    const { uploadId, sourcePlatform, results } = body;
+    const { uploadId, sourcePlatform, results, saveData } = body;
 
     if (!uploadId || !sourcePlatform || !Array.isArray(results)) {
       return {
@@ -83,6 +84,27 @@ export const handler: Handler = async (
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           error: "uploadId, sourcePlatform, and results are required",
+        }),
+      };
+    }
+
+    // Server-side validation for saveData flag, controlled by frontend
+    if (saveData === false) {
+      console.log(
+        `User ${userSession.did} has data storage disabled - skipping save`,
+      );
+      return {
+        statusCode: 200,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          success: true,
+          message: "Data storage disabled - results not saved",
+          uploadId,
+          totalUsers: results.length,
+          matchedUsers: results.filter((r) => r.atprotoMatches.length > 0)
+            .length,
+          unmatchedUsers: results.filter((r) => r.atprotoMatches.length === 0)
+            .length,
         }),
       };
     }
