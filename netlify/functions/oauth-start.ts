@@ -1,22 +1,9 @@
 import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
-import {
-  NodeOAuthClient,
-  atprotoLoopbackClientMetadata,
-} from "@atproto/oauth-client-node";
-import { JoseKey } from "@atproto/jwk-jose";
-import { stateStore, sessionStore } from "./oauth-stores-db";
-import { getOAuthConfig } from "./oauth-config";
+import { createOAuthClient } from "./client";
 
 interface OAuthStartRequestBody {
   login_hint?: string;
   origin?: string;
-}
-
-function normalizePrivateKey(key: string): string {
-  if (!key.includes("\n") && key.includes("\\n")) {
-    return key.replace(/\\n/g, "\n");
-  }
-  return key;
 }
 
 export const handler: Handler = async (
@@ -40,74 +27,17 @@ export const handler: Handler = async (
       };
     }
 
-    const config = getOAuthConfig();
-    const isDev = config.clientType === "loopback";
+    console.log("[oauth-start] Starting OAuth flow for:", loginHint);
 
-    let client: NodeOAuthClient;
+    // Create OAuth client using shared helper
+    const client = await createOAuthClient();
 
-    if (isDev) {
-      // LOOPBACK MODE: Use atprotoLoopbackClientMetadata and NO keyset
-      console.log("🔧 Using loopback OAuth client for development");
-      console.log("Client ID:", config.clientId);
-
-      const clientMetadata = atprotoLoopbackClientMetadata(config.clientId);
-
-      client = new NodeOAuthClient({
-        clientMetadata: clientMetadata,
-        stateStore: stateStore as any,
-        sessionStore: sessionStore as any,
-      });
-    } else {
-      // PRODUCTION MODE: Full confidential client with keyset
-      console.log("🔐 Using confidential OAuth client for production");
-
-      if (!process.env.OAUTH_PRIVATE_KEY) {
-        throw new Error("OAUTH_PRIVATE_KEY required for production");
-      }
-
-      const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
-      const privateKey = await JoseKey.fromImportable(
-        normalizedKey,
-        "main-key",
-      );
-
-      const currentHost = process.env.DEPLOY_URL
-        ? new URL(process.env.DEPLOY_URL).host
-        : event.headers["x-forwarded-host"] || event.headers.host;
-
-      if (!currentHost) {
-        throw new Error("Missing host header");
-      }
-
-      const currentUrl = `https://${currentHost}`;
-      const redirectUri = `${currentUrl}/.netlify/functions/oauth-callback`;
-      const jwksUri = `${currentUrl}/.netlify/functions/jwks`;
-      const clientId = `${currentUrl}/oauth-client-metadata.json`;
-
-      client = new NodeOAuthClient({
-        clientMetadata: {
-          client_id: clientId,
-          client_name: "ATlast",
-          client_uri: currentUrl,
-          redirect_uris: [redirectUri],
-          scope: "atproto transition:generic",
-          grant_types: ["authorization_code", "refresh_token"],
-          response_types: ["code"],
-          application_type: "web",
-          token_endpoint_auth_method: "private_key_jwt",
-          token_endpoint_auth_signing_alg: "ES256",
-          dpop_bound_access_tokens: true,
-          jwks_uri: jwksUri,
-        } as any,
-        keyset: [privateKey],
-        stateStore: stateStore as any,
-        sessionStore: sessionStore as any,
-      });
-    }
-
+    // Start the authorization flow
     const authUrl = await client.authorize(loginHint, {
       scope: "atproto transition:generic",
     });
+
+    console.log("[oauth-start] Generated auth URL for:", loginHint);
 
     return {
       statusCode: 200,

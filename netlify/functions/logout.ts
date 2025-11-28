@@ -1,5 +1,5 @@
 import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
-import { userSessions } from "./oauth-stores-db";
+import { SessionManager } from "./session-manager";
 import { getOAuthConfig } from "./oauth-config";
 import cookie from "cookie";
 
@@ -27,13 +27,9 @@ export const handler: Handler = async (
     console.log("[logout] Session ID from cookie:", sessionId);
 
     if (sessionId) {
-      // Get the DID before deleting
-      const userSession = await userSessions.get(sessionId);
-      const did = userSession?.did;
-
-      // Delete session from database
-      await userSessions.del(sessionId);
-      console.log("[logout] Deleted session from database");
+      // Use SessionManager to properly clean up both user and OAuth sessions
+      await SessionManager.deleteSession(sessionId);
+      console.log("[logout] Successfully deleted session:", sessionId);
     }
 
     // Clear the session cookie with matching flags from when it was set
