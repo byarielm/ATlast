@@ -27,6 +27,10 @@ export const handler: Handler = async (
     console.log("[logout] Session ID from cookie:", sessionId);
 
     if (sessionId) {
+      // Get the DID before deleting
+      const userSession = await userSessions.get(sessionId);
+      const did = userSession?.did;
+
       // Delete session from database
       await userSessions.del(sessionId);
       console.log("[logout] Deleted session from database");

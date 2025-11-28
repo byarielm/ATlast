@@ -16,20 +16,9 @@ function normalizePrivateKey(key: string): string {
   return key;
 }
 
-// ENHANCED: Two-tier cache system
-// Tier 1: In-memory cache for profile data (lives for function instance)
+// In-memory cache for profile
 const profileCache = new Map<string, { data: any; timestamp: number }>();
 const PROFILE_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
-
-// Tier 2: Session metadata cache (DID -> basic info, faster than full OAuth restore)
-const sessionMetadataCache = new Map<
-  string,
-  {
-    did: string;
-    lastSeen: number;
-    profileFetchNeeded: boolean;
-  }
->();
 
 export const handler: Handler = async (
   event: HandlerEvent,
@@ -49,59 +38,24 @@ export const handler: Handler = async (
       };
     }
 
-    // OPTIMIZATION: Check session metadata cache first (avoids DB query)
-    const cachedMetadata = sessionMetadataCache.get(sessionId);
-    const now = Date.now();
+    // Check database for session
+    const userSession = await userSessions.get(sessionId);
 
-    let did: string;
-
-    if (cachedMetadata && now - cachedMetadata.lastSeen < 60000) {
-      // Session seen within last minute, trust the cache
-      did = cachedMetadata.did;
-      console.log("Session metadata from cache");
-    } else {
-      // Need to verify session from database
-      const userSession = await userSessions.get(sessionId);
-      if (!userSession) {
-        // Clear stale cache entry
-        sessionMetadataCache.delete(sessionId);
-        return {
-          statusCode: 401,
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ error: "Invalid or expired session" }),
-        };
-      }
-
-      did = userSession.did;
-
-      // Update session metadata cache
-      sessionMetadataCache.set(sessionId, {
-        did,
-        lastSeen: now,
-        profileFetchNeeded: true,
-      });
-
-      // Cleanup: Remove old session metadata entries
-      if (sessionMetadataCache.size > 200) {
-        for (const [sid, meta] of sessionMetadataCache.entries()) {
-          if (now - meta.lastSeen > 300000) {
-            // 5 minutes
-            sessionMetadataCache.delete(sid);
-          }
-        }
-      }
+    if (!userSession) {
+      return {
+        statusCode: 401,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ error: "Invalid or expired session" }),
+      };
     }
 
-    // Check profile cache (Tier 1)
+    const did = userSession.did;
+    const now = Date.now();
+
+    // Check profile cache
     const cached = profileCache.get(did);
     if (cached && now - cached.timestamp < PROFILE_CACHE_TTL) {
       console.log("Returning cached profile for", did);
-
-      // Update session metadata last seen
-      const meta = sessionMetadataCache.get(sessionId);
-      if (meta) {
-        meta.lastSeen = now;
-      }
 
       return {
         statusCode: 200,
@@ -181,18 +135,11 @@ export const handler: Handler = async (
         description: profile.data.description,
       };
 
-      // Cache the profile data (Tier 1)
+      // Cache the profile data
       profileCache.set(did, {
         data: profileData,
         timestamp: now,
       });
-
-      // Update session metadata (Tier 2)
-      const meta = sessionMetadataCache.get(sessionId);
-      if (meta) {
-        meta.lastSeen = now;
-        meta.profileFetchNeeded = false;
-      }
 
       // Clean up old profile cache entries
       if (profileCache.size > 100) {
