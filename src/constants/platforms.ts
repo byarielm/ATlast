@@ -1,7 +1,6 @@
 import {
   Twitter,
   Instagram,
-  Github,
   Youtube,
   Hash,
   Twitch,
@@ -73,15 +72,6 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     fileHint: "subscriptions.csv or Takeout ZIP",
     enabled: false,
     defaultApp: "bluesky",
-  },
-  github: {
-    name: "Github",
-    icon: Github,
-    color: "from-red-600 to-red-700",
-    accentBg: "bg-red-600",
-    fileHint: "subscriptions.csv or Takeout ZIP",
-    enabled: false,
-    defaultApp: "tangled",
   },
 };
 
