@@ -29,6 +29,9 @@ function generateMockMatches(username: string): any[] {
     description: `Mock profile for ${username}`,
     postCount: Math.floor(Math.random() * 1000),
     followerCount: Math.floor(Math.random() * 5000),
+    followStatus: {
+      "app.bsky.graph.follow": Math.random() < 0.3, // 30% already following
+    },
   }));
 }
 
@@ -68,6 +71,22 @@ export const mockApiClient = {
     console.log("[MOCK] Logging out");
     localStorage.removeItem("mock_session");
     localStorage.removeItem("mock_uploads");
+  },
+
+  async checkFollowStatus(
+    dids: string[],
+    followLexicon: string,
+  ): Promise<Record<string, boolean>> {
+    await delay(300);
+    console.log("[MOCK] Checking follow status for:", dids.length, "DIDs");
+
+    // Mock: 30% chance each user is already followed
+    const followStatus: Record<string, boolean> = {};
+    dids.forEach((did) => {
+      followStatus[did] = Math.random() < 0.3;
+    });
+
+    return followStatus;
   },
 
   async getUploads(): Promise<{ uploads: any[] }> {
@@ -110,6 +129,7 @@ export const mockApiClient = {
 
   async batchSearchActors(
     usernames: string[],
+    followLexicon?: string,
   ): Promise<{ results: BatchSearchResult[] }> {
     await delay(800); // Simulate API delay
     console.log("[MOCK] Searching for:", usernames);

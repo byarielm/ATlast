@@ -247,12 +247,45 @@ export const apiClient = {
     return { results: allResults };
   },
 
+  // NEW: Check follow status
+  async checkFollowStatus(
+    dids: string[],
+    followLexicon: string,
+  ): Promise<Record<string, boolean>> {
+    // Check cache first
+    const cacheKey = `follow-status-${followLexicon}-${dids.slice().sort().join(",")}`;
+    const cached = cache.get<Record<string, boolean>>(cacheKey, 2 * 60 * 1000); // 2 minute cache
+    if (cached) {
+      console.log("Returning cached follow status");
+      return cached;
+    }
+
+    const res = await fetch("/.netlify/functions/check-follow-status", {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dids, followLexicon }),
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to check follow status");
+    }
+
+    const data = await res.json();
+
+    // Cache for 2 minutes
+    cache.set(cacheKey, data.followStatus, 2 * 60 * 1000);
+
+    return data.followStatus;
+  },
+
   // Search Operations
   async batchSearchActors(
     usernames: string[],
+    followLexicon?: string,
   ): Promise<{ results: BatchSearchResult[] }> {
     // Create cache key from sorted usernames (so order doesn't matter)
-    const cacheKey = `search-${usernames.slice().sort().join(",")}`;
+    const cacheKey = `search-${followLexicon || "default"}-${usernames.slice().sort().join(",")}`;
     const cached = cache.get<any>(cacheKey, 10 * 60 * 1000);
     if (cached) {
       console.log(
@@ -267,7 +300,7 @@ export const apiClient = {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ usernames }),
+      body: JSON.stringify({ usernames, followLexicon }),
     });
 
     if (!res.ok) {
@@ -291,6 +324,7 @@ export const apiClient = {
     total: number;
     succeeded: number;
     failed: number;
+    alreadyFollowing: number;
     results: BatchFollowResult[];
   }> {
     const res = await fetch("/.netlify/functions/batch-follow-users", {
@@ -306,9 +340,10 @@ export const apiClient = {
 
     const data = await res.json();
 
-    // Invalidate uploads cache after following
+    // Invalidate caches after following
     cache.invalidate("uploads");
     cache.invalidatePattern("upload-details");
+    cache.invalidatePattern("follow-status");
 
     return data;
   },

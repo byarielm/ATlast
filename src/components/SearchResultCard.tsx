@@ -7,7 +7,9 @@ import {
   UserCheck,
 } from "lucide-react";
 import { PLATFORMS } from "../constants/platforms";
+import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { SearchResult } from "../types";
+import type { AtprotoAppId } from "../types/settings";
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -16,6 +18,7 @@ interface SearchResultCardProps {
   onToggleExpand: () => void;
   onToggleMatchSelection: (did: string) => void;
   sourcePlatform: string;
+  destinationAppId?: AtprotoAppId;
 }
 
 export default function SearchResultCard({
@@ -25,12 +28,17 @@ export default function SearchResultCard({
   onToggleExpand,
   onToggleMatchSelection,
   sourcePlatform,
+  destinationAppId = "bluesky",
 }: SearchResultCardProps) {
   const displayMatches = isExpanded
     ? result.atprotoMatches
     : result.atprotoMatches.slice(0, 1);
   const hasMoreMatches = result.atprotoMatches.length > 1;
   const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
+
+  // Get current follow lexicon
+  const currentApp = ATPROTO_APPS[destinationAppId];
+  const currentLexicon = currentApp?.followLexicon || "app.bsky.graph.follow";
 
   return (
     <div className="bg-white/50 dark:bg-slate-900/50 rounded-2xl shadow-sm overflow-hidden border-2 border-cyan-500/30 dark:border-purple-500/30">
@@ -64,8 +72,11 @@ export default function SearchResultCard({
       ) : (
         <div className="">
           {displayMatches.map((match) => {
-            const isFollowed = match.followed;
+            // Check follow status for current lexicon
+            const isFollowedInCurrentApp =
+              match.followStatus?.[currentLexicon] ?? match.followed ?? false;
             const isSelected = result.selectedMatches?.has(match.did);
+
             return (
               <div
                 key={match.did}
@@ -133,23 +144,23 @@ export default function SearchResultCard({
                 {/* Select/Follow Button */}
                 <button
                   onClick={() => onToggleMatchSelection(match.did)}
-                  disabled={isFollowed}
+                  disabled={isFollowedInCurrentApp}
                   className={`p-2 rounded-full font-medium transition-all flex-shrink-0 self-start ${
-                    isFollowed
-                      ? "bg-purple-100 dark:bg-slate-900 border-2 border-purple-500 dark:border-cyan-500 text-purple-950 dark:text-cyan-50 shadow-md cursor-not-allowed opacity-60"
+                    isFollowedInCurrentApp
+                      ? "bg-purple-100 dark:bg-slate-900 border-2 border-purple-500 dark:border-cyan-500 text-purple-950 dark:text-cyan-50 shadow-md cursor-not-allowed opacity-50"
                       : isSelected
                         ? "bg-purple-100 dark:bg-slate-900 border-2 border-purple-500 dark:border-cyan-500 text-purple-950 dark:text-cyan-50 shadow-md"
                         : "bg-slate-200/50 dark:bg-slate-900/50 border-2 border-cyan-500/30 dark:border-purple-500/30 text-purple-750 dark:text-cyan-250 hover:border-orange-500 dark:hover:border-amber-400"
                   }`}
                   title={
-                    isFollowed
-                      ? "Already followed"
+                    isFollowedInCurrentApp
+                      ? `Already following on ${currentApp?.name || "this app"}`
                       : isSelected
                         ? "Selected to follow"
                         : "Select to follow"
                   }
                 >
-                  {isFollowed ? (
+                  {isFollowedInCurrentApp ? (
                     <Check className="w-4 h-4" />
                   ) : isSelected ? (
                     <UserCheck className="w-4 h-4" />

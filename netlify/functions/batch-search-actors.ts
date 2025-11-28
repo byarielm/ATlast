@@ -148,6 +148,57 @@ export const handler: Handler = async (
       });
     }
 
+    // Check follow status for all matched DIDs in chosen lexicon
+    const followLexicon = body.followLexicon || "app.bsky.graph.follow";
+
+    if (allDids.length > 0) {
+      try {
+        let cursor: string | undefined = undefined;
+        let hasMore = true;
+        const didsSet = new Set(allDids);
+        const followedDids = new Set<string>();
+        const repoDid = await SessionManager.getDIDForSession(sessionId);
+
+        if (repoDid === null) {
+          throw new Error("Could not retrieve DID for session.");
+        }
+
+        // Query user's follow graph
+        while (hasMore && didsSet.size > 0) {
+          const response = await agent.api.com.atproto.repo.listRecords({
+            repo: repoDid,
+            collection: followLexicon,
+            limit: 100,
+            cursor,
+          });
+
+          // Check each record
+          for (const record of response.data.records) {
+            const followRecord = record.value as any;
+            if (followRecord?.subject && didsSet.has(followRecord.subject)) {
+              followedDids.add(followRecord.subject);
+            }
+          }
+
+          cursor = response.data.cursor;
+          hasMore = !!cursor;
+        }
+
+        // Add follow status to results
+        results.forEach((result) => {
+          result.actors = result.actors.map((actor: any) => ({
+            ...actor,
+            followStatus: {
+              [followLexicon]: followedDids.has(actor.did),
+            },
+          }));
+        });
+      } catch (error) {
+        console.error("Failed to check follow status during search:", error);
+        // Continue without follow status - non-critical
+      }
+    }
+
     return {
       statusCode: 200,
       headers: {

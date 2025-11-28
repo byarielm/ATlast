@@ -21,7 +21,8 @@ export interface AtprotoMatch {
   avatar?: string;
   matchScore: number;
   description?: string;
-  followed?: boolean;
+  followed?: boolean; // DEPRECATED - kept for backward compatibility
+  followStatus?: Record<string, boolean>;
   postCount?: number;
   followerCount?: number;
   foundAt?: string;
@@ -62,6 +63,7 @@ export interface BatchSearchResult {
 export interface BatchFollowResult {
   did: string;
   success: boolean;
+  alreadyFollowing?: boolean;
   error: string | null;
 }
 
