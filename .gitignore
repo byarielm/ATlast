@@ -7,3 +7,4 @@ dist/
 private-key.pem
 public-jwk.json
 keygen.js
+test-data/
