@@ -56,18 +56,19 @@ export async function storeAtprotoMatch(
   matchScore: number,
   postCount: number,
   followerCount: number,
+  followStatus?: Record<string, boolean>,
 ): Promise<number> {
   const sql = getDbClient();
   const result = await sql`
     INSERT INTO atproto_matches (
       source_account_id, atproto_did, atproto_handle,
       atproto_display_name, atproto_avatar, match_score,
-      post_count, follower_count
+      post_count, follower_count, follow_status
     )
     VALUES (
       ${sourceAccountId}, ${atprotoDid}, ${atprotoHandle},
       ${atprotoDisplayName || null}, ${atprotoAvatar || null}, ${matchScore},
-      ${postCount || 0}, ${followerCount || 0}
+      ${postCount || 0}, ${followerCount || 0}, ${JSON.stringify(followStatus || {})}
     )
     ON CONFLICT (source_account_id, atproto_did) DO UPDATE SET
       atproto_handle = ${atprotoHandle},
@@ -76,6 +77,7 @@ export async function storeAtprotoMatch(
       match_score = ${matchScore},
       post_count = ${postCount},
       follower_count = ${followerCount},
+      follow_status = COALESCE(atproto_matches.follow_status, '{}'::jsonb) || ${JSON.stringify(followStatus || {})},
       last_verified = NOW()
     RETURNING id
   `;
@@ -192,6 +194,7 @@ export async function bulkStoreAtprotoMatches(
     matchScore: number;
     postCount?: number;
     followerCount?: number;
+    followStatus?: Record<string, boolean>;
   }>,
 ): Promise<Map<string, number>> {
   const sql = getDbClient();
@@ -207,12 +210,13 @@ export async function bulkStoreAtprotoMatches(
   const matchScore = matches.map((m) => m.matchScore);
   const postCount = matches.map((m) => m.postCount || 0);
   const followerCount = matches.map((m) => m.followerCount || 0);
+  const followStatus = matches.map((m) => JSON.stringify(m.followStatus || {}));
 
   const result = await sql`
     INSERT INTO atproto_matches (
       source_account_id, atproto_did, atproto_handle,
       atproto_display_name, atproto_avatar, atproto_description,
-      match_score, post_count, follower_count
+      match_score, post_count, follower_count, follow_status
     )
     SELECT * FROM UNNEST(
       ${sourceAccountId}::integer[],
@@ -223,11 +227,12 @@ export async function bulkStoreAtprotoMatches(
       ${atprotoDescription}::text[],
       ${matchScore}::integer[],
       ${postCount}::integer[],
-      ${followerCount}::integer[]
+      ${followerCount}::integer[],
+      ${followStatus}::jsonb[]
     ) AS t(
       source_account_id, atproto_did, atproto_handle,
       atproto_display_name, atproto_avatar, match_score,
-      post_count, follower_count
+      post_count, follower_count, follow_status
     )
     ON CONFLICT (source_account_id, atproto_did) DO UPDATE SET
       atproto_handle = EXCLUDED.atproto_handle,
@@ -237,6 +242,7 @@ export async function bulkStoreAtprotoMatches(
       match_score = EXCLUDED.match_score,
       post_count = EXCLUDED.post_count,
       follower_count = EXCLUDED.follower_count,
+      follow_status = COALESCE(atproto_matches.follow_status, '{}'::jsonb) || EXCLUDED.follow_status,
       last_verified = NOW()
     RETURNING id, source_account_id, atproto_did
   `;

@@ -82,20 +82,22 @@ export const handler: Handler = async (
     // Fetch paginated results with optimized query
     const results = await sql`
       SELECT
-        sa.source_username,
-        sa.normalized_username,
-        usf.source_date,
-        am.atproto_did,
-        am.atproto_handle,
-        am.atproto_display_name,
-        am.atproto_avatar,
-        am.atproto_description,
-        am.match_score,
-        am.post_count,
-        am.follower_count,
-        am.found_at,
-        ums.followed,
-        ums.dismissed,
+      sa.source_username,
+      sa.normalized_username,
+      usf.source_date,
+      am.atproto_did,
+      am.atproto_handle,
+      am.atproto_display_name,
+      am.atproto_avatar,
+      am.atproto_description,
+      am.match_score,
+      am.post_count,
+      am.follower_count,
+      am.found_at,
+      am.follow_status,
+      am.last_follow_check,
+      ums.followed,
+      ums.dismissed,
         -- Calculate if this is a new match (found after upload creation)
         CASE WHEN am.found_at > uu.created_at THEN 1 ELSE 0 END as is_new_match
       FROM user_source_follows usf
@@ -153,6 +155,7 @@ export const handler: Handler = async (
           foundAt: row.found_at,
           followed: row.followed || false,
           dismissed: row.dismissed || false,
+          followStatus: row.follow_status || {},
         });
       }
     });

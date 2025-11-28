@@ -11,6 +11,7 @@ import { useFollow } from "./hooks/useFollows";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useTheme } from "./hooks/useTheme";
 import Firefly from "./components/Firefly";
+import { ATPROTO_APPS } from "./constants/atprotoApps";
 import { DEFAULT_SETTINGS } from "./types/settings";
 import type { UserSettings } from "./types/settings";
 
@@ -86,6 +87,8 @@ export default function App() {
       setCurrentStep("loading");
 
       const uploadId = crypto.randomUUID();
+      const followLexicon =
+        ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
 
       searchAllUsers(initialResults, setStatusMessage, () => {
         setCurrentStep("results");
@@ -302,6 +305,7 @@ export default function App() {
             isFollowing={isFollowing}
             currentStep={currentStep}
             sourcePlatform={currentPlatform}
+            destinationAppId={currentDestinationAppId}
             reducedMotion={reducedMotion}
             isDark={isDark}
             onToggleTheme={toggleTheme}

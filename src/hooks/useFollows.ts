@@ -13,6 +13,7 @@ export function useFollow(
   destinationAppId: AtprotoAppId,
 ) {
   const [isFollowing, setIsFollowing] = useState(false);
+  const [isCheckingFollowStatus, setIsCheckingFollowStatus] = useState(false);
 
   async function followSelectedUsers(
     onUpdate: (message: string) => void,
@@ -31,7 +32,7 @@ export function useFollow(
       return;
     }
 
-    // Follow users
+    // Get selected users
     const selectedUsers = searchResults.flatMap((result, resultIndex) =>
       result.atprotoMatches
         .filter((match) => result.selectedMatches?.has(match.did))
@@ -45,9 +46,60 @@ export function useFollow(
       return;
     }
 
+    // Check follow status before attempting to follow
+    setIsCheckingFollowStatus(true);
+    onUpdate(`Checking follow status for ${selectedUsers.length} users...`);
+
+    let followStatusMap: Record<string, boolean> = {};
+    try {
+      const dids = selectedUsers.map((u) => u.did);
+      followStatusMap = await apiClient.checkFollowStatus(dids, followLexicon);
+    } catch (error) {
+      console.error("Failed to check follow status:", error);
+      // Continue without filtering - backend will handle duplicates
+    } finally {
+      setIsCheckingFollowStatus(false);
+    }
+
+    // Filter out users already being followed
+    const usersToFollow = selectedUsers.filter(
+      (user) => !followStatusMap[user.did],
+    );
+    const alreadyFollowingCount = selectedUsers.length - usersToFollow.length;
+
+    if (alreadyFollowingCount > 0) {
+      onUpdate(
+        `${alreadyFollowingCount} user${alreadyFollowingCount > 1 ? "s" : ""} already followed. Following ${usersToFollow.length} remaining...`,
+      );
+
+      // Update UI to show already followed status
+      setSearchResults((prev) =>
+        prev.map((result) => ({
+          ...result,
+          atprotoMatches: result.atprotoMatches.map((match) => {
+            if (followStatusMap[match.did]) {
+              return {
+                ...match,
+                followStatus: {
+                  ...match.followStatus,
+                  [followLexicon]: true,
+                },
+              };
+            }
+            return match;
+          }),
+        })),
+      );
+    }
+
+    if (usersToFollow.length === 0) {
+      onUpdate("All selected users are already being followed!");
+      return;
+    }
+
     setIsFollowing(true);
     onUpdate(
-      `Following ${selectedUsers.length} users on ${destinationName}...`,
+      `Following ${usersToFollow.length} users on ${destinationName}...`,
     );
     let totalFollowed = 0;
     let totalFailed = 0;
@@ -55,8 +107,8 @@ export function useFollow(
     try {
       const { BATCH_SIZE } = FOLLOW_CONFIG;
 
-      for (let i = 0; i < selectedUsers.length; i += BATCH_SIZE) {
-        const batch = selectedUsers.slice(i, i + BATCH_SIZE);
+      for (let i = 0; i < usersToFollow.length; i += BATCH_SIZE) {
+        const batch = usersToFollow.slice(i, i + BATCH_SIZE);
         const dids = batch.map((user) => user.did);
 
         try {
@@ -77,7 +129,14 @@ export function useFollow(
                           atprotoMatches: searchResult.atprotoMatches.map(
                             (match) =>
                               match.did === result.did
-                                ? { ...match, followed: true }
+                                ? {
+                                    ...match,
+                                    followed: true, // Backward compatibility
+                                    followStatus: {
+                                      ...match.followStatus,
+                                      [followLexicon]: true,
+                                    },
+                                  }
                                 : match,
                           ),
                         }
@@ -89,7 +148,7 @@ export function useFollow(
           });
 
           onUpdate(
-            `Followed ${totalFollowed} of ${selectedUsers.length} users`,
+            `Followed ${totalFollowed} of ${usersToFollow.length} users`,
           );
         } catch (error) {
           totalFailed += batch.length;
@@ -99,7 +158,12 @@ export function useFollow(
         // Rate limit handling is in the backend
       }
 
-      const finalMsg = `Successfully followed ${totalFollowed} users${totalFailed > 0 ? `. ${totalFailed} failed.` : ""}`;
+      const finalMsg =
+        `Successfully followed ${totalFollowed} users` +
+        (alreadyFollowingCount > 0
+          ? ` (${alreadyFollowingCount} already followed)`
+          : "") +
+        (totalFailed > 0 ? `. ${totalFailed} failed.` : "");
       onUpdate(finalMsg);
     } catch (error) {
       console.error("Batch follow error:", error);
@@ -111,6 +175,7 @@ export function useFollow(
 
   return {
     isFollowing,
+    isCheckingFollowStatus,
     followSelectedUsers,
   };
 }

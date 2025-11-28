@@ -43,6 +43,7 @@ export function useSearch(session: AtprotoSession | null) {
     resultsToSearch: SearchResult[],
     onProgressUpdate: (message: string) => void,
     onComplete: () => void,
+    followLexicon?: string,
   ) {
     if (!session || resultsToSearch.length === 0) return;
 
@@ -80,7 +81,10 @@ export function useSearch(session: AtprotoSession | null) {
       );
 
       try {
-        const data = await apiClient.batchSearchActors(usernames);
+        const data = await apiClient.batchSearchActors(
+          usernames,
+          followLexicon,
+        );
 
         // Reset error counter on success
         consecutiveErrors = 0;

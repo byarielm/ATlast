@@ -1,5 +1,6 @@
 import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
 import { SessionManager } from "./session-manager";
+import { getDbClient } from "./db";
 import cookie from "cookie";
 
 export const handler: Handler = async (
@@ -57,12 +58,72 @@ export const handler: Handler = async (
     const { agent, did: userDid } =
       await SessionManager.getAgentForSession(sessionId);
 
+    // Check existing follows before attempting to follow
+    const alreadyFollowing = new Set<string>();
+    try {
+      let cursor: string | undefined = undefined;
+      let hasMore = true;
+      const didsSet = new Set(dids);
+
+      while (hasMore && didsSet.size > 0) {
+        const response = await agent.api.com.atproto.repo.listRecords({
+          repo: userDid,
+          collection: followLexicon,
+          limit: 100,
+          cursor,
+        });
+
+        for (const record of response.data.records) {
+          const followRecord = record.value as any;
+          if (followRecord?.subject && didsSet.has(followRecord.subject)) {
+            alreadyFollowing.add(followRecord.subject);
+            didsSet.delete(followRecord.subject);
+          }
+        }
+
+        cursor = response.data.cursor;
+        hasMore = !!cursor;
+
+        if (didsSet.size === 0) {
+          break;
+        }
+      }
+    } catch (error) {
+      console.error("Error checking existing follows:", error);
+      // Continue - we'll handle duplicates in the follow loop
+    }
+
     // Follow all users
     const results = [];
     let consecutiveErrors = 0;
     const MAX_CONSECUTIVE_ERRORS = 3;
+    const sql = getDbClient();
 
     for (const did of dids) {
+      // Skip if already following
+      if (alreadyFollowing.has(did)) {
+        results.push({
+          did,
+          success: true,
+          alreadyFollowing: true,
+          error: null,
+        });
+
+        // Update database follow status
+        try {
+          await sql`
+            UPDATE atproto_matches
+            SET follow_status = follow_status || jsonb_build_object(${followLexicon}, true),
+                last_follow_check = NOW()
+            WHERE atproto_did = ${did}
+          `;
+        } catch (dbError) {
+          console.error("Failed to update follow status in DB:", dbError);
+        }
+
+        continue;
+      }
+
       try {
         await agent.api.com.atproto.repo.createRecord({
           repo: userDid,
@@ -77,8 +138,21 @@ export const handler: Handler = async (
         results.push({
           did,
           success: true,
+          alreadyFollowing: false,
           error: null,
         });
+
+        // Update database follow status
+        try {
+          await sql`
+            UPDATE atproto_matches
+            SET follow_status = follow_status || jsonb_build_object(${followLexicon}, true),
+                last_follow_check = NOW()
+            WHERE atproto_did = ${did}
+          `;
+        } catch (dbError) {
+          console.error("Failed to update follow status in DB:", dbError);
+        }
 
         // Reset error counter on success
         consecutiveErrors = 0;
@@ -88,6 +162,7 @@ export const handler: Handler = async (
         results.push({
           did,
           success: false,
+          alreadyFollowing: false,
           error: error instanceof Error ? error.message : "Follow failed",
         });
 
@@ -112,6 +187,9 @@ export const handler: Handler = async (
 
     const successCount = results.filter((r) => r.success).length;
     const failCount = results.filter((r) => !r.success).length;
+    const alreadyFollowingCount = results.filter(
+      (r) => r.alreadyFollowing,
+    ).length;
 
     return {
       statusCode: 200,
@@ -124,6 +202,7 @@ export const handler: Handler = async (
         total: dids.length,
         succeeded: successCount,
         failed: failCount,
+        alreadyFollowing: alreadyFollowingCount,
         results,
       }),
     };

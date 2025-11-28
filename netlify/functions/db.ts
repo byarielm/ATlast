@@ -108,6 +108,8 @@ export async function initDB() {
       found_at TIMESTAMP DEFAULT NOW(),
       last_verified TIMESTAMP,
       is_active BOOLEAN DEFAULT TRUE,
+      follow_status JSONB DEFAULT '{}',
+      last_follow_check TIMESTAMP,
       UNIQUE(source_account_id, atproto_did)
     )
   `;
@@ -143,8 +145,6 @@ export async function initDB() {
     )
   `;
 
-  // ==================== ENHANCED INDEXES FOR PHASE 2 ====================
-
   // Existing indexes
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_to_check ON source_accounts(source_platform, match_found, last_checked)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_platform ON source_accounts(source_platform)`;
@@ -156,7 +156,7 @@ export async function initDB() {
   await sql`CREATE INDEX IF NOT EXISTS idx_user_match_status_did_followed ON user_match_status(did, followed)`;
   await sql`CREATE INDEX IF NOT EXISTS idx_notification_queue_pending ON notification_queue(sent, created_at) WHERE sent = false`;
 
-  // NEW: Enhanced indexes for common query patterns
+  // ======== Enhanced indexes for common query patterns =========
 
   // For sorting
   await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_stats ON atproto_matches(source_account_id, found_at DESC, post_count DESC, follower_count DESC)`;
@@ -183,6 +183,10 @@ export async function initDB() {
 
   // For bulk operations - normalized username lookups
   await sql`CREATE INDEX IF NOT EXISTS idx_source_accounts_normalized ON source_accounts(normalized_username, source_platform)`;
+
+  // Follow status indexes
+  await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_follow_status ON atproto_matches USING gin(follow_status)`;
+  await sql`CREATE INDEX IF NOT EXISTS idx_atproto_matches_follow_check ON atproto_matches(last_follow_check)`;
 
   console.log("✅ Database indexes created/verified");
 }

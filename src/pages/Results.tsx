@@ -2,6 +2,7 @@ import { Sparkles, Heart } from "lucide-react";
 import { PLATFORMS } from "../constants/platforms";
 import AppHeader from "../components/AppHeader";
 import SearchResultCard from "../components/SearchResultCard";
+import type { AtprotoAppId } from "../types/settings";
 
 interface atprotoSession {
   did: string;
@@ -41,6 +42,7 @@ interface ResultsPageProps {
   isFollowing: boolean;
   currentStep: string;
   sourcePlatform: string;
+  destinationAppId: AtprotoAppId;
   reducedMotion?: boolean;
   isDark?: boolean;
   onToggleTheme?: () => void;
@@ -63,6 +65,7 @@ export default function ResultsPage({
   isFollowing,
   currentStep,
   sourcePlatform,
+  destinationAppId,
   reducedMotion = false,
   isDark = false,
   onToggleTheme,
@@ -185,6 +188,7 @@ export default function ResultsPage({
                   onToggleMatchSelection(originalIndex, did)
                 }
                 sourcePlatform={sourcePlatform}
+                destinationAppId={destinationAppId}
               />
             );
           })}
