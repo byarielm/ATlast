@@ -162,7 +162,7 @@ export default function SettingsPage({
                 className="flex items-center justify-between px-3 py-2 rounded-xl transition-colors"
               >
                 <div className="flex items-center space-x-3 flex-1">
-                  <Icon className="w-6 h-6 text-purple-950 dark:text-cyan-50 flex-shrink-0" />
+                  <Icon className="w-4 h-4 text-purple-950 dark:text-cyan-50 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <div className="font-medium text-purple-950 dark:text-cyan-50">
                       {p.name}

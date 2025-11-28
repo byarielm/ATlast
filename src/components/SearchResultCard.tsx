@@ -118,16 +118,18 @@ export default function SearchResultCard({
 
                   {/* User Stats and Match Percent */}
                   <div className="flex items-center flex-wrap gap-2">
-                    {match.postCount && match.postCount > 0 && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
-                        {match.postCount.toLocaleString()} posts
-                      </span>
-                    )}
-                    {match.followerCount && match.followerCount > 0 && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
-                        {match.followerCount.toLocaleString()} followers
-                      </span>
-                    )}
+                    {typeof match.postCount === "number" &&
+                      match.postCount > 0 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
+                          {match.postCount.toLocaleString()} posts
+                        </span>
+                      )}
+                    {typeof match.followerCount === "number" &&
+                      match.followerCount > 0 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
+                          {match.followerCount.toLocaleString()} followers
+                        </span>
+                      )}
                     <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
                       {match.matchScore}% match
                     </span>

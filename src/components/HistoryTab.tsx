@@ -45,7 +45,7 @@ export default function HistoryTab({
     <div className="p-6">
       {/* Setup Assistant Banner - Only show if wizard not completed */}
       {!wizardCompleted && (
-        <div className="bg-firefly-banner-dark dark:bg-firefly-banner-dark rounded-2xl p-6 text-white">
+        <div className="bg-firefly-banner-dark dark:bg-firefly-banner-dark rounded-2xl p-6 text-white mb-3">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex-1">
               <h2 className="text-2xl font-bold mb-2">
@@ -67,7 +67,7 @@ export default function HistoryTab({
         </div>
       )}
 
-      <div className="flex items-center space-x-3 mt-3 mb-4">
+      <div className="flex items-center space-x-3 mb-4">
         <div>
           <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
             Previously Uploaded
@@ -171,7 +171,7 @@ export default function HistoryTab({
                       <span>{destApp.name}</span>
                     </a>
                   )}
-                  <div className="flex items-center flex-wrap gap-2">
+                  <div className="flex items-center flex-wrap gap-2 py-1.5">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
                       {upload.totalUsers}{" "}
                       {upload.totalUsers === 1 ? "user found" : "users found"}

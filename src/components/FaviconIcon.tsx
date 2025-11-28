@@ -1,34 +1,50 @@
+// FaviconIcon.tsx (Conceptual Component Update)
+
 import { useState } from "react";
-import { Globe, Settings as SettingsIcon } from "lucide-react";
+import { Globe } from "lucide-react";
 
 interface FaviconIconProps {
   url: string;
   alt: string;
   className?: string;
+  useButtonStyling?: boolean; // ⬅️ NEW OPTIONAL PROP
 }
 
-export default function FaviconIcon({ url, alt, className }: FaviconIconProps) {
-  const [loaded, setLoaded] = useState(false);
+export default function FaviconIcon({
+  url,
+  alt,
+  className,
+  useButtonStyling = false,
+}: FaviconIconProps) {
   const [error, setError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  // Define the base classes (applied to the image itself)
+  const imageClasses = "w-full h-full object-contain";
+
+  // Define the special button classes conditionally
+  const boundaryClasses = useButtonStyling
+    ? "bg-white p-1 rounded-full shadow-md flex items-center justify-center"
+    : ""; // No special styling by default
+
+  // Combine the passed-in class name (for size) with the conditional boundary classes
+  const finalWrapperClasses = `${className || "w-4 h-4"} ${boundaryClasses}`;
 
   if (error) {
     return (
-      <Globe
-        className={
-          className || "w-4 h-4 text-neutral-400 dark:text-neutral-500"
-        }
-      />
+      <div className={`${finalWrapperClasses}`}>
+        <Globe className={`${imageClasses} text-neutral-500`} />
+      </div>
     );
   }
 
   return (
-    <>
-      {/* Fallback/Placeholder */}
+    // Use the final combined classes on the wrapper
+    <div className={finalWrapperClasses}>
+      {/* Placeholder while loading */}
       {!loaded && (
         <Globe
-          className={
-            className || "w-4 h-4 text-neutral-400 dark:text-neutral-500"
-          }
+          className={`${imageClasses} text-neutral-400 dark:text-neutral-500`}
         />
       )}
 
@@ -36,8 +52,7 @@ export default function FaviconIcon({ url, alt, className }: FaviconIconProps) {
       <img
         src={url}
         alt={`${alt} favicon`}
-        className={className || "h-4 w-4"}
-        // Use inline style to show only when loaded, preventing a broken image icon flicker
+        className={imageClasses}
         style={{ display: loaded ? "block" : "none" }}
         onLoad={() => {
           setLoaded(true);
@@ -47,6 +62,6 @@ export default function FaviconIcon({ url, alt, className }: FaviconIconProps) {
           setError(true);
         }}
       />
-    </>
+    </div>
   );
 }

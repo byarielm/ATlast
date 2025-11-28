@@ -31,8 +31,8 @@ export default function UploadTab({
     <div className="p-6">
       {/* Upload Section */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
+          <div className="flex items-center space-x-3 mb-2 sm:mb-0">
             <div>
               <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
                 Upload Following Data
@@ -42,13 +42,13 @@ export default function UploadTab({
               </p>
             </div>
           </div>
-          {wizardCompleted && (
+          {!wizardCompleted && (
             <button
               onClick={onShowWizard}
-              className="text-sm text-orange-650 hover:text-orange-500 dark:text-amber-400 dark:hover:text-amber-300 font-medium transition-colors flex items-center space-x-1"
+              className="text-md text-orange-650 hover:text-orange-500 dark:text-amber-400 dark:hover:text-amber-300 font-medium transition-colors flex items-center space-x-1"
             >
               <Settings className="w-4 h-4" />
-              <span>Reconfigure</span>
+              <span>Configure</span>
             </button>
           )}
         </div>

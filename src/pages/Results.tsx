@@ -1,7 +1,9 @@
 import { Sparkles, Heart } from "lucide-react";
 import { PLATFORMS } from "../constants/platforms";
+import { ATPROTO_APPS } from "../constants/atprotoApps";
 import AppHeader from "../components/AppHeader";
 import SearchResultCard from "../components/SearchResultCard";
+import FaviconIcon from "../components/FaviconIcon";
 import type { AtprotoAppId } from "../types/settings";
 
 interface atprotoSession {
@@ -73,6 +75,7 @@ export default function ResultsPage({
 }: ResultsPageProps) {
   const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
   const PlatformIcon = platform.icon;
+  const destinationApp = ATPROTO_APPS[destinationAppId];
 
   return (
     <div className="min-h-screen pb-24">
@@ -203,10 +206,15 @@ export default function ResultsPage({
               disabled={isFollowing}
               className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              <Sparkles className="w-6 h-6" />
+              <FaviconIcon
+                url={destinationApp.icon}
+                alt={destinationApp.name}
+                className="w-5 h-5"
+                useButtonStyling={true}
+              />
               <span>
                 Light Up {totalSelected} Connection
-                {totalSelected === 1 ? "" : "s"} ✨
+                {totalSelected === 1 ? "" : "s"}
               </span>
             </button>
           </div>
