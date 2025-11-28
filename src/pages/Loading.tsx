@@ -64,8 +64,8 @@ export default function LoadingPage({
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative w-14 h-14">
-                <PlatformIcon className="w-12 h-12" />
+              <div className="relative w-12 h-12">
+                <PlatformIcon className="w-10 h-10" />
               </div>
               <div>
                 <h2 className="text-xl font-bold">Finding Your Fireflies</h2>

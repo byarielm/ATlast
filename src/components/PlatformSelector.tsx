@@ -26,7 +26,7 @@ export default function PlatformSelector({
             title={isEnabled ? `Upload ${p.name} data` : "Coming soon"}
           >
             <PlatformIcon
-              className={`w-8 h-8 mx-auto mb-2 ${isEnabled ? "text-purple-750 dark:text-cyan-250" : "text-purple-750/50 dark:text-cyan-250/50"}`}
+              className={`w-6 h-6 mx-auto mb-2 ${isEnabled ? "text-purple-750 dark:text-cyan-250" : "text-purple-750/50 dark:text-cyan-250/50"}`}
             />
             <div className="text-sm font-medium text-center text-purple-900 dark:text-cyan-100">
               {p.name}
