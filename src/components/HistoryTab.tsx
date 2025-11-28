@@ -1,6 +1,7 @@
 import { Upload, Sparkles, ChevronRight, Database } from "lucide-react";
 import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { Upload as UploadType } from "../types";
+import FaviconIcon from "../components/FaviconIcon";
 import type { UserSettings } from "../types/settings";
 
 interface HistoryTabProps {
@@ -157,9 +158,17 @@ export default function HistoryTab({
                       href={destApp.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight"
+                      className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight flex items-center space-x-1"
                     >
-                      {destApp.action} on {destApp.icon} {destApp.name}
+                      <span>{destApp.action} on</span>
+
+                      <FaviconIcon
+                        url={destApp.icon}
+                        alt={destApp.name}
+                        className="w-3 h-3 mb-0.5 flex-shrink-0"
+                      />
+
+                      <span>{destApp.name}</span>
                     </a>
                   )}
                   <div className="flex items-center flex-wrap gap-2">

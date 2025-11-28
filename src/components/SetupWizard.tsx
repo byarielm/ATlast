@@ -211,7 +211,7 @@ export default function SetupWizard({
                       >
                         {Object.values(ATPROTO_APPS).map((app) => (
                           <option key={app.id} value={app.id}>
-                            {app.icon} {app.name}
+                            {app.name}
                           </option>
                         ))}
                       </select>
