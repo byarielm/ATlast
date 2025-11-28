@@ -8,6 +8,7 @@ export const ATPROTO_APPS: Record<string, AtprotoApp> = {
     link: "https://bsky.app/",
     icon: "🦋",
     action: "Follow",
+    followLexicon: "app.bsky.graph.follow",
     enabled: true,
   },
   tangled: {
@@ -17,7 +18,8 @@ export const ATPROTO_APPS: Record<string, AtprotoApp> = {
     link: "https://tangled.org/",
     icon: "🐑",
     action: "Follow",
-    enabled: false, // Not yet integrated
+    followLexicon: "sh.tangled.graph.follow",
+    enabled: true,
   },
   spark: {
     id: "spark",
@@ -26,7 +28,8 @@ export const ATPROTO_APPS: Record<string, AtprotoApp> = {
     link: "https://sprk.so/",
     icon: "✨",
     action: "Follow",
-    enabled: false, // Not yet integrated
+    followLexicon: "so.sprk.graph.follow",
+    enabled: true,
   },
   lists: {
     id: "bsky list",
@@ -35,6 +38,7 @@ export const ATPROTO_APPS: Record<string, AtprotoApp> = {
     link: "https://bsky.app/",
     icon: "📃",
     action: "Add to",
+    followLexicon: "app.bsky.graph.follow",
     enabled: false, // Not yet implemented
   },
 };

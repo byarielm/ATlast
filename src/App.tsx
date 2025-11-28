@@ -64,11 +64,17 @@ export default function App() {
     totalFound,
   } = useSearch(session);
 
+  const currentDestinationAppId =
+    userSettings.platformDestinations[
+      currentPlatform as keyof UserSettings["platformDestinations"]
+    ];
+
   // Follow hook
   const { isFollowing, followSelectedUsers } = useFollow(
     session,
     searchResults,
     setSearchResults,
+    currentDestinationAppId,
   );
 
   // File upload hook

@@ -18,6 +18,7 @@ export const handler: Handler = async (
     // Parse request body
     const body = JSON.parse(event.body || "{}");
     const dids: string[] = body.dids || [];
+    const followLexicon: string = body.followLexicon || "app.bsky.graph.follow";
 
     if (!Array.isArray(dids) || dids.length === 0) {
       return {
@@ -65,9 +66,9 @@ export const handler: Handler = async (
       try {
         await agent.api.com.atproto.repo.createRecord({
           repo: userDid,
-          collection: "app.bsky.graph.follow",
+          collection: followLexicon,
           record: {
-            $type: "app.bsky.graph.follow",
+            $type: followLexicon,
             subject: did,
             createdAt: new Date().toISOString(),
           },
