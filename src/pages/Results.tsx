@@ -1,4 +1,5 @@
-import { Sparkles, Heart } from "lucide-react";
+import { Sparkles } from "lucide-react";
+import { useMemo } from "react";
 import { PLATFORMS } from "../constants/platforms";
 import { ATPROTO_APPS } from "../constants/atprotoApps";
 import AppHeader from "../components/AppHeader";
@@ -76,6 +77,32 @@ export default function ResultsPage({
   const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
   const PlatformIcon = platform.icon;
   const destinationApp = ATPROTO_APPS[destinationAppId];
+
+  // Memoize sorted results to avoid re-sorting on every render
+  const sortedResults = useMemo(() => {
+    return [...searchResults].sort((a, b) => {
+      // 1. Users with matches first
+      const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
+      const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
+      if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
+
+      // 2. For matched users, sort by highest posts count of their top match
+      if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
+        const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
+        const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
+        if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
+
+        // 3. Then by followers count
+        const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
+        const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
+        if (aTopFollowers !== bTopFollowers)
+          return bTopFollowers - aTopFollowers;
+      }
+
+      // 4. Username as tiebreaker
+      return a.sourceUser.username.localeCompare(b.sourceUser.username);
+    });
+  }, [searchResults]);
 
   return (
     <div className="min-h-screen pb-24">
@@ -155,46 +182,26 @@ export default function ResultsPage({
 
       {/* Feed Results */}
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-        {[...searchResults]
-          .sort((a, b) => {
-            // Sort logic here, match sortSearchResults function
-            const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
-            const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
-            if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
-
-            if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
-              const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
-              const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
-              if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
-
-              const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
-              const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
-              if (aTopFollowers !== bTopFollowers)
-                return bTopFollowers - aTopFollowers;
-            }
-
-            return a.sourceUser.username.localeCompare(b.sourceUser.username);
-          })
-          .map((result, idx) => {
-            // Find the original index in unsorted array
-            const originalIndex = searchResults.findIndex(
-              (r) => r.sourceUser.username === result.sourceUser.username,
-            );
-            return (
-              <SearchResultCard
-                key={originalIndex}
-                result={result}
-                resultIndex={originalIndex} // Use original index for state updates
-                isExpanded={expandedResults.has(originalIndex)}
-                onToggleExpand={() => onToggleExpand(originalIndex)}
-                onToggleMatchSelection={(did) =>
-                  onToggleMatchSelection(originalIndex, did)
-                }
-                sourcePlatform={sourcePlatform}
-                destinationAppId={destinationAppId}
-              />
-            );
-          })}
+        {sortedResults.map((result) => {
+          // Find the original index in unsorted array for state updates
+          const originalIndex = searchResults.findIndex(
+            (r) => r.sourceUser.username === result.sourceUser.username,
+          );
+          return (
+            <SearchResultCard
+              key={originalIndex}
+              result={result}
+              resultIndex={originalIndex}
+              isExpanded={expandedResults.has(originalIndex)}
+              onToggleExpand={() => onToggleExpand(originalIndex)}
+              onToggleMatchSelection={(did) =>
+                onToggleMatchSelection(originalIndex, did)
+              }
+              sourcePlatform={sourcePlatform}
+              destinationAppId={destinationAppId}
+            />
+          );
+        })}
       </div>
 
       {/* Fixed Bottom Action Bar */}
