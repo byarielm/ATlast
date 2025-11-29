@@ -121,12 +121,6 @@ export const apiClient = {
     return data;
   },
 
-  async getProfile(): Promise<AtprotoSession> {
-    // This is now redundant - getSession returns profile data
-    // Keeping for backwards compatibility but it just calls getSession
-    return this.getSession();
-  },
-
   async logout(): Promise<void> {
     const res = await fetch("/.netlify/functions/logout", {
       method: "POST",

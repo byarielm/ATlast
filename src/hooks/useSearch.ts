@@ -3,30 +3,6 @@ import { apiClient } from "../lib/apiClient";
 import { SEARCH_CONFIG } from "../constants/platforms";
 import type { SearchResult, SearchProgress, AtprotoSession } from "../types";
 
-function sortSearchResults(results: SearchResult[]): SearchResult[] {
-  return [...results].sort((a, b) => {
-    // 1. Users with matches first
-    const aHasMatches = a.atprotoMatches.length > 0 ? 0 : 1;
-    const bHasMatches = b.atprotoMatches.length > 0 ? 0 : 1;
-    if (aHasMatches !== bHasMatches) return aHasMatches - bHasMatches;
-
-    // 2. For matched users, sort by highest posts count of their top match
-    if (a.atprotoMatches.length > 0 && b.atprotoMatches.length > 0) {
-      const aTopPosts = a.atprotoMatches[0]?.postCount || 0;
-      const bTopPosts = b.atprotoMatches[0]?.postCount || 0;
-      if (aTopPosts !== bTopPosts) return bTopPosts - aTopPosts;
-
-      // 3. Then by followers count
-      const aTopFollowers = a.atprotoMatches[0]?.followerCount || 0;
-      const bTopFollowers = b.atprotoMatches[0]?.followerCount || 0;
-      if (aTopFollowers !== bTopFollowers) return bTopFollowers - aTopFollowers;
-    }
-
-    // 4. Username as tiebreaker
-    return a.sourceUser.username.localeCompare(b.sourceUser.username);
-  });
-}
-
 export function useSearch(session: AtprotoSession | null) {
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isSearchingAll, setIsSearchingAll] = useState(false);

@@ -1,9 +1,5 @@
 import JSZip from "jszip";
-import {
-  ParseRule,
-  getRulesForPlatform,
-  FileFormat,
-} from "./platformDefinitions";
+import { ParseRule, getRulesForPlatform } from "./platformDefinitions";
 import { parseContent } from "./parserLogic";
 
 // Type for the final aggregated results

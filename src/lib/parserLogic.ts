@@ -1,4 +1,4 @@
-import { ParseRule, FileFormat } from "./platformDefinitions";
+import { ParseRule } from "./platformDefinitions";
 
 /**
  * Parses content using a regular expression.

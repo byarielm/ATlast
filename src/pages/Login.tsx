@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Heart, Upload, Search, ArrowRight, Sparkles } from "lucide-react";
+import { Heart, Upload, Search, ArrowRight } from "lucide-react";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
 
 interface LoginPageProps {
