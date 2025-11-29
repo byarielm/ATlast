@@ -1,11 +1,4 @@
-import {
-  Settings as SettingsIcon,
-  Sparkles,
-  Shield,
-  Trash2,
-  Download,
-  ChevronRight,
-} from "lucide-react";
+import { Settings as SettingsIcon, ChevronRight } from "lucide-react";
 import { PLATFORMS } from "../constants/platforms";
 import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { UserSettings, PlatformDestinations } from "../types/settings";
@@ -28,32 +21,6 @@ export default function SettingsPage({
         [platform]: destination,
       },
     });
-  };
-
-  const handleExportSettings = () => {
-    const dataStr = JSON.stringify(userSettings, null, 2);
-    const dataUri =
-      "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-    const exportFileDefaultName = "atlast-settings.json";
-
-    const linkElement = document.createElement("a");
-    linkElement.setAttribute("href", dataUri);
-    linkElement.setAttribute("download", exportFileDefaultName);
-    linkElement.click();
-  };
-
-  const handleResetSettings = () => {
-    if (
-      confirm(
-        "Are you sure you want to reset all settings to defaults? This cannot be undone.",
-      )
-    ) {
-      const { DEFAULT_SETTINGS } = require("../types/settings");
-      onSettingsUpdate({
-        ...DEFAULT_SETTINGS,
-        wizardCompleted: true,
-      });
-    }
   };
 
   return (
@@ -275,42 +242,6 @@ export default function SettingsPage({
               </div>
             )}
           </div>
-
-          {/* Export Settings Button */}
-          {/*<button
-            onClick={handleExportSettings}
-            className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/30 dark:border-amber-400/30 hover:border-orange-500 dark:hover:border-orange-400 shadow-md hover:shadow-lg"
-          >
-            <div className="w-12 h-12 bg-gradient-to-r from-gray-400 to-gray-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-              <Download className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-purple-950 dark:text-cyan-50 leading-tight mb-1">
-                Export Settings
-              </div>
-              <p className="text-sm text-purple-750 dark:text-cyan-250 leading-tight">
-                Download your settings as a JSON file
-              </p>
-            </div>
-          </button>*/}
-
-          {/* Delete Data Button */}
-          {/*<button
-            onClick={handleResetSettings}
-            className="w-full flex items-start space-x-4 p-4 bg-red-50/50 dark:bg-red-900/20 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl transition-all text-left border-2 border-red-200/50 dark:border-red-800/50 hover:border-red-400 dark:hover:border-red-600 shadow-md hover:shadow-lg"
-          >
-            <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-red-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
-              <Trash2 className="w-6 h-6 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-semibold text-red-700 dark:text-red-400 leading-tight mb-1">
-                Reset All Settings
-              </div>
-              <p className="text-sm text-red-600 dark:text-red-300 leading-tight">
-                Restore all settings to default values
-              </p>
-            </div>
-          </button>*/}
         </div>
       </div>
     </div>

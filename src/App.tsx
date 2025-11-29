@@ -53,7 +53,6 @@ export default function App() {
   const {
     searchResults,
     setSearchResults,
-    isSearchingAll,
     searchProgress,
     expandedResults,
     searchAllUsers,

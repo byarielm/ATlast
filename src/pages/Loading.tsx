@@ -1,4 +1,3 @@
-import { Search, Sparkles } from "lucide-react";
 import AppHeader from "../components/AppHeader";
 import { PLATFORMS } from "../constants/platforms";
 

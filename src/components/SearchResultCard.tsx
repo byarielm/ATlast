@@ -1,5 +1,4 @@
 import {
-  Video,
   MessageCircle,
   Check,
   UserPlus,
