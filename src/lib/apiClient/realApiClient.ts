@@ -68,6 +68,18 @@ class ResponseCache {
 
 const cache = new ResponseCache();
 
+/**
+ * Unwrap the standardized API response format
+ * New format: { success: true, data: {...} }
+ * Old format: direct data
+ */
+function unwrapResponse<T>(response: any): T {
+  if (response.success !== undefined && response.data !== undefined) {
+    return response.data as T;
+  }
+  return response as T;
+}
+
 export const apiClient = {
   // OAuth and Authentication
   async startOAuth(handle: string): Promise<{ url: string }> {
@@ -87,7 +99,8 @@ export const apiClient = {
       throw new Error(errorData.error || "Failed to start OAuth flow");
     }
 
-    return res.json();
+    const response = await res.json();
+    return unwrapResponse<{ url: string }>(response);
   },
 
   async getSession(): Promise<{
@@ -113,7 +126,8 @@ export const apiClient = {
       throw new Error("No valid session");
     }
 
-    const data = await res.json();
+    const response = await res.json();
+    const data = unwrapResponse<AtprotoSession>(response);
 
     // Cache the session data for 5 minutes
     cache.set(cacheKey, data, 5 * 60 * 1000);
@@ -162,7 +176,8 @@ export const apiClient = {
       throw new Error("Failed to fetch uploads");
     }
 
-    const data = await res.json();
+    const response = await res.json();
+    const data = unwrapResponse<any>(response);
 
     // Cache uploads list for 2 minutes
     cache.set(cacheKey, data, 2 * 60 * 1000);
@@ -207,7 +222,8 @@ export const apiClient = {
       throw new Error("Failed to fetch upload details");
     }
 
-    const data = await res.json();
+    const response = await res.json();
+    const data = unwrapResponse<any>(response);
 
     // Cache upload details page for 10 minutes
     cache.set(cacheKey, data, 10 * 60 * 1000);
@@ -265,7 +281,10 @@ export const apiClient = {
       throw new Error("Failed to check follow status");
     }
 
-    const data = await res.json();
+    const response = await res.json();
+    const data = unwrapResponse<{ followStatus: Record<string, boolean> }>(
+      response,
+    );
 
     // Cache for 2 minutes
     cache.set(cacheKey, data.followStatus, 2 * 60 * 1000);
@@ -301,7 +320,8 @@ export const apiClient = {
       throw new Error(`Batch search failed: ${res.status}`);
     }
 
-    const data = await res.json();
+    const response = await res.json();
+    const data = unwrapResponse<{ results: BatchSearchResult[] }>(response);
 
     // Cache search results for 10 minutes
     cache.set(cacheKey, data, 10 * 60 * 1000);
@@ -332,7 +352,8 @@ export const apiClient = {
       throw new Error("Batch follow failed");
     }
 
-    const data = await res.json();
+    const response = await res.json();
+    const data = unwrapResponse<any>(response);
 
     // Invalidate caches after following
     cache.invalidate("uploads");
@@ -370,7 +391,8 @@ export const apiClient = {
       });
 
       if (res.ok) {
-        const data = await res.json();
+        const response = await res.json();
+        const data = unwrapResponse<SaveResultsResponse>(response);
         console.log(`Successfully saved ${data.matchedUsers} matches`);
 
         // Invalidate caches after saving

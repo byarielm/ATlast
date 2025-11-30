@@ -4,12 +4,17 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/oauth-client-metadata.json"
+  to = "/.netlify/functions/client-metadata"
+  status = 200
+
+[[redirects]]
   from = "/oauth/callback"
   to = "/.netlify/functions/oauth-callback"
   status = 200
 
 [[headers]]
-  for = "/client-metadata.json"
+  for = "/oauth-client-metadata.json"
   [headers.values]
     Access-Control-Allow-Origin = "*"
     Cache-Control = "public, max-age=3600"
