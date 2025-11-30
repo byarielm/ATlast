@@ -3,8 +3,8 @@ import {
   atprotoLoopbackClientMetadata,
 } from "@atproto/oauth-client-node";
 import { JoseKey } from "@atproto/jwk-jose";
-import { stateStore, sessionStore } from "./oauth-stores-db";
-import { getOAuthConfig } from "./oauth-config";
+import { stateStore, sessionStore } from "../session/stores";
+import { getOAuthConfig } from "./config";
 
 function normalizePrivateKey(key: string): string {
   if (!key.includes("\n") && key.includes("\\n")) {
@@ -16,9 +16,11 @@ function normalizePrivateKey(key: string): string {
 /**
  * Creates and returns a configured OAuth client based on environment
  * Centralizes the client creation logic used across all endpoints
- */
-export async function createOAuthClient(): Promise<NodeOAuthClient> {
-  const config = getOAuthConfig();
+ **/
+export async function createOAuthClient(event?: {
+  headers: Record<string, string | undefined>;
+}): Promise<NodeOAuthClient> {
+  const config = getOAuthConfig(event);
   const isDev = config.clientType === "loopback";
 
   if (isDev) {
