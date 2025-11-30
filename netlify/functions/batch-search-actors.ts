@@ -3,6 +3,7 @@ import { SessionService } from "./shared/services/session";
 import { successResponse } from "./shared/utils";
 import { withAuthErrorHandling } from "./shared/middleware";
 import { ValidationError } from "./shared/constants/errors";
+import { normalize } from "./shared/utils/string.utils";
 
 const batchSearchHandler: AuthenticatedHandler = async (context) => {
   // Parse batch request
@@ -32,7 +33,6 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
       });
 
       // Filter and rank matches
-      const normalize = (s: string) => s.toLowerCase().replace(/[._-]/g, "");
       const normalizedUsername = normalize(username);
 
       const rankedActors = response.data.actors

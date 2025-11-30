@@ -5,6 +5,7 @@ import {
   MatchRepository,
 } from "./shared/repositories";
 import { successResponse } from "./shared/utils";
+import { normalize } from "./shared/utils";
 import { withAuthErrorHandling } from "./shared/middleware";
 import { ValidationError } from "./shared/constants/errors";
 
@@ -98,9 +99,7 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
   // BULK OPERATION 2: Link all users to source accounts
   const links = results
     .map((result) => {
-      const normalized = result.sourceUser.username
-        .toLowerCase()
-        .replace(/[._-]/g, "");
+      const normalized = normalize(result.sourceUser.username);
       const sourceAccountId = sourceAccountIdMap.get(normalized);
       return {
         sourceAccountId: sourceAccountId!,
@@ -127,9 +126,7 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
   const matchedSourceAccountIds: number[] = [];
 
   for (const result of results) {
-    const normalized = result.sourceUser.username
-      .toLowerCase()
-      .replace(/[._-]/g, "");
+    const normalized = normalize(result.sourceUser.username);
     const sourceAccountId = sourceAccountIdMap.get(normalized);
 
     if (

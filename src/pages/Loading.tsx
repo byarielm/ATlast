@@ -1,5 +1,5 @@
 import AppHeader from "../components/AppHeader";
-import { PLATFORMS } from "../constants/platforms";
+import { getPlatform } from "../lib/utils/platform";
 
 interface atprotoSession {
   did: string;
@@ -40,7 +40,7 @@ export default function LoadingPage({
   onToggleTheme,
   onToggleMotion,
 }: LoadingPageProps) {
-  const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
+  const platform = getPlatform(sourcePlatform);
   const PlatformIcon = platform.icon;
 
   return (

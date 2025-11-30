@@ -1,8 +1,19 @@
 import { OAuthConfig } from "../../types";
+import { configCache } from "../../utils/cache.utils";
 
 export function getOAuthConfig(event?: {
   headers: Record<string, string | undefined>;
 }): OAuthConfig {
+  // Create a cache key based on the environment
+  const host = event?.headers?.host || "default";
+  const cacheKey = `oauth-config-${host}`;
+
+  // Check cache first
+  const cached = configCache.get(cacheKey) as OAuthConfig | undefined;
+  if (cached) {
+    return cached;
+  }
+
   let baseUrl: string | undefined;
   let deployContext: string | undefined;
 
@@ -11,7 +22,6 @@ export function getOAuthConfig(event?: {
     deployContext = event.headers["x-nf-deploy-context"];
 
     // For Netlify deploys, construct URL from host header
-    const host = event.headers.host;
     const forwardedProto = event.headers["x-forwarded-proto"] || "https";
 
     if (host && !host.includes("localhost") && !host.includes("127.0.0.1")) {
@@ -38,6 +48,8 @@ export function getOAuthConfig(event?: {
   const isLocalhost =
     !baseUrl || baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1");
 
+  let config: OAuthConfig;
+
   if (isLocalhost) {
     const port = process.env.PORT || "8888";
     const clientId = `http://localhost?${new URLSearchParams([
@@ -50,26 +62,31 @@ export function getOAuthConfig(event?: {
 
     console.log("Using loopback OAuth for local development");
 
-    return {
+    config = {
       clientId: clientId,
       redirectUri: `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`,
       jwksUri: undefined,
       clientType: "loopback",
     };
+  } else {
+    // Production/Preview: discoverable client
+    if (!baseUrl) {
+      throw new Error("No public URL available for OAuth configuration");
+    }
+
+    console.log("Using confidential OAuth client for:", baseUrl);
+
+    config = {
+      clientId: `${baseUrl}/oauth-client-metadata.json`,
+      redirectUri: `${baseUrl}/.netlify/functions/oauth-callback`,
+      jwksUri: `${baseUrl}/.netlify/functions/jwks`,
+      clientType: "discoverable",
+      usePrivateKey: true,
+    };
   }
 
-  // Production/Preview: discoverable client
-  if (!baseUrl) {
-    throw new Error("No public URL available for OAuth configuration");
-  }
+  // Cache the config for 5 minutes (300000ms)
+  configCache.set(cacheKey, config, 300000);
 
-  console.log("Using confidential OAuth client for:", baseUrl);
-
-  return {
-    clientId: `${baseUrl}/oauth-client-metadata.json`,
-    redirectUri: `${baseUrl}/.netlify/functions/oauth-callback`,
-    jwksUri: `${baseUrl}/.netlify/functions/jwks`,
-    clientType: "discoverable",
-    usePrivateKey: true,
-  };
+  return config;
 }

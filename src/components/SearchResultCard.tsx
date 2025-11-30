@@ -5,9 +5,8 @@ import {
   ChevronDown,
   UserCheck,
 } from "lucide-react";
-import { PLATFORMS } from "../constants/platforms";
-import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { SearchResult } from "../types";
+import { getPlatform, getAtprotoAppWithFallback } from "../lib/utils/platform";
 import type { AtprotoAppId } from "../types/settings";
 
 interface SearchResultCardProps {
@@ -33,10 +32,7 @@ export default function SearchResultCard({
     ? result.atprotoMatches
     : result.atprotoMatches.slice(0, 1);
   const hasMoreMatches = result.atprotoMatches.length > 1;
-  const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
-
-  // Get current follow lexicon
-  const currentApp = ATPROTO_APPS[destinationAppId];
+  const currentApp = getAtprotoAppWithFallback(destinationAppId);
   const currentLexicon = currentApp?.followLexicon || "app.bsky.graph.follow";
 
   return (

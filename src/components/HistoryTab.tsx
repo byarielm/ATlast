@@ -3,6 +3,7 @@ import { ATPROTO_APPS } from "../constants/atprotoApps";
 import type { Upload as UploadType } from "../types";
 import FaviconIcon from "../components/FaviconIcon";
 import type { UserSettings } from "../types/settings";
+import { getPlatformColor } from "../lib/utils/platform";
 
 interface HistoryTabProps {
   uploads: UploadType[];
@@ -30,15 +31,6 @@ export default function HistoryTab({
       hour: "2-digit",
       minute: "2-digit",
     });
-  };
-
-  const getPlatformColor = (platform: string) => {
-    const colors: Record<string, string> = {
-      tiktok: "from-black via-gray-800 to-cyan-400",
-      twitter: "from-blue-400 to-blue-600",
-      instagram: "from-pink-500 via-purple-500 to-orange-500",
-    };
-    return colors[platform] || "from-gray-400 to-gray-600";
   };
 
   return (

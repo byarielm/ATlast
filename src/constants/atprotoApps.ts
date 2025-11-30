@@ -1,5 +1,8 @@
 import type { AtprotoApp } from "../types/settings";
 
+// Re-export for convenience
+export type { AtprotoApp } from "../types/settings";
+
 export const ATPROTO_APPS: Record<string, AtprotoApp> = {
   bluesky: {
     id: "bluesky",
@@ -43,11 +46,3 @@ export const ATPROTO_APPS: Record<string, AtprotoApp> = {
     enabled: false, // Not yet implemented
   },
 };
-
-export function getAppById(id: string): AtprotoApp | undefined {
-  return ATPROTO_APPS[id];
-}
-
-export function getEnabledApps(): AtprotoApp[] {
-  return Object.values(ATPROTO_APPS).filter((app) => app.enabled);
-}
