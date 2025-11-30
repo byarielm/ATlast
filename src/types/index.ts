@@ -1,88 +1,11 @@
 // Session and Auth Types
-export interface AtprotoSession {
-  did: string;
-  handle: string;
-  displayName?: string;
-  avatar?: string;
-  description?: string;
-}
-
-// TikTok Data Types
-export interface SourceUser {
-  username: string;
-  date: string;
-}
+export * from "./auth.types";
 
 // Search and Match Types
-export interface AtprotoMatch {
-  did: string;
-  handle: string;
-  displayName?: string;
-  avatar?: string;
-  matchScore: number;
-  description?: string;
-  followed?: boolean; // DEPRECATED - kept for backward compatibility
-  followStatus?: Record<string, boolean>;
-  postCount?: number;
-  followerCount?: number;
-  foundAt?: string;
-}
+export * from "./search.types";
 
-export interface SearchResult {
-  sourceUser: SourceUser;
-  atprotoMatches: AtprotoMatch[];
-  isSearching: boolean;
-  error?: string;
-  selectedMatches?: Set<string>;
-  sourcePlatform: string;
-}
-
-// Progress Tracking
-export interface SearchProgress {
-  searched: number;
-  found: number;
-  total: number;
-}
-
-// App State
-export type AppStep =
-  | "checking"
-  | "login"
-  | "home"
-  | "upload"
-  | "loading"
-  | "results";
-
-// API Response Types
-export interface BatchSearchResult {
-  username: string;
-  actors: AtprotoMatch[];
-  error?: string;
-}
-
-export interface BatchFollowResult {
-  did: string;
-  success: boolean;
-  alreadyFollowing?: boolean;
-  error: string | null;
-}
-
-export interface SaveResultsResponse {
-  success: boolean;
-  uploadId: string;
-  totalUsers: number;
-  matchedUsers: number;
-  unmatchedUsers: number;
-}
-
-export interface Upload {
-  uploadId: string;
-  sourcePlatform: string;
-  createdAt: string;
-  totalUsers: number;
-  matchedUsers: number;
-  unmatchedUsers: number;
-}
+// Common Types
+export * from "./common.types";
 
 // Re-export settings types for convenience
 export type {

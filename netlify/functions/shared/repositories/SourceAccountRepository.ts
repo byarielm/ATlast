@@ -1,5 +1,5 @@
 import { BaseRepository } from "./BaseRepository";
-import { SourceAccountRow } from "../types";
+import { normalize } from "../utils";
 
 export class SourceAccountRepository extends BaseRepository {
   /**
@@ -9,7 +9,7 @@ export class SourceAccountRepository extends BaseRepository {
     sourcePlatform: string,
     sourceUsername: string,
   ): Promise<number> {
-    const normalized = sourceUsername.toLowerCase().replace(/[._-]/g, "");
+    const normalized = normalize(sourceUsername);
 
     const result = await this.sql`
       INSERT INTO source_accounts (source_platform, source_username, normalized_username)
@@ -32,7 +32,7 @@ export class SourceAccountRepository extends BaseRepository {
     const values = usernames.map((username) => ({
       platform: sourcePlatform,
       username: username,
-      normalized: username.toLowerCase().replace(/[._-]/g, ""),
+      normalized: normalize(username),
     }));
 
     const platforms = values.map((v) => v.platform);

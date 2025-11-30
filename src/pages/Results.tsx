@@ -1,11 +1,10 @@
 import { Sparkles } from "lucide-react";
 import { useMemo } from "react";
-import { PLATFORMS } from "../constants/platforms";
-import { ATPROTO_APPS } from "../constants/atprotoApps";
 import AppHeader from "../components/AppHeader";
 import SearchResultCard from "../components/SearchResultCard";
 import FaviconIcon from "../components/FaviconIcon";
 import type { AtprotoAppId } from "../types/settings";
+import { getPlatform, getAtprotoApp } from "../lib/utils/platform";
 
 interface atprotoSession {
   did: string;
@@ -74,9 +73,9 @@ export default function ResultsPage({
   onToggleTheme,
   onToggleMotion,
 }: ResultsPageProps) {
-  const platform = PLATFORMS[sourcePlatform] || PLATFORMS.tiktok;
+  const platform = getPlatform(sourcePlatform);
+  const destinationApp = getAtprotoApp(destinationAppId);
   const PlatformIcon = platform.icon;
-  const destinationApp = ATPROTO_APPS[destinationAppId];
 
   // Memoize sorted results to avoid re-sorting on every render
   const sortedResults = useMemo(() => {

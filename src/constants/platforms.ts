@@ -84,3 +84,15 @@ export const SEARCH_CONFIG = {
 export const FOLLOW_CONFIG = {
   BATCH_SIZE: 50,
 };
+
+/**
+ * @deprecated Use getPlatformColor from lib/utils/platform instead
+ **/
+export function getLegacyPlatformColor(platform: string): string {
+  const colors: Record<string, string> = {
+    tiktok: "from-black via-gray-800 to-cyan-400",
+    twitter: "from-blue-400 to-blue-600",
+    instagram: "from-pink-500 via-purple-500 to-orange-500",
+  };
+  return colors[platform] || "from-gray-400 to-gray-600";
+}

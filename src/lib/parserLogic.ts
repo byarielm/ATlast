@@ -5,7 +5,7 @@ import { ParseRule } from "./platformDefinitions";
  * @param content The string content (HTML or plain text) to search within.
  * @param regexPattern The regex string defining the capture group for the username.
  * @returns An array of extracted usernames.
- */
+ **/
 export function parseTextOrHtml(
   content: string,
   regexPattern: string,
