@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Heart, X, Check, ChevronRight } from "lucide-react";
-import { PLATFORMS } from "../constants/platforms";
-import { ATPROTO_APPS } from "../constants/atprotoApps";
+import { PLATFORMS } from "../config/platforms";
+import { ATPROTO_APPS } from "../config/atprotoApps";
 import type { UserSettings, PlatformDestinations } from "../types/settings";
 
 interface SetupWizardProps {

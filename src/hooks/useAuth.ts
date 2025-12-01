@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { apiClient } from "../lib/apiClient";
+import { apiClient } from "../lib/api/client";
 import type { AtprotoSession, AppStep } from "../types";
 
 export function useAuth() {
@@ -26,20 +26,12 @@ export function useAuth() {
         return;
       }
 
-      // If we have a session parameter in URL, this is an OAuth callback
       if (sessionId) {
         console.log("[useAuth] Session ID in URL:", sessionId);
         setStatusMessage("Loading your session...");
 
-        // Single call now gets both session AND profile data
         const data = await apiClient.getSession();
-        setSession({
-          did: data.did,
-          handle: data.handle,
-          displayName: data.displayName,
-          avatar: data.avatar,
-          description: data.description,
-        });
+        setSession(data);
         setCurrentStep("home");
         setStatusMessage(`Welcome back, ${data.handle}!`);
 
@@ -47,18 +39,10 @@ export function useAuth() {
         return;
       }
 
-      // Otherwise, check if there's an existing session cookie
-      // Single call now gets both session AND profile data
       console.log("[useAuth] Checking for existing session cookie...");
       const data = await apiClient.getSession();
       console.log("[useAuth] Found existing session:", data);
-      setSession({
-        did: data.did,
-        handle: data.handle,
-        displayName: data.displayName,
-        avatar: data.avatar,
-        description: data.description,
-      });
+      setSession(data);
       setCurrentStep("home");
       setStatusMessage(`Welcome back, ${data.handle}!`);
     } catch (error) {
@@ -83,13 +67,11 @@ export function useAuth() {
 
   async function logout() {
     try {
-      console.log("[useAuth] Cookies before logout:", document.cookie);
       console.log("[useAuth] Starting logout...");
       setStatusMessage("Logging out...");
       await apiClient.logout();
-      console.log("[useAuth] Cookies after logout:", document.cookie);
 
-      apiClient.cache.clear(); // Clear client-side cache
+      apiClient.cache.clear();
       console.log("[useAuth] Cache cleared");
       setSession(null);
       setCurrentStep("login");

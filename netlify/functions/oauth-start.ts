@@ -1,8 +1,8 @@
-import { SimpleHandler } from "./shared/types/api.types";
-import { createOAuthClient } from "./shared/services/oauth";
-import { successResponse } from "./shared/utils";
-import { withErrorHandling } from "./shared/middleware";
-import { ValidationError } from "./shared/constants/errors";
+import { SimpleHandler } from "./core/types/api.types";
+import { createOAuthClient } from "./infrastructure/oauth/OAuthClientFactory";
+import { successResponse } from "./utils";
+import { withErrorHandling } from "./core/middleware";
+import { ValidationError } from "./core/errors";
 
 interface OAuthStartRequestBody {
   login_hint?: string;
@@ -23,10 +23,8 @@ const oauthStartHandler: SimpleHandler = async (event) => {
 
   console.log("[oauth-start] Starting OAuth flow for:", loginHint);
 
-  // Create OAuth client using shared helper
   const client = await createOAuthClient(event);
 
-  // Start the authorization flow
   const authUrl = await client.authorize(loginHint, {
     scope: "atproto transition:generic",
   });

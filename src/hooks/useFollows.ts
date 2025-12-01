@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { apiClient } from "../lib/apiClient";
-import { FOLLOW_CONFIG } from "../constants/platforms";
-import { ATPROTO_APPS } from "../constants/atprotoApps";
+import { apiClient } from "../lib/api/client";
+import { FOLLOW_CONFIG } from "../config/constants";
+import { getAtprotoApp } from "../lib/utils/platform";
 import type { SearchResult, AtprotoSession, AtprotoAppId } from "../types";
 
 export function useFollow(
@@ -20,19 +20,11 @@ export function useFollow(
   ): Promise<void> {
     if (!session || isFollowing) return;
 
-    // Determine source platform for results
-    const followLexicon = ATPROTO_APPS[destinationAppId]?.followLexicon;
-    const destinationName =
-      ATPROTO_APPS[destinationAppId]?.name || "Undefined App";
+    const destinationApp = getAtprotoApp(destinationAppId);
+    const followLexicon =
+      destinationApp?.followLexicon || "app.bsky.graph.follow";
+    const destinationName = destinationApp?.name || "Undefined App";
 
-    if (!followLexicon) {
-      onUpdate(
-        `Error: Invalid destination app or lexicon for ${destinationAppId}`,
-      );
-      return;
-    }
-
-    // Get selected users
     const selectedUsers = searchResults.flatMap((result, resultIndex) =>
       result.atprotoMatches
         .filter((match) => result.selectedMatches?.has(match.did))
@@ -46,7 +38,6 @@ export function useFollow(
       return;
     }
 
-    // Check follow status before attempting to follow
     setIsCheckingFollowStatus(true);
     onUpdate(`Checking follow status for ${selectedUsers.length} users...`);
 
@@ -56,12 +47,10 @@ export function useFollow(
       followStatusMap = await apiClient.checkFollowStatus(dids, followLexicon);
     } catch (error) {
       console.error("Failed to check follow status:", error);
-      // Continue without filtering - backend will handle duplicates
     } finally {
       setIsCheckingFollowStatus(false);
     }
 
-    // Filter out users already being followed
     const usersToFollow = selectedUsers.filter(
       (user) => !followStatusMap[user.did],
     );
@@ -72,7 +61,6 @@ export function useFollow(
         `${alreadyFollowingCount} user${alreadyFollowingCount > 1 ? "s" : ""} already followed. Following ${usersToFollow.length} remaining...`,
       );
 
-      // Update UI to show already followed status
       setSearchResults((prev) =>
         prev.map((result) => ({
           ...result,
@@ -116,7 +104,6 @@ export function useFollow(
           totalFollowed += data.succeeded;
           totalFailed += data.failed;
 
-          // Mark successful follows in UI
           data.results.forEach((result) => {
             if (result.success) {
               const user = batch.find((u) => u.did === result.did);
@@ -131,7 +118,7 @@ export function useFollow(
                               match.did === result.did
                                 ? {
                                     ...match,
-                                    followed: true, // Backward compatibility
+                                    followed: true,
                                     followStatus: {
                                       ...match.followStatus,
                                       [followLexicon]: true,
@@ -154,8 +141,6 @@ export function useFollow(
           totalFailed += batch.length;
           console.error("Batch follow error:", error);
         }
-
-        // Rate limit handling is in the backend
       }
 
       const finalMsg =

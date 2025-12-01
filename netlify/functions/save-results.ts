@@ -1,13 +1,13 @@
-import { AuthenticatedHandler } from "./shared/types";
+import { AuthenticatedHandler } from "./core/types";
 import {
   UploadRepository,
   SourceAccountRepository,
   MatchRepository,
-} from "./shared/repositories";
-import { successResponse } from "./shared/utils";
-import { normalize } from "./shared/utils";
-import { withAuthErrorHandling } from "./shared/middleware";
-import { ValidationError } from "./shared/constants/errors";
+} from "./repositories";
+import { successResponse } from "./utils";
+import { normalize } from "./utils/string.utils";
+import { withAuthErrorHandling } from "./core/middleware";
+import { ValidationError } from "./core/errors";
 
 interface SearchResult {
   sourceUser: {
@@ -37,7 +37,6 @@ interface SaveResultsRequest {
 }
 
 const saveResultsHandler: AuthenticatedHandler = async (context) => {
-  // Parse request body
   const body: SaveResultsRequest = JSON.parse(context.event.body || "{}");
   const { uploadId, sourcePlatform, results, saveData } = body;
 
@@ -47,7 +46,6 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
     );
   }
 
-  // Server-side validation for saveData flag, controlled by frontend
   if (saveData === false) {
     console.log(
       `User ${context.did} has data storage disabled - skipping save`,
@@ -68,7 +66,6 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
   const matchRepo = new MatchRepository();
   let matchedCount = 0;
 
-  // Check for recent uploads from this user
   const hasRecent = await uploadRepo.hasRecentUpload(context.did);
   if (hasRecent) {
     console.log(
@@ -80,7 +77,6 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
     });
   }
 
-  // Create upload record FIRST
   await uploadRepo.createUpload(
     uploadId,
     context.did,
@@ -89,14 +85,12 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
     0,
   );
 
-  // BULK OPERATION 1: Create all source accounts at once
   const allUsernames = results.map((r) => r.sourceUser.username);
   const sourceAccountIdMap = await sourceAccountRepo.bulkCreate(
     sourcePlatform,
     allUsernames,
   );
 
-  // BULK OPERATION 2: Link all users to source accounts
   const links = results
     .map((result) => {
       const normalized = normalize(result.sourceUser.username);
@@ -110,7 +104,6 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
 
   await sourceAccountRepo.linkUserToAccounts(uploadId, context.did, links);
 
-  // BULK OPERATION 3: Store all atproto matches at once
   const allMatches: Array<{
     sourceAccountId: number;
     atprotoDid: string;
@@ -153,18 +146,15 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
     }
   }
 
-  // Store all matches in one operation
   let matchIdMap = new Map<string, number>();
   if (allMatches.length > 0) {
     matchIdMap = await matchRepo.bulkStoreMatches(allMatches);
   }
 
-  // BULK OPERATION 4: Mark all matched source accounts
   if (matchedSourceAccountIds.length > 0) {
     await sourceAccountRepo.markAsMatched(matchedSourceAccountIds);
   }
 
-  // BULK OPERATION 5: Create all user match statuses
   const statuses: Array<{
     did: string;
     atprotoMatchId: number;
@@ -189,7 +179,6 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
     await matchRepo.upsertUserMatchStatus(statuses);
   }
 
-  // Update upload record with final counts
   await uploadRepo.updateMatchCounts(
     uploadId,
     matchedCount,

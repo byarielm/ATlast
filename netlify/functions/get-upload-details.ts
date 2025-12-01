@@ -1,8 +1,8 @@
-import { AuthenticatedHandler } from "./shared/types";
-import { MatchRepository } from "./shared/repositories";
-import { successResponse } from "./shared/utils";
-import { withAuthErrorHandling } from "./shared/middleware";
-import { ValidationError, NotFoundError } from "./shared/constants/errors";
+import { AuthenticatedHandler } from "./core/types";
+import { MatchRepository } from "./repositories";
+import { successResponse } from "./utils";
+import { withAuthErrorHandling } from "./core/middleware";
+import { ValidationError, NotFoundError } from "./core/errors";
 
 const DEFAULT_PAGE_SIZE = 50;
 const MAX_PAGE_SIZE = 100;

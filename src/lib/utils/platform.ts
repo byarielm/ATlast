@@ -1,5 +1,5 @@
-import { PLATFORMS, type PlatformConfig } from "../../constants/platforms";
-import { ATPROTO_APPS, type AtprotoApp } from "../../constants/atprotoApps";
+import { PLATFORMS, type PlatformConfig } from "../../config/platforms";
+import { ATPROTO_APPS, type AtprotoApp } from "../../config/atprotoApps";
 import type { AtprotoAppId } from "../../types/settings";
 
 /**

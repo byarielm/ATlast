@@ -1,28 +1,29 @@
-import { SimpleHandler } from "./shared/types/api.types";
-import { SessionService } from "./shared/services/session";
-import { getOAuthConfig } from "./shared/services/oauth";
-import { extractSessionId } from "./shared/middleware";
-import { withErrorHandling } from "./shared/middleware";
+import { ApiError } from "./core/errors";
+import { SimpleHandler } from "./core/types/api.types";
+import { SessionService } from "./services/SessionService";
+import { getOAuthConfig } from "./infrastructure/oauth";
+import { extractSessionId } from "./core/middleware";
+import { withErrorHandling } from "./core/middleware";
 
 const logoutHandler: SimpleHandler = async (event) => {
-  // Only allow POST for logout
   if (event.httpMethod !== "POST") {
-    throw new Error("Method not allowed");
+    throw new ApiError(
+      "Method not allowed",
+      405,
+      `Only POST method is supported for ${event.path}`,
+    );
   }
 
   console.log("[logout] Starting logout process...");
-  console.log("[logout] Cookies received:", event.headers.cookie);
 
   const sessionId = extractSessionId(event);
   console.log("[logout] Session ID from cookie:", sessionId);
 
   if (sessionId) {
-    // Use SessionService to properly clean up both user and OAuth sessions
     await SessionService.deleteSession(sessionId);
     console.log("[logout] Successfully deleted session:", sessionId);
   }
 
-  // Clear the session cookie with matching flags from when it was set
   const config = getOAuthConfig();
   const isDev = config.clientType === "loopback";
 
