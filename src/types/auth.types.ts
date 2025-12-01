@@ -1,5 +1,3 @@
-// Authentication and session types
-
 export interface AtprotoSession {
   did: string;
   handle: string;

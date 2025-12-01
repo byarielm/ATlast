@@ -1,12 +1,11 @@
-import { AuthenticatedHandler } from "./shared/types";
-import { UploadRepository } from "./shared/repositories";
-import { successResponse } from "./shared/utils";
-import { withAuthErrorHandling } from "./shared/middleware";
+import { AuthenticatedHandler } from "./core/types";
+import { UploadRepository } from "./repositories";
+import { successResponse } from "./utils";
+import { withAuthErrorHandling } from "./core/middleware";
 
 const getUploadsHandler: AuthenticatedHandler = async (context) => {
   const uploadRepo = new UploadRepository();
 
-  // Fetch all uploads for this user
   const uploads = await uploadRepo.getUserUploads(context.did);
 
   return successResponse({

@@ -1,5 +1,3 @@
-// FaviconIcon.tsx (Conceptual Component Update)
-
 import { useState } from "react";
 import { Globe } from "lucide-react";
 
@@ -7,7 +5,7 @@ interface FaviconIconProps {
   url: string;
   alt: string;
   className?: string;
-  useButtonStyling?: boolean; // ⬅️ NEW OPTIONAL PROP
+  useButtonStyling?: boolean;
 }
 
 export default function FaviconIcon({

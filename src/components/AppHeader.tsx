@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { Heart, Home, LogOut, ChevronDown } from "lucide-react";
 import ThemeControls from "./ThemeControls";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
+import AvatarWithFallback from "./common/AvatarWithFallback";
 
 interface atprotoSession {
   did: string;
@@ -93,19 +94,11 @@ export default function AppHeader({
                   onClick={() => setShowMenu(!showMenu)}
                   className="flex items-center space-x-3 px-3 py-1 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400"
                 >
-                  {session?.avatar ? (
-                    <img
-                      src={session.avatar}
-                      alt=""
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-sm">
-                      <span className="text-white font-bold text-sm">
-                        {session?.handle?.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                  )}
+                  <AvatarWithFallback
+                    avatar={session?.avatar}
+                    handle={session?.handle || ""}
+                    size="sm"
+                  />
                   <span className="text-sm font-medium text-purple-950 dark:text-cyan-50 hidden sm:inline">
                     @{session?.handle}
                   </span>

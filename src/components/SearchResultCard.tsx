@@ -6,8 +6,9 @@ import {
   UserCheck,
 } from "lucide-react";
 import type { SearchResult } from "../types";
-import { getPlatform, getAtprotoAppWithFallback } from "../lib/utils/platform";
+import { getAtprotoAppWithFallback } from "../lib/utils/platform";
 import type { AtprotoAppId } from "../types/settings";
+import AvatarWithFallback from "./common/AvatarWithFallback";
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -78,19 +79,11 @@ export default function SearchResultCard({
                 className="flex items-start gap-3 p-3 cursor-pointer hover:scale-[1.01] transition-transform"
               >
                 {/* Avatar */}
-                {match.avatar ? (
-                  <img
-                    src={match.avatar}
-                    alt="User avatar"
-                    className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 flex items-center justify-center flex-shrink-0">
-                    <span className="text-white font-bold">
-                      {match.handle.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
+                <AvatarWithFallback
+                  avatar={match.avatar}
+                  handle={match.handle || ""}
+                  size="sm"
+                />
 
                 {/* Match Info */}
                 <div className="flex-1 min-w-0 space-y-1">

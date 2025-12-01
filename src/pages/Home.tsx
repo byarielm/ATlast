@@ -6,7 +6,7 @@ import TabNavigation, { TabId } from "../components/TabNavigation";
 import UploadTab from "../components/UploadTab";
 import HistoryTab from "../components/HistoryTab";
 import PlaceholderTab from "../components/PlaceholderTab";
-import { apiClient } from "../lib/apiClient";
+import { apiClient } from "../lib/api/client";
 import type { Upload as UploadType } from "../types";
 import type { UserSettings } from "../types/settings";
 import SettingsPage from "./Settings";

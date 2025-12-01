@@ -1,12 +1,12 @@
-import { AuthenticatedHandler } from "./shared/types";
-import { SessionService } from "./shared/services/session";
-import { successResponse } from "./shared/utils";
-import { withAuthErrorHandling } from "./shared/middleware";
-import { ValidationError } from "./shared/constants/errors";
-import { normalize } from "./shared/utils/string.utils";
+import { AuthenticatedHandler } from "./core/types";
+import { SessionService } from "./services/SessionService";
+import { successResponse } from "./utils";
+import { withAuthErrorHandling } from "./core/middleware";
+import { ValidationError } from "./core/errors";
+import { normalize } from "./utils/string.utils";
+import { FollowService } from "./services/FollowService";
 
 const batchSearchHandler: AuthenticatedHandler = async (context) => {
-  // Parse batch request
   const body = JSON.parse(context.event.body || "{}");
   const usernames: string[] = body.usernames || [];
 
@@ -16,15 +16,15 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
     );
   }
 
-  // Limit batch size to prevent timeouts
   if (usernames.length > 50) {
     throw new ValidationError("Maximum 50 usernames per batch");
   }
 
-  // Get authenticated agent using SessionService
-  const { agent } = await SessionService.getAgentForSession(context.sessionId);
+  const { agent } = await SessionService.getAgentForSession(
+    context.sessionId,
+    context.event,
+  );
 
-  // Search all usernames in parallel
   const searchPromises = usernames.map(async (username) => {
     try {
       const response = await agent.app.bsky.actor.searchActors({
@@ -32,7 +32,6 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
         limit: 20,
       });
 
-      // Filter and rank matches
       const normalizedUsername = normalize(username);
 
       const rankedActors = response.data.actors
@@ -79,19 +78,16 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
 
   const results = await Promise.all(searchPromises);
 
-  // Enrich results with follower and post counts using getProfiles
   const allDids = results
     .flatMap((r) => r.actors.map((a: any) => a.did))
     .filter((did): did is string => !!did);
 
   if (allDids.length > 0) {
-    // Create a map to store enriched profile data
     const profileDataMap = new Map<
       string,
       { postCount: number; followerCount: number }
     >();
 
-    // Batch fetch profiles (25 at a time - API limit)
     const PROFILE_BATCH_SIZE = 25;
     for (let i = 0; i < allDids.length; i += PROFILE_BATCH_SIZE) {
       const batch = allDids.slice(i, i + PROFILE_BATCH_SIZE);
@@ -108,11 +104,9 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
         });
       } catch (error) {
         console.error("Failed to fetch profile batch:", error);
-        // Continue even if one batch fails
       }
     }
 
-    // Merge enriched data back into results
     results.forEach((result) => {
       result.actors = result.actors.map((actor: any) => {
         const enrichedData = profileDataMap.get(actor.did);
@@ -125,49 +119,27 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
     });
   }
 
-  // Check follow status for all matched DIDs in chosen lexicon
   const followLexicon = body.followLexicon || "app.bsky.graph.follow";
 
   if (allDids.length > 0) {
     try {
-      let cursor: string | undefined = undefined;
-      let hasMore = true;
-      const didsSet = new Set(allDids);
-      const followedDids = new Set<string>();
+      const followStatus = await FollowService.checkFollowStatus(
+        agent,
+        context.did,
+        allDids,
+        followLexicon,
+      );
 
-      // Query user's follow graph
-      while (hasMore && didsSet.size > 0) {
-        const response = await agent.api.com.atproto.repo.listRecords({
-          repo: context.did,
-          collection: followLexicon,
-          limit: 100,
-          cursor,
-        });
-
-        // Check each record
-        for (const record of response.data.records) {
-          const followRecord = record.value as any;
-          if (followRecord?.subject && didsSet.has(followRecord.subject)) {
-            followedDids.add(followRecord.subject);
-          }
-        }
-
-        cursor = response.data.cursor;
-        hasMore = !!cursor;
-      }
-
-      // Add follow status to results
       results.forEach((result) => {
         result.actors = result.actors.map((actor: any) => ({
           ...actor,
           followStatus: {
-            [followLexicon]: followedDids.has(actor.did),
+            [followLexicon]: followStatus[actor.did] || false,
           },
         }));
       });
     } catch (error) {
       console.error("Failed to check follow status during search:", error);
-      // Continue without follow status - non-critical
     }
   }
 

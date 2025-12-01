@@ -1,4 +1,4 @@
-import { parseDataFile } from "../lib/fileExtractor";
+import { parseDataFile } from "../lib/parsers/fileExtractor";
 import type { SearchResult, UserSettings } from "../types";
 
 export function useFileUpload(
@@ -41,7 +41,6 @@ export function useFileUpload(
       return;
     }
 
-    // Initialize search results - convert usernames to SearchResult format
     const initialResults: SearchResult[] = usernames.map((username) => ({
       sourceUser: {
         username: username,

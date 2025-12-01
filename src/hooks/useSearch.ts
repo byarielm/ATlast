@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { apiClient } from "../lib/apiClient";
-import { SEARCH_CONFIG } from "../constants/platforms";
+import { apiClient } from "../lib/api/client";
+import { SEARCH_CONFIG } from "../config/constants";
 import type { SearchResult, SearchProgress, AtprotoSession } from "../types";
 
 export function useSearch(session: AtprotoSession | null) {
@@ -47,7 +47,6 @@ export function useSearch(session: AtprotoSession | null) {
       const batch = resultsToSearch.slice(i, i + BATCH_SIZE);
       const usernames = batch.map((r) => r.sourceUser.username);
 
-      // Mark current batch as searching
       setSearchResults((prev) =>
         prev.map((result, index) =>
           i <= index && index < i + BATCH_SIZE
@@ -62,10 +61,8 @@ export function useSearch(session: AtprotoSession | null) {
           followLexicon,
         );
 
-        // Reset error counter on success
         consecutiveErrors = 0;
 
-        // Process batch results
         data.results.forEach((result) => {
           totalSearched++;
           if (result.actors.length > 0) {
@@ -80,34 +77,6 @@ export function useSearch(session: AtprotoSession | null) {
         });
         onProgressUpdate(
           `Searched ${totalSearched} of ${resultsToSearch.length} users. Found ${totalFound} matches.`,
-        );
-
-        // Update results
-        setSearchResults((prev) =>
-          prev.map((result, index) => {
-            const batchResultIndex = index - i;
-            if (
-              batchResultIndex >= 0 &&
-              batchResultIndex < data.results.length
-            ) {
-              const batchResult = data.results[batchResultIndex];
-              const newSelectedMatches = new Set<string>();
-
-              // Auto-select only the first (highest scoring) match
-              if (batchResult.actors.length > 0) {
-                newSelectedMatches.add(batchResult.actors[0].did);
-              }
-
-              return {
-                ...result,
-                atprotoMatches: batchResult.actors,
-                isSearching: false,
-                error: batchResult.error,
-                selectedMatches: newSelectedMatches,
-              };
-            }
-            return result;
-          }),
         );
 
         setSearchResults((prev) =>
@@ -143,7 +112,6 @@ export function useSearch(session: AtprotoSession | null) {
         console.error("Batch search error:", error);
         consecutiveErrors++;
 
-        // Mark batch as failed
         setSearchResults((prev) =>
           prev.map((result, index) =>
             i <= index && index < i + BATCH_SIZE
@@ -152,7 +120,6 @@ export function useSearch(session: AtprotoSession | null) {
           ),
         );
 
-        // If we hit rate limits or repeated errors, add exponential backoff
         if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
           const backoffDelay = Math.min(
             1000 * Math.pow(2, consecutiveErrors - MAX_CONSECUTIVE_ERRORS),

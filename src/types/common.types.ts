@@ -1,5 +1,3 @@
-// Common shared types
-
 export type AppStep =
   | "checking"
   | "login"

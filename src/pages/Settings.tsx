@@ -1,6 +1,6 @@
 import { Settings as SettingsIcon, ChevronRight } from "lucide-react";
-import { PLATFORMS } from "../constants/platforms";
-import { ATPROTO_APPS } from "../constants/atprotoApps";
+import { PLATFORMS } from "../config/platforms";
+import { ATPROTO_APPS } from "../config/atprotoApps";
 import type { UserSettings, PlatformDestinations } from "../types/settings";
 
 interface SettingsPageProps {

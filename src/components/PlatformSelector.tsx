@@ -1,5 +1,4 @@
-import { Twitter, Instagram, Video, Hash, Gamepad2 } from "lucide-react";
-import { PLATFORMS } from "../constants/platforms";
+import { PLATFORMS } from "../config/platforms";
 
 interface PlatformSelectorProps {
   onPlatformSelect: (platform: string) => void;

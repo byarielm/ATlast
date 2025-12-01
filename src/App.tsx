@@ -4,16 +4,16 @@ import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
 import LoadingPage from "./pages/Loading";
 import ResultsPage from "./pages/Results";
-import { apiClient } from "./lib/apiClient";
 import { useAuth } from "./hooks/useAuth";
 import { useSearch } from "./hooks/useSearch";
 import { useFollow } from "./hooks/useFollows";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useTheme } from "./hooks/useTheme";
 import Firefly from "./components/Firefly";
-import { ATPROTO_APPS } from "./constants/atprotoApps";
 import { DEFAULT_SETTINGS } from "./types/settings";
 import type { UserSettings } from "./types/settings";
+import { apiClient } from "./lib/api/client";
+import { ATPROTO_APPS } from "./config/atprotoApps";
 
 export default function App() {
   // Auth hook

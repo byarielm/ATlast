@@ -1,12 +1,12 @@
-import { AuthenticatedHandler } from "./shared/types";
-import { SessionService } from "./shared/services/session";
-import { MatchRepository } from "./shared/repositories";
-import { successResponse } from "./shared/utils";
-import { withAuthErrorHandling } from "./shared/middleware";
-import { ValidationError } from "./shared/constants/errors";
+import { AuthenticatedHandler } from "./core/types";
+import { SessionService } from "./services/SessionService";
+import { FollowService } from "./services/FollowService";
+import { MatchRepository } from "./repositories";
+import { successResponse } from "./utils";
+import { withAuthErrorHandling } from "./core/middleware";
+import { ValidationError } from "./core/errors";
 
 const batchFollowHandler: AuthenticatedHandler = async (context) => {
-  // Parse request body
   const body = JSON.parse(context.event.body || "{}");
   const dids: string[] = body.dids || [];
   const followLexicon: string = body.followLexicon || "app.bsky.graph.follow";
@@ -15,57 +15,28 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
     throw new ValidationError("dids array is required and must not be empty");
   }
 
-  // Limit batch size to prevent timeouts and respect rate limits
   if (dids.length > 100) {
     throw new ValidationError("Maximum 100 DIDs per batch");
   }
 
-  // Get authenticated agent using SessionService
-  const { agent } = await SessionService.getAgentForSession(context.sessionId);
+  const { agent } = await SessionService.getAgentForSession(
+    context.sessionId,
+    context.event,
+  );
 
-  // Check existing follows before attempting to follow
-  const alreadyFollowing = new Set<string>();
-  try {
-    let cursor: string | undefined = undefined;
-    let hasMore = true;
-    const didsSet = new Set(dids);
+  const alreadyFollowing = await FollowService.getAlreadyFollowing(
+    agent,
+    context.did,
+    dids,
+    followLexicon,
+  );
 
-    while (hasMore && didsSet.size > 0) {
-      const response = await agent.api.com.atproto.repo.listRecords({
-        repo: context.did,
-        collection: followLexicon,
-        limit: 100,
-        cursor,
-      });
-
-      for (const record of response.data.records) {
-        const followRecord = record.value as any;
-        if (followRecord?.subject && didsSet.has(followRecord.subject)) {
-          alreadyFollowing.add(followRecord.subject);
-          didsSet.delete(followRecord.subject);
-        }
-      }
-
-      cursor = response.data.cursor;
-      hasMore = !!cursor;
-
-      if (didsSet.size === 0) {
-        break;
-      }
-    }
-  } catch (error) {
-    console.error("Error checking existing follows:", error);
-    // Continue - we'll handle duplicates in the follow loop
-  }
-
-  // Follow all users
   const results = [];
   let consecutiveErrors = 0;
   const MAX_CONSECUTIVE_ERRORS = 3;
   const matchRepo = new MatchRepository();
 
   for (const did of dids) {
-    // Skip if already following
     if (alreadyFollowing.has(did)) {
       results.push({
         did,
@@ -74,7 +45,6 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
         error: null,
       });
 
-      // Update database follow status
       try {
         await matchRepo.updateFollowStatus(did, followLexicon, true);
       } catch (dbError) {
@@ -102,14 +72,12 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
         error: null,
       });
 
-      // Update database follow status
       try {
         await matchRepo.updateFollowStatus(did, followLexicon, true);
       } catch (dbError) {
         console.error("Failed to update follow status in DB:", dbError);
       }
 
-      // Reset error counter on success
       consecutiveErrors = 0;
     } catch (error) {
       consecutiveErrors++;
@@ -121,7 +89,6 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
         error: error instanceof Error ? error.message : "Follow failed",
       });
 
-      // If we hit rate limits, implement exponential backoff
       if (
         error instanceof Error &&
         (error.message.includes("rate limit") || error.message.includes("429"))
@@ -133,7 +100,6 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
         console.log(`Rate limit hit. Backing off for ${backoffDelay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
       } else if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-        // For other repeated errors, small backoff
         await new Promise((resolve) => setTimeout(resolve, 500));
       }
     }

@@ -1,7 +1,7 @@
-import { SimpleHandler } from "./shared/types/api.types";
-import { DatabaseService } from "./shared/services/database";
-import { withErrorHandling } from "./shared/middleware";
-import { successResponse } from "./shared/utils";
+import { SimpleHandler } from "./core/types/api.types";
+import { DatabaseService } from "./infrastructure/database/DatabaseService";
+import { withErrorHandling } from "./core/middleware";
+import { successResponse } from "./utils";
 
 const initDbHandler: SimpleHandler = async () => {
   const dbService = new DatabaseService();

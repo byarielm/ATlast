@@ -1,9 +1,10 @@
 import { Upload, Sparkles, ChevronRight, Database } from "lucide-react";
-import { ATPROTO_APPS } from "../constants/atprotoApps";
+import { ATPROTO_APPS } from "../config/atprotoApps";
 import type { Upload as UploadType } from "../types";
 import FaviconIcon from "../components/FaviconIcon";
 import type { UserSettings } from "../types/settings";
 import { getPlatformColor } from "../lib/utils/platform";
+import { formatRelativeTime } from "../lib/utils/date";
 
 interface HistoryTabProps {
   uploads: UploadType[];
@@ -24,13 +25,7 @@ export default function HistoryTab({
 }: HistoryTabProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatRelativeTime(date.toLocaleDateString("en-US"));
   };
 
   return (
