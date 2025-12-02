@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import "actor-typeahead";
 import { Heart, Upload, Search, ArrowRight } from "lucide-react";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
 
@@ -16,10 +17,13 @@ export default function LoginPage({
   reducedMotion = false,
 }: LoginPageProps) {
   const [handle, setHandle] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(handle);
+    // Get the value directly from the input instead of state
+    const currentHandle = inputRef.current?.value || handle;
+    onSubmit(currentHandle);
   };
 
   return (
@@ -108,23 +112,21 @@ export default function LoginPage({
                     >
                       Your ATmosphere Handle
                     </label>
-                    <input
-                      id="atproto-handle"
-                      type="text"
-                      value={handle}
-                      onChange={(e) => setHandle(e.target.value)}
-                      placeholder="yourname.bsky.social"
-                      className="w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 border-cyan-500/50 dark:border-purple-500/30 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
-                      aria-required="true"
-                      aria-describedby="handle-description"
-                    />
-                    {/*<p
-                      id="handle-description"
-                      className="text-xs text-slate-600 dark:text-slate-400 mt-2"
-                    >
-                      Enter your full ATmosphere handle (e.g.,
-                      username.bsky.social or yourname.com)
-                    </p>*/}
+                    <actor-typeahead rows={5}>
+                      <input
+                        ref={inputRef}
+                        id="atproto-handle"
+                        type="text"
+                        defaultValue={handle}
+                        onInput={(e) =>
+                          setHandle((e.target as HTMLInputElement).value)
+                        }
+                        placeholder="yourname.bsky.social"
+                        className="w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 border-cyan-500/50 dark:border-purple-500/30 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
+                        aria-required="true"
+                        aria-describedby="handle-description"
+                      />
+                    </actor-typeahead>
                   </div>
 
                   <button
@@ -155,7 +157,8 @@ export default function LoginPage({
                         Secure OAuth Connection
                       </p>
                       <p className="text-xs mt-1">
-                        We use official AT Protocol OAuth. We never see your
+                        We use official AT Protocol OAuth. You will be directed
+                        to your account to authorize access. We never see your
                         password and you can revoke access anytime.
                       </p>
                     </div>

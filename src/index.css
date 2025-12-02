@@ -144,3 +144,22 @@
     );
     animation: svg-glow-right 3s ease-in-out infinite 0.5s; /* offset timing */
 }
+
+/* Actor typeahead */
+actor-typeahead {
+    --color-background: rgb(249 250 251 / 1);
+    --color-border: rgb(6 182 212 / 0.5);
+    --color-shadow: rgb(88 28 135);
+    --color-hover: rgb(6 182 212 / 0.1);
+    --color-avatar-fallback: rgb(6 182 212 / 0.2);
+    --radius: 0.75rem;
+    --padding-menu: 0.5rem;
+}
+
+.dark actor-typeahead {
+    --color-background: rgb(15 23 42 / 1);
+    --color-border: rgb(126 34 206 / 0.3);
+    --color-shadow: rgb(0 0 0);
+    --color-hover: rgb(126 34 206 / 0.2);
+    --color-avatar-fallback: rgb(126 34 206 / 0.2);
+}
