@@ -16,7 +16,7 @@ import { apiClient } from "./lib/api/client";
 import { ATPROTO_APPS } from "./config/atprotoApps";
 
 export default function App() {
-  // Auth hook
+  // Auth hook :)
   const {
     session,
     currentStep,
