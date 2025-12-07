@@ -43,13 +43,15 @@ const oauthCallbackHandler: SimpleHandler = async (event) => {
 
   console.log("[oauth-callback] Created user session:", sessionId);
 
+  const cookieName = isDev ? "atlast_session_dev" : "atlast_session";
   const cookieFlags = isDev
     ? `HttpOnly; SameSite=Lax; Max-Age=${CONFIG.COOKIE_MAX_AGE}; Path=/`
     : `HttpOnly; SameSite=Lax; Max-Age=${CONFIG.COOKIE_MAX_AGE}; Path=/; Secure`;
 
-  return redirectResponse(`${currentUrl}/?session=${sessionId}`, [
-    `atlast_session=${sessionId}; ${cookieFlags}`,
-  ]);
+  return redirectResponse(
+    `${currentUrl}/?session=${sessionId}`,
+    `${cookieName}=${sessionId}; ${cookieFlags}`,
+  );
 };
 
 export const handler = withErrorHandling(oauthCallbackHandler);

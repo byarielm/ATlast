@@ -15,7 +15,7 @@ export async function authenticateRequest(
   const cookies = event.headers.cookie
     ? cookie.parse(event.headers.cookie)
     : {};
-  const sessionId = cookies.atlast_session;
+  const sessionId = cookies.atlast_session || cookies.atlast_session_dev;
 
   if (!sessionId) {
     throw new AuthenticationError(ERROR_MESSAGES.NO_SESSION_COOKIE);
@@ -42,5 +42,5 @@ export function extractSessionId(event: HandlerEvent): string | null {
   const cookies = event.headers.cookie
     ? cookie.parse(event.headers.cookie)
     : {};
-  return cookies.atlast_session || null;
+  return cookies.atlast_session || cookies.atlast_session_dev || null;
 }

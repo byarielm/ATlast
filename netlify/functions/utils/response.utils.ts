@@ -45,19 +45,19 @@ export function errorResponse(
 
 export function redirectResponse(
   location: string,
-  setCookies?: string[],
+  setCookie?: string,
 ): HandlerResponse {
-  const headers: Record<string, string | string[]> = {
+  const headers: Record<string, string> = {
     Location: location,
   };
 
-  if (setCookies && setCookies.length > 0) {
-    headers["Set-Cookie"] = setCookies;
+  if (setCookie) {
+    headers["Set-Cookie"] = setCookie;
   }
 
   return {
     statusCode: 302,
-    headers: headers as HandlerResponse["headers"],
+    headers,
     body: "",
   };
 }

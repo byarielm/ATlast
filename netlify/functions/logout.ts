@@ -24,8 +24,9 @@ const logoutHandler: SimpleHandler = async (event) => {
     console.log("[logout] Successfully deleted session:", sessionId);
   }
 
-  const config = getOAuthConfig();
+  const config = getOAuthConfig(event);
   const isDev = config.clientType === "loopback";
+  const cookieName = isDev ? "atlast_session_dev" : "atlast_session";
 
   const cookieFlags = isDev
     ? `HttpOnly; SameSite=Lax; Max-Age=0; Path=/`
@@ -35,7 +36,7 @@ const logoutHandler: SimpleHandler = async (event) => {
     statusCode: 200,
     headers: {
       "Content-Type": "application/json",
-      "Set-Cookie": `atlast_session=; ${cookieFlags}`,
+      "Set-Cookie": `${cookieName}=; ${cookieFlags}`,
     },
     body: JSON.stringify({ success: true }),
   };
