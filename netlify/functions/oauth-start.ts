@@ -3,6 +3,7 @@ import { createOAuthClient } from "./infrastructure/oauth/OAuthClientFactory";
 import { successResponse } from "./utils";
 import { withErrorHandling } from "./core/middleware";
 import { ValidationError } from "./core/errors";
+import { CONFIG } from "./core/config/constants";
 
 interface OAuthStartRequestBody {
   login_hint?: string;
@@ -26,7 +27,7 @@ const oauthStartHandler: SimpleHandler = async (event) => {
   const client = await createOAuthClient(event);
 
   const authUrl = await client.authorize(loginHint, {
-    scope: "atproto transition:generic",
+    scope: CONFIG.OAUTH_SCOPES,
   });
 
   console.log("[oauth-start] Generated auth URL for:", loginHint);

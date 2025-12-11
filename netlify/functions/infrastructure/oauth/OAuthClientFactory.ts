@@ -6,6 +6,7 @@ import { JoseKey } from "@atproto/jwk-jose";
 import { ApiError } from "../../core/errors";
 import { stateStore, sessionStore } from "./stores";
 import { getOAuthConfig } from "./config";
+import { CONFIG } from "../../core/config/constants";
 
 function normalizePrivateKey(key: string): string {
   if (!key.includes("\n") && key.includes("\\n")) {
@@ -41,7 +42,10 @@ export async function createOAuthClient(event?: {
     }
 
     const normalizedKey = normalizePrivateKey(process.env.OAUTH_PRIVATE_KEY);
-    const privateKey = await JoseKey.fromImportable(normalizedKey, "main-key");
+    const privateKey = await JoseKey.fromImportable(
+      normalizedKey,
+      CONFIG.OAUTH_KEY_ID,
+    );
 
     return new NodeOAuthClient({
       clientMetadata: {
@@ -49,7 +53,7 @@ export async function createOAuthClient(event?: {
         client_name: "ATlast",
         client_uri: config.clientId.replace("/oauth-client-metadata.json", ""),
         redirect_uris: [config.redirectUri],
-        scope: "atproto transition:generic",
+        scope: CONFIG.OAUTH_SCOPES,
         grant_types: ["authorization_code", "refresh_token"],
         response_types: ["code"],
         application_type: "web",

@@ -1,4 +1,5 @@
 import { Handler, HandlerEvent, HandlerResponse } from "@netlify/functions";
+import { CONFIG } from "./core/config/constants";
 
 export const handler: Handler = async (
   event: HandlerEvent,
@@ -42,7 +43,7 @@ export const handler: Handler = async (
           client_name: "ATlast (Local Dev)",
           client_uri: appUrl,
           redirect_uris: [redirectUri],
-          scope: "atproto repo:app.bsky.graph.follow",
+          scope: CONFIG.OAUTH_SCOPES,
           grant_types: ["authorization_code", "refresh_token"],
           response_types: ["code"],
           application_type: "web",
@@ -65,7 +66,7 @@ export const handler: Handler = async (
       client_uri: appUrl,
       redirect_uris: [redirectUri],
       logo_uri: logoUri,
-      scope: "atproto transition:generic",
+      scope: CONFIG.OAUTH_SCOPES,
       grant_types: ["authorization_code", "refresh_token"],
       response_types: ["code"],
       application_type: "web",

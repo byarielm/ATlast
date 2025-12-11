@@ -1,11 +1,12 @@
 import { Handler } from "@netlify/functions";
+import { CONFIG } from "./core/config/constants";
 
 const PUBLIC_JWK = {
   kty: "EC",
   x: "3sVbr4xwN7UtmG1L19vL0x9iN-FRcl7p-Wja_xPbhhk",
   y: "Y1XKDaAyDwijp8aEIGHmO46huKjajSQH2cbfpWaWpQ4",
   crv: "P-256",
-  kid: "main-key",
+  kid: CONFIG.OAUTH_KEY_ID,
   use: "sig",
   alg: "ES256",
 };

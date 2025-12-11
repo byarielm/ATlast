@@ -1,6 +1,7 @@
 import { OAuthConfig } from "../../core/types";
 import { ApiError } from "../../core/errors";
 import { configCache } from "../cache/CacheService";
+import { CONFIG } from "../../core/config/constants";
 
 export function getOAuthConfig(event?: {
   headers: Record<string, string | undefined>;
@@ -51,7 +52,7 @@ export function getOAuthConfig(event?: {
         "redirect_uri",
         `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`,
       ],
-      ["scope", "atproto transition:generic"],
+      ["scope", CONFIG.OAUTH_SCOPES],
     ])}`;
 
     console.log("Using loopback OAuth for local development");
