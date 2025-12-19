@@ -105,7 +105,7 @@ export default function SearchResultCard({
                   </div>
 
                   {/* User Stats and Match Percent */}
-                  <div className="flex items-center flex-wrap gap-2">
+                  <div className="flex items-center flex-wrap gap-2 sm:ml-0 -ml-10">
                     {typeof match.postCount === "number" &&
                       match.postCount > 0 && (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
@@ -125,7 +125,7 @@ export default function SearchResultCard({
 
                   {/* Description */}
                   {match.description && (
-                    <div className="text-sm text-purple-900 dark:text-cyan-100 line-clamp-2 pt-1">
+                    <div className="text-sm text-purple-900 dark:text-cyan-100 line-clamp-2 pt-1 sm:ml-0 -ml-10">
                       {match.description}
                     </div>
                   )}

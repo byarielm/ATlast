@@ -124,7 +124,7 @@ export default function HistoryTab({
                 className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/50 dark:border-amber-400/50 hover:border-orange-500 dark:hover:border-amber-400 shadow-md hover:shadow-lg cursor-pointer"
               >
                 <div
-                  className={`w-12 h-12 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
+                  className={`w-10 h-10 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
                 >
                   <Sparkles className="w-6 h-6 text-white" />
                 </div>
@@ -159,7 +159,7 @@ export default function HistoryTab({
                       <span>{destApp.name}</span>
                     </a>
                   )}
-                  <div className="flex items-center flex-wrap gap-2 py-1.5">
+                  <div className="flex items-center flex-wrap gap-2 py-1.5 sm:ml-0 -ml-14">
                     <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
                       {upload.totalUsers}{" "}
                       {upload.totalUsers === 1 ? "user found" : "users found"}
