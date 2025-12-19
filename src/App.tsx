@@ -104,11 +104,16 @@ export default function App() {
                 if (currentResults.length > 0) {
                   apiClient
                     .saveResults(uploadId, platform, currentResults)
+                    .then(() => {
+                      // Invalidate cache after successful save
+                      apiClient.cache.invalidate("uploads");
+                      apiClient.cache.invalidatePattern("upload-details");
+                    })
                     .catch((err) => {
                       console.error("Background save failed:", err);
                     });
                 }
-                return currentResults; // Don't modify, just return as-is
+                return currentResults;
               });
             }, 1000); // Longer delay to ensure all state updates complete
           }

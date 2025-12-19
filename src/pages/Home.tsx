@@ -68,6 +68,13 @@ export default function HomePage({
     }
   }, [session, userSettings.wizardCompleted]);
 
+  // Reload uploads when navigating to history tab
+  useEffect(() => {
+    if (activeTab === "history" && session) {
+      loadUploads();
+    }
+  }, [activeTab, session]);
+
   async function loadUploads() {
     try {
       setIsLoading(true);
