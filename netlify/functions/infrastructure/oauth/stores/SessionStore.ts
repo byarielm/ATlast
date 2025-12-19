@@ -14,7 +14,7 @@ export class PostgresSessionStore {
   async get(key: string): Promise<SessionData | undefined> {
     const result = await this.sql`
       SELECT data FROM oauth_sessions
-      WHERE key = ${key} AND expires_at > NOW()
+      WHERE key = ${key} AND expires_at > ${new Date().toISOString()}
     `;
     const rows = result as OAuthSessionRow[];
 

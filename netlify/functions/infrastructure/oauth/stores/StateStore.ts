@@ -8,7 +8,7 @@ export class PostgresStateStore {
   async get(key: string): Promise<StateData | undefined> {
     const result = await this.sql`
       SELECT data FROM oauth_states
-      WHERE key = ${key} AND expires_at > NOW()
+      WHERE key = ${key} AND expires_at > ${new Date().toISOString()}
     `;
     const rows = result as OAuthStateRow[];
 

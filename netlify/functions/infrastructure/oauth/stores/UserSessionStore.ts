@@ -6,14 +6,35 @@ export class PostgresUserSessionStore {
   private sql = getDbClient();
 
   async get(sessionId: string): Promise<UserSessionData | undefined> {
-    const result = await this.sql`
-      SELECT did, fingerprint FROM user_sessions
-      WHERE session_id = ${sessionId} AND expires_at > NOW()
-    `;
-    const rows = result as UserSessionRow[];
-    return rows[0]
-      ? { did: rows[0].did, fingerprint: rows[0].fingerprint }
-      : undefined;
+    const fetchSession = async () => {
+      const result = await this.sql`
+            SELECT did FROM user_sessions
+            WHERE session_id = ${sessionId} AND expires_at > ${new Date().toISOString()}
+          `;
+      const rows = result as UserSessionRow[];
+      return rows[0] ? { did: rows[0].did } : undefined;
+    };
+
+    // Try once, if not found retry twice with small delays
+    let session = await fetchSession();
+
+    if (!session) {
+      console.log(
+        `[UserSessionStore] Session ${sessionId} not found, retrying...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      session = await fetchSession();
+    }
+
+    if (!session) {
+      console.log(
+        `[UserSessionStore] Session ${sessionId} still not found, final retry...`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      session = await fetchSession();
+    }
+
+    return session;
   }
 
   async set(sessionId: string, data: UserSessionData): Promise<void> {

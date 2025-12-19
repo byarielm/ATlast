@@ -200,11 +200,11 @@ export class DatabaseService {
   async cleanupExpiredSessions(): Promise<void> {
     try {
       const statesDeleted = await this
-        .sql`DELETE FROM oauth_states WHERE expires_at < NOW()`;
+        .sql`DELETE FROM oauth_states WHERE expires_at < ${new Date().toISOString()}`;
       const sessionsDeleted = await this
-        .sql`DELETE FROM oauth_sessions WHERE expires_at < NOW()`;
+        .sql`DELETE FROM oauth_sessions WHERE expires_at < ${new Date().toISOString()}`;
       const userSessionsDeleted = await this
-        .sql`DELETE FROM user_sessions WHERE expires_at < NOW()`;
+        .sql`DELETE FROM user_sessions WHERE expires_at < ${new Date().toISOString()}`;
 
       console.log("🧹 Cleanup:", {
         states: (statesDeleted as any).length,

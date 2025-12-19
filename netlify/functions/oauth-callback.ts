@@ -12,7 +12,7 @@ const oauthCallbackHandler: SimpleHandler = async (event) => {
   const isDev = config.clientType === "loopback";
 
   let currentUrl = isDev
-    ? "http://127.0.0.1:8888"
+    ? config.redirectUri.replace("/.netlify/functions/oauth-callback", "")
     : config.redirectUri.replace("/.netlify/functions/oauth-callback", "");
 
   const params = new URLSearchParams(event.rawUrl.split("?")[1] || "");
