@@ -20,7 +20,7 @@ const logoutHandler: SimpleHandler = async (event) => {
   console.log("[logout] Session ID from cookie:", sessionId);
 
   if (sessionId) {
-    await SessionService.deleteSession(sessionId);
+    await SessionService.deleteSession(sessionId, event);
     console.log("[logout] Successfully deleted session:", sessionId);
   }
 

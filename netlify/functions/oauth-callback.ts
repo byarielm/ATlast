@@ -11,9 +11,11 @@ const oauthCallbackHandler: SimpleHandler = async (event) => {
   const config = getOAuthConfig(event);
   const isDev = config.clientType === "loopback";
 
-  let currentUrl = isDev
-    ? config.redirectUri.replace("/.netlify/functions/oauth-callback", "")
-    : config.redirectUri.replace("/.netlify/functions/oauth-callback", "");
+  // Land back on the same host you started from
+  let currentUrl = config.redirectUri.replace(
+    "/.netlify/functions/oauth-callback",
+    "",
+  );
 
   const params = new URLSearchParams(event.rawUrl.split("?")[1] || "");
   const code = params.get("code");
@@ -29,7 +31,7 @@ const oauthCallbackHandler: SimpleHandler = async (event) => {
     return redirectResponse(`${currentUrl}/?error=Missing OAuth parameters`);
   }
 
-  const client = await createOAuthClient();
+  const client = await createOAuthClient(event);
 
   const result = await client.callback(params);
 

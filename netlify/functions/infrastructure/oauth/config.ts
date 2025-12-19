@@ -6,8 +6,9 @@ import { CONFIG } from "../../core/config/constants";
 export function getOAuthConfig(event?: {
   headers: Record<string, string | undefined>;
 }): OAuthConfig {
-  const host = event?.headers?.host || "default";
-  const cacheKey = `oauth-config-${host}`;
+  // 1. Determine host dynamically
+  const host = event?.headers?.host;
+  const cacheKey = `oauth-config-${host || "default"}`;
 
   const cached = configCache.get(cacheKey) as OAuthConfig | undefined;
   if (cached) {
@@ -15,75 +16,57 @@ export function getOAuthConfig(event?: {
   }
 
   let baseUrl: string | undefined;
-  let deployContext: string | undefined;
 
-  if (event?.headers) {
-    deployContext = event.headers["x-nf-deploy-context"];
-    const forwardedProto = event.headers["x-forwarded-proto"] || "https";
+  // 2. Determine if local based on host header
+  const isLocal =
+    !host || host.includes("localhost") || host.includes("127.0.0.1");
 
-    if (host && !host.includes("localhost") && !host.includes("127.0.0.1")) {
-      baseUrl = `${forwardedProto}://${host}`;
-    }
-  }
+  // 3. Local oauth config
+  if (isLocal) {
+    const currentHost = host || "localhost:8888";
+    const protocol = currentHost.includes("127.0.0.1")
+      ? "http://127.0.0.1"
+      : "http://localhost";
 
-  if (!baseUrl) {
-    baseUrl = process.env.DEPLOY_URL || process.env.URL;
-  }
+    // Redirect URI must use host in address bar
+    const redirectUri = `${protocol}:${currentHost.split(":")[1] || "8888"}/.netlify/functions/oauth-callback`;
 
-  console.log("🔍 OAuth Config:", {
-    fromHost: event?.headers?.host,
-    deployContext: deployContext || process.env.CONTEXT,
-    baseUrl,
-    envAvailable: {
-      DEPLOY_URL: !!process.env.DEPLOY_URL,
-      URL: !!process.env.URL,
-    },
-  });
-
-  const isLocalhost =
-    !baseUrl || baseUrl.includes("localhost") || baseUrl.includes("127.0.0.1");
-
-  let config: OAuthConfig;
-
-  if (isLocalhost) {
-    const port = process.env.PORT || "8888";
+    // ClientID must start with localhost
+    // but redirect_uri query inside must match actual redirectUri
     const clientId = `http://localhost?${new URLSearchParams([
-      [
-        "redirect_uri",
-        `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`,
-      ],
+      ["redirect_uri", redirectUri],
       ["scope", CONFIG.OAUTH_SCOPES],
     ])}`;
 
     console.log("Using loopback OAuth for local development");
 
-    config = {
+    const config: OAuthConfig = {
       clientId: clientId,
-      redirectUri: `http://127.0.0.1:${port}/.netlify/functions/oauth-callback`,
+      redirectUri: redirectUri,
       jwksUri: undefined,
       clientType: "loopback",
     };
-  } else {
-    if (!baseUrl) {
-      throw new ApiError(
-        "No public URL available for OAuth configuration",
-        500,
-        "Missing DEPLOY_URL or URL environment variables.",
-      );
-    }
 
-    console.log("Using confidential OAuth client for:", baseUrl);
-
-    config = {
-      clientId: `${baseUrl}/oauth-client-metadata.json`,
-      redirectUri: `${baseUrl}/.netlify/functions/oauth-callback`,
-      jwksUri: `${baseUrl}/.netlify/functions/jwks`,
-      clientType: "discoverable",
-      usePrivateKey: true,
-    };
+    configCache.set(cacheKey, config, 300000);
+    return config;
   }
 
-  configCache.set(cacheKey, config, 300000);
+  // 4. Production oauth config
+  console.log("Using confidential OAuth client for:", baseUrl);
 
+  const forwardedProto = event?.headers?.["x-forwarded-proto"] || "https";
+  baseUrl = host
+    ? `${forwardedProto}://${host}`
+    : process.env.DEPLOY_URL || process.env.URL;
+
+  const config: OAuthConfig = {
+    clientId: `${baseUrl}/oauth-client-metadata.json`,
+    redirectUri: `${baseUrl}/.netlify/functions/oauth-callback`,
+    jwksUri: `${baseUrl}/.netlify/functions/jwks`,
+    clientType: "discoverable",
+    usePrivateKey: true,
+  };
+
+  configCache.set(cacheKey, config, 300000);
   return config;
 }

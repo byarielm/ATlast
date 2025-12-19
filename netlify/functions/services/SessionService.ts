@@ -68,7 +68,10 @@ export class SessionService {
     return { agent, did, client };
   }
 
-  static async deleteSession(sessionId: string): Promise<void> {
+  static async deleteSession(
+    sessionId: string,
+    event?: HandlerEvent,
+  ): Promise<void> {
     console.log("[SessionService] Deleting session:", sessionId);
 
     const userSession = await userSessions.get(sessionId);
@@ -80,7 +83,7 @@ export class SessionService {
     const did = userSession.did;
 
     try {
-      const client = await createOAuthClient();
+      const client = await createOAuthClient(event);
       await client.revoke(did);
       console.log("[SessionService] Revoked OAuth session for DID:", did);
     } catch (error) {
