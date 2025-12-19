@@ -20,14 +20,14 @@ export interface PlatformConfig {
 }
 
 export const PLATFORMS: Record<string, PlatformConfig> = {
-  twitter: {
-    name: "Twitter/X",
-    icon: SiX,
-    color: "from-blue-400 to-blue-600",
-    accentBg: "bg-blue-500",
-    fileHint: "following.txt, data.json, or data.zip",
-    enabled: false,
-    defaultApp: "bluesky",
+  tiktok: {
+    name: "TikTok",
+    icon: SiTiktok,
+    color: "from-black via-gray-800 to-cyan-400",
+    accentBg: "bg-black",
+    fileHint: "Following.txt or data ZIP",
+    enabled: true,
+    defaultApp: "spark",
   },
   instagram: {
     name: "Instagram",
@@ -38,21 +38,12 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     enabled: true,
     defaultApp: "bluesky",
   },
-  tiktok: {
-    name: "TikTok",
-    icon: SiTiktok,
-    color: "from-black via-gray-800 to-cyan-400",
-    accentBg: "bg-black",
-    fileHint: "Following.txt or data ZIP",
-    enabled: true,
-    defaultApp: "spark",
-  },
-  tumblr: {
-    name: "Tumblr",
-    icon: SiTumblr,
-    color: "from-indigo-600 to-blue-800",
-    accentBg: "bg-indigo-600",
-    fileHint: "following.csv or data export",
+  twitter: {
+    name: "Twitter/X",
+    icon: SiX,
+    color: "from-blue-400 to-blue-600",
+    accentBg: "bg-blue-500",
+    fileHint: "following.txt, data.json, or data.zip",
     enabled: false,
     defaultApp: "bluesky",
   },
@@ -71,6 +62,15 @@ export const PLATFORMS: Record<string, PlatformConfig> = {
     color: "from-red-600 to-red-700",
     accentBg: "bg-red-600",
     fileHint: "subscriptions.csv or Takeout ZIP",
+    enabled: false,
+    defaultApp: "bluesky",
+  },
+  tumblr: {
+    name: "Tumblr",
+    icon: SiTumblr,
+    color: "from-indigo-600 to-blue-800",
+    accentBg: "bg-indigo-600",
+    fileHint: "following.csv or data export",
     enabled: false,
     defaultApp: "bluesky",
   },
