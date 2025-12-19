@@ -62,6 +62,25 @@ export class DataExtractor {
 }
 
 /**
+ * Check if file is a ZIP by reading magic number
+ */
+async function checkIfZipFile(
+  file: File | ArrayBuffer | Blob,
+): Promise<boolean> {
+  try {
+    const blob =
+      file instanceof File || file instanceof Blob ? file : new Blob([file]);
+    const header = await blob.slice(0, 4).arrayBuffer();
+    const bytes = new Uint8Array(header);
+
+    // ZIP magic numbers: PK (0x50 0x4B)
+    return bytes[0] === 0x50 && bytes[1] === 0x4b;
+  } catch (e) {
+    return false;
+  }
+}
+
+/**
  * Public facing function handling both ZIP and single files.
  * @param file A File object (or ArrayBuffer/Blob) representing the uploaded data.
  * @param platform The platform name (e.g., 'instagram', 'tiktok').
@@ -78,23 +97,28 @@ export async function parseDataFile(
     return [];
   }
 
-  // 1. --- ATTEMPT ZIP LOAD ---
-  try {
-    console.log("Attempting to load file as ZIP archive...");
-    const zip = await JSZip.loadAsync(file);
+  const isZipFile = await checkIfZipFile(file);
 
-    const extractor = new DataExtractor(file);
-    const results = await extractor.processZipArchive(zip, rules);
+  if (isZipFile) {
+    // 1. --- PROCESS AS ZIP ---
+    try {
+      console.log("Detected ZIP file, loading as archive...");
+      const zip = await JSZip.loadAsync(file);
 
-    console.log(
-      `Successfully extracted ${results.uniqueUsernames.length} usernames from ZIP archive.`,
-    );
-    return results.uniqueUsernames;
-  } catch (e) {
-    // 2. --- ZIP LOAD FAILED, ATTEMPT SINGLE FILE ---
-    console.warn(
-      "ZIP load failed. Attempting to parse file as a single data file...",
-    );
+      const extractor = new DataExtractor(file);
+      const results = await extractor.processZipArchive(zip, rules);
+
+      console.log(
+        `Successfully extracted ${results.uniqueUsernames.length} usernames from ZIP archive.`,
+      );
+      return results.uniqueUsernames;
+    } catch (e) {
+      console.error("ZIP processing failed:", e);
+      return [];
+    }
+  } else {
+    // 2. --- PROCESS AS SINGLE FILE ---
+    console.log("Processing as single file...");
 
     // We need a File object to get the name and content easily
     if (!(file instanceof File) && !(file instanceof Blob)) {
@@ -106,23 +130,29 @@ export async function parseDataFile(
 
     const singleFile = file as File;
 
-    // Find the rule that matches the uploaded file name
-    // We check if the uploaded filename ends with the final part of a rule's zipPath (e.g., "following.html")
-    const matchingRule = rules.find((rule) =>
-      singleFile.name
-        .toLowerCase()
-        .endsWith((rule.zipPath.split("/").pop() || "").toLowerCase()),
-    );
+    // Match rule based on file extension and format
+    const fileExt = singleFile.name.split(".").pop()?.toLowerCase();
+
+    const matchingRule = rules.find((rule) => {
+      // Match based on format type and file extension
+      if (rule.format === "TEXT" && fileExt === "txt") return true;
+      if (rule.format === "JSON" && fileExt === "json") return true;
+      if (rule.format === "HTML" && fileExt === "html") return true;
+
+      // Fallback: check if filename ends with the expected filename from rule
+      const ruleFilename = rule.zipPath.split("/").pop()?.toLowerCase();
+      return singleFile.name.toLowerCase().endsWith(ruleFilename || "");
+    });
 
     if (!matchingRule) {
       console.error(
-        `Could not match single file '${singleFile.name}' to any rule for platform ${platform}. Check rules in platformDefinitions.ts.`,
+        `Could not match single file '${singleFile.name}' (extension: ${fileExt}) to any rule for platform ${platform}. Available formats: ${rules.map((r) => r.format).join(", ")}`,
       );
       return [];
     }
 
     console.log(
-      `Matched single file '${singleFile.name}' to rule: ${matchingRule.zipPath}`,
+      `Matched single file '${singleFile.name}' to rule format: ${matchingRule.format}`,
     );
 
     // 3. Process as single file content
