@@ -52,6 +52,7 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS user_sessions (
         session_id TEXT PRIMARY KEY,
         did TEXT NOT NULL,
+        fingerprint JSONB,
         created_at TIMESTAMP DEFAULT NOW(),
         expires_at TIMESTAMP NOT NULL
       )

@@ -11,16 +11,26 @@ export class PostgresStateStore {
       WHERE key = ${key} AND expires_at > NOW()
     `;
     const rows = result as OAuthStateRow[];
-    return rows[0]?.data as StateData | undefined;
+
+    if (!rows[0]) return undefined;
+
+    // State data contains dpopKey which must remain as JWK object
+    // We don't encrypt state data - it's ephemeral (10 min expiry)
+    return rows[0].data as StateData;
   }
 
   async set(key: string, value: StateData): Promise<void> {
     const expiresAt = new Date(Date.now() + CONFIG.STATE_EXPIRY);
+
+    // Store as-is - no encryption for state data
+    // State is ephemeral and dpopKey needs to be valid JWK
+    const dataToStore = JSON.stringify(value);
+
     await this.sql`
       INSERT INTO oauth_states (key, data, expires_at)
-      VALUES (${key}, ${JSON.stringify(value)}, ${expiresAt.toISOString()})
+      VALUES (${key}, ${dataToStore}, ${expiresAt.toISOString()})
       ON CONFLICT (key) DO UPDATE SET
-        data = ${JSON.stringify(value)},
+        data = ${dataToStore},
         expires_at = ${expiresAt.toISOString()}
     `;
   }

@@ -9,7 +9,8 @@
     "dev:mock": "vite --mode mock",
     "dev:full": "netlify dev",
     "build": "vite build",
-    "init-db": "tsx scripts/init-local-db.ts"
+    "init-db": "tsx scripts/init-local-db.ts",
+    "generate-key": "tsx scripts/generate-encryption-key.ts"
   },
   "dependencies": {
     "@atcute/identity": "^1.1.0",

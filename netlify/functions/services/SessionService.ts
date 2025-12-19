@@ -1,15 +1,17 @@
 import { Agent } from "@atproto/api";
 import type { NodeOAuthClient } from "@atproto/oauth-client-node";
+import { SessionSecurityService } from "../core/middleware/session-security.middleware";
 import type { HandlerEvent } from "@netlify/functions";
 import { AuthenticationError, ERROR_MESSAGES } from "../core/errors";
 import { createOAuthClient } from "../infrastructure/oauth";
 import { userSessions } from "../infrastructure/oauth/stores";
 import { configCache } from "../infrastructure/cache/CacheService";
+import { sessionStore } from "../infrastructure/oauth/stores";
 
 export class SessionService {
   static async getAgentForSession(
     sessionId: string,
-    event?: HandlerEvent,
+    event: HandlerEvent,
   ): Promise<{
     agent: Agent;
     did: string;
@@ -20,6 +22,18 @@ export class SessionService {
     const userSession = await userSessions.get(sessionId);
     if (!userSession) {
       throw new AuthenticationError(ERROR_MESSAGES.INVALID_SESSION);
+    }
+
+    const currentFingerprint =
+      SessionSecurityService.generateFingerprint(event);
+    if (
+      userSession.fingerprint &&
+      !SessionSecurityService.verifyFingerprint(
+        userSession.fingerprint,
+        currentFingerprint,
+      )
+    ) {
+      throw new AuthenticationError("Session hijacking detected");
     }
 
     const did = userSession.did;
@@ -39,6 +53,15 @@ export class SessionService {
 
     const oauthSession = await client.restore(did);
     console.log("[SessionService] Restored OAuth session for DID:", did);
+
+    // Log token rotation for monitoring
+    // The restore() call automatically refreshes if needed
+    const sessionData = await sessionStore.get(did);
+    if (sessionData) {
+      // Token refresh happens transparently in restore()
+      // Just log for monitoring purposes
+      console.log("[SessionService] OAuth session restored/refreshed");
+    }
 
     const agent = new Agent(oauthSession);
 

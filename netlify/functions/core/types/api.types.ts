@@ -23,12 +23,15 @@ export interface StateData {
 }
 
 export interface SessionData {
+  dpopJwk?: any;
   dpopKey: any;
   tokenSet: any;
+  authMethod?: string;
 }
 
 export interface UserSessionData {
   did: string;
+  fingerprint?: any;
 }
 
 // OAuth configuration

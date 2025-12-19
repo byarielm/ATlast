@@ -12,8 +12,11 @@ export interface OAuthStateRow {
 export interface OAuthSessionRow {
   key: string;
   data: {
-    dpopKey: any;
+    dpopJwk?: any;
+    dpopKey?: any;
     tokenSet: any;
+    authMethod?: string;
+    encrypted?: boolean;
   };
   created_at: Date;
   expires_at: Date;
@@ -22,6 +25,7 @@ export interface OAuthSessionRow {
 export interface UserSessionRow {
   session_id: string;
   did: string;
+  fingerprint?: any;
   created_at: Date;
   expires_at: Date;
 }

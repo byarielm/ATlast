@@ -1,5 +1,6 @@
 import { SimpleHandler } from "./core/types/api.types";
 import { createOAuthClient, getOAuthConfig } from "./infrastructure/oauth";
+import { createSecureSessionData } from "./core/middleware/session-security.middleware";
 import { userSessions } from "./infrastructure/oauth/stores";
 import { redirectResponse } from "./utils";
 import { withErrorHandling } from "./core/middleware";
@@ -38,8 +39,12 @@ const oauthCallbackHandler: SimpleHandler = async (event) => {
   );
 
   const sessionId = crypto.randomUUID();
-  const did = result.session.did;
-  await userSessions.set(sessionId, { did });
+  const secureData = createSecureSessionData(event, result.session.did);
+
+  await userSessions.set(sessionId, {
+    did: secureData.did,
+    fingerprint: secureData.fingerprint,
+  });
 
   console.log("[oauth-callback] Created user session:", sessionId);
 
