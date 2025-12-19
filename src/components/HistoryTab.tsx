@@ -118,10 +118,10 @@ export default function HistoryTab({
                 ]
               ];
             return (
-              <button
+              <div
                 key={upload.uploadId}
                 onClick={() => onLoadUpload(upload.uploadId)}
-                className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/50 dark:border-amber-400/50 hover:border-orange-500 dark:hover:border-amber-400 shadow-md hover:shadow-lg"
+                className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/50 dark:border-amber-400/50 hover:border-orange-500 dark:hover:border-amber-400 shadow-md hover:shadow-lg cursor-pointer"
               >
                 <div
                   className={`w-12 h-12 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
@@ -145,7 +145,8 @@ export default function HistoryTab({
                       href={destApp.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight flex items-center space-x-1"
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight flex items-center space-x-1 w-fit"
                     >
                       <span>{destApp.action} on</span>
 
@@ -168,7 +169,7 @@ export default function HistoryTab({
                     </span>
                   </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
