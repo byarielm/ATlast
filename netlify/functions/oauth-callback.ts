@@ -50,10 +50,26 @@ const oauthCallbackHandler: SimpleHandler = async (event) => {
 
   console.log("[oauth-callback] Created user session:", sessionId);
 
-  const cookieName = isDev ? "atlast_session_dev" : "atlast_session";
-  const cookieFlags = isDev
-    ? `HttpOnly; SameSite=Lax; Max-Age=${CONFIG.COOKIE_MAX_AGE}; Path=/`
-    : `HttpOnly; SameSite=Lax; Max-Age=${CONFIG.COOKIE_MAX_AGE}; Path=/; Secure`;
+  // Determine cookie configuration
+  // Use DEPLOY_URL to detect Netlify Live mode
+  const isNetlifyLive = (process.env.DEPLOY_URL || process.env.URL)?.includes(
+    ".netlify.live",
+  );
+  const isSecure = currentUrl.startsWith("https://") || isNetlifyLive;
+
+  // Use dev cookie for development, otherwise production cookie
+  const cookieName =
+    isDev && !isNetlifyLive ? "atlast_session_dev" : "atlast_session";
+  const cookieFlags = isSecure
+    ? `HttpOnly; SameSite=Lax; Max-Age=${CONFIG.COOKIE_MAX_AGE}; Path=/; Secure`
+    : `HttpOnly; SameSite=Lax; Max-Age=${CONFIG.COOKIE_MAX_AGE}; Path=/`;
+
+  console.log(
+    "[oauth-callback] Setting cookie:",
+    cookieName,
+    "for URL:",
+    currentUrl,
+  );
 
   return redirectResponse(
     `${currentUrl}/?session=${sessionId}`,

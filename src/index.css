@@ -19,12 +19,20 @@
         font-family: "Rubik", "Fira Sans", sans-serif;
     }
 
+    html,
+    body {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+    }
+
     body {
         @apply bg-gradient-to-br
-            from-cyan-50 via-purple-50 to-pink-50
-            dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900
-            text-slate-900 dark:text-slate-100
-            transition-colors duration-300;
+                from-cyan-50 via-purple-50 to-pink-50
+                dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900
+                text-slate-900 dark:text-slate-100
+                transition-colors duration-300;
+        padding: env(safe-area-inset-top) env(safe-area-inset-right)
+            env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
 
     button {

@@ -12,7 +12,13 @@ export function withErrorHandling(handler: SimpleHandler): Handler {
     try {
       return await handler(event);
     } catch (error) {
-      console.error("Handler error:", error);
+      console.error(
+        "Handler error:",
+        error instanceof Error ? error.message : String(error),
+      );
+      if (error instanceof Error && error.stack) {
+        console.error("Stack trace:", error.stack);
+      }
 
       if (error instanceof ApiError) {
         return errorResponse(error.message, error.statusCode, error.details);

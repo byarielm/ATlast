@@ -40,7 +40,8 @@ export class SessionService {
     console.log("[SessionService] Found user session for DID:", did);
 
     // Cache the OAuth client per session for 5 minutes
-    const cacheKey = `oauth-client-${sessionId}`;
+    const host = event.headers?.host || "default";
+    const cacheKey = `oauth-client-${sessionId}-${host}`;
     let client = configCache.get(cacheKey) as NodeOAuthClient | null;
 
     if (!client) {
@@ -51,21 +52,33 @@ export class SessionService {
       console.log("[SessionService] Using cached OAuth client");
     }
 
-    const oauthSession = await client.restore(did);
-    console.log("[SessionService] Restored OAuth session for DID:", did);
+    try {
+      const oauthSession = await client.restore(did);
+      console.log("[SessionService] Restored OAuth session for DID:", did);
 
-    // Log token rotation for monitoring
-    // The restore() call automatically refreshes if needed
-    const sessionData = await sessionStore.get(did);
-    if (sessionData) {
-      // Token refresh happens transparently in restore()
-      // Just log for monitoring purposes
-      console.log("[SessionService] OAuth session restored/refreshed");
+      // Log token rotation for monitoring
+      // The restore() call automatically refreshes if needed
+      const sessionData = await sessionStore.get(did);
+      if (sessionData) {
+        // Token refresh happens transparently in restore()
+        // Just log for monitoring purposes
+        console.log("[SessionService] OAuth session restored/refreshed");
+      }
+
+      const agent = new Agent(oauthSession);
+      return { agent, did, client };
+    } catch (error) {
+      console.error(
+        "[SessionService] Failed to restore session:",
+        error instanceof Error ? error.message : String(error),
+      );
+      // Clear the cached client if restore fails - it might be stale or misconfigured
+      configCache.delete(cacheKey);
+      throw new AuthenticationError(
+        "Failed to restore OAuth session",
+        error instanceof Error ? error.message : "Session restoration failed",
+      );
     }
-
-    const agent = new Agent(oauthSession);
-
-    return { agent, did, client };
   }
 
   static async deleteSession(
