@@ -53,9 +53,7 @@ export function useAuth() {
 
   async function login(handle: string) {
     if (!handle) {
-      const errorMsg = "Please enter your handle";
-      setStatusMessage(errorMsg);
-      throw new Error(errorMsg);
+      throw new Error("Please enter your handle");
     }
 
     setStatusMessage("Starting authentication...");

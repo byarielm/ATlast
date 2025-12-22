@@ -6,7 +6,7 @@ import type {
   SaveResultsResponse,
   SearchResult,
 } from "../../../types";
-import { CacheService } from "../../../lib/utils/cache";
+import { CacheService } from "../../utils/cache";
 import { CACHE_CONFIG } from "../../../config/constants";
 
 /**
@@ -20,8 +20,18 @@ function unwrapResponse<T>(response: any): T {
 }
 
 /**
+ * Generate cache key for complex requests
+ */
+function generateCacheKey(
+  prefix: string,
+  ...parts: (string | number)[]
+): string {
+  return `${prefix}:${parts.join(":")}`;
+}
+
+/**
  * Real API Client Adapter
- * Implements actual HTTP calls to backend
+ * Implements actual HTTP calls to backend with optimized caching
  */
 export class RealApiAdapter implements IApiClient {
   private responseCache = new CacheService(CACHE_CONFIG.DEFAULT_TTL);
@@ -121,7 +131,12 @@ export class RealApiAdapter implements IApiClient {
     results: SearchResult[];
     pagination?: any;
   }> {
-    const cacheKey = `upload-details-${uploadId}-p${page}-s${pageSize}`;
+    const cacheKey = generateCacheKey(
+      "upload-details",
+      uploadId,
+      page,
+      pageSize,
+    );
     const cached = this.responseCache.get<any>(cacheKey);
     if (cached) {
       return cached;
@@ -146,20 +161,36 @@ export class RealApiAdapter implements IApiClient {
   async getAllUploadDetails(
     uploadId: string,
   ): Promise<{ results: SearchResult[] }> {
-    const firstPage = await this.getUploadDetails(uploadId, 1, 100);
+    // Check if we have all pages cached
+    const firstPageKey = generateCacheKey("upload-details", uploadId, 1, 100);
+    const firstPage = this.responseCache.get<any>(firstPageKey);
 
-    if (!firstPage.pagination || firstPage.pagination.totalPages === 1) {
+    if (
+      firstPage &&
+      (!firstPage.pagination || firstPage.pagination.totalPages === 1)
+    ) {
       return { results: firstPage.results };
     }
 
-    const allResults = [...firstPage.results];
-    const promises = [];
+    // Fetch first page to get total pages
+    const firstPageData = await this.getUploadDetails(uploadId, 1, 100);
 
-    for (let page = 2; page <= firstPage.pagination.totalPages; page++) {
-      promises.push(this.getUploadDetails(uploadId, page, 100));
+    if (
+      !firstPageData.pagination ||
+      firstPageData.pagination.totalPages === 1
+    ) {
+      return { results: firstPageData.results };
     }
 
-    const remainingPages = await Promise.all(promises);
+    // Fetch remaining pages in parallel
+    const allResults = [...firstPageData.results];
+    const pagePromises = [];
+
+    for (let page = 2; page <= firstPageData.pagination.totalPages; page++) {
+      pagePromises.push(this.getUploadDetails(uploadId, page, 100));
+    }
+
+    const remainingPages = await Promise.all(pagePromises);
     for (const pageData of remainingPages) {
       allResults.push(...pageData.results);
     }
@@ -171,7 +202,13 @@ export class RealApiAdapter implements IApiClient {
     dids: string[],
     followLexicon: string,
   ): Promise<Record<string, boolean>> {
-    const cacheKey = `follow-status-${followLexicon}-${dids.slice().sort().join(",")}`;
+    // Sort DIDs for consistent cache key
+    const sortedDids = [...dids].sort();
+    const cacheKey = generateCacheKey(
+      "follow-status",
+      followLexicon,
+      sortedDids.join(","),
+    );
     const cached = this.responseCache.get<Record<string, boolean>>(cacheKey);
     if (cached) {
       return cached;
@@ -205,7 +242,13 @@ export class RealApiAdapter implements IApiClient {
     usernames: string[],
     followLexicon?: string,
   ): Promise<{ results: BatchSearchResult[] }> {
-    const cacheKey = `search-${followLexicon || "default"}-${usernames.slice().sort().join(",")}`;
+    // Sort usernames for consistent cache key
+    const sortedUsernames = [...usernames].sort();
+    const cacheKey = generateCacheKey(
+      "search",
+      followLexicon || "default",
+      sortedUsernames.join(","),
+    );
     const cached = this.responseCache.get<any>(cacheKey);
     if (cached) {
       return cached;
@@ -254,10 +297,10 @@ export class RealApiAdapter implements IApiClient {
     const response = await res.json();
     const data = unwrapResponse<any>(response);
 
-    // Invalidate caches after following
-    this.responseCache.invalidate("uploads");
-    this.responseCache.invalidatePattern("upload-details");
-    this.responseCache.invalidatePattern("follow-status");
+    // Invalidate relevant caches after following
+    this.cache.invalidate("uploads");
+    this.cache.invalidatePattern("upload-details");
+    this.cache.invalidatePattern("follow-status");
 
     return data;
   }
@@ -291,8 +334,8 @@ export class RealApiAdapter implements IApiClient {
         const data = unwrapResponse<SaveResultsResponse>(response);
 
         // Invalidate caches
-        this.responseCache.invalidate("uploads");
-        this.responseCache.invalidatePattern("upload-details");
+        this.cache.invalidate("uploads");
+        this.cache.invalidatePattern("upload-details");
 
         return data;
       } else {

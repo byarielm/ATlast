@@ -1,3 +1,5 @@
+import React, { useState } from "react";
+
 interface AvatarWithFallbackProps {
   avatar?: string;
   handle: string;
@@ -5,37 +7,44 @@ interface AvatarWithFallbackProps {
   className?: string;
 }
 
-export default function AvatarWithFallback({
-  avatar,
-  handle,
-  size = "md",
-  className = "",
-}: AvatarWithFallbackProps) {
-  const sizeClasses = {
-    sm: "w-8 h-8 text-sm",
-    md: "w-12 h-12 text-base",
-    lg: "w-16 h-16 text-xl",
-  };
+const sizeClasses = {
+  sm: { container: "w-8 h-8", text: "text-sm" },
+  md: { container: "w-12 h-12", text: "text-base" },
+  lg: { container: "w-16 h-16", text: "text-xl" },
+};
 
-  const sizeClass = sizeClasses[size];
+const AvatarWithFallback = React.memo<AvatarWithFallbackProps>(
+  ({ avatar, handle, size = "md", className = "" }) => {
+    const [imageError, setImageError] = useState(false);
+    const { container, text } = sizeClasses[size];
 
-  if (avatar) {
+    const fallbackInitial = handle.charAt(0).toUpperCase();
+
+    if (!avatar || imageError) {
+      return (
+        <div
+          className={`${container} bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-sm ${className}`}
+          aria-label={`${handle}'s avatar`}
+        >
+          <span className={`text-white font-bold ${text}`}>
+            {fallbackInitial}
+          </span>
+        </div>
+      );
+    }
+
     return (
       <img
         src={avatar}
         alt={`${handle}'s avatar`}
-        className={`${sizeClass} rounded-full object-cover ${className}`}
+        className={`${container} rounded-full object-cover ${className}`}
+        onError={() => setImageError(true)}
+        loading="lazy"
       />
     );
-  }
+  },
+);
 
-  return (
-    <div
-      className={`${sizeClass} bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-sm ${className}`}
-    >
-      <span className="text-white font-bold">
-        {handle.charAt(0).toUpperCase()}
-      </span>
-    </div>
-  );
-}
+AvatarWithFallback.displayName = "AvatarWithFallback";
+
+export default AvatarWithFallback;

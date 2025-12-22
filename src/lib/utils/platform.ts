@@ -2,22 +2,23 @@ import { PLATFORMS, type PlatformConfig } from "../../config/platforms";
 import { ATPROTO_APPS, type AtprotoApp } from "../../config/atprotoApps";
 import type { AtprotoAppId } from "../../types/settings";
 
+// Cache for platform lookups
+const platformCache = new Map<string, PlatformConfig>();
+const appCache = new Map<AtprotoAppId, AtprotoApp>();
+
 /**
- * Get platform configuration by key
- *
- * @param platformKey - The platform identifier (e.g., "tiktok", "instagram")
- * @returns Platform configuration or default to TikTok
- **/
+ * Get platform configuration by key (memoized)
+ */
 export function getPlatform(platformKey: string): PlatformConfig {
-  return PLATFORMS[platformKey] || PLATFORMS.tiktok;
+  if (!platformCache.has(platformKey)) {
+    platformCache.set(platformKey, PLATFORMS[platformKey] || PLATFORMS.tiktok);
+  }
+  return platformCache.get(platformKey)!;
 }
 
 /**
  * Get platform gradient color classes for UI
- *
- * @param platformKey - The platform identifier
- * @returns Tailwind gradient classes for the platform
- **/
+ */
 export function getPlatformColor(platformKey: string): string {
   const colors: Record<string, string> = {
     tiktok: "from-black via-gray-800 to-cyan-400",
@@ -31,65 +32,74 @@ export function getPlatformColor(platformKey: string): string {
 }
 
 /**
- * Get ATProto app configuration by ID
- *
- * @param appId - The app identifier
- * @returns App configuration or undefined if not found
- **/
+ * Get ATProto app configuration by ID (memoized)
+ */
 export function getAtprotoApp(appId: AtprotoAppId): AtprotoApp | undefined {
-  return ATPROTO_APPS[appId];
+  if (!appCache.has(appId)) {
+    const app = ATPROTO_APPS[appId];
+    if (app) {
+      appCache.set(appId, app);
+    }
+  }
+  return appCache.get(appId);
 }
 
 /**
- * Get ATProto app with fallback to default
- *
- * @param appId - The app identifier
- * @param defaultApp - Default app ID to use as fallback
- * @returns App configuration, falling back to default or Bluesky
- **/
+ * Get ATProto app with fallback to default (memoized)
+ */
 export function getAtprotoAppWithFallback(
   appId: AtprotoAppId,
   defaultApp: AtprotoAppId = "bluesky",
 ): AtprotoApp {
   return (
-    ATPROTO_APPS[appId] || ATPROTO_APPS[defaultApp] || ATPROTO_APPS.bluesky
+    getAtprotoApp(appId) || getAtprotoApp(defaultApp) || ATPROTO_APPS.bluesky
   );
 }
 
 /**
- * Get all enabled ATProto apps
- *
- * @returns Array of enabled app configurations
- **/
+ * Get all enabled ATProto apps (cached result)
+ */
+let enabledAppsCache: AtprotoApp[] | null = null;
 export function getEnabledAtprotoApps(): AtprotoApp[] {
-  return Object.values(ATPROTO_APPS).filter((app) => app.enabled);
+  if (!enabledAppsCache) {
+    enabledAppsCache = Object.values(ATPROTO_APPS).filter((app) => app.enabled);
+  }
+  return enabledAppsCache;
 }
 
 /**
- * Get all enabled platforms
- *
- * @returns Array of [key, config] tuples for enabled platforms
- **/
+ * Get all enabled platforms (cached result)
+ */
+let enabledPlatformsCache: Array<[string, PlatformConfig]> | null = null;
 export function getEnabledPlatforms(): Array<[string, PlatformConfig]> {
-  return Object.entries(PLATFORMS).filter(([_, config]) => config.enabled);
+  if (!enabledPlatformsCache) {
+    enabledPlatformsCache = Object.entries(PLATFORMS).filter(
+      ([_, config]) => config.enabled,
+    );
+  }
+  return enabledPlatformsCache;
 }
 
 /**
  * Check if a platform is enabled
- *
- * @param platformKey - The platform identifier
- * @returns True if platform is enabled
- **/
+ */
 export function isPlatformEnabled(platformKey: string): boolean {
   return PLATFORMS[platformKey]?.enabled || false;
 }
 
 /**
  * Check if an app is enabled
- *
- * @param appId - The app identifier
- * @returns True if app is enabled
- **/
+ */
 export function isAppEnabled(appId: AtprotoAppId): boolean {
   return ATPROTO_APPS[appId]?.enabled || false;
+}
+
+/**
+ * Clear all caches (useful for hot reload in development)
+ */
+export function clearPlatformCaches(): void {
+  platformCache.clear();
+  appCache.clear();
+  enabledAppsCache = null;
+  enabledPlatformsCache = null;
 }
