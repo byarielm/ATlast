@@ -22,6 +22,7 @@
     "@icons-pack/react-simple-icons": "^13.8.0",
     "@neondatabase/serverless": "^1.0.2",
     "@netlify/functions": "^4.2.7",
+    "@tanstack/react-virtual": "^3.13.13",
     "actor-typeahead": "^0.1.2",
     "cookie": "^1.0.2",
     "jose": "^6.1.0",

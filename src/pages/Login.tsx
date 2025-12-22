@@ -1,7 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import "actor-typeahead";
-import { Heart, Upload, Search, ArrowRight } from "lucide-react";
+import { Heart, Upload, Search, ArrowRight, AlertCircle } from "lucide-react";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
+import { useFormValidation } from "../hooks/useFormValidation";
+import { validateHandle } from "../lib/validation";
 
 interface LoginPageProps {
   onSubmit: (handle: string) => void;
@@ -16,14 +18,34 @@ export default function LoginPage({
   onNavigate,
   reducedMotion = false,
 }: LoginPageProps) {
-  const [handle, setHandle] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { fields, setValue, validate, getFieldProps } = useFormValidation({
+    handle: "",
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Get the value directly from the input instead of state
-    const currentHandle = inputRef.current?.value || handle;
-    onSubmit(currentHandle);
+
+    // Get the value directly from the input
+    const currentHandle = inputRef.current?.value || fields.handle.value;
+    setValue("handle", currentHandle);
+
+    // Validate
+    const isValid = validate("handle", validateHandle);
+
+    if (!isValid) {
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await onSubmit(currentHandle);
+    } catch (error) {
+      // Error handling is done in parent component
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -117,24 +139,51 @@ export default function LoginPage({
                         ref={inputRef}
                         id="atproto-handle"
                         type="text"
-                        defaultValue={handle}
-                        onInput={(e) =>
-                          setHandle((e.target as HTMLInputElement).value)
-                        }
+                        {...getFieldProps("handle")}
                         placeholder="yourname.bsky.social"
-                        className="w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 border-cyan-500/50 dark:border-purple-500/30 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 focus:border-transparent transition-all"
+                        className={`w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 transition-all ${
+                          fields.handle.touched && fields.handle.error
+                            ? "border-red-500 focus:ring-red-500"
+                            : "border-cyan-500/50 dark:border-purple-500/30 focus:ring-orange-500 dark:focus:ring-amber-400 focus:border-transparent"
+                        }`}
                         aria-required="true"
-                        aria-describedby="handle-description"
+                        aria-invalid={
+                          fields.handle.touched && !!fields.handle.error
+                        }
+                        aria-describedby={
+                          fields.handle.error
+                            ? "handle-error"
+                            : "handle-description"
+                        }
+                        disabled={isSubmitting}
                       />
                     </actor-typeahead>
+                    {fields.handle.touched && fields.handle.error && (
+                      <div
+                        id="handle-error"
+                        className="mt-2 flex items-center gap-2 text-sm text-red-600 dark:text-red-400"
+                        role="alert"
+                      >
+                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        <span>{fields.handle.error}</span>
+                      </div>
+                    )}
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-500 dark:focus:ring-amber-400 focus:outline-none"
+                    disabled={isSubmitting}
+                    className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-500 dark:focus:ring-amber-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                     aria-label="Connect to the ATmosphere"
                   >
-                    Join the Swarm
+                    {isSubmitting ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        <span>Connecting...</span>
+                      </>
+                    ) : (
+                      "Join the Swarm"
+                    )}
                   </button>
                 </form>
 

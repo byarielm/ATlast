@@ -1,9 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, Suspense, lazy } from "react";
 import { ArrowRight } from "lucide-react";
-import LoginPage from "./pages/Login";
-import HomePage from "./pages/Home";
-import LoadingPage from "./pages/Loading";
-import ResultsPage from "./pages/Results";
 import { useAuth } from "./hooks/useAuth";
 import { useSearch } from "./hooks/useSearch";
 import { useFollow } from "./hooks/useFollows";
@@ -12,10 +8,33 @@ import { useTheme } from "./hooks/useTheme";
 import { useNotifications } from "./hooks/useNotifications";
 import Firefly from "./components/Firefly";
 import NotificationContainer from "./components/common/NotificationContainer";
+import ErrorBoundary from "./components/common/ErrorBoundary";
+import { SearchResultSkeleton } from "./components/common/LoadingSkeleton";
 import { DEFAULT_SETTINGS } from "./types/settings";
 import type { UserSettings, SearchResult } from "./types";
 import { apiClient } from "./lib/api/client";
 import { ATPROTO_APPS } from "./config/atprotoApps";
+import { useSettings } from "./contexts/SettingsContext";
+
+// Lazy load page components
+const LoginPage = lazy(() => import("./pages/Login"));
+const HomePage = lazy(() => import("./pages/Home"));
+const LoadingPage = lazy(() => import("./pages/Loading"));
+const ResultsPage = lazy(() => import("./pages/Results"));
+
+// Loading fallback component
+const PageLoader: React.FC = () => (
+  <div className="p-6 max-w-md mx-auto mt-8">
+    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center space-y-4">
+      <div className="w-16 h-16 bg-firefly-banner dark:bg-firefly-banner-dark text-white rounded-2xl mx-auto flex items-center justify-center">
+        <ArrowRight className="w-8 h-8 text-white animate-pulse" />
+      </div>
+      <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
+        Loading...
+      </h2>
+    </div>
+  </div>
+);
 
 export default function App() {
   // Auth hook
@@ -43,22 +62,8 @@ export default function App() {
   const [savedUploads, setSavedUploads] = useState<Set<string>>(new Set());
 
   // Settings state
-  const [userSettings, setUserSettings] = useState<UserSettings>(() => {
-    const saved = localStorage.getItem("atlast_settings");
-    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-  });
-
-  // Save settings to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem("atlast_settings", JSON.stringify(userSettings));
-  }, [userSettings]);
-
-  const handleSettingsUpdate = useCallback(
-    (newSettings: Partial<UserSettings>) => {
-      setUserSettings((prev) => ({ ...prev, ...newSettings }));
-    },
-    [],
-  );
+  const { settings: userSettings, updateSettings: handleSettingsUpdate } =
+    useSettings();
 
   // Search hook
   const {
@@ -229,128 +234,130 @@ export default function App() {
   }, [logout, setSearchResults, success, error]);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      {/* Notification Container */}
-      <NotificationContainer
-        notifications={notifications}
-        onRemove={removeNotification}
-      />
+    <ErrorBoundary>
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Notification Container */}
+        <NotificationContainer
+          notifications={notifications}
+          onRemove={removeNotification}
+        />
 
-      {/* Firefly particles - only render if motion not reduced */}
-      {!reducedMotion && (
-        <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
-          {[...Array(15)].map((_, i) => (
-            <Firefly key={i} delay={i * 0.5} duration={3 + Math.random() * 2} />
-          ))}
-        </div>
-      )}
-
-      {/* Status message for screen readers */}
-      <div
-        role="status"
-        aria-live="polite"
-        aria-atomic="true"
-        className="sr-only"
-      >
-        {statusMessage}
-      </div>
-
-      {/* Skip to main content link */}
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-firefly-orange focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
-      >
-        Skip to main content
-      </a>
-
-      <main id="main-content">
-        {/* Checking Session */}
-        {currentStep === "checking" && (
-          <div className="p-6 max-w-md mx-auto mt-8">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center space-y-4">
-              <div className="w-16 h-16 bg-firefly-banner dark:bg-firefly-banner-dark text-white rounded-2xl mx-auto flex items-center justify-center">
-                <ArrowRight className="w-8 h-8 text-white animate-pulse" />
-              </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
-                Loading...
-              </h2>
-              <p className="text-gray-600 dark:text-gray-300">
-                Checking your session
-              </p>
-            </div>
+        {/* Firefly particles - only render if motion not reduced */}
+        {!reducedMotion && (
+          <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+            {[...Array(15)].map((_, i) => (
+              <Firefly
+                key={i}
+                delay={i * 0.5}
+                duration={3 + Math.random() * 2}
+              />
+            ))}
           </div>
         )}
 
-        {/* Login Page */}
-        {currentStep === "login" && (
-          <LoginPage
-            onSubmit={handleLogin}
-            session={session}
-            onNavigate={setCurrentStep}
-            reducedMotion={reducedMotion}
-          />
-        )}
+        {/* Status message for screen readers */}
+        <div
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="sr-only"
+        >
+          {statusMessage}
+        </div>
 
-        {/* Home/Dashboard Page */}
-        {currentStep === "home" && (
-          <HomePage
-            session={session}
-            onLogout={handleLogout}
-            onNavigate={setCurrentStep}
-            onFileUpload={processFileUpload}
-            onLoadUpload={handleLoadUpload}
-            currentStep={currentStep}
-            reducedMotion={reducedMotion}
-            isDark={isDark}
-            onToggleTheme={toggleTheme}
-            onToggleMotion={toggleMotion}
-            userSettings={userSettings}
-            onSettingsUpdate={handleSettingsUpdate}
-          />
-        )}
+        {/* Skip to main content link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-firefly-orange focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+        >
+          Skip to main content
+        </a>
 
-        {/* Loading Page */}
-        {currentStep === "loading" && (
-          <LoadingPage
-            session={session}
-            onLogout={handleLogout}
-            onNavigate={setCurrentStep}
-            searchProgress={searchProgress}
-            currentStep={currentStep}
-            sourcePlatform={currentPlatform}
-            isDark={isDark}
-            reducedMotion={reducedMotion}
-            onToggleTheme={toggleTheme}
-            onToggleMotion={toggleMotion}
-          />
-        )}
+        <main id="main-content">
+          <Suspense fallback={<PageLoader />}>
+            {/* Checking Session */}
+            {currentStep === "checking" && <PageLoader />}
 
-        {/* Results Page */}
-        {currentStep === "results" && (
-          <ResultsPage
-            session={session}
-            onLogout={handleLogout}
-            onNavigate={setCurrentStep}
-            searchResults={searchResults}
-            expandedResults={expandedResults}
-            onToggleExpand={toggleExpandResult}
-            onToggleMatchSelection={toggleMatchSelection}
-            onSelectAll={() => selectAllMatches(setStatusMessage)}
-            onDeselectAll={() => deselectAllMatches(setStatusMessage)}
-            onFollowSelected={() => followSelectedUsers(setStatusMessage)}
-            totalSelected={totalSelected}
-            totalFound={totalFound}
-            isFollowing={isFollowing}
-            currentStep={currentStep}
-            sourcePlatform={currentPlatform}
-            destinationAppId={currentDestinationAppId}
-            reducedMotion={reducedMotion}
-            isDark={isDark}
-            onToggleTheme={toggleTheme}
-            onToggleMotion={toggleMotion}
-          />
-        )}
-      </main>
-    </div>
+            {/* Login Page */}
+            {currentStep === "login" && (
+              <ErrorBoundary fallbackType="inline">
+                <LoginPage
+                  onSubmit={handleLogin}
+                  session={session}
+                  onNavigate={setCurrentStep}
+                  reducedMotion={reducedMotion}
+                />
+              </ErrorBoundary>
+            )}
+
+            {/* Home/Dashboard Page */}
+            {currentStep === "home" && (
+              <ErrorBoundary fallbackType="inline">
+                <HomePage
+                  session={session}
+                  onLogout={handleLogout}
+                  onNavigate={setCurrentStep}
+                  onFileUpload={processFileUpload}
+                  onLoadUpload={handleLoadUpload}
+                  currentStep={currentStep}
+                  reducedMotion={reducedMotion}
+                  isDark={isDark}
+                  onToggleTheme={toggleTheme}
+                  onToggleMotion={toggleMotion}
+                  userSettings={userSettings}
+                  onSettingsUpdate={handleSettingsUpdate}
+                />
+              </ErrorBoundary>
+            )}
+
+            {/* Loading Page */}
+            {currentStep === "loading" && (
+              <ErrorBoundary fallbackType="inline">
+                <LoadingPage
+                  session={session}
+                  onLogout={handleLogout}
+                  onNavigate={setCurrentStep}
+                  searchProgress={searchProgress}
+                  currentStep={currentStep}
+                  sourcePlatform={currentPlatform}
+                  isDark={isDark}
+                  reducedMotion={reducedMotion}
+                  onToggleTheme={toggleTheme}
+                  onToggleMotion={toggleMotion}
+                />
+              </ErrorBoundary>
+            )}
+
+            {/* Results Page */}
+            {currentStep === "results" && (
+              <ErrorBoundary fallbackType="inline">
+                <ResultsPage
+                  session={session}
+                  onLogout={handleLogout}
+                  onNavigate={setCurrentStep}
+                  searchResults={searchResults}
+                  expandedResults={expandedResults}
+                  onToggleExpand={toggleExpandResult}
+                  onToggleMatchSelection={toggleMatchSelection}
+                  onSelectAll={() => selectAllMatches(setStatusMessage)}
+                  onDeselectAll={() => deselectAllMatches(setStatusMessage)}
+                  onFollowSelected={() => followSelectedUsers(setStatusMessage)}
+                  totalSelected={totalSelected}
+                  totalFound={totalFound}
+                  isFollowing={isFollowing}
+                  currentStep={currentStep}
+                  sourcePlatform={currentPlatform}
+                  destinationAppId={currentDestinationAppId}
+                  reducedMotion={reducedMotion}
+                  isDark={isDark}
+                  onToggleTheme={toggleTheme}
+                  onToggleMotion={toggleMotion}
+                />
+              </ErrorBoundary>
+            )}
+          </Suspense>
+        </main>
+      </div>
+    </ErrorBoundary>
   );
 }

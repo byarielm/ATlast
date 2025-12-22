@@ -5,6 +5,7 @@ import SearchResultCard from "../components/SearchResultCard";
 import FaviconIcon from "../components/FaviconIcon";
 import type { AtprotoAppId } from "../types/settings";
 import { getPlatform, getAtprotoApp } from "../lib/utils/platform";
+import VirtualizedResultsList from "../components/VirtualizedResultsList";
 
 interface atprotoSession {
   did: string;
@@ -180,27 +181,15 @@ export default function ResultsPage({
       </div>
 
       {/* Feed Results */}
-      <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
-        {sortedResults.map((result) => {
-          // Find the original index in unsorted array for state updates
-          const originalIndex = searchResults.findIndex(
-            (r) => r.sourceUser.username === result.sourceUser.username,
-          );
-          return (
-            <SearchResultCard
-              key={originalIndex}
-              result={result}
-              resultIndex={originalIndex}
-              isExpanded={expandedResults.has(originalIndex)}
-              onToggleExpand={() => onToggleExpand(originalIndex)}
-              onToggleMatchSelection={(did) =>
-                onToggleMatchSelection(originalIndex, did)
-              }
-              sourcePlatform={sourcePlatform}
-              destinationAppId={destinationAppId}
-            />
-          );
-        })}
+      <div className="max-w-3xl mx-auto px-4 py-4">
+        <VirtualizedResultsList
+          results={sortedResults}
+          expandedResults={expandedResults}
+          onToggleExpand={onToggleExpand}
+          onToggleMatchSelection={onToggleMatchSelection}
+          sourcePlatform={sourcePlatform}
+          destinationAppId={destinationAppId}
+        />
       </div>
 
       {/* Fixed Bottom Action Bar */}

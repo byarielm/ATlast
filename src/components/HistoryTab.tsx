@@ -3,6 +3,7 @@ import { ATPROTO_APPS } from "../config/atprotoApps";
 import type { Upload as UploadType } from "../types";
 import FaviconIcon from "../components/FaviconIcon";
 import type { UserSettings } from "../types/settings";
+import { UploadHistorySkeleton } from "./common/LoadingSkeleton";
 import { getPlatformColor } from "../lib/utils/platform";
 import { formatRelativeTime } from "../lib/utils/date";
 
@@ -84,18 +85,9 @@ export default function HistoryTab({
       )}
 
       {isLoading ? (
-        <div className="space-y-6">
+        <div className="space-y-3">
           {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="animate-pulse flex items-center space-x-4 p-4 bg-purple-100/50 dark:bg-slate-900/50 rounded-xl border-2 border-purple-500/30 dark:border-cyan-500/30"
-            >
-              <div className="w-12 h-12 bg-purple-200 dark:bg-slate-600 rounded-xl" />
-              <div className="flex-1 space-y-2">
-                <div className="h-4 bg-purple-200 dark:bg-slate-600 rounded w-3/4" />
-                <div className="h-3 bg-purple-200 dark:bg-slate-600 rounded w-1/2" />
-              </div>
-            </div>
+            <UploadHistorySkeleton key={i} />
           ))}
         </div>
       ) : uploads.length === 0 ? (

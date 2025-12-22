@@ -1,4 +1,5 @@
 import AppHeader from "../components/AppHeader";
+import { SearchResultSkeleton } from "../components/common/LoadingSkeleton";
 import { getPlatform } from "../lib/utils/platform";
 
 interface atprotoSession {
@@ -148,36 +149,7 @@ export default function LoadingPage({
       {/* Skeleton Results - Matches layout of Results page */}
       <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
         {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-sm overflow-hidden animate-pulse border-2 border-slate-200 dark:border-slate-700"
-          >
-            {/* Source User Skeleton */}
-            <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-b-2 border-slate-200 dark:border-slate-700">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-slate-300 dark:bg-slate-600 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-slate-300 dark:bg-slate-600 rounded w-32" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-24" />
-                </div>
-                <div className="h-5 w-16 bg-slate-300 dark:bg-slate-600 rounded-full" />
-              </div>
-            </div>
-
-            {/* Match Skeleton */}
-            <div className="p-4">
-              <div className="flex items-start space-x-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800/30">
-                <div className="w-12 h-12 bg-slate-300 dark:bg-slate-600 rounded-full flex-shrink-0" />
-                <div className="flex-1 space-y-2">
-                  <div className="h-4 bg-slate-300 dark:bg-slate-600 rounded w-3/4" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-1/2" />
-                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-full" />
-                  <div className="h-5 w-20 bg-slate-300 dark:bg-slate-600 rounded-full mt-2" />
-                </div>
-                <div className="w-20 h-8 bg-slate-300 dark:bg-slate-600 rounded-full flex-shrink-0" />
-              </div>
-            </div>
-          </div>
+          <SearchResultSkeleton key={i} />
         ))}
       </div>
     </div>
