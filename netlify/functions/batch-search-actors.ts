@@ -1,4 +1,10 @@
-import { AuthenticatedHandler } from "./core/types";
+import {
+  AuthenticatedHandler,
+  ATProtoActor,
+  ATProtoProfile,
+  RankedActor,
+  EnrichedActor,
+} from "./core/types";
 import { SessionService } from "./services/SessionService";
 import { successResponse, validateArrayInput, ValidationSchemas } from "./utils";
 import { withAuthErrorHandling } from "./core/middleware";
@@ -28,7 +34,7 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
       const normalizedUsername = normalize(username);
 
       const rankedActors = response.data.actors
-        .map((actor: any) => {
+        .map((actor: ATProtoActor): RankedActor => {
           const handlePart = actor.handle.split(".")[0];
           const normalizedHandle = normalize(handlePart);
           const normalizedFullHandle = normalize(actor.handle);
@@ -51,8 +57,8 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
             did: actor.did,
           };
         })
-        .filter((actor: any) => actor.matchScore > 0)
-        .sort((a: any, b: any) => b.matchScore - a.matchScore)
+        .filter((actor: RankedActor) => actor.matchScore > 0)
+        .sort((a: RankedActor, b: RankedActor) => b.matchScore - a.matchScore)
         .slice(0, 5);
 
       return {
@@ -72,7 +78,7 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
   const results = await Promise.all(searchPromises);
 
   const allDids = results
-    .flatMap((r) => r.actors.map((a: any) => a.did))
+    .flatMap((r) => r.actors.map((a: RankedActor) => a.did))
     .filter((did): did is string => !!did);
 
   if (allDids.length > 0) {
@@ -89,7 +95,7 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
           actors: batch,
         });
 
-        profilesResponse.data.profiles.forEach((profile: any) => {
+        profilesResponse.data.profiles.forEach((profile: ATProtoProfile) => {
           profileDataMap.set(profile.did, {
             postCount: profile.postsCount || 0,
             followerCount: profile.followersCount || 0,
@@ -101,7 +107,7 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
     }
 
     results.forEach((result) => {
-      result.actors = result.actors.map((actor: any) => {
+      result.actors = result.actors.map((actor: RankedActor): EnrichedActor => {
         const enrichedData = profileDataMap.get(actor.did);
         return {
           ...actor,
@@ -124,7 +130,7 @@ const batchSearchHandler: AuthenticatedHandler = async (context) => {
       );
 
       results.forEach((result) => {
-        result.actors = result.actors.map((actor: any) => ({
+        result.actors = result.actors.map((actor: EnrichedActor): EnrichedActor => ({
           ...actor,
           followStatus: {
             [followLexicon]: followStatus[actor.did] || false,
