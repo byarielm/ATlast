@@ -1,24 +1,17 @@
 import { AuthenticatedHandler } from "./core/types";
 import { SessionService } from "./services/SessionService";
-import { successResponse } from "./utils";
+import { successResponse, validateArrayInput, ValidationSchemas } from "./utils";
 import { withAuthErrorHandling } from "./core/middleware";
-import { ValidationError } from "./core/errors";
 import { normalize } from "./utils/string.utils";
 import { FollowService } from "./services/FollowService";
 
 const batchSearchHandler: AuthenticatedHandler = async (context) => {
   const body = JSON.parse(context.event.body || "{}");
-  const usernames: string[] = body.usernames || [];
-
-  if (!Array.isArray(usernames) || usernames.length === 0) {
-    throw new ValidationError(
-      "usernames array is required and must not be empty",
-    );
-  }
-
-  if (usernames.length > 50) {
-    throw new ValidationError("Maximum 50 usernames per batch");
-  }
+  const usernames = validateArrayInput<string>(
+    context.event.body,
+    "usernames",
+    ValidationSchemas.usernamesArray,
+  );
 
   const { agent } = await SessionService.getAgentForSession(
     context.sessionId,

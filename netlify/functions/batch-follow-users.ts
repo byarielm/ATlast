@@ -2,22 +2,17 @@ import { AuthenticatedHandler } from "./core/types";
 import { SessionService } from "./services/SessionService";
 import { FollowService } from "./services/FollowService";
 import { MatchRepository } from "./repositories";
-import { successResponse } from "./utils";
+import { successResponse, validateArrayInput, ValidationSchemas } from "./utils";
 import { withAuthErrorHandling } from "./core/middleware";
-import { ValidationError } from "./core/errors";
 
 const batchFollowHandler: AuthenticatedHandler = async (context) => {
   const body = JSON.parse(context.event.body || "{}");
-  const dids: string[] = body.dids || [];
+  const dids = validateArrayInput<string>(
+    context.event.body,
+    "dids",
+    ValidationSchemas.didsArray,
+  );
   const followLexicon: string = body.followLexicon || "app.bsky.graph.follow";
-
-  if (!Array.isArray(dids) || dids.length === 0) {
-    throw new ValidationError("dids array is required and must not be empty");
-  }
-
-  if (dids.length > 100) {
-    throw new ValidationError("Maximum 100 DIDs per batch");
-  }
 
   const { agent } = await SessionService.getAgentForSession(
     context.sessionId,
