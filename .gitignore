@@ -8,5 +8,5 @@ private-key.pem
 public-jwk.json
 test-data/
 
-# Deciduous database (local)
+.claude/
 .deciduous/
