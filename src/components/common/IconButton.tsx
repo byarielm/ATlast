@@ -4,6 +4,7 @@ import { LucideIcon } from "lucide-react";
 interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   icon: LucideIcon;
   label: string;
+  showLabel?: boolean;
   variant?: "primary" | "secondary" | "ghost";
   size?: "sm" | "md" | "lg";
 }
@@ -13,6 +14,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     {
       icon: Icon,
       label,
+      showLabel = false,
       variant = "ghost",
       size = "md",
       className = "",
@@ -21,7 +23,7 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     ref,
   ) => {
     const baseStyles =
-      "inline-flex items-center justify-center rounded-full transition-all focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed";
+      "inline-flex items-center justify-center transition-all focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed";
 
     const variants = {
       primary:
@@ -33,15 +35,21 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
     };
 
     const sizes = {
-      sm: "p-1.5",
-      md: "p-2",
-      lg: "p-3",
+      sm: showLabel ? "px-3 py-1.5 rounded-lg" : "p-1.5 rounded-full",
+      md: showLabel ? "px-4 py-2 rounded-xl" : "p-2 rounded-full",
+      lg: showLabel ? "px-6 py-3 rounded-xl" : "p-3 rounded-full",
     };
 
     const iconSizes = {
       sm: "w-4 h-4",
       md: "w-5 h-5",
       lg: "w-6 h-6",
+    };
+
+    const textSizes = {
+      sm: "text-sm",
+      md: "text-base",
+      lg: "text-lg",
     };
 
     return (
@@ -53,6 +61,9 @@ const IconButton = React.forwardRef<HTMLButtonElement, IconButtonProps>(
         {...props}
       >
         <Icon className={iconSizes[size]} />
+        {showLabel && (
+          <span className={`ml-2 font-medium ${textSizes[size]}`}>{label}</span>
+        )}
       </button>
     );
   },

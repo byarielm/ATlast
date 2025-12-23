@@ -1,6 +1,8 @@
 import { Settings } from "lucide-react";
 import { useRef } from "react";
 import PlatformSelector from "../components/PlatformSelector";
+import SetupPrompt from "./common/SetupPrompt";
+import Section from "./common/Section";
 
 interface UploadTabProps {
   wizardCompleted: boolean;
@@ -28,31 +30,18 @@ export default function UploadTab({
   };
 
   return (
-    <div className="p-6">
-      {/* Upload Section */}
+    <Section
+      title="Upload Following Data"
+      description="Find your people on the ATmosphere"
+      action={
+        <SetupPrompt
+          variant="button"
+          isCompleted={wizardCompleted}
+          onShowWizard={onShowWizard}
+        />
+      }
+    >
       <div className="space-y-3">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4">
-          <div className="flex items-center space-x-3 mb-2 sm:mb-0">
-            <div>
-              <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
-                Upload Following Data
-              </h2>
-              <p className="text-sm text-purple-750 dark:text-cyan-250">
-                Find your people on the ATmosphere
-              </p>
-            </div>
-          </div>
-          {!wizardCompleted && (
-            <button
-              onClick={onShowWizard}
-              className="text-md text-orange-650 hover:text-orange-500 dark:text-amber-400 dark:hover:text-amber-300 font-medium transition-colors flex items-center space-x-1"
-            >
-              <Settings className="w-4 h-4" />
-              <span>Configure</span>
-            </button>
-          )}
-        </div>
-
         <PlatformSelector onPlatformSelect={handlePlatformSelect} />
 
         <input
@@ -65,6 +54,6 @@ export default function UploadTab({
           aria-label="Upload following data file"
         />
       </div>
-    </div>
+    </Section>
   );
 }

@@ -6,6 +6,10 @@ import type { UserSettings } from "../types/settings";
 import { UploadHistorySkeleton } from "./common/LoadingSkeleton";
 import { getPlatformColor } from "../lib/utils/platform";
 import { formatRelativeTime } from "../lib/utils/date";
+import EmptyState from "./common/EmptyState";
+import SetupPrompt from "./common/SetupPrompt";
+import Card from "./common/Card";
+import Badge from "./common/Badge";
 
 interface HistoryTabProps {
   uploads: UploadType[];
@@ -33,26 +37,11 @@ export default function HistoryTab({
     <div className="p-6">
       {/* Setup Assistant Banner - Only show if wizard not completed */}
       {!wizardCompleted && (
-        <div className="bg-firefly-banner-dark dark:bg-firefly-banner-dark rounded-2xl p-6 text-white mb-3">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold mb-2">
-                Need help getting started?
-              </h2>
-              <p className="text-white">
-                Run the setup assistant to configure your preferences in
-                minutes.
-              </p>
-            </div>
-            <button
-              onClick={onShowWizard}
-              className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition-all flex items-center space-x-2 whitespace-nowrap shadow-lg"
-            >
-              <span>Start Setup</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        <SetupPrompt
+          variant="banner"
+          isCompleted={wizardCompleted}
+          onShowWizard={onShowWizard}
+        />
       )}
 
       <div className="flex items-center space-x-3 mb-4">
@@ -68,7 +57,7 @@ export default function HistoryTab({
 
       {/* Data Storage Disabled Notice */}
       {!userSettings.saveData && (
-        <div className="mb-4 p-4 border-2 rounded-xl border-orange-650/50 dark:border-amber-400/50 bg-purple-100/50 dark:bg-slate-900/50">
+        <Card className="mb-4 p-4 border-orange-650/50 dark:border-amber-400/50 bg-purple-100/50 dark:bg-slate-900/50">
           <div className="flex items-start space-x-3">
             <Database className="w-5 h-5 text-orange-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
             <div>
@@ -81,7 +70,7 @@ export default function HistoryTab({
               </p>
             </div>
           </div>
-        </div>
+        </Card>
       )}
 
       {isLoading ? (
@@ -91,15 +80,11 @@ export default function HistoryTab({
           ))}
         </div>
       ) : uploads.length === 0 ? (
-        <div className="text-center py-12">
-          <Upload className="w-16 h-16 text-purple-900 dark:text-cyan-100 mx-auto mb-4" />
-          <p className="text-purple-750 dark:text-cyan-250 font-medium">
-            No previous uploads yet
-          </p>
-          <p className="text-sm text-purple-950 dark:text-cyan-50 mt-2">
-            Upload your first file to get started
-          </p>
-        </div>
+        <EmptyState
+          icon={Upload}
+          title="No previous uploads yet"
+          message="Upload your first file to get started"
+        />
       ) : (
         <div className="space-y-3">
           {uploads.map((upload) => {
@@ -110,10 +95,11 @@ export default function HistoryTab({
                 ]
               ];
             return (
-              <div
+              <Card
                 key={upload.uploadId}
+                variant="upload"
                 onClick={() => onLoadUpload(upload.uploadId)}
-                className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/50 dark:border-amber-400/50 hover:border-orange-500 dark:hover:border-amber-400 shadow-md hover:shadow-lg cursor-pointer"
+                className="w-full flex items-start space-x-4 p-4"
               >
                 <div
                   className={`w-10 h-10 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
@@ -152,16 +138,16 @@ export default function HistoryTab({
                     </a>
                   )}
                   <div className="flex items-center flex-wrap gap-2 py-1.5 sm:ml-0 -ml-14">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
+                    <Badge variant="info">
                       {upload.totalUsers}{" "}
                       {upload.totalUsers === 1 ? "user found" : "users found"}
-                    </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
+                    </Badge>
+                    <Badge variant="info">
                       Uploaded {formatDate(upload.createdAt)}
-                    </span>
+                    </Badge>
                   </div>
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

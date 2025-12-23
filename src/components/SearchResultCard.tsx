@@ -5,6 +5,9 @@ import { getAtprotoAppWithFallback } from "../lib/utils/platform";
 import type { AtprotoAppId } from "../types/settings";
 import AvatarWithFallback from "./common/AvatarWithFallback";
 import FollowButton from "./common/FollowButton";
+import Badge from "./common/Badge";
+import { StatBadge } from "./common/Stats";
+import Card from "./common/Card";
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -51,19 +54,13 @@ const MatchItem = React.memo<{
 
         <div className="flex items-center flex-wrap gap-2">
           {typeof match.postCount === "number" && match.postCount > 0 && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
-              {match.postCount.toLocaleString()} posts
-            </span>
+            <StatBadge value={match.postCount} label="posts" />
           )}
           {typeof match.followerCount === "number" &&
             match.followerCount > 0 && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
-                {match.followerCount.toLocaleString()} followers
-              </span>
+              <StatBadge value={match.followerCount} label="followers" />
             )}
-          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50 font-medium">
-            {match.matchScore}% match
-          </span>
+          <Badge variant="match">{match.matchScore}% match</Badge>
         </div>
 
         {match.description && (
@@ -114,7 +111,7 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
     const hasMoreMatches = result.atprotoMatches.length > 1;
 
     return (
-      <div className="bg-white/50 dark:bg-slate-900/50 rounded-2xl shadow-sm overflow-hidden border-2 border-cyan-500/30 dark:border-purple-500/30">
+      <Card variant="result">
         {/* Source User */}
         <div className="px-4 py-3 bg-purple-100 dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30">
           <div className="flex justify-between gap-2 items-center">
@@ -175,9 +172,10 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
             )}
           </div>
         )}
-      </div>
+      </Card>
     );
   },
 );
+
 SearchResultCard.displayName = "SearchResultCard";
 export default SearchResultCard;

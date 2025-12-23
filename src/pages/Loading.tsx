@@ -1,6 +1,9 @@
 import AppHeader from "../components/AppHeader";
 import { SearchResultSkeleton } from "../components/common/LoadingSkeleton";
 import { getPlatform } from "../lib/utils/platform";
+import { StatsGroup } from "../components/common/Stats";
+import ProgressBar from "../components/common/ProgressBar";
+import PlatformBadge from "../components/common/PlatformBadge";
 
 interface atprotoSession {
   did: string;
@@ -42,7 +45,20 @@ export default function LoadingPage({
   onToggleMotion,
 }: LoadingPageProps) {
   const platform = getPlatform(sourcePlatform);
-  const PlatformIcon = platform.icon;
+
+  const statsData = [
+    {
+      value: searchProgress.searched,
+      label: "Searched",
+      variant: "default" as const,
+    },
+    {
+      value: searchProgress.found,
+      label: "Fireflies Found",
+      variant: "highlight" as const,
+    },
+    { value: searchProgress.total, label: "Total", variant: "muted" as const },
+  ];
 
   return (
     <div className="min-h-screen">
@@ -64,9 +80,11 @@ export default function LoadingPage({
         <div className="max-w-3xl mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="relative w-12 h-12">
-                <PlatformIcon className="w-10 h-10" />
-              </div>
+              <PlatformBadge
+                platformKey={sourcePlatform}
+                showName={false}
+                size="lg"
+              />
               <div>
                 <h2 className="text-xl font-bold">Finding Your Fireflies</h2>
                 <p className="text-white text-sm">
@@ -87,62 +105,13 @@ export default function LoadingPage({
       {/* Progress Stats */}
       <div className="bg-white/95 dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-4">
-          <div className="grid grid-cols-3 gap-4 text-center mb-4">
-            <div>
-              <div
-                className="text-2xl font-bold text-slate-900 dark:text-slate-100"
-                aria-label={`${searchProgress.searched} searched`}
-              >
-                {searchProgress.searched}
-              </div>
-              <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                Searched
-              </div>
-            </div>
-            <div>
-              <div
-                className="text-2xl font-bold text-orange-500 dark:text-amber-400"
-                aria-label={`${searchProgress.found} found`}
-              >
-                {searchProgress.found}
-              </div>
-              <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                Fireflies Found
-              </div>
-            </div>
-            <div>
-              <div
-                className="text-2xl font-bold text-slate-600 dark:text-slate-400"
-                aria-label={`${searchProgress.total} total`}
-              >
-                {searchProgress.total}
-              </div>
-              <div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
-                Total
-              </div>
-            </div>
-          </div>
+          <StatsGroup stats={statsData} className="grid-cols-3 mb-4" />
 
-          <div
-            className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-3"
-            role="progressbar"
-            aria-valuenow={
-              searchProgress.total > 0
-                ? Math.round(
-                    (searchProgress.searched / searchProgress.total) * 100,
-                  )
-                : 0
-            }
-            aria-valuemin={0}
-            aria-valuemax={100}
-          >
-            <div
-              className="bg-firefly-banner dark:bg-firefly-banner-dark h-full rounded-full transition-all"
-              style={{
-                width: `${searchProgress.total > 0 ? (searchProgress.searched / searchProgress.total) * 100 : 0}%`,
-              }}
-            />
-          </div>
+          <ProgressBar
+            current={searchProgress.searched}
+            total={searchProgress.total}
+            variant="search"
+          />
         </div>
       </div>
 

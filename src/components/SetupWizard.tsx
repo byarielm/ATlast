@@ -3,6 +3,9 @@ import { Heart, X, Check, ChevronRight } from "lucide-react";
 import { PLATFORMS } from "../config/platforms";
 import { ATPROTO_APPS } from "../config/atprotoApps";
 import type { UserSettings, PlatformDestinations } from "../types/settings";
+import ProgressBar from "./common/ProgressBar";
+import Card from "./common/Card";
+import PlatformBadge from "./common/PlatformBadge";
 
 interface SetupWizardProps {
   isOpen: boolean;
@@ -70,7 +73,10 @@ export default function SetupWizard({
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white dark:bg-slate-900 backdrop-blur-xl rounded-2xl max-w-2xl w-full shadow-2xl max-h-[90vh] flex flex-col border-2 border-cyan-500/30 dark:border-purple-500/30">
+      <Card
+        variant="wizard"
+        className="max-w-2xl w-full max-h-[90vh] flex flex-col"
+      >
         {/* Header */}
         <div className="px-6 py-4 border-b-2 border-cyan-500/30 dark:border-purple-500/30 flex-shrink-0">
           <div className="flex items-center justify-between mb-3">
@@ -90,19 +96,12 @@ export default function SetupWizard({
             </button>
           </div>
           {/* Progress */}
-          <div className="flex items-center space-x-2">
-            {wizardSteps.map((step, idx) => (
-              <div key={idx} className="flex-1">
-                <div
-                  className={`h-2 rounded-full transition-all ${
-                    idx <= wizardStep
-                      ? "bg-orange-500"
-                      : "bg-cyan-500/30 dark:bg-purple-500/30"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
+          <ProgressBar
+            current={wizardStep + 1}
+            total={wizardSteps.length}
+            variant="wizard"
+            className="flex items-center space-x-2"
+          />
           <div className="mt-2 text-sm text-purple-750 dark:text-cyan-250">
             Step {wizardStep + 1} of {wizardSteps.length}:{" "}
             {wizardSteps[wizardStep].title}
@@ -136,7 +135,6 @@ export default function SetupWizard({
               </p>
               <div className="grid grid-cols-3 gap-3 mt-3">
                 {Object.entries(PLATFORMS).map(([key, p]) => {
-                  const Icon = p.icon;
                   const isSelected = selectedPlatforms.has(key);
                   return (
                     <button
@@ -153,7 +151,12 @@ export default function SetupWizard({
                           <Check className="w-4 h-4 text-white dark:text-slate-900" />
                         </div>
                       )}
-                      <Icon className="w-8 h-8 mx-auto mb-2 text-purple-750 dark:text-cyan-250" />
+                      <PlatformBadge
+                        platformKey={key}
+                        showName={false}
+                        size="lg"
+                        className="justify-center mb-2"
+                      />
                       <div className="text-sm font-medium text-purple-950 dark:text-cyan-50">
                         {p.name}
                       </div>
@@ -183,18 +186,12 @@ export default function SetupWizard({
               </p>
               <div className="space-y-4 mt-3">
                 {platformsToShow.map(([key, p]) => {
-                  const Icon = p.icon;
                   return (
                     <div
                       key={key}
                       className="flex items-center px-3 max-w-lg mx-sm border-cyan-500/30 dark:border-purple-500/30"
                     >
-                      <div className="flex space-x-3">
-                        <Icon className="w-6 h-6 text-purple-950 dark:text-cyan-50" />
-                        <span className="font-medium text-purple-950 dark:text-cyan-50">
-                          {p.name}
-                        </span>
-                      </div>
+                      <PlatformBadge platformKey={key} size="sm" />
                       <select
                         value={
                           platformDestinations[
@@ -221,7 +218,6 @@ export default function SetupWizard({
               </div>
             </div>
           )}
-
           {wizardStep === 3 && (
             <div className="space-y-3">
               <div>
@@ -373,7 +369,7 @@ export default function SetupWizard({
             )}
           </button>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }

@@ -6,6 +6,7 @@ import FaviconIcon from "../components/FaviconIcon";
 import type { AtprotoAppId } from "../types/settings";
 import { getPlatform, getAtprotoApp } from "../lib/utils/platform";
 import VirtualizedResultsList from "../components/VirtualizedResultsList";
+import Button from "../components/common/Button";
 
 interface atprotoSession {
   did: string;
@@ -163,20 +164,16 @@ export default function ResultsPage({
       {/* Action Buttons */}
       <div className="bg-white/95 dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 sticky top-0 z-10 backdrop-blur-sm">
         <div className="max-w-3xl mx-auto px-4 py-3 flex space-x-2">
-          <button
-            onClick={onSelectAll}
-            className="flex-1 bg-orange-600 hover:bg-orange-400 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg"
-            type="button"
-          >
+          <Button onClick={onSelectAll} variant="primary" className="flex-1">
             Select All
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={onDeselectAll}
-            className="flex-1 bg-slate-600 dark:bg-slate-700 hover:bg-slate-700 dark:hover:bg-slate-600 text-white py-3 rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-4 focus:ring-slate-400"
-            type="button"
+            variant="secondary"
+            className="flex-1"
           >
             Clear
-          </button>
+          </Button>
         </div>
       </div>
 

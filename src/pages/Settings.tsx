@@ -2,6 +2,10 @@ import { Settings as SettingsIcon, ChevronRight } from "lucide-react";
 import { PLATFORMS } from "../config/platforms";
 import { ATPROTO_APPS } from "../config/atprotoApps";
 import type { UserSettings, PlatformDestinations } from "../types/settings";
+import Section from "../components/common/Section";
+import Card from "../components/common/Card";
+import Badge from "../components/common/Badge";
+import PlatformBadge from "../components/common/PlatformBadge";
 
 interface SettingsPageProps {
   userSettings: UserSettings;
@@ -26,21 +30,15 @@ export default function SettingsPage({
   return (
     <div className="space-y-0">
       {/* Setup Assistant Section */}
-      <div className="p-6 border-b-2 border-cyan-500/30 dark:border-purple-500/30">
-        <div className="flex items-center space-x-3 mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
-              Setup Assistant
-            </h2>
-            <p className="text-sm text-purple-750 dark:text-cyan-250">
-              Quick configuration wizard
-            </p>
-          </div>
-        </div>
-
-        <button
+      <Section
+        title="Setup Assistant"
+        description="Quick configuration wizard"
+        divider
+      >
+        <Card
+          variant="upload"
           onClick={onOpenWizard}
-          className="w-full flex items-start space-x-4 p-4 bg-purple-100/20 dark:bg-slate-900/50 hover:bg-purple-100/40 dark:hover:bg-slate-900/70 rounded-xl transition-all text-left border-2 border-orange-650/50 dark:border-amber-400/50 hover:border-orange-500 dark:hover:border-amber-400 shadow-md hover:shadow-lg"
+          className="w-full flex items-start space-x-4 p-4 text-left"
         >
           <div className="w-12 h-12 bg-firefly-banner dark:bg-firefly-banner-dark rounded-xl flex items-center justify-center flex-shrink-0 shadow-md">
             <SettingsIcon className="w-6 h-6 text-white" />
@@ -56,7 +54,7 @@ export default function SettingsPage({
             </p>
           </div>
           <ChevronRight className="w-5 h-5 text-purple-500 dark:text-cyan-400 flex-shrink-0 self-center" />
-        </button>
+        </Card>
 
         {/* Current Configuration */}
         <div className="mt-2 py-2 px-3">
@@ -68,56 +66,48 @@ export default function SettingsPage({
               <div className="text-purple-750 dark:text-cyan-250 mb-1">
                 Data Storage
               </div>
-              <div className="font-medium text-purple-950 dark:text-cyan-50">
+              <Badge variant="status">
                 {userSettings.saveData ? "✅ Enabled" : "❌ Disabled"}
-              </div>
+              </Badge>
             </div>
             <div>
               <div className="text-purple-750 dark:text-cyan-250 mb-1">
                 Automation
               </div>
-              <div className="font-medium text-purple-950 dark:text-cyan-50">
+              <Badge variant="status">
                 {userSettings.enableAutomation
                   ? `✅ ${userSettings.automationFrequency}`
                   : "❌ Disabled"}
-              </div>
+              </Badge>
             </div>
             <div>
               <div className="text-purple-750 dark:text-cyan-250 mb-1">
                 Wizard
               </div>
-              <div className="font-medium text-purple-950 dark:text-cyan-50">
+              <Badge variant="status">
                 {userSettings.wizardCompleted ? "✅ Completed" : "⏳ Pending"}
-              </div>
+              </Badge>
             </div>
           </div>
         </div>
-      </div>
+      </Section>
 
       {/* Match Destinations Section */}
-      <div className="p-6 border-b-2 border-cyan-500/30 dark:border-purple-500/30">
-        <div className="flex items-center space-x-3 mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
-              Match Destinations
-            </h2>
-            <p className="text-sm text-purple-750 dark:text-cyan-250">
-              Where matches should go for each platform
-            </p>
-          </div>
-        </div>
-
-        <div className="mt-3 px-3 py-2 rounded-lg border border-orange-650/50 dark:border-amber-400/50">
+      <Section
+        title="Match Destinations"
+        description="Where matches should go for each platform"
+        divider
+      >
+        <Card className="mt-3 px-3 py-2 rounded-lg border-orange-650/50 dark:border-amber-400/50">
           <p className="text-sm text-purple-900 dark:text-cyan-100">
             💡 <strong>Tip:</strong> Choose different apps for different
             platforms based on content type. For example, send TikTok matches to
             Spark for video content.
           </p>
-        </div>
+        </Card>
 
         <div className="py-2 space-y-0">
           {Object.entries(PLATFORMS).map(([key, p]) => {
-            const Icon = p.icon;
             const currentDestination =
               userSettings.platformDestinations[
                 key as keyof PlatformDestinations
@@ -128,14 +118,11 @@ export default function SettingsPage({
                 key={key}
                 className="flex items-center justify-between px-3 py-2 rounded-xl transition-colors"
               >
-                <div className="flex items-center space-x-3 flex-1">
-                  <Icon className="w-4 h-4 text-purple-950 dark:text-cyan-50 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-purple-950 dark:text-cyan-50">
-                      {p.name}
-                    </div>
-                  </div>
-                </div>
+                <PlatformBadge
+                  platformKey={key}
+                  size="sm"
+                  className="flex-1 min-w-0"
+                />
                 <select
                   value={currentDestination}
                   onChange={(e) => handleDestinationChange(key, e.target.value)}
@@ -151,21 +138,13 @@ export default function SettingsPage({
             );
           })}
         </div>
-      </div>
+      </Section>
 
       {/* Privacy & Data Section */}
-      <div className="p-6">
-        <div className="flex items-center space-x-3 mb-4">
-          <div>
-            <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
-              Privacy & Data
-            </h2>
-            <p className="text-sm text-purple-750 dark:text-cyan-250">
-              Control how your data is stored
-            </p>
-          </div>
-        </div>
-
+      <Section
+        title="Privacy & Data"
+        description="Control how your data is stored"
+      >
         <div className="px-3 space-y-4">
           {/* Save Data Toggle */}
           <div className="">
@@ -243,7 +222,7 @@ export default function SettingsPage({
             )}
           </div>
         </div>
-      </div>
+      </Section>
     </div>
   );
 }
