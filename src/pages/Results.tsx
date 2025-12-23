@@ -3,35 +3,13 @@ import { useMemo } from "react";
 import AppHeader from "../components/AppHeader";
 import SearchResultCard from "../components/SearchResultCard";
 import FaviconIcon from "../components/FaviconIcon";
-import type { AtprotoAppId } from "../types/settings";
+import type { AtprotoAppId, AtprotoSession, SearchResult } from "../types";
 import { getPlatform, getAtprotoApp } from "../lib/utils/platform";
 import VirtualizedResultsList from "../components/VirtualizedResultsList";
 import Button from "../components/common/Button";
 
-interface atprotoSession {
-  did: string;
-  handle: string;
-  displayName?: string;
-  avatar?: string;
-  description?: string;
-}
-
-interface SourceUser {
-  username: string;
-  date: string;
-}
-
-interface SearchResult {
-  sourceUser: SourceUser;
-  atprotoMatches: any[];
-  isSearching: boolean;
-  error?: string;
-  selectedMatches?: Set<string>;
-  sourcePlatform: string;
-}
-
 interface ResultsPageProps {
-  session: atprotoSession | null;
+  session: AtprotoSession | null;
   onLogout: () => void;
   onNavigate: (step: "home" | "login") => void;
   searchResults: SearchResult[];
