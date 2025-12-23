@@ -31,27 +31,24 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
     followLexicon,
   );
 
-  const results = [];
-  let consecutiveErrors = 0;
-  const MAX_CONSECUTIVE_ERRORS = 3;
   const matchRepo = new MatchRepository();
+  const CONCURRENCY = 5; // Process 5 follows in parallel
 
-  for (const did of dids) {
+  // Helper function to follow a single user
+  const followUser = async (did: string) => {
     if (alreadyFollowing.has(did)) {
-      results.push({
-        did,
-        success: true,
-        alreadyFollowing: true,
-        error: null,
-      });
-
       try {
         await matchRepo.updateFollowStatus(did, followLexicon, true);
       } catch (dbError) {
         console.error("Failed to update follow status in DB:", dbError);
       }
 
-      continue;
+      return {
+        did,
+        success: true,
+        alreadyFollowing: true,
+        error: null,
+      };
     }
 
     try {
@@ -65,42 +62,59 @@ const batchFollowHandler: AuthenticatedHandler = async (context) => {
         },
       });
 
-      results.push({
-        did,
-        success: true,
-        alreadyFollowing: false,
-        error: null,
-      });
-
       try {
         await matchRepo.updateFollowStatus(did, followLexicon, true);
       } catch (dbError) {
         console.error("Failed to update follow status in DB:", dbError);
       }
 
-      consecutiveErrors = 0;
-    } catch (error) {
-      consecutiveErrors++;
-
-      results.push({
+      return {
         did,
-        success: false,
+        success: true,
         alreadyFollowing: false,
-        error: error instanceof Error ? error.message : "Follow failed",
-      });
-
+        error: null,
+      };
+    } catch (error) {
+      // Rate limit handling with backoff
       if (
         error instanceof Error &&
         (error.message.includes("rate limit") || error.message.includes("429"))
       ) {
-        const backoffDelay = Math.min(
-          200 * Math.pow(2, consecutiveErrors),
-          2000,
-        );
-        console.log(`Rate limit hit. Backing off for ${backoffDelay}ms...`);
+        const backoffDelay = 1000; // 1 second backoff for rate limits
+        console.log(`Rate limit hit for ${did}. Backing off for ${backoffDelay}ms...`);
         await new Promise((resolve) => setTimeout(resolve, backoffDelay));
-      } else if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      }
+
+      return {
+        did,
+        success: false,
+        alreadyFollowing: false,
+        error: error instanceof Error ? error.message : "Follow failed",
+      };
+    }
+  };
+
+  // Process follows in chunks with controlled concurrency
+  const results = [];
+  for (let i = 0; i < dids.length; i += CONCURRENCY) {
+    const chunk = dids.slice(i, i + CONCURRENCY);
+    const chunkResults = await Promise.allSettled(
+      chunk.map(did => followUser(did))
+    );
+
+    // Extract results from Promise.allSettled
+    for (const result of chunkResults) {
+      if (result.status === 'fulfilled') {
+        results.push(result.value);
+      } else {
+        // This shouldn't happen as we handle errors in followUser
+        console.error('Unexpected promise rejection:', result.reason);
+        results.push({
+          did: 'unknown',
+          success: false,
+          alreadyFollowing: false,
+          error: 'Unexpected error',
+        });
       }
     }
   }
