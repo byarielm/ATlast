@@ -1,6 +1,7 @@
 /**
- * Validation utilities for forms
+ * Validation utilities using Zod schemas
  */
+import { z } from "zod";
 
 export interface ValidationResult {
   isValid: boolean;
@@ -8,79 +9,61 @@ export interface ValidationResult {
 }
 
 /**
+ * Helper to convert Zod validation to ValidationResult
+ */
+function validateWithZod<T>(
+  schema: z.ZodSchema<T>,
+  value: unknown,
+): ValidationResult {
+  const result = schema.safeParse(value);
+  if (result.success) {
+    return { isValid: true };
+  }
+  return {
+    isValid: false,
+    error: result.error.errors[0]?.message || "Validation failed",
+  };
+}
+
+/**
+ * Zod Schemas
+ */
+const handleSchema = z
+  .string()
+  .trim()
+  .min(1, "Please enter your handle")
+  .transform((val) => (val.startsWith("@") ? val.slice(1) : val))
+  .pipe(
+    z
+      .string()
+      .min(3, "Handle is too short")
+      .regex(/^[a-zA-Z0-9.-]+$/, "Handle contains invalid characters")
+      .refine((val) => val.includes("."), {
+        message: "Handle must include a domain (e.g., username.bsky.social)",
+      })
+      .refine((val) => !/^[.-]|[.-]$/.test(val), {
+        message: "Handle cannot start or end with . or -",
+      }),
+  );
+
+const emailSchema = z
+  .string()
+  .trim()
+  .min(1, "Please enter your email")
+  .email("Please enter a valid email address");
+
+/**
  * Validate AT Protocol handle
  */
 export function validateHandle(handle: string): ValidationResult {
-  const trimmed = handle.trim();
-
-  if (!trimmed) {
-    return {
-      isValid: false,
-      error: "Please enter your handle",
-    };
-  }
-
-  // Remove @ if user included it
-  const cleanHandle = trimmed.startsWith("@") ? trimmed.slice(1) : trimmed;
-
-  // Basic format validation
-  if (cleanHandle.length < 3) {
-    return {
-      isValid: false,
-      error: "Handle is too short",
-    };
-  }
-
-  // Check for valid characters (alphanumeric, dots, hyphens)
-  const validFormat = /^[a-zA-Z0-9.-]+$/;
-  if (!validFormat.test(cleanHandle)) {
-    return {
-      isValid: false,
-      error: "Handle contains invalid characters",
-    };
-  }
-
-  // Must contain at least one dot (domain required)
-  if (!cleanHandle.includes(".")) {
-    return {
-      isValid: false,
-      error: "Handle must include a domain (e.g., username.bsky.social)",
-    };
-  }
-
-  // Can't start or end with dot or hyphen
-  if (/^[.-]|[.-]$/.test(cleanHandle)) {
-    return {
-      isValid: false,
-      error: "Handle cannot start or end with . or -",
-    };
-  }
-
-  return { isValid: true };
+  return validateWithZod(handleSchema, handle);
 }
 
 /**
  * Validate email format
  */
 export function validateEmail(email: string): ValidationResult {
-  const trimmed = email.trim();
-
-  if (!trimmed) {
-    return {
-      isValid: false,
-      error: "Please enter your email",
-    };
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(trimmed)) {
-    return {
-      isValid: false,
-      error: "Please enter a valid email address",
-    };
-  }
-
-  return { isValid: true };
+  return validateWithZod(emailSchema, email);
 }
 
 /**
@@ -90,16 +73,8 @@ export function validateRequired(
   value: string,
   fieldName: string = "This field",
 ): ValidationResult {
-  const trimmed = value.trim();
-
-  if (!trimmed) {
-    return {
-      isValid: false,
-      error: `${fieldName} is required`,
-    };
-  }
-
-  return { isValid: true };
+  const schema = z.string().trim().min(1, `${fieldName} is required`);
+  return validateWithZod(schema, value);
 }
 
 /**
@@ -110,16 +85,11 @@ export function validateMinLength(
   minLength: number,
   fieldName: string = "This field",
 ): ValidationResult {
-  const trimmed = value.trim();
-
-  if (trimmed.length < minLength) {
-    return {
-      isValid: false,
-      error: `${fieldName} must be at least ${minLength} characters`,
-    };
-  }
-
-  return { isValid: true };
+  const schema = z
+    .string()
+    .trim()
+    .min(minLength, `${fieldName} must be at least ${minLength} characters`);
+  return validateWithZod(schema, value);
 }
 
 /**
@@ -130,12 +100,16 @@ export function validateMaxLength(
   maxLength: number,
   fieldName: string = "This field",
 ): ValidationResult {
-  if (value.length > maxLength) {
-    return {
-      isValid: false,
-      error: `${fieldName} must be ${maxLength} characters or less`,
-    };
-  }
-
-  return { isValid: true };
+  const schema = z
+    .string()
+    .max(maxLength, `${fieldName} must be ${maxLength} characters or less`);
+  return validateWithZod(schema, value);
 }
+
+/**
+ * Export schemas for advanced usage
+ */
+export const schemas = {
+  handle: handleSchema,
+  email: emailSchema,
+};
