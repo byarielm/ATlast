@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { apiClient } from "../lib/api/client";
 import { SEARCH_CONFIG } from "../config/constants";
 import type { SearchResult, SearchProgress, AtprotoSession } from "../types";
@@ -15,12 +15,12 @@ export function useSearch(session: AtprotoSession | null) {
     new Set(),
   );
 
-  async function searchAllUsers(
+  const searchAllUsers = useCallback(async (
     resultsToSearch: SearchResult[],
     onProgressUpdate: (message: string) => void,
     onComplete: () => void,
     followLexicon?: string,
-  ) {
+  ) => {
     if (!session || resultsToSearch.length === 0) return;
 
     setIsSearchingAll(true);
@@ -133,9 +133,9 @@ export function useSearch(session: AtprotoSession | null) {
       `Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`,
     );
     onComplete();
-  }
+  }, [session]);
 
-  function toggleMatchSelection(resultIndex: number, did: string) {
+  const toggleMatchSelection = useCallback((resultIndex: number, did: string) => {
     setSearchResults((prev) => {
       // Only update the specific item instead of mapping entire array
       const newResults = [...prev];
@@ -151,20 +151,20 @@ export function useSearch(session: AtprotoSession | null) {
       newResults[resultIndex] = { ...result, selectedMatches: newSelectedMatches };
       return newResults;
     });
-  }
+  }, []);
 
-  function toggleExpandResult(index: number) {
+  const toggleExpandResult = useCallback((index: number) => {
     setExpandedResults((prev) => {
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
       return next;
     });
-  }
+  }, []);
 
-  function selectAllMatches(onUpdate: (message: string) => void) {
-    setSearchResults((prev) =>
-      prev.map((result) => {
+  const selectAllMatches = useCallback((onUpdate: (message: string) => void) => {
+    setSearchResults((prev) => {
+      const updated = prev.map((result) => {
         const newSelectedMatches = new Set<string>();
         if (result.atprotoMatches.length > 0) {
           newSelectedMatches.add(result.atprotoMatches[0].did);
@@ -173,16 +173,18 @@ export function useSearch(session: AtprotoSession | null) {
           ...result,
           selectedMatches: newSelectedMatches,
         };
-      }),
-    );
+      });
 
-    const totalToSelect = searchResults.filter(
-      (r) => r.atprotoMatches.length > 0,
-    ).length;
-    onUpdate(`Selected ${totalToSelect} top matches`);
-  }
+      const totalToSelect = updated.filter(
+        (r) => r.atprotoMatches.length > 0,
+      ).length;
+      onUpdate(`Selected ${totalToSelect} top matches`);
 
-  function deselectAllMatches(onUpdate: (message: string) => void) {
+      return updated;
+    });
+  }, []);
+
+  const deselectAllMatches = useCallback((onUpdate: (message: string) => void) => {
     setSearchResults((prev) =>
       prev.map((result) => ({
         ...result,
@@ -190,7 +192,7 @@ export function useSearch(session: AtprotoSession | null) {
       })),
     );
     onUpdate("Cleared all selections");
-  }
+  }, []);
 
   const totalSelected = searchResults.reduce(
     (total, result) => total + (result.selectedMatches?.size || 0),

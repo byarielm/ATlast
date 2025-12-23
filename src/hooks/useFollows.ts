@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { apiClient } from "../lib/api/client";
 import { FOLLOW_CONFIG } from "../config/constants";
 import { getAtprotoApp } from "../lib/utils/platform";
@@ -15,9 +15,9 @@ export function useFollow(
   const [isFollowing, setIsFollowing] = useState(false);
   const [isCheckingFollowStatus, setIsCheckingFollowStatus] = useState(false);
 
-  async function followSelectedUsers(
+  const followSelectedUsers = useCallback(async (
     onUpdate: (message: string) => void,
-  ): Promise<void> {
+  ): Promise<void> => {
     if (!session || isFollowing) return;
 
     const destinationApp = getAtprotoApp(destinationAppId);
@@ -156,7 +156,7 @@ export function useFollow(
     } finally {
       setIsFollowing(false);
     }
-  }
+  }, [session, searchResults, setSearchResults, destinationAppId, isFollowing]);
 
   return {
     isFollowing,
