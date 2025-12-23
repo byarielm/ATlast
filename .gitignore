@@ -2,11 +2,11 @@
 .tangled/
 .vscode/
 .netlify/
+.claude/
+.deciduous/
 node_modules/
 dist/
 private-key.pem
 public-jwk.json
 test-data/
-
-.claude/
-.deciduous/
+PLAN.md
