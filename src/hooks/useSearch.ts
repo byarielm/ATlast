@@ -47,14 +47,6 @@ export function useSearch(session: AtprotoSession | null) {
       const batch = resultsToSearch.slice(i, i + BATCH_SIZE);
       const usernames = batch.map((r) => r.sourceUser.username);
 
-      setSearchResults((prev) =>
-        prev.map((result, index) =>
-          i <= index && index < i + BATCH_SIZE
-            ? { ...result, isSearching: true }
-            : result,
-        ),
-      );
-
       try {
         const data = await apiClient.batchSearchActors(
           usernames,
@@ -79,6 +71,7 @@ export function useSearch(session: AtprotoSession | null) {
           `Searched ${totalSearched} of ${resultsToSearch.length} users. Found ${totalFound} matches.`,
         );
 
+        // Single state update per batch - updates results with API data
         setSearchResults((prev) =>
           prev.map((result, index) => {
             const batchResultIndex = index - i;
@@ -112,6 +105,7 @@ export function useSearch(session: AtprotoSession | null) {
         console.error("Batch search error:", error);
         consecutiveErrors++;
 
+        // Single state update on error - marks batch as failed
         setSearchResults((prev) =>
           prev.map((result, index) =>
             i <= index && index < i + BATCH_SIZE
@@ -142,20 +136,21 @@ export function useSearch(session: AtprotoSession | null) {
   }
 
   function toggleMatchSelection(resultIndex: number, did: string) {
-    setSearchResults((prev) =>
-      prev.map((result, index) => {
-        if (index === resultIndex) {
-          const newSelectedMatches = new Set(result.selectedMatches);
-          if (newSelectedMatches.has(did)) {
-            newSelectedMatches.delete(did);
-          } else {
-            newSelectedMatches.add(did);
-          }
-          return { ...result, selectedMatches: newSelectedMatches };
-        }
-        return result;
-      }),
-    );
+    setSearchResults((prev) => {
+      // Only update the specific item instead of mapping entire array
+      const newResults = [...prev];
+      const result = newResults[resultIndex];
+
+      const newSelectedMatches = new Set(result.selectedMatches);
+      if (newSelectedMatches.has(did)) {
+        newSelectedMatches.delete(did);
+      } else {
+        newSelectedMatches.add(did);
+      }
+
+      newResults[resultIndex] = { ...result, selectedMatches: newSelectedMatches };
+      return newResults;
+    });
   }
 
   function toggleExpandResult(index: number) {
