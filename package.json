@@ -25,6 +25,7 @@
     "@tanstack/react-virtual": "^3.13.13",
     "actor-typeahead": "^0.1.2",
     "cookie": "^1.0.2",
+    "date-fns": "^4.1.0",
     "jose": "^6.1.0",
     "jszip": "^3.10.1",
     "lucide-react": "^0.544.0",

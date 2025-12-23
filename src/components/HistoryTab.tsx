@@ -28,11 +28,6 @@ export default function HistoryTab({
   userSettings,
   onLoadUpload,
 }: HistoryTabProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return formatRelativeTime(date.toLocaleDateString("en-US"));
-  };
-
   return (
     <div className="p-6">
       {/* Setup Assistant Banner - Only show if wizard not completed */}
@@ -143,7 +138,7 @@ export default function HistoryTab({
                       {upload.totalUsers === 1 ? "user found" : "users found"}
                     </Badge>
                     <Badge variant="info">
-                      Uploaded {formatDate(upload.createdAt)}
+                      Uploaded {formatRelativeTime(upload.createdAt)}
                     </Badge>
                   </div>
                 </div>
