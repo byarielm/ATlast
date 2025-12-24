@@ -100,18 +100,19 @@ export default function ResultsPage({
       <div className="bg-firefly-banner dark:bg-firefly-banner-dark text-white relative overflow-hidden">
         {!reducedMotion && (
           <div className="absolute inset-0 opacity-20" aria-hidden="true">
-            {[...Array(10)].map((_, i) => (
-              <div
-                key={i}
-                className="absolute w-1 h-1 bg-white rounded-full"
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  top: `${Math.random() * 100}%`,
-                  animation: `float ${2 + Math.random()}s ease-in-out infinite`,
-                  animationDelay: `${Math.random()}s`,
-                }}
-              />
-            ))}
+            {[...Array(10)].map((_, i) => {
+              const animations = ["animate-float-1", "animate-float-2", "animate-float-3"];
+              return (
+                <div
+                  key={i}
+                  className={`absolute w-1 h-1 bg-white rounded-full ${animations[i % 3]}`}
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `${Math.random() * 100}%`,
+                  }}
+                />
+              );
+            })}
           </div>
         )}
         <div className="max-w-3xl mx-auto px-4 py-6 relative">

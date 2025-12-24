@@ -24,6 +24,9 @@ export default {
       }),
       animation: {
         float: "float 3s ease-in-out infinite",
+        "float-1": "float 2s ease-in-out infinite",
+        "float-2": "float 2.5s ease-in-out 0.3s infinite",
+        "float-3": "float 3s ease-in-out 0.6s infinite",
       },
       keyframes: {
         float: {
