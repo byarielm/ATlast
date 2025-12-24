@@ -6,6 +6,9 @@ import type { UserSettings, PlatformDestinations } from "../types/settings";
 import ProgressBar from "./common/ProgressBar";
 import Card from "./common/Card";
 import PlatformBadge from "./common/PlatformBadge";
+import Toggle from "./common/Toggle";
+import DropdownWithIcons from "./common/DropdownWithIcons";
+import type { DropdownOptionWithIcon } from "./common/DropdownWithIcons";
 
 interface SetupWizardProps {
   isOpen: boolean;
@@ -71,6 +74,15 @@ export default function SetupWizard({
       ? Object.entries(PLATFORMS).filter(([key]) => selectedPlatforms.has(key))
       : Object.entries(PLATFORMS);
 
+  // Prepare app options with icons for dropdown
+  const appOptions: DropdownOptionWithIcon[] = Object.values(ATPROTO_APPS).map(
+    (app) => ({
+      value: app.id,
+      label: app.name,
+      icon: app.icon,
+    })
+  );
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
       <Card
@@ -100,7 +112,6 @@ export default function SetupWizard({
             current={wizardStep + 1}
             total={wizardSteps.length}
             variant="wizard"
-            className="flex items-center space-x-2"
           />
           <div className="mt-2 text-sm text-purple-750 dark:text-cyan-250">
             Step {wizardStep + 1} of {wizardSteps.length}:{" "}
@@ -189,29 +200,24 @@ export default function SetupWizard({
                   return (
                     <div
                       key={key}
-                      className="flex items-center px-3 max-w-lg mx-sm border-cyan-500/30 dark:border-purple-500/30"
+                      className="flex items-center gap-3 px-3 max-w-lg mx-sm"
                     >
                       <PlatformBadge platformKey={key} size="sm" />
-                      <select
+                      <DropdownWithIcons
                         value={
                           platformDestinations[
                             key as keyof PlatformDestinations
                           ]
                         }
-                        onChange={(e) =>
+                        onChange={(value) =>
                           setPlatformDestinations({
                             ...platformDestinations,
-                            [key]: e.target.value,
+                            [key]: value,
                           })
                         }
-                        className="px-3 py-2 ml-auto bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"
-                      >
-                        {Object.values(ATPROTO_APPS).map((app) => (
-                          <option key={app.id} value={app.id}>
-                            {app.name}
-                          </option>
-                        ))}
-                      </select>
+                        options={appOptions}
+                        className="ml-auto w-48"
+                      />
                     </div>
                   );
                 })}
@@ -229,67 +235,38 @@ export default function SetupWizard({
                 </p>
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3 px-4 py-3">
-                  <input
-                    type="checkbox"
-                    checked={saveData}
-                    onChange={(e) => setSaveData(e.target.checked)}
-                    className="mt-1"
-                    id="save-data"
-                  />
-                  <div className="flex-1">
-                    <label
-                      htmlFor="save-data"
-                      className="font-medium text-purple-950 dark:text-cyan-50 cursor-pointer"
-                    >
-                      Save my data for future checks
-                    </label>
-                    <p className="text-sm text-purple-950 dark:text-cyan-250 mt-1">
-                      Store your following lists so we can check for new matches
-                      later. You can delete anytime.
-                    </p>
-                  </div>
-                </div>
+              <div className="space-y-4 px-4 py-3">
+                <Toggle
+                  checked={saveData}
+                  onChange={setSaveData}
+                  label="Save my data for future checks"
+                  description="Store your following lists so we can check for new matches later. You can delete anytime."
+                  id="save-data"
+                />
 
-                <div className="flex items-start space-x-3 px-4 py-3">
-                  <input
-                    type="checkbox"
+                <div>
+                  <Toggle
                     checked={enableAutomation}
-                    onChange={(e) => setEnableAutomation(e.target.checked)}
-                    className="mt-1"
+                    onChange={setEnableAutomation}
+                    label="Notify me about new matches"
+                    description="We'll check periodically and DM you when people you follow join the ATmosphere."
                     id="enable-automation"
                   />
-                  <div className="flex-1">
-                    <label
-                      htmlFor="enable-automation"
-                      className="font-medium text-purple-950 dark:text-cyan-50 cursor-pointer"
+                  {enableAutomation && (
+                    <select
+                      value={automationFrequency}
+                      onChange={(e) =>
+                        setAutomationFrequency(
+                          e.target.value as "Weekly" | "Monthly" | "Quarterly"
+                        )
+                      }
+                      className="mt-3 ml-auto max-w-xs px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm w-full text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"
                     >
-                      Notify me about new matches
-                    </label>
-                    <p className="text-sm text-purple-750 dark:text-cyan-250 mt-1">
-                      We'll check periodically and DM you when people you follow
-                      join the ATmosphere.
-                    </p>
-                    {enableAutomation && (
-                      <select
-                        value={automationFrequency}
-                        onChange={(e) =>
-                          setAutomationFrequency(
-                            e.target.value as
-                              | "Weekly"
-                              | "Monthly"
-                              | "Quarterly",
-                          )
-                        }
-                        className="mt-2 px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm w-full text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"
-                      >
-                        <option value="daily">Check daily</option>
-                        <option value="weekly">Check weekly</option>
-                        <option value="monthly">Check monthly</option>
-                      </select>
-                    )}
-                  </div>
+                      <option value="daily">Check daily</option>
+                      <option value="weekly">Check weekly</option>
+                      <option value="monthly">Check monthly</option>
+                    </select>
+                  )}
                 </div>
               </div>
             </div>
