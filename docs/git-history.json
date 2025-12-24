@@ -1,1 +1,50 @@
-[]
+[
+  {
+    "hash": "587a9b0314546b91e00c94bf87d28d29f6527456",
+    "short_hash": "587a9b0",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T19:34:34-05:00",
+    "message": "add rate limiting to batch endpoints\n\nOptimization #12:\n- created rateLimit.middleware with in-memory rate limiting\n- batch-search-actors: 5 requests/min (conservative)\n- batch-follow-users: 8 requests/hr (conservative)\n- calculated based on AT Protocol limits with 50% buffer\n- DRY implementation with applyRateLimit helper function\n- prevents users from exhausting AT Protocol API limits\n- leaves buffer for likes, replies, posts\n\nNote: In-memory (resets on cold starts). Upgrade to Upstash Redis for production-grade shared state.",
+    "files_changed": 3
+  },
+  {
+    "hash": "35061ae467e17724d85493c94827c361dc84e6d1",
+    "short_hash": "35061ae",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T19:12:00-05:00",
+    "message": "move inline animations to Tailwind config\n\nOptimization #11:\n- added float-1, float-2, float-3 animation variants to tailwind.config.js\n- replaced inline animation and animationDelay styles with Tailwind classes\n- use modulo pattern to cycle through 3 animation variants\n- maintains visual variety without Math.random() for animation timing\n- consistent with Tailwind conventions, easier to maintain",
+    "files_changed": 2
+  },
+  {
+    "hash": "6b5cf20f95ea43d18c5d05fa80ff7e94d7aa26d2",
+    "short_hash": "6b5cf20",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T19:05:42-05:00",
+    "message": "replace localStorage context with zustand persist store\n\nOptimization #10:\n- created useSettingsStore with zustand persist middleware\n- removed SettingsContext.tsx (88 lines) and provider wrapper\n- added SSR-safe storage with cross-tab synchronization\n- automatic JSON serialization, no manual parse/stringify\n- maintained backward-compatible API (useSettings hook)\n- bundle size: +2.3KB for zustand library",
+    "files_changed": 6
+  },
+  {
+    "hash": "43710263eec21891c899f57e4d0434322612d353",
+    "short_hash": "4371026",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T18:11:36-05:00",
+    "message": "replace any types with AT Protocol interfaces\n\nOptimization #9:\n- created atproto.types.ts with proper AT Protocol interfaces\n- replaced 7 any types in batch-search-actors.ts\n- added ATProtoActor, ATProtoProfile, RankedActor, EnrichedActor types\n- improves type safety, compile-time error catching, IDE support",
+    "files_changed": 3
+  },
+  {
+    "hash": "65ac856188d644baed837eea7775aed307ca0a56",
+    "short_hash": "65ac856",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T16:07:44-05:00",
+    "message": "remove duplicate type definitions from Results.tsx\n\nOptimization #8:\n- removed 3 duplicate type definitions (atprotoSession, SourceUser, SearchResult)\n- import AtprotoSession and SearchResult from central types\n- prevents type drift, establishes single source of truth",
+    "files_changed": 1
+  },
+  {
+    "hash": "093b47d63a6324c2e4bc231d45c5d9d6792383ed",
+    "short_hash": "093b47d",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T15:58:35-05:00",
+    "message": "replace duplicate validation with Zod schemas\n\nOptimizations #6 & #7:\n- #6: verified early exit optimization already implemented in FollowService\n- #7: created validation.utils.ts with Zod schemas for array validation\n- replaced 3 duplicate validation blocks with reusable Zod schemas\n- updated batch-follow-users, check-follow-status, batch-search-actors",
+    "files_changed": 5
+  }
+]
