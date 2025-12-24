@@ -3,6 +3,7 @@ import "actor-typeahead";
 import { ArrowRight, AlertCircle, Info } from "lucide-react";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { validateHandle } from "../lib/validation";
+import { useRotatingPlaceholder } from "../hooks/useRotatingPlaceholder";
 import HeroSection from "../components/login/HeroSection";
 import ValuePropsSection from "../components/login/ValuePropsSection";
 import HowItWorksSection from "../components/login/HowItWorksSection";
@@ -25,6 +26,7 @@ export default function LoginPage({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [strippedAtMessage, setStrippedAtMessage] = useState(false);
   const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
+  const placeholder = useRotatingPlaceholder();
 
   const { fields, setValue, validate, getFieldProps } = useFormValidation({
     handle: "",
@@ -165,7 +167,7 @@ export default function LoginPage({
                         ref={inputRef}
                         id="atproto-handle"
                         {...getFieldProps("handle")}
-                        placeholder="username.bsky.social"
+                        placeholder={placeholder}
                         error={fields.handle.touched && !!fields.handle.error}
                         selectedAvatar={selectedAvatar}
                         aria-required="true"
