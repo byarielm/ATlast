@@ -1,5 +1,21 @@
 [
   {
+    "hash": "9bdca934948a284e1315961b4430bae0b6617cbe",
+    "short_hash": "9bdca93",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-24T18:35:00-05:00",
+    "message": "fix login avatar display by fetching from Bluesky API\n\nactor-typeahead component doesn't expose avatar data via events or attributes.\nAdded debounced API fetch (300ms) to searchActorsTypeahead endpoint when\nhandle is entered. Avatar now displays for both typeahead selections and\nmanually entered handles.",
+    "files_changed": 1
+  },
+  {
+    "hash": "0f47c41f1a383ff99387254e56d31210a133bee7",
+    "short_hash": "0f47c41",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-24T16:33:31-05:00",
+    "message": "extract login page components for DRY\n\nCreated reusable components:\n- ValuePropCard: icon + title + description card\n- StepCard: numbered step with color variant\n- HeroSection: logo, title, firefly animation\n- ValuePropsSection: 3 value prop cards\n- HowItWorksSection: 4 step cards",
+    "files_changed": 5
+  },
+  {
     "hash": "6cd4d622930e2a43531f2df40d930ceb5d2b4dbc",
     "short_hash": "6cd4d62",
     "author": "Ariel M. Lighty",

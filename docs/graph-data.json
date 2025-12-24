@@ -1814,6 +1814,116 @@
       "created_at": "2025-12-24T01:07:44.847703900-05:00",
       "updated_at": "2025-12-24T16:16:11.630543-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"6cd4d62\",\"confidence\":95}"
+    },
+    {
+      "id": 166,
+      "change_id": "19750fc5-2408-41a7-bc14-453458d4c32f",
+      "node_type": "goal",
+      "title": "Refactor Login page: DRY principles, add @ symbol/avatar, ATmosphere explanations, rotating placeholders",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-24T17:31:12.960079400-05:00",
+      "updated_at": "2025-12-24T18:22:36.883909400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95,\"prompt\":\"Update the login page to use DRY principles. Is it reasonable for the file to be 389 lines? If not, address that following Typescript+React+Tailwind best practices. Add a visual @ symbol in front of the username in the input field. Replace it with the user profile pic when a handle is selected from the typeahead. Suggest text and UI ways to add information on what \\\"ATmosphere\\\" to a lay audience. Suggest ways we might modify the \\\"username.bsky.social\\\" to be platform-agnostic, e.g., rotating the provider platform btwn options like \\\".blacksky.app\\\", \\\"tngl.sh\\\", \\\".com\\\" - but this shouldn't feel cluttering or overwhelming to users. Stage and commit as you go, separate concerns.\"}"
+    },
+    {
+      "id": 167,
+      "change_id": "9f3909fd-b51d-4a00-8425-e03426bc230f",
+      "node_type": "outcome",
+      "title": "Login page refactored: 389→258 lines (33% reduction), 5 new components, @ symbol with avatar replacement, rotating placeholders, ATmosphere tooltips",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-24T17:31:24.903737600-05:00",
+      "updated_at": "2025-12-24T18:22:39.123902500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"HEAD~5\",\"confidence\":95}"
+    },
+    {
+      "id": 168,
+      "change_id": "3caaaa83-caa9-4695-b043-37e5367ffb4a",
+      "node_type": "goal",
+      "title": "Fix avatar not displaying when handle selected/entered in login",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-24T18:22:48.900518500-05:00",
+      "updated_at": "2025-12-24T18:35:14.800218900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 169,
+      "change_id": "5c0cdde6-1079-4390-aab2-7e8ef8bd94b7",
+      "node_type": "action",
+      "title": "Reading HandleInput component to understand avatar display logic",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:23:05.987261100-05:00",
+      "updated_at": "2025-12-24T18:23:05.987261100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 170,
+      "change_id": "9269b746-5275-484c-9314-b436847bf835",
+      "node_type": "observation",
+      "title": "actor-typeahead stores avatar in private #actors array but doesn't expose it via events or attributes. When user selects a suggestion, it only sets input.value - no avatar data accessible. Need alternative approach to get avatar.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:24:33.075823300-05:00",
+      "updated_at": "2025-12-24T18:24:33.075823300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 171,
+      "change_id": "182aab31-aa57-42bb-8d63-cf15a7e80105",
+      "node_type": "decision",
+      "title": "Choose approach for avatar display: 1) Fetch avatar via Bluesky API when handle entered, 2) Fork actor-typeahead to emit events, 3) Use MutationObserver to watch dropdown DOM",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:24:37.875781600-05:00",
+      "updated_at": "2025-12-24T18:24:37.875781600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 172,
+      "change_id": "a0764baa-c522-495b-ae4c-a51b22b786bc",
+      "node_type": "outcome",
+      "title": "Chose approach 1: Fetch avatar via Bluesky API. Reasons: Works for both typeahead + manual entry, no need to fork component, simple implementation, validates handle exists.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:24:51.231785800-05:00",
+      "updated_at": "2025-12-24T18:24:51.231785800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 173,
+      "change_id": "328ea1bd-379a-4133-8dc8-300b03943ec8",
+      "node_type": "action",
+      "title": "Implementing avatar fetch from Bluesky API on handle input change",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:24:56.020367200-05:00",
+      "updated_at": "2025-12-24T18:24:56.020367200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 174,
+      "change_id": "d9a4f78c-d1e0-4fa6-bd0b-296eba8064e5",
+      "node_type": "outcome",
+      "title": "Successfully implemented avatar fetch from Bluesky API. Added debounced fetch (300ms) that calls searchActorsTypeahead API when handle entered. Works for both typeahead selections and manual entry. Avatar displays when valid handle found. Build passes.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:27:32.316881600-05:00",
+      "updated_at": "2025-12-24T18:27:32.316881600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 175,
+      "change_id": "dde6eb8d-4d35-414e-9d2e-8a577c4338df",
+      "node_type": "action",
+      "title": "Committed avatar fix to git",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:35:10.368162900-05:00",
+      "updated_at": "2025-12-24T18:35:10.368162900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"9bdca93\",\"confidence\":100}"
     }
   ],
   "edges": [
@@ -3598,6 +3708,105 @@
       "weight": 1.0,
       "rationale": "Commit action",
       "created_at": "2025-12-24T01:07:46.216122700-05:00"
+    },
+    {
+      "id": 163,
+      "from_node_id": 166,
+      "to_node_id": 167,
+      "from_change_id": "19750fc5-2408-41a7-bc14-453458d4c32f",
+      "to_change_id": "9f3909fd-b51d-4a00-8425-e03426bc230f",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Refactoring complete",
+      "created_at": "2025-12-24T17:31:25.070485100-05:00"
+    },
+    {
+      "id": 164,
+      "from_node_id": 166,
+      "to_node_id": 168,
+      "from_change_id": "19750fc5-2408-41a7-bc14-453458d4c32f",
+      "to_change_id": "3caaaa83-caa9-4695-b043-37e5367ffb4a",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Follow-up bug discovered during testing",
+      "created_at": "2025-12-24T18:22:51.047366300-05:00"
+    },
+    {
+      "id": 165,
+      "from_node_id": 168,
+      "to_node_id": 169,
+      "from_change_id": "3caaaa83-caa9-4695-b043-37e5367ffb4a",
+      "to_change_id": "5c0cdde6-1079-4390-aab2-7e8ef8bd94b7",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Investigation action",
+      "created_at": "2025-12-24T18:23:19.896584600-05:00"
+    },
+    {
+      "id": 166,
+      "from_node_id": 169,
+      "to_node_id": 170,
+      "from_change_id": "5c0cdde6-1079-4390-aab2-7e8ef8bd94b7",
+      "to_change_id": "9269b746-5275-484c-9314-b436847bf835",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Finding from code analysis",
+      "created_at": "2025-12-24T18:24:35.392542800-05:00"
+    },
+    {
+      "id": 167,
+      "from_node_id": 170,
+      "to_node_id": 171,
+      "from_change_id": "9269b746-5275-484c-9314-b436847bf835",
+      "to_change_id": "182aab31-aa57-42bb-8d63-cf15a7e80105",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision based on finding",
+      "created_at": "2025-12-24T18:24:40.260592400-05:00"
+    },
+    {
+      "id": 168,
+      "from_node_id": 171,
+      "to_node_id": 172,
+      "from_change_id": "182aab31-aa57-42bb-8d63-cf15a7e80105",
+      "to_change_id": "a0764baa-c522-495b-ae4c-a51b22b786bc",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision made",
+      "created_at": "2025-12-24T18:24:53.563493800-05:00"
+    },
+    {
+      "id": 169,
+      "from_node_id": 172,
+      "to_node_id": 173,
+      "from_change_id": "a0764baa-c522-495b-ae4c-a51b22b786bc",
+      "to_change_id": "328ea1bd-379a-4133-8dc8-300b03943ec8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation based on decision",
+      "created_at": "2025-12-24T18:24:58.977763900-05:00"
+    },
+    {
+      "id": 170,
+      "from_node_id": 173,
+      "to_node_id": 174,
+      "from_change_id": "328ea1bd-379a-4133-8dc8-300b03943ec8",
+      "to_change_id": "d9a4f78c-d1e0-4fa6-bd0b-296eba8064e5",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-24T18:27:34.433837500-05:00"
+    },
+    {
+      "id": 171,
+      "from_node_id": 174,
+      "to_node_id": 175,
+      "from_change_id": "d9a4f78c-d1e0-4fa6-bd0b-296eba8064e5",
+      "to_change_id": "dde6eb8d-4d35-414e-9d2e-8a577c4338df",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Committed to repository",
+      "created_at": "2025-12-24T18:35:12.609336500-05:00"
     }
   ]
 }
