@@ -169,7 +169,7 @@ export default function LoginPage({
                   Light Up Your Network
                 </h2>
                 <p className="text-purple-750 dark:text-cyan-250 text-center mb-6">
-                  Connect your ATmosphere account to begin
+                  Reconnect in the ATmosphere as:
                 </p>
 
                 <form
@@ -178,19 +178,13 @@ export default function LoginPage({
                   method="post"
                 >
                   <div>
-                    <label
-                      htmlFor="atproto-handle"
-                      className="block text-sm font-semibold text-purple-900 dark:text-cyan-100 mb-2"
-                    >
-                      Your ATmosphere Handle
-                    </label>
                     <actor-typeahead rows={5}>
                       <input
                         ref={inputRef}
                         id="atproto-handle"
                         type="text"
                         {...getFieldProps("handle")}
-                        placeholder="yourname.bsky.social"
+                        placeholder="username.bsky.social"
                         className={`w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 transition-all ${
                           fields.handle.touched && fields.handle.error
                             ? "border-red-500 focus:ring-red-500"
@@ -264,9 +258,9 @@ export default function LoginPage({
                         Secure OAuth Connection
                       </p>
                       <p className="text-xs mt-1">
-                        We use official AT Protocol OAuth. You will be directed
-                        to your account to authorize access. We never see your
-                        password and you can revoke access anytime.
+                        You will be directed to your account to authorize
+                        access. We never see your password and you can revoke
+                        access anytime.
                       </p>
                     </div>
                   </div>
