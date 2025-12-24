@@ -26,8 +26,35 @@ const VirtualizedResultsList: React.FC<VirtualizedResultsListProps> = ({
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: () => 200, // Estimated height per item
-    overscan: 5, // Render 5 extra items above/below viewport
+    estimateSize: (index) => {
+      const result = results[index];
+      const isExpanded = expandedResults.has(index);
+      const matchCount = result.atprotoMatches.length;
+
+      // Base height for source user header + padding
+      let estimatedHeight = 80;
+
+      if (matchCount === 0) {
+        // No matches - just the "not found" message
+        estimatedHeight += 100;
+      } else {
+        // Calculate height based on number of visible matches
+        const visibleMatches = isExpanded ? matchCount : 1;
+
+        // Each match item: ~120px base + potential description (~40px)
+        // Assume ~30% of matches have descriptions
+        const avgMatchHeight = 140;
+        estimatedHeight += visibleMatches * avgMatchHeight;
+
+        // Add space for "show more" button if there are hidden matches
+        if (matchCount > 1) {
+          estimatedHeight += 40;
+        }
+      }
+
+      return estimatedHeight;
+    },
+    overscan: 3, // Render 3 extra items above/below viewport (reduced from 5 for better performance)
   });
 
   return (
