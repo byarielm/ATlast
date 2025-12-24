@@ -26,35 +26,14 @@ const VirtualizedResultsList: React.FC<VirtualizedResultsListProps> = ({
   const virtualizer = useVirtualizer({
     count: results.length,
     getScrollElement: () => parentRef.current,
-    estimateSize: (index) => {
-      const result = results[index];
-      const isExpanded = expandedResults.has(index);
-      const matchCount = result.atprotoMatches.length;
-
-      // Base height for source user header + padding
-      let estimatedHeight = 80;
-
-      if (matchCount === 0) {
-        // No matches - just the "not found" message
-        estimatedHeight += 100;
-      } else {
-        // Calculate height based on number of visible matches
-        const visibleMatches = isExpanded ? matchCount : 1;
-
-        // Each match item: ~120px base + potential description (~40px)
-        // Assume ~30% of matches have descriptions
-        const avgMatchHeight = 140;
-        estimatedHeight += visibleMatches * avgMatchHeight;
-
-        // Add space for "show more" button if there are hidden matches
-        if (matchCount > 1) {
-          estimatedHeight += 40;
-        }
-      }
-
-      return estimatedHeight;
-    },
-    overscan: 3, // Render 3 extra items above/below viewport (reduced from 5 for better performance)
+    estimateSize: () => 200, // Initial estimate, will be measured dynamically
+    overscan: 3,
+    // Enable dynamic measurement - virtualizer will measure actual rendered heights
+    // and adjust positioning automatically
+    measureElement:
+      typeof window !== "undefined" && navigator.userAgent.indexOf("Firefox") === -1
+        ? (element) => element.getBoundingClientRect().height
+        : undefined,
   });
 
   return (
@@ -72,12 +51,13 @@ const VirtualizedResultsList: React.FC<VirtualizedResultsListProps> = ({
           return (
             <div
               key={virtualItem.key}
+              data-index={virtualItem.index}
+              ref={virtualizer.measureElement}
               style={{
                 position: "absolute",
                 top: 0,
                 left: 0,
                 width: "100%",
-                height: `${virtualItem.size}px`,
                 transform: `translateY(${virtualItem.start}px)`,
               }}
             >
