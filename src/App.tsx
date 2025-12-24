@@ -9,6 +9,7 @@ import { useNotifications } from "./hooks/useNotifications";
 import Firefly from "./components/Firefly";
 import NotificationContainer from "./components/common/NotificationContainer";
 import ErrorBoundary from "./components/common/ErrorBoundary";
+import AriaLiveAnnouncer from "./components/common/AriaLiveAnnouncer";
 import { SearchResultSkeleton } from "./components/common/LoadingSkeleton";
 import { DEFAULT_SETTINGS } from "./types/settings";
 import type { UserSettings, SearchResult } from "./types";
@@ -48,9 +49,11 @@ export default function App() {
     logout,
   } = useAuth();
 
-  // Notifications hook (replaces alerts)
-  const { notifications, removeNotification, success, error, info } =
-    useNotifications();
+  // Notifications hook (only for errors now)
+  const { notifications, removeNotification, error } = useNotifications();
+
+  // Aria-live announcements for non-error feedback (invisible, screen-reader only)
+  const [ariaAnnouncement, setAriaAnnouncement] = useState("");
 
   // Theme hook
   const { isDark, reducedMotion, toggleTheme, toggleMotion } = useTheme();
@@ -169,7 +172,8 @@ export default function App() {
           setSearchResults([]);
           setCurrentPlatform("tiktok");
           setCurrentStep("home");
-          info("No previous results found.");
+          // No visual feedback needed - empty state will show in UI
+          setAriaAnnouncement("No previous results found.");
           return;
         }
 
@@ -194,14 +198,17 @@ export default function App() {
 
         setSearchResults(loadedResults);
         setCurrentStep("results");
-        success(`Loaded ${loadedResults.length} results from previous upload`);
+        // Announce to screen readers only - visual feedback is navigation to results page
+        setAriaAnnouncement(
+          `Loaded ${loadedResults.length} results from previous upload`,
+        );
       } catch (err) {
         console.error("Failed to load upload:", err);
         error("Failed to load previous upload. Please try again.");
         setCurrentStep("home");
       }
     },
-    [setStatusMessage, setCurrentStep, setSearchResults, info, error, success],
+    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error],
   );
 
   // Login handler
@@ -231,20 +238,27 @@ export default function App() {
       setSearchResults([]);
       setCurrentPlatform("tiktok");
       setSavedUploads(new Set());
-      success("Logged out successfully");
+      // No visual feedback needed - user sees login page
+      setAriaAnnouncement("Logged out successfully");
     } catch (err) {
       error("Failed to logout. Please try again.");
     }
-  }, [logout, setSearchResults, success, error]);
+  }, [logout, setSearchResults, setAriaAnnouncement, error]);
 
   return (
     <ErrorBoundary>
       <div className="min-h-screen relative overflow-hidden">
-        {/* Notification Container */}
+        {/* Notification Container - errors only */}
         <NotificationContainer
           notifications={notifications}
           onRemove={removeNotification}
         />
+
+        {/* Invisible announcer for screen readers - non-error feedback */}
+        <AriaLiveAnnouncer message={ariaAnnouncement} politeness="polite" />
+
+        {/* Status message for screen readers - loading/progress updates */}
+        <AriaLiveAnnouncer message={statusMessage} politeness="polite" />
 
         {/* Firefly particles - only render if motion not reduced */}
         {!reducedMotion && (
@@ -258,16 +272,6 @@ export default function App() {
             ))}
           </div>
         )}
-
-        {/* Status message for screen readers */}
-        <div
-          role="status"
-          aria-live="polite"
-          aria-atomic="true"
-          className="sr-only"
-        >
-          {statusMessage}
-        </div>
 
         {/* Skip to main content link */}
         <a
