@@ -32,10 +32,40 @@ export default function LoginPage({
     handle: "",
   });
 
-  // Sync typeahead selection with form state and extract avatar
+  // Sync typeahead selection with form state and fetch avatar
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
+
+    let debounceTimer: ReturnType<typeof setTimeout>;
+
+    const fetchAvatar = async (handle: string) => {
+      if (!handle || handle.length < 3) {
+        setSelectedAvatar(null);
+        return;
+      }
+
+      try {
+        const url = new URL(
+          "xrpc/app.bsky.actor.searchActorsTypeahead",
+          "https://public.api.bsky.app"
+        );
+        url.searchParams.set("q", handle);
+        url.searchParams.set("limit", "1");
+
+        const res = await fetch(url);
+        const json = await res.json();
+
+        if (json.actors?.[0]?.avatar) {
+          setSelectedAvatar(json.actors[0].avatar);
+        } else {
+          setSelectedAvatar(null);
+        }
+      } catch (error) {
+        // Silently fail - avatar is optional
+        setSelectedAvatar(null);
+      }
+    };
 
     const handleInputChange = () => {
       let value = input.value.trim();
@@ -52,41 +82,26 @@ export default function LoginPage({
         }
       }
 
-      // Check if typeahead has selection data (avatar)
-      const typeaheadElement = input.closest("actor-typeahead");
-      if (typeaheadElement) {
-        const avatar = typeaheadElement.getAttribute("data-avatar");
-        if (avatar) {
-          setSelectedAvatar(avatar);
-        } else if (value === "") {
-          // Clear avatar when input is cleared
-          setSelectedAvatar(null);
-        }
-      }
-
       // Update form state
       setValue("handle", value);
-    };
 
-    // Listen for input, change, and blur events to catch typeahead selections
-    input.addEventListener("input", handleInputChange);
-    input.addEventListener("change", handleInputChange);
-    input.addEventListener("blur", handleInputChange);
-
-    // Also listen for custom typeahead selection event if it exists
-    const handleSelection = (e: Event) => {
-      const customEvent = e as CustomEvent;
-      if (customEvent.detail?.avatar) {
-        setSelectedAvatar(customEvent.detail.avatar);
+      // Debounce avatar fetch
+      clearTimeout(debounceTimer);
+      if (value === "") {
+        setSelectedAvatar(null);
+      } else {
+        debounceTimer = setTimeout(() => fetchAvatar(value), 300);
       }
     };
-    input.addEventListener("actor-select", handleSelection as EventListener);
+
+    // Listen for input and change events
+    input.addEventListener("input", handleInputChange);
+    input.addEventListener("change", handleInputChange);
 
     return () => {
       input.removeEventListener("input", handleInputChange);
       input.removeEventListener("change", handleInputChange);
-      input.removeEventListener("blur", handleInputChange);
-      input.removeEventListener("actor-select", handleSelection as EventListener);
+      clearTimeout(debounceTimer);
     };
   }, [setValue, strippedAtMessage]);
 
