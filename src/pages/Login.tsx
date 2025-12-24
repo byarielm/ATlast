@@ -1,16 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import "actor-typeahead";
-import {
-  Heart,
-  Upload,
-  Search,
-  ArrowRight,
-  AlertCircle,
-  Info,
-} from "lucide-react";
-import FireflyLogo from "../assets/at-firefly-logo.svg?react";
+import { ArrowRight, AlertCircle, Info } from "lucide-react";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { validateHandle } from "../lib/validation";
+import HeroSection from "../components/login/HeroSection";
+import ValuePropsSection from "../components/login/ValuePropsSection";
+import HowItWorksSection from "../components/login/HowItWorksSection";
 
 interface LoginPageProps {
   onSubmit: (handle: string) => void;
@@ -103,44 +98,7 @@ export default function LoginPage({
       <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
         {/* Hero Section - Side by side on desktop */}
         <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start mb-12 md:mb-16">
-          {/* Left: Welcome */}
-          <div className="text-center md:text-left">
-            <div className="justify-center md:justify-start mb-4">
-              <div className="logo-glow-container">
-                <FireflyLogo className="w-50 h-15" />
-              </div>
-            </div>
-
-            <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-500 dark:from-cyan-300 dark:via-purple-300 dark:to-pink-300 bg-clip-text text-transparent mb-3 md:mb-4">
-              ATlast
-            </h1>
-            <p className="text-xl md:text-2xl lg:text-2xl text-purple-900 dark:text-cyan-100 mb-2 font-medium">
-              Find Your Light in the ATmosphere
-            </p>
-            <p className="text-purple-750 dark:text-cyan-250 mb-6">
-              Reconnect with your internet, one firefly at a time ✨
-            </p>
-
-            {/* Decorative firefly trail - only show if motion enabled */}
-            {!reducedMotion && (
-              <div
-                className="mt-8 flex justify-center md:justify-start space-x-2"
-                aria-hidden="true"
-              >
-                {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-2 rounded-full bg-orange-500 dark:bg-amber-400"
-                    style={{
-                      opacity: 1 - i * 0.15,
-                      animation: `float ${2 + i * 0.3}s ease-in-out infinite`,
-                      animationDelay: `${i * 0.2}s`,
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+          <HeroSection reducedMotion={reducedMotion} />
 
           {/* Right: Login Card or Dashboard Button */}
           <div className="w-full">
@@ -270,112 +228,8 @@ export default function LoginPage({
           </div>
         </div>
 
-        {/* Value Props */}
-        <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 max-w-5xl mx-auto">
-          <div className="bg-white/50 border-cyan-500/30 hover:border-cyan-400 dark:bg-slate-900/50 dark:border-purple-500/30 dark:hover:border-purple-400 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all hover:scale-105 shadow-lg">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
-              <Upload className="w-6 h-6 text-slate-900" />
-            </div>
-            <h3 className="text-lg font-bold text-purple-950 dark:text-cyan-50 mb-2">
-              Share Your Light
-            </h3>
-            <p className="text-purple-750 dark:text-cyan-250 text-sm leading-relaxed">
-              Import your following lists. Your data stays private, your
-              connections shine bright.
-            </p>
-          </div>
-
-          <div className="bg-white/50 border-cyan-500/30 hover:border-cyan-400 dark:bg-slate-900/50 dark:border-purple-500/30 dark:hover:border-purple-400 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all hover:scale-105 shadow-lg">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
-              <Search className="w-6 h-6 text-slate-900" />
-            </div>
-            <h3 className="text-lg font-bold text-purple-950 dark:text-cyan-50 mb-2">
-              Find Your Swarm
-            </h3>
-            <p className="text-purple-750 dark:text-cyan-250 text-sm leading-relaxed">
-              Watch as fireflies light up - discover which friends have already
-              migrated to the ATmosphere.
-            </p>
-          </div>
-
-          <div className="bg-white/50 border-cyan-500/30 hover:border-cyan-400 dark:bg-slate-900/50 dark:border-purple-500/30 dark:hover:border-purple-400 backdrop-blur-xl rounded-2xl p-6 border-2 transition-all hover:scale-105 shadow-lg">
-            <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-600 rounded-xl flex items-center justify-center mb-4 shadow-md">
-              <Heart className="w-6 h-6 text-slate-900" />
-            </div>
-            <h3 className="text-lg font-bold text-purple-950 dark:text-cyan-50 mb-2">
-              Sync Your Glow
-            </h3>
-            <p className="text-purple-750 dark:text-cyan-250 text-sm leading-relaxed">
-              Reconnect instantly. Follow everyone at once or pick and choose -
-              light up together.
-            </p>
-          </div>
-        </div>
-
-        {/* How It Works */}
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-2xl font-bold text-center text-purple-950 dark:text-cyan-50 mb-8">
-            How It Works
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div
-                className="w-12 h-12 bg-orange-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
-                aria-hidden="true"
-              >
-                1
-              </div>
-              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
-                Connect
-              </h3>
-              <p className="text-sm text-purple-900 dark:text-cyan-100">
-                Sign in with your ATmosphere account
-              </p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-12 h-12 bg-cyan-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
-                aria-hidden="true"
-              >
-                2
-              </div>
-              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
-                Upload
-              </h3>
-              <p className="text-sm text-purple-900 dark:text-cyan-100">
-                Import your following data from other platforms
-              </p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-12 h-12 bg-pink-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
-                aria-hidden="true"
-              >
-                3
-              </div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">
-                Match
-              </h3>
-              <p className="text-sm text-purple-900 dark:text-cyan-100">
-                We find your fireflies in the ATmosphere
-              </p>
-            </div>
-            <div className="text-center">
-              <div
-                className="w-12 h-12 bg-amber-500 text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md"
-                aria-hidden="true"
-              >
-                4
-              </div>
-              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
-                Follow
-              </h3>
-              <p className="text-sm text-purple-900 dark:text-cyan-100">
-                Reconnect with your community
-              </p>
-            </div>
-          </div>
-        </div>
+        <ValuePropsSection />
+        <HowItWorksSection />
       </div>
     </div>
   );
