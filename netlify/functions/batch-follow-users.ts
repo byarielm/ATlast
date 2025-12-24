@@ -4,8 +4,21 @@ import { FollowService } from "./services/FollowService";
 import { MatchRepository } from "./repositories";
 import { successResponse, validateArrayInput, ValidationSchemas } from "./utils";
 import { withAuthErrorHandling } from "./core/middleware";
+import {
+  createRateLimiter,
+  applyRateLimit,
+} from "./core/middleware/rateLimit.middleware";
+
+// Rate limit: 8 requests per hour
+// Each request can follow up to 100 users (300 points)
+// Leaves ~50% of 5,000 points/hr for other operations
+const checkRateLimit = createRateLimiter({
+  maxRequests: 8,
+  windowMs: 60 * 60 * 1000, // 1 hour
+});
 
 const batchFollowHandler: AuthenticatedHandler = async (context) => {
+  applyRateLimit(checkRateLimit, context.event, "minutes");
   const body = JSON.parse(context.event.body || "{}");
   const dids = validateArrayInput<string>(
     context.event.body,

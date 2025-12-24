@@ -8,10 +8,22 @@ import {
 import { SessionService } from "./services/SessionService";
 import { successResponse, validateArrayInput, ValidationSchemas } from "./utils";
 import { withAuthErrorHandling } from "./core/middleware";
+import {
+  createRateLimiter,
+  applyRateLimit,
+} from "./core/middleware/rateLimit.middleware";
 import { normalize } from "./utils/string.utils";
 import { FollowService } from "./services/FollowService";
 
+// Rate limit: 5 requests per minute
+// Leaves ~50% buffer for other AT Protocol operations
+const checkRateLimit = createRateLimiter({
+  maxRequests: 5,
+  windowMs: 60 * 1000, // 1 minute
+});
+
 const batchSearchHandler: AuthenticatedHandler = async (context) => {
+  applyRateLimit(checkRateLimit, context.event, "seconds");
   const body = JSON.parse(context.event.body || "{}");
   const usernames = validateArrayInput<string>(
     context.event.body,
