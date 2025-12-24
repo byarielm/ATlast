@@ -17,6 +17,7 @@ export { default as Section } from "./Section";
 export { default as SetupPrompt } from "./SetupPrompt";
 export { default as Skeleton } from "./Skeleton";
 export { default as Toggle } from "./Toggle";
+export { default as Tooltip } from "./Tooltip";
 
 // Export Stats components
 export { StatItem, StatBadge, StatsGroup } from "./Stats";
