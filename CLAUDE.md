@@ -120,6 +120,12 @@ The `--commit HEAD` flag captures the commit hash and links it to the node. The 
 - Use concise summary line describing the change
 - Add additional details if needed, but keep it focused
 
+**CRITICAL: Commit separate concerns separately**
+- Each commit should address ONE specific fix or feature
+- DO NOT bundle multiple unrelated changes into a single commit
+- If fixing multiple bugs, create separate commits for each bug fix
+- Example: Login typeahead fix, card spacing fix, and toast refactor = 3 commits
+
 **Example:**
 ```bash
 git commit -m "remove deprecated 'followed' field and cleanup codebase
