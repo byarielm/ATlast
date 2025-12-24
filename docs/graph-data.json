@@ -1198,6 +1198,127 @@
       "created_at": "2025-12-23T19:41:46.487312500-05:00",
       "updated_at": "2025-12-23T19:41:46.487312500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95,\"prompt\":\"Optimization #12 from PLAN.md: Add rate limiting to expensive batch endpoints to prevent users from exhausting AT Protocol API limits and ensure buffer room for other operations (likes, replies, posts).\"}"
+    },
+    {
+      "id": 110,
+      "change_id": "22b9c3db-9f95-45d7-a3ed-bdfac54677db",
+      "node_type": "goal",
+      "title": "Cleanup codebase - remove unused code and backward compatibility artifacts",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:04:14.947114-05:00",
+      "updated_at": "2025-12-23T20:04:14.947114-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"Cleanup the codebase by removing anything unused, including anything left for backward compatibility and make sure the new implementation is fully used.\"}"
+    },
+    {
+      "id": 111,
+      "change_id": "c817c7d7-69cb-4fa3-934e-9ff210027ebf",
+      "node_type": "action",
+      "title": "Searching for old implementation files that should be removed after optimizations",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:04:25.643508300-05:00",
+      "updated_at": "2025-12-23T20:04:25.643508300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 112,
+      "change_id": "4b680ad7-6517-4e7c-8722-ffe6d5c70d4d",
+      "node_type": "observation",
+      "title": "Found deprecated 'followed' field used in 3 locations with followStatus fallback pattern. Need to verify if database schema includes followed field before removing.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:07:02.695049300-05:00",
+      "updated_at": "2025-12-23T20:07:02.695049300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 113,
+      "change_id": "437de2d2-6de6-4a4c-a306-d6491e661f97",
+      "node_type": "decision",
+      "title": "Strategy for removing deprecated 'followed' field: Remove from types, frontend code, and database schema vs Keep database field but stop using it",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:08:11.130497400-05:00",
+      "updated_at": "2025-12-23T20:08:11.130497400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":80}"
+    },
+    {
+      "id": 114,
+      "change_id": "af90cd04-bdd3-4a33-9c91-6233c4487306",
+      "node_type": "outcome",
+      "title": "Decision: Remove 'followed' field from frontend types and code. Keep database field to avoid migration, but stop reading/using it. Only use followStatus going forward.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:08:28.212329-05:00",
+      "updated_at": "2025-12-23T20:08:28.212329-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 115,
+      "change_id": "36762e5f-cb24-4e86-9b8d-24182ae53671",
+      "node_type": "action",
+      "title": "Removing deprecated 'followed' field from types and frontend code",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:08:41.239991100-05:00",
+      "updated_at": "2025-12-23T20:08:41.239991100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 116,
+      "change_id": "0e63dec2-b38f-40cb-af00-4b5da44d6212",
+      "node_type": "observation",
+      "title": "Removed 'followed' field from 6 locations: search.types.ts, SearchResultCard.tsx, App.tsx, useFollows.ts, get-upload-details.ts, MatchRepository.ts. Database schema kept unchanged to avoid migration.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:10:58.568272-05:00",
+      "updated_at": "2025-12-23T20:10:58.568272-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 117,
+      "change_id": "d78b544a-8897-4149-ac48-4f35f6def985",
+      "node_type": "observation",
+      "title": "Removed empty 'nul' file (likely created by accident on Windows)",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:12:28.266830900-05:00",
+      "updated_at": "2025-12-23T20:12:28.266830900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 118,
+      "change_id": "e16cb229-81a4-4215-a35f-48f33d217290",
+      "node_type": "outcome",
+      "title": "Successfully cleaned up codebase: removed deprecated 'followed' field from 6 files, deleted empty 'nul' file. Build passes. All new implementations (zustand, date-fns, Zod) fully integrated.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:13:15.750443600-05:00",
+      "updated_at": "2025-12-23T20:13:15.750443600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 119,
+      "change_id": "462bb6d0-8ce9-4305-a11e-c34b9fe6e946",
+      "node_type": "action",
+      "title": "Removing backward-compatible useSettings hook and updating App.tsx to use zustand store directly",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:18:42.243820600-05:00",
+      "updated_at": "2025-12-23T20:18:42.243820600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 120,
+      "change_id": "d982f0be-e0bd-43db-bb6e-96129ca4561d",
+      "node_type": "outcome",
+      "title": "Successfully removed backward-compatible useSettings hook. Updated App.tsx to use zustand store directly. Build passes with smaller bundle (284.11 KB vs 284.27 KB).",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-23T20:20:47.820117300-05:00",
+      "updated_at": "2025-12-23T20:20:47.820117300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -2388,6 +2509,105 @@
       "weight": 1.0,
       "rationale": "First action for goal #109",
       "created_at": "2025-12-23T19:41:50.150904500-05:00"
+    },
+    {
+      "id": 109,
+      "from_node_id": 110,
+      "to_node_id": 111,
+      "from_change_id": "22b9c3db-9f95-45d7-a3ed-bdfac54677db",
+      "to_change_id": "c817c7d7-69cb-4fa3-934e-9ff210027ebf",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "First action for cleanup goal",
+      "created_at": "2025-12-23T20:04:57.796506700-05:00"
+    },
+    {
+      "id": 110,
+      "from_node_id": 111,
+      "to_node_id": 112,
+      "from_change_id": "c817c7d7-69cb-4fa3-934e-9ff210027ebf",
+      "to_change_id": "4b680ad7-6517-4e7c-8722-ffe6d5c70d4d",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Observation from searching for backward compat code",
+      "created_at": "2025-12-23T20:07:37.703932800-05:00"
+    },
+    {
+      "id": 111,
+      "from_node_id": 112,
+      "to_node_id": 113,
+      "from_change_id": "4b680ad7-6517-4e7c-8722-ffe6d5c70d4d",
+      "to_change_id": "437de2d2-6de6-4a4c-a306-d6491e661f97",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision on how to handle deprecated field",
+      "created_at": "2025-12-23T20:08:39.647918700-05:00"
+    },
+    {
+      "id": 112,
+      "from_node_id": 113,
+      "to_node_id": 114,
+      "from_change_id": "437de2d2-6de6-4a4c-a306-d6491e661f97",
+      "to_change_id": "af90cd04-bdd3-4a33-9c91-6233c4487306",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision outcome",
+      "created_at": "2025-12-23T20:08:39.735671200-05:00"
+    },
+    {
+      "id": 113,
+      "from_node_id": 114,
+      "to_node_id": 115,
+      "from_change_id": "af90cd04-bdd3-4a33-9c91-6233c4487306",
+      "to_change_id": "36762e5f-cb24-4e86-9b8d-24182ae53671",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action based on decision",
+      "created_at": "2025-12-23T20:08:49.957587300-05:00"
+    },
+    {
+      "id": 114,
+      "from_node_id": 115,
+      "to_node_id": 116,
+      "from_change_id": "36762e5f-cb24-4e86-9b8d-24182ae53671",
+      "to_change_id": "0e63dec2-b38f-40cb-af00-4b5da44d6212",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Observation after removing deprecated field",
+      "created_at": "2025-12-23T20:11:00.067479400-05:00"
+    },
+    {
+      "id": 115,
+      "from_node_id": 116,
+      "to_node_id": 118,
+      "from_change_id": "0e63dec2-b38f-40cb-af00-4b5da44d6212",
+      "to_change_id": "e16cb229-81a4-4215-a35f-48f33d217290",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Cleanup outcome",
+      "created_at": "2025-12-23T20:13:17.159621900-05:00"
+    },
+    {
+      "id": 116,
+      "from_node_id": 118,
+      "to_node_id": 119,
+      "from_change_id": "e16cb229-81a4-4215-a35f-48f33d217290",
+      "to_change_id": "462bb6d0-8ce9-4305-a11e-c34b9fe6e946",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Additional cleanup action",
+      "created_at": "2025-12-23T20:20:47.683039100-05:00"
+    },
+    {
+      "id": 117,
+      "from_node_id": 119,
+      "to_node_id": 120,
+      "from_change_id": "462bb6d0-8ce9-4305-a11e-c34b9fe6e946",
+      "to_change_id": "d982f0be-e0bd-43db-bb6e-96129ca4561d",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Outcome of removing backward compat hook",
+      "created_at": "2025-12-23T20:20:49.325863400-05:00"
     }
   ]
 }
