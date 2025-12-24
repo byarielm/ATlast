@@ -6,6 +6,7 @@ import { validateHandle } from "../lib/validation";
 import HeroSection from "../components/login/HeroSection";
 import ValuePropsSection from "../components/login/ValuePropsSection";
 import HowItWorksSection from "../components/login/HowItWorksSection";
+import HandleInput from "../components/login/HandleInput";
 
 interface LoginPageProps {
   onSubmit: (handle: string) => void;
@@ -23,12 +24,13 @@ export default function LoginPage({
   const inputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [strippedAtMessage, setStrippedAtMessage] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState<string | null>(null);
 
   const { fields, setValue, validate, getFieldProps } = useFormValidation({
     handle: "",
   });
 
-  // Sync typeahead selection with form state
+  // Sync typeahead selection with form state and extract avatar
   useEffect(() => {
     const input = inputRef.current;
     if (!input) return;
@@ -48,6 +50,18 @@ export default function LoginPage({
         }
       }
 
+      // Check if typeahead has selection data (avatar)
+      const typeaheadElement = input.closest("actor-typeahead");
+      if (typeaheadElement) {
+        const avatar = typeaheadElement.getAttribute("data-avatar");
+        if (avatar) {
+          setSelectedAvatar(avatar);
+        } else if (value === "") {
+          // Clear avatar when input is cleared
+          setSelectedAvatar(null);
+        }
+      }
+
       // Update form state
       setValue("handle", value);
     };
@@ -57,10 +71,20 @@ export default function LoginPage({
     input.addEventListener("change", handleInputChange);
     input.addEventListener("blur", handleInputChange);
 
+    // Also listen for custom typeahead selection event if it exists
+    const handleSelection = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail?.avatar) {
+        setSelectedAvatar(customEvent.detail.avatar);
+      }
+    };
+    input.addEventListener("actor-select", handleSelection as EventListener);
+
     return () => {
       input.removeEventListener("input", handleInputChange);
       input.removeEventListener("change", handleInputChange);
       input.removeEventListener("blur", handleInputChange);
+      input.removeEventListener("actor-select", handleSelection as EventListener);
     };
   }, [setValue, strippedAtMessage]);
 
@@ -137,17 +161,13 @@ export default function LoginPage({
                 >
                   <div>
                     <actor-typeahead rows={5}>
-                      <input
+                      <HandleInput
                         ref={inputRef}
                         id="atproto-handle"
-                        type="text"
                         {...getFieldProps("handle")}
                         placeholder="username.bsky.social"
-                        className={`w-full px-4 py-3 bg-purple-50/50 dark:bg-slate-900/50 border-2 rounded-xl text-purple-900 dark:text-cyan-100 placeholder-purple-750/80 dark:placeholder-cyan-250/80 focus:outline-none focus:ring-2 transition-all ${
-                          fields.handle.touched && fields.handle.error
-                            ? "border-red-500 focus:ring-red-500"
-                            : "border-cyan-500/50 dark:border-purple-500/30 focus:ring-orange-500 dark:focus:ring-amber-400 focus:border-transparent"
-                        }`}
+                        error={fields.handle.touched && !!fields.handle.error}
+                        selectedAvatar={selectedAvatar}
                         aria-required="true"
                         aria-invalid={
                           fields.handle.touched && !!fields.handle.error
