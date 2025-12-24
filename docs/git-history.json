@@ -1,5 +1,37 @@
 [
   {
+    "hash": "cc586d28ea8d4544467392be1083fdec11731814",
+    "short_hash": "cc586d2",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T21:11:19-05:00",
+    "message": "replace excessive toasts with aria-live announcer\n\nRemove redundant success/info toasts (logout, upload loaded, no results).\nKeep only error toasts for critical feedback.\nAdd AriaLiveAnnouncer component for screen reader accessibility.",
+    "files_changed": 2
+  },
+  {
+    "hash": "ebb1e05cac477f02e1901aab6f3a8005016472f9",
+    "short_hash": "ebb1e05",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T21:10:58-05:00",
+    "message": "fix mobile alignment: badges and descriptions align with avatar",
+    "files_changed": 1
+  },
+  {
+    "hash": "4c3ae0dbca215d10b499fc646ae7f53c43c658ac",
+    "short_hash": "4c3ae0d",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T20:58:15-05:00",
+    "message": "fix login typeahead autofill and auto-strip @ symbol\n\nTypeahead fix:\n- Add event listeners for input/change/blur to sync actor-typeahead selections with form state\n- Ensures Enter/Tab selections from typeahead dropdown properly update form\n- Allows Enter key to submit form after selection\n\n@ stripping:\n- Automatically remove leading @ from handle input\n- Show helpful inline message when @ is stripped\n- Inform users the @ symbol isn't needed",
+    "files_changed": 1
+  },
+  {
+    "hash": "8e9efd2577b82cb61b0162a28b4ab072bbccf00b",
+    "short_hash": "8e9efd2",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-23T20:57:21-05:00",
+    "message": "update CLAUDE.md with separate commit guidance\n\nAdd critical note that each commit should address ONE specific fix or feature.\nMultiple unrelated changes should be committed separately for clearer history.",
+    "files_changed": 1
+  },
+  {
     "hash": "587a9b0314546b91e00c94bf87d28d29f6527456",
     "short_hash": "587a9b0",
     "author": "Ariel M. Lighty",
