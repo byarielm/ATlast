@@ -1,6 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import "actor-typeahead";
-import { Heart, Upload, Search, ArrowRight, AlertCircle } from "lucide-react";
+import {
+  Heart,
+  Upload,
+  Search,
+  ArrowRight,
+  AlertCircle,
+  Info,
+} from "lucide-react";
 import FireflyLogo from "../assets/at-firefly-logo.svg?react";
 import { useFormValidation } from "../hooks/useFormValidation";
 import { validateHandle } from "../lib/validation";
@@ -20,16 +27,59 @@ export default function LoginPage({
 }: LoginPageProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [strippedAtMessage, setStrippedAtMessage] = useState(false);
 
   const { fields, setValue, validate, getFieldProps } = useFormValidation({
     handle: "",
   });
 
+  // Sync typeahead selection with form state
+  useEffect(() => {
+    const input = inputRef.current;
+    if (!input) return;
+
+    const handleInputChange = () => {
+      let value = input.value.trim();
+
+      // Strip leading @ if present
+      if (value.startsWith("@")) {
+        value = value.substring(1);
+        input.value = value;
+
+        // Show message once
+        if (!strippedAtMessage) {
+          setStrippedAtMessage(true);
+          setTimeout(() => setStrippedAtMessage(false), 3000);
+        }
+      }
+
+      // Update form state
+      setValue("handle", value);
+    };
+
+    // Listen for input, change, and blur events to catch typeahead selections
+    input.addEventListener("input", handleInputChange);
+    input.addEventListener("change", handleInputChange);
+    input.addEventListener("blur", handleInputChange);
+
+    return () => {
+      input.removeEventListener("input", handleInputChange);
+      input.removeEventListener("change", handleInputChange);
+      input.removeEventListener("blur", handleInputChange);
+    };
+  }, [setValue, strippedAtMessage]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Get the value directly from the input
-    const currentHandle = inputRef.current?.value || fields.handle.value;
+    // Get the value directly from the input (in case form state is stale)
+    let currentHandle = (inputRef.current?.value || fields.handle.value).trim();
+
+    // Strip leading @ one more time to be sure
+    if (currentHandle.startsWith("@")) {
+      currentHandle = currentHandle.substring(1);
+    }
+
     setValue("handle", currentHandle);
 
     // Validate
@@ -158,6 +208,14 @@ export default function LoginPage({
                         disabled={isSubmitting}
                       />
                     </actor-typeahead>
+                    {strippedAtMessage && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-cyan-700 dark:text-cyan-300">
+                        <Info className="w-4 h-4 flex-shrink-0" />
+                        <span>
+                          No need for the @ symbol - we've removed it for you!
+                        </span>
+                      </div>
+                    )}
                     {fields.handle.touched && fields.handle.error && (
                       <div
                         id="handle-error"
