@@ -6,6 +6,9 @@ import Section from "../components/common/Section";
 import Card from "../components/common/Card";
 import Badge from "../components/common/Badge";
 import PlatformBadge from "../components/common/PlatformBadge";
+import Toggle from "../components/common/Toggle";
+import DropdownWithIcons from "../components/common/DropdownWithIcons";
+import type { DropdownOptionWithIcon } from "../components/common/DropdownWithIcons";
 
 interface SettingsPageProps {
   userSettings: UserSettings;
@@ -26,6 +29,15 @@ export default function SettingsPage({
       },
     });
   };
+
+  // Prepare app options with icons for dropdown
+  const appOptions: DropdownOptionWithIcon[] = Object.values(ATPROTO_APPS).map(
+    (app) => ({
+      value: app.id,
+      label: app.name,
+      icon: app.icon,
+    })
+  );
 
   return (
     <div className="space-y-0">
@@ -116,24 +128,19 @@ export default function SettingsPage({
             return (
               <div
                 key={key}
-                className="flex items-center justify-between px-3 py-2 rounded-xl transition-colors"
+                className="flex items-center justify-between gap-3 px-3 py-2 rounded-xl transition-colors"
               >
                 <PlatformBadge
                   platformKey={key}
                   size="sm"
                   className="flex-1 min-w-0"
                 />
-                <select
+                <DropdownWithIcons
                   value={currentDestination}
-                  onChange={(e) => handleDestinationChange(key, e.target.value)}
-                  className="px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"
-                >
-                  {Object.values(ATPROTO_APPS).map((app) => (
-                    <option key={app.id} value={app.id}>
-                      {app.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => handleDestinationChange(key, value)}
+                  options={appOptions}
+                  className="w-48"
+                />
               </div>
             );
           })}
@@ -147,58 +154,29 @@ export default function SettingsPage({
       >
         <div className="px-3 space-y-4">
           {/* Save Data Toggle */}
-          <div className="">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="font-medium text-purple-950 dark:text-cyan-50 mb-1">
-                  Save my data
-                </div>
-                <p className="text-sm text-purple-900 dark:text-cyan-100">
-                  Store your following lists for periodic re-checking and new
-                  match notifications
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer ml-4">
-                <input
-                  type="checkbox"
-                  checked={userSettings.saveData}
-                  onChange={(e) =>
-                    onSettingsUpdate({ saveData: e.target.checked })
-                  }
-                  className="sr-only peer"
-                />
-                <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-650/50 dark:peer-focus:ring-amber-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-700 peer-checked:bg-orange-500 dark:peer-checked:bg-orange-400"></div>
-              </label>
-            </div>
-          </div>
+          <Toggle
+            checked={userSettings.saveData}
+            onChange={(checked) => onSettingsUpdate({ saveData: checked })}
+            label="Save my data"
+            description="Store your following lists for periodic re-checking and new match notifications"
+            id="settings-save-data"
+          />
 
           {/* Automation Toggle */}
-          <div className="">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex-1">
-                <div className="font-medium text-purple-950 dark:text-cyan-50 mb-1">
-                  Notify about new matches
-                </div>
-                <p className="text-sm text-purple-900 dark:text-cyan-100">
-                  Get DMs when people you follow join the ATmosphere
-                </p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer ml-4">
-                <input
-                  type="checkbox"
-                  checked={userSettings.enableAutomation}
-                  onChange={(e) =>
-                    onSettingsUpdate({ enableAutomation: e.target.checked })
-                  }
-                  className="sr-only peer"
-                  disabled={!userSettings.saveData}
-                />
-                <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-650/50 dark:peer-focus:ring-amber-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-700 peer-checked:bg-orange-500 dark:peer-checked:bg-orange-400"></div>
-              </label>
-            </div>
+          <div>
+            <Toggle
+              checked={userSettings.enableAutomation}
+              onChange={(checked) =>
+                onSettingsUpdate({ enableAutomation: checked })
+              }
+              label="Notify about new matches"
+              description="Get DMs when people you follow join the ATmosphere"
+              disabled={!userSettings.saveData}
+              id="settings-automation"
+            />
 
             {userSettings.enableAutomation && (
-              <div className="flex items-center gap-3 px-6">
+              <div className="flex items-center gap-3 px-0 mt-4">
                 <label className="text-sm font-medium text-purple-950 dark:text-cyan-50 whitespace-nowrap">
                   Frequency
                 </label>
