@@ -14,7 +14,7 @@ import { DEFAULT_SETTINGS } from "./types/settings";
 import type { UserSettings, SearchResult } from "./types";
 import { apiClient } from "./lib/api/client";
 import { ATPROTO_APPS } from "./config/atprotoApps";
-import { useSettings } from "./stores/useSettingsStore";
+import { useSettingsStore } from "./stores/useSettingsStore";
 
 // Lazy load page components
 const LoginPage = lazy(() => import("./pages/Login"));
@@ -62,8 +62,8 @@ export default function App() {
   const [savedUploads, setSavedUploads] = useState<Set<string>>(new Set());
 
   // Settings state
-  const { settings: userSettings, updateSettings: handleSettingsUpdate } =
-    useSettings();
+  const userSettings = useSettingsStore((state) => state.settings);
+  const handleSettingsUpdate = useSettingsStore((state) => state.updateSettings);
 
   // Search hook
   const {
@@ -182,7 +182,11 @@ export default function App() {
           isSearching: false,
           selectedMatches: new Set<string>(
             result.atprotoMatches
-              .filter((match) => !match.followed)
+              .filter(
+                (match) =>
+                  !match.followStatus ||
+                  !Object.values(match.followStatus).some((status) => status),
+              )
               .slice(0, 1)
               .map((match) => match.did),
           ),

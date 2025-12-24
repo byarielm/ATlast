@@ -50,18 +50,3 @@ export const useSettingsStore = create<SettingsStore>()(
     },
   ),
 );
-
-// Backwards-compatible hook that matches the old context API
-export const useSettings = () => {
-  const settings = useSettingsStore((state) => state.settings);
-  const updateSettings = useSettingsStore((state) => state.updateSettings);
-  const resetSettings = useSettingsStore((state) => state.resetSettings);
-  const isLoading = useSettingsStore((state) => state.isLoading);
-
-  return {
-    settings,
-    updateSettings,
-    resetSettings,
-    isLoading,
-  };
-};

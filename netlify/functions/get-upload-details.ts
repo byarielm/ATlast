@@ -74,7 +74,6 @@ const getUploadDetailsHandler: AuthenticatedHandler = async (context) => {
         postCount: row.post_count,
         followerCount: row.follower_count,
         foundAt: row.found_at,
-        followed: row.followed || false,
         dismissed: row.dismissed || false,
         followStatus: row.follow_status || {},
       });

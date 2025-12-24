@@ -10,7 +10,6 @@ export interface AtprotoMatch {
   avatar?: string;
   matchScore: number;
   description?: string;
-  followed?: boolean; // DEPRECATED - kept for backward compatibility
   followStatus?: Record<string, boolean>;
   postCount?: number;
   followerCount?: number;

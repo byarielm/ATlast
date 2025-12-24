@@ -141,7 +141,7 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
           <div>
             {displayMatches.map((match) => {
               const isFollowedInCurrentApp =
-                match.followStatus?.[currentLexicon] ?? match.followed ?? false;
+                match.followStatus?.[currentLexicon] ?? false;
               const isSelected = result.selectedMatches?.has(match.did);
 
               return (

@@ -174,7 +174,6 @@ export class MatchRepository extends BaseRepository {
         am.found_at,
         am.follow_status,
         am.last_follow_check,
-        ums.followed,
         ums.dismissed,
         CASE WHEN am.found_at > uu.created_at THEN 1 ELSE 0 END as is_new_match
       FROM user_source_follows usf

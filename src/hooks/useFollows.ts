@@ -118,7 +118,6 @@ export function useFollow(
                               match.did === result.did
                                 ? {
                                     ...match,
-                                    followed: true,
                                     followStatus: {
                                       ...match.followStatus,
                                       [followLexicon]: true,

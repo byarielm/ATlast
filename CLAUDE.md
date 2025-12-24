@@ -111,6 +111,28 @@ deciduous link <goal_id> <action_id> -r "Implementation"
 
 The `--commit HEAD` flag captures the commit hash and links it to the node. The web viewer will show commit messages, authors, and dates.
 
+### Git Commit Message Format
+
+**Keep commit messages clean and concise:**
+- NO "Generated with Claude Code" or similar by-lines
+- NO "Co-Authored-By:" lines
+- NO "Files updated:" sections or file lists
+- Use concise summary line describing the change
+- Add additional details if needed, but keep it focused
+
+**Example:**
+```bash
+git commit -m "remove deprecated 'followed' field and cleanup codebase
+
+Removed backward compatibility code for deprecated 'followed' field:
+- Removed from AtprotoMatch type
+- Updated 6 files to use only followStatus Record
+- Replaced simple boolean check with multi-lexicon support
+- Database schema preserved (no migration needed)
+
+Also removed empty 'nul' file created accidentally."
+```
+
 ### Git History & Deployment
 
 ```bash
