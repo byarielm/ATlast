@@ -28,15 +28,16 @@ const MatchItem = React.memo<{
   onToggle: () => void;
 }>(({ match, isSelected, isFollowed, currentAppName, onToggle }) => {
   return (
-    <div className="flex items-start gap-3 p-3 cursor-pointer hover:scale-[1.01] transition-transform">
-      <AvatarWithFallback
-        avatar={match.avatar}
-        handle={match.handle || ""}
-        size="sm"
-      />
+    <div className="p-3 cursor-pointer hover:scale-[1.01] transition-transform">
+      {/* Top row: Avatar, Name/Handle, Follow Button */}
+      <div className="flex items-start gap-3 mb-2">
+        <AvatarWithFallback
+          avatar={match.avatar}
+          handle={match.handle || ""}
+          size="sm"
+        />
 
-      <div className="flex-1 min-w-0 space-y-1">
-        <div>
+        <div className="flex-1 min-w-0">
           {match.displayName && (
             <div className="font-semibold text-purple-950 dark:text-cyan-50 leading-tight">
               {match.displayName}
@@ -52,30 +53,32 @@ const MatchItem = React.memo<{
           </a>
         </div>
 
-        <div className="flex items-center flex-wrap gap-2">
-          {typeof match.postCount === "number" && match.postCount > 0 && (
-            <StatBadge value={match.postCount} label="posts" />
-          )}
-          {typeof match.followerCount === "number" &&
-            match.followerCount > 0 && (
-              <StatBadge value={match.followerCount} label="followers" />
-            )}
-          <Badge variant="match">{match.matchScore}% match</Badge>
-        </div>
-
-        {match.description && (
-          <div className="text-sm text-purple-900 dark:text-cyan-100 line-clamp-2 pt-1">
-            {match.description}
-          </div>
-        )}
+        <FollowButton
+          isFollowed={isFollowed}
+          isSelected={isSelected}
+          onToggle={onToggle}
+          appName={currentAppName}
+        />
       </div>
 
-      <FollowButton
-        isFollowed={isFollowed}
-        isSelected={isSelected}
-        onToggle={onToggle}
-        appName={currentAppName}
-      />
+      {/* Stats/Badges - align with avatar on mobile (pl-[60px] = avatar width 48px + gap 12px) */}
+      <div className="flex items-center flex-wrap gap-2 pl-0 md:pl-[60px]">
+        {typeof match.postCount === "number" && match.postCount > 0 && (
+          <StatBadge value={match.postCount} label="posts" />
+        )}
+        {typeof match.followerCount === "number" &&
+          match.followerCount > 0 && (
+            <StatBadge value={match.followerCount} label="followers" />
+          )}
+        <Badge variant="match">{match.matchScore}% match</Badge>
+      </div>
+
+      {/* Description - align with avatar on mobile */}
+      {match.description && (
+        <div className="text-sm text-purple-900 dark:text-cyan-100 line-clamp-2 pt-2 pl-0 md:pl-[60px]">
+          {match.description}
+        </div>
+      )}
     </div>
   );
 });
