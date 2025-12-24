@@ -10,6 +10,7 @@ import EmptyState from "./common/EmptyState";
 import SetupPrompt from "./common/SetupPrompt";
 import Card from "./common/Card";
 import Badge from "./common/Badge";
+import CardItem from "./common/CardItem";
 
 interface HistoryTabProps {
   uploads: UploadType[];
@@ -93,55 +94,65 @@ export default function HistoryTab({
               <Card
                 key={upload.uploadId}
                 variant="upload"
-                onClick={() => onLoadUpload(upload.uploadId)}
-                className="w-full flex items-start space-x-4 p-4"
+                className="w-full"
               >
-                <div
-                  className={`w-10 h-10 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
-                >
-                  <Sparkles className="w-6 h-6 text-white" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2 mb-1">
-                    <div className="font-semibold text-purple-950 dark:text-cyan-50 capitalize leading-tight">
-                      {upload.sourcePlatform}
-                    </div>
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      <span className="text-sm text-purple-750 dark:text-cyan-250 whitespace-nowrap flex-shrink-0">
-                        {upload.matchedUsers}{" "}
-                        {upload.matchedUsers === 1 ? "match" : "matches"}
-                      </span>
-                    </div>
-                  </div>
-                  {destApp && (
-                    <a
-                      href={destApp.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight flex items-center space-x-1 w-fit"
+                <CardItem
+                  padding="p-4"
+                  badgeIndentClass="sm:pl-[56px]"
+                  onClick={() => onLoadUpload(upload.uploadId)}
+                  avatar={
+                    <div
+                      className={`w-10 h-10 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
                     >
-                      <span>{destApp.action} on</span>
+                      <Sparkles className="w-6 h-6 text-white" />
+                    </div>
+                  }
+                  content={
+                    <>
+                      <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+                        <div className="font-semibold text-purple-950 dark:text-cyan-50 capitalize leading-tight">
+                          {upload.sourcePlatform}
+                        </div>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className="text-sm text-purple-750 dark:text-cyan-250 whitespace-nowrap flex-shrink-0">
+                            {upload.matchedUsers}{" "}
+                            {upload.matchedUsers === 1 ? "match" : "matches"}
+                          </span>
+                        </div>
+                      </div>
+                      {destApp && (
+                        <a
+                          href={destApp.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight flex items-center space-x-1 w-fit"
+                        >
+                          <span>{destApp.action} on</span>
 
-                      <FaviconIcon
-                        url={destApp.icon}
-                        alt={destApp.name}
-                        className="w-3 h-3 mb-0.5 flex-shrink-0"
-                      />
+                          <FaviconIcon
+                            url={destApp.icon}
+                            alt={destApp.name}
+                            className="w-3 h-3 mb-0.5 flex-shrink-0"
+                          />
 
-                      <span>{destApp.name}</span>
-                    </a>
-                  )}
-                  <div className="flex items-center flex-wrap gap-2 py-1.5 sm:ml-0 -ml-14">
-                    <Badge variant="info">
-                      {upload.totalUsers}{" "}
-                      {upload.totalUsers === 1 ? "user found" : "users found"}
-                    </Badge>
-                    <Badge variant="info">
-                      Uploaded {formatRelativeTime(upload.createdAt)}
-                    </Badge>
-                  </div>
-                </div>
+                          <span>{destApp.name}</span>
+                        </a>
+                      )}
+                    </>
+                  }
+                  badges={
+                    <>
+                      <Badge variant="info">
+                        {upload.totalUsers}{" "}
+                        {upload.totalUsers === 1 ? "user found" : "users found"}
+                      </Badge>
+                      <Badge variant="info">
+                        Uploaded {formatRelativeTime(upload.createdAt)}
+                      </Badge>
+                    </>
+                  }
+                />
               </Card>
             );
           })}

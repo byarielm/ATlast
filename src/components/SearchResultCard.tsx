@@ -8,6 +8,7 @@ import FollowButton from "./common/FollowButton";
 import Badge from "./common/Badge";
 import { StatBadge } from "./common/Stats";
 import Card from "./common/Card";
+import CardItem from "./common/CardItem";
 
 interface SearchResultCardProps {
   result: SearchResult;
@@ -28,16 +29,18 @@ const MatchItem = React.memo<{
   onToggle: () => void;
 }>(({ match, isSelected, isFollowed, currentAppName, onToggle }) => {
   return (
-    <div className="p-3 cursor-pointer hover:scale-[1.01] transition-transform">
-      {/* Top row: Avatar, Name/Handle, Follow Button */}
-      <div className="flex items-start gap-3 mb-2">
+    <CardItem
+      padding="p-3"
+      badgeIndentClass="sm:pl-[44px]"
+      avatar={
         <AvatarWithFallback
           avatar={match.avatar}
           handle={match.handle || ""}
           size="sm"
         />
-
-        <div className="flex-1 min-w-0">
+      }
+      content={
+        <>
           {match.displayName && (
             <div className="font-semibold text-purple-950 dark:text-cyan-50 leading-tight">
               {match.displayName}
@@ -51,35 +54,29 @@ const MatchItem = React.memo<{
           >
             @{match.handle}
           </a>
-        </div>
-
+        </>
+      }
+      action={
         <FollowButton
           isFollowed={isFollowed}
           isSelected={isSelected}
           onToggle={onToggle}
           appName={currentAppName}
         />
-      </div>
-
-      {/* Stats/Badges - align with avatar on mobile (pl-[60px] = avatar width 48px + gap 12px) */}
-      <div className="flex items-center flex-wrap gap-2 pl-0 md:pl-[60px]">
-        {typeof match.postCount === "number" && match.postCount > 0 && (
-          <StatBadge value={match.postCount} label="posts" />
-        )}
-        {typeof match.followerCount === "number" &&
-          match.followerCount > 0 && (
+      }
+      badges={
+        <>
+          {typeof match.postCount === "number" && match.postCount > 0 && (
+            <StatBadge value={match.postCount} label="posts" />
+          )}
+          {typeof match.followerCount === "number" && match.followerCount > 0 && (
             <StatBadge value={match.followerCount} label="followers" />
           )}
-        <Badge variant="match">{match.matchScore}% match</Badge>
-      </div>
-
-      {/* Description - align with avatar on mobile */}
-      {match.description && (
-        <div className="text-sm text-purple-900 dark:text-cyan-100 line-clamp-2 pt-2 pl-0 md:pl-[60px]">
-          {match.description}
-        </div>
-      )}
-    </div>
+          <Badge variant="match">{match.matchScore}% match</Badge>
+        </>
+      }
+      description={match.description}
+    />
   );
 });
 
