@@ -14,7 +14,7 @@ import { DEFAULT_SETTINGS } from "./types/settings";
 import type { UserSettings, SearchResult } from "./types";
 import { apiClient } from "./lib/api/client";
 import { ATPROTO_APPS } from "./config/atprotoApps";
-import { useSettings } from "./contexts/SettingsContext";
+import { useSettings } from "./stores/useSettingsStore";
 
 // Lazy load page components
 const LoginPage = lazy(() => import("./pages/Login"));
