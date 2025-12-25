@@ -2,9 +2,9 @@
  * ATlast API client for extension
  */
 
-// TODO: Update this to actual production URL when deploying
+// API URL configuration
 const ATLAST_API_URL = import.meta.env?.MODE === 'production'
-  ? 'https://atlast.app'
+  ? 'https://atlast.byarielm.fyi'
   : 'http://127.0.0.1:8888';
 
 export interface ExtensionImportRequest {
