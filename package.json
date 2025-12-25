@@ -5,9 +5,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "netlify dev",
+    "dev": "npx netlify-cli dev --filter @atlast/web",
     "dev:mock": "pnpm --filter @atlast/web dev",
-    "dev:full": "netlify dev",
+    "dev:full": "npx netlify-cli dev --filter @atlast/web",
     "build": "pnpm --filter @atlast/web build",
     "init-db": "tsx scripts/init-local-db.ts",
     "generate-key": "tsx scripts/generate-encryption-key.ts"

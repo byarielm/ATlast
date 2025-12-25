@@ -1,7 +1,16 @@
 [build]
+  base = "/"
   command = "pnpm run build"
   functions = "packages/functions/src"
   publish = "packages/web/dist"
+
+[dev]
+  framework = "#custom"
+  command = "npm run --prefix packages/web dev:full"
+  targetPort = 5173
+  port = 8888
+  functionsPort = 9999
+  autoLaunch = false
 
 [[redirects]]
   from = "/oauth-client-metadata.json"

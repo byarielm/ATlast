@@ -247,23 +247,38 @@ ATlast is a web application that helps users find their followed accounts from o
 
 ## Development Commands
 
+### Monorepo Structure
+
+This project uses pnpm workspaces with three packages:
+- `packages/web` - React frontend
+- `packages/functions` - Netlify serverless functions
+- `packages/shared` - Shared TypeScript types
+
 ### Local Development
+
+**IMPORTANT**: Due to Netlify CLI monorepo detection, you must use the `--filter` flag:
+
 ```bash
 # Mock mode (frontend only, no backend/OAuth/database)
-npm run dev:mock
+pnpm run dev:mock
 
-# Full mode (with backend, OAuth, database)
-npm run dev:full    # or npm run dev
+# Full mode (with backend, OAuth, database) - RECOMMENDED
+npx netlify-cli dev --filter @atlast/web
+
+# Alternative: Update root package.json scripts to use npx netlify-cli
+pnpm run dev    # If scripts are updated
 
 # Build for production
-npm run build
+pnpm run build
 
 # Initialize local database
-npm run init-db
+pnpm run init-db
 
 # Generate encryption keys for OAuth
-npm run generate-key
+pnpm run generate-key
 ```
+
+**Note**: On Windows, `netlify` command may not work in Git Bash. Use `npx netlify-cli` instead, or run from Windows CMD/PowerShell.
 
 ### Environment Configuration
 

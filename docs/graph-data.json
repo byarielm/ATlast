@@ -2650,6 +2650,39 @@
       "created_at": "2025-12-25T12:47:54.577738400-05:00",
       "updated_at": "2025-12-25T12:47:54.577738400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"c3e7afa\",\"confidence\":100}"
+    },
+    {
+      "id": 242,
+      "change_id": "c5dd8e44-1c7b-45d9-817e-1998c87e4ffe",
+      "node_type": "action",
+      "title": "Configured Netlify dev for monorepo with --filter flag",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T13:21:13.981980400-05:00",
+      "updated_at": "2025-12-25T13:21:13.981980400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 243,
+      "change_id": "af843252-682e-4c02-a62c-a26188054044",
+      "node_type": "outcome",
+      "title": "Dev server working with npx netlify-cli dev --filter @atlast/web",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T13:21:15.443574800-05:00",
+      "updated_at": "2025-12-25T13:21:15.443574800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 244,
+      "change_id": "4c0a968c-c569-418f-93f3-ca6b09b24f50",
+      "node_type": "outcome",
+      "title": "Committed Netlify dev configuration for monorepo",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T13:22:42.743106400-05:00",
+      "updated_at": "2025-12-25T13:22:42.743106400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"32cdee3\",\"confidence\":100}"
     }
   ],
   "edges": [
@@ -5215,6 +5248,39 @@
       "weight": 1.0,
       "rationale": "Final outcome",
       "created_at": "2025-12-25T12:47:54.643486-05:00"
+    },
+    {
+      "id": 234,
+      "from_node_id": 241,
+      "to_node_id": 242,
+      "from_change_id": "d1305e02-4692-4c26-8d67-5591ce4b27b3",
+      "to_change_id": "c5dd8e44-1c7b-45d9-817e-1998c87e4ffe",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Next action",
+      "created_at": "2025-12-25T13:21:15.535870500-05:00"
+    },
+    {
+      "id": 235,
+      "from_node_id": 242,
+      "to_node_id": 243,
+      "from_change_id": "c5dd8e44-1c7b-45d9-817e-1998c87e4ffe",
+      "to_change_id": "af843252-682e-4c02-a62c-a26188054044",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Configuration result",
+      "created_at": "2025-12-25T13:21:15.627686800-05:00"
+    },
+    {
+      "id": 236,
+      "from_node_id": 243,
+      "to_node_id": 244,
+      "from_change_id": "af843252-682e-4c02-a62c-a26188054044",
+      "to_change_id": "4c0a968c-c569-418f-93f3-ca6b09b24f50",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Final commit",
+      "created_at": "2025-12-25T13:22:42.836562800-05:00"
     }
   ]
 }

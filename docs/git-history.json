@@ -1,5 +1,13 @@
 [
   {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
+  },
+  {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",
     "short_hash": "c3e7afa",
     "author": "Ariel M. Lighty",
@@ -24,12 +32,12 @@
     "files_changed": 2
   },
   {
-    "hash": "0e44908bfb09f54559dbc307dbdec87b46c48bcf",
-    "short_hash": "0e44908",
+    "hash": "6a2bfa021b6221894d7d7b2b5b193aea7c106ca6",
+    "short_hash": "6a2bfa0",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-24T18:36:10-05:00",
-    "message": "update decision graph after avatar fix",
-    "files_changed": 3
+    "date": "2025-12-24T19:38:51-05:00",
+    "message": "move tooltip from hero to login form as superscript\n\n- Removed tooltip from HeroSection (ATmosphere now plain text)\n- Added superscript info icon next to 'ATmosphere' in login form text\n- Tooltip content left-aligned for better readability\n- Maintains platform-agnostic design",
+    "files_changed": 4
   },
   {
     "hash": "9bdca934948a284e1315961b4430bae0b6617cbe",
