@@ -53,10 +53,16 @@ async function handleGetState(): Promise<ExtensionState> {
  * Update state from content script
  */
 async function handleStateUpdate(newState: Partial<ExtensionState>): Promise<void> {
+  console.log('[Background] 📥 Received state update:', newState);
   const currentState = await getState();
+  console.log('[Background] 📋 Current state before update:', currentState);
   const updatedState = { ...currentState, ...newState };
   await setState(updatedState);
-  console.log('[Background] State updated:', updatedState);
+  console.log('[Background] ✅ State updated successfully:', updatedState);
+
+  // Verify the state was saved
+  const verifyState = await getState();
+  console.log('[Background] 🔍 Verified state from storage:', verifyState);
 }
 
 /**

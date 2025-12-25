@@ -105,18 +105,19 @@ export async function sendToContent(message: Message): Promise<any> {
  * Listen for messages
  */
 export function onMessage(
-  handler: (message: Message, sender: chrome.runtime.MessageSender) => void | Promise<void>
+  handler: (message: Message, sender: chrome.runtime.MessageSender) => any | Promise<any>
 ): void {
   chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const result = handler(message, sender);
 
     // Handle async handlers
     if (result instanceof Promise) {
-      result.then(() => sendResponse({ success: true }))
+      result.then((data) => sendResponse(data))
         .catch(error => sendResponse({ success: false, error: error.message }));
       return true; // Keep message channel open for async response
     }
 
-    sendResponse({ success: true });
+    // Send sync result
+    sendResponse(result);
   });
 }

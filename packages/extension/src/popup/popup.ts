@@ -43,7 +43,10 @@ function showState(stateName: keyof typeof states): void {
  * Update UI based on extension state
  */
 function updateUI(state: ExtensionState): void {
-  console.log('[Popup] Updating UI:', state);
+  console.log('[Popup] 🎨 Updating UI with state:', state);
+  console.log('[Popup] 🎯 Current status:', state.status);
+  console.log('[Popup] 🌐 Platform:', state.platform);
+  console.log('[Popup] 📄 Page type:', state.pageType);
 
   switch (state.status) {
     case 'idle':
@@ -189,13 +192,15 @@ async function pollForUpdates(): Promise<void> {
  * Initialize popup
  */
 async function init(): Promise<void> {
-  console.log('[Popup] Initializing...');
+  console.log('[Popup] 🚀 Initializing popup...');
 
   // Get current state
+  console.log('[Popup] 📡 Requesting state from background...');
   const state = await sendToBackground<ExtensionState>({
     type: MessageType.GET_STATE
   });
 
+  console.log('[Popup] 📥 Received state from background:', state);
   updateUI(state);
 
   // Set up event listeners
@@ -208,12 +213,21 @@ async function init(): Promise<void> {
     updateUI(state);
   });
 
+  // Listen for storage changes (when background updates state)
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'local' && changes.extensionState) {
+      const newState = changes.extensionState.newValue;
+      console.log('[Popup] 🔄 Storage changed, new state:', newState);
+      updateUI(newState);
+    }
+  });
+
   // Poll for updates if currently scraping
   if (state.status === 'scraping') {
     pollForUpdates();
   }
 
-  console.log('[Popup] Ready');
+  console.log('[Popup] ✅ Popup ready');
 }
 
 // Initialize when DOM is ready
