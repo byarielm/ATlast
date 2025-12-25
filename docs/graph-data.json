@@ -1990,6 +1990,17 @@
       "created_at": "2025-12-24T19:39:04.481280600-05:00",
       "updated_at": "2025-12-24T19:39:04.481280600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"f79a669\",\"confidence\":100}"
+    },
+    {
+      "id": 182,
+      "change_id": "afd62144-3edc-479e-bc6e-7bb28de124e9",
+      "node_type": "observation",
+      "title": "Updated CLAUDE.md to document workflow: run deciduous sync before commits, stage graph updates with code changes. Decision graph is part of code history.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T19:43:00.524530200-05:00",
+      "updated_at": "2025-12-24T19:43:00.524530200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     }
   ],
   "edges": [
@@ -3928,6 +3939,17 @@
       "weight": 1.0,
       "rationale": "Committed to repository",
       "created_at": "2025-12-24T19:39:06.240788400-05:00"
+    },
+    {
+      "id": 177,
+      "from_node_id": 176,
+      "to_node_id": 182,
+      "from_change_id": "85d33a42-5cbc-44b8-8e97-afd3edb1eeda",
+      "to_change_id": "afd62144-3edc-479e-bc6e-7bb28de124e9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Documentation update based on user feedback",
+      "created_at": "2025-12-24T19:43:02.196469100-05:00"
     }
   ]
 }

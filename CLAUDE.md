@@ -141,6 +141,19 @@ Also removed empty 'nul' file created accidentally."
 
 ### Git History & Deployment
 
+**CRITICAL: Include decision graph in code commits**
+
+Always run `deciduous sync` BEFORE committing code changes, then include the graph updates in the same commit:
+
+```bash
+# After making code changes and adding decision nodes:
+deciduous sync                    # Export graph
+git add src/your-file.ts docs/    # Stage code + graph
+git commit -m "your change"       # Single commit with both
+```
+
+**DO NOT create separate commits for graph updates.** The decision graph is part of the code history and should be committed together.
+
 ```bash
 # Export graph AND git history for web viewer
 deciduous sync

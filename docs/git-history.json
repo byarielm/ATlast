@@ -16,11 +16,11 @@
     "files_changed": 1
   },
   {
-    "hash": "6f618f32c42d1e2cfa13c480b2d396c82496eb6c",
-    "short_hash": "6f618f3",
+    "hash": "0411d34fc6418f1b887bbec2470cee9fe7e2d98b",
+    "short_hash": "0411d34",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-24T16:38:37-05:00",
-    "message": "add @ symbol and profile pic to login input\n\nCreated HandleInput component:\n- Shows @ symbol by default\n- Replaces @ with profile pic when handle selected from typeahead\n- Extracts avatar from typeahead data-avatar or actor-select event\n- Clears avatar when input is cleared",
+    "date": "2025-12-24T16:53:27-05:00",
+    "message": "add rotating platform-agnostic placeholder examples\n\nCreated useRotatingPlaceholder hook:\n- Rotates through 4 platform examples every 3 seconds\n- .bsky.social, .blacksky.app, .tgnl.sh, .com\n- Demonstrates platform flexibility without overwhelming users",
     "files_changed": 2
   },
   {
