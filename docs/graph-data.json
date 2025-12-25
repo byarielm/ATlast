@@ -2705,6 +2705,28 @@
       "created_at": "2025-12-25T13:52:32.693778200-05:00",
       "updated_at": "2025-12-25T13:52:32.693778200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"ba29fd6\",\"confidence\":95}"
+    },
+    {
+      "id": 247,
+      "change_id": "c8276478-87e3-43b3-b763-e7964a776fad",
+      "node_type": "action",
+      "title": "Fixing Phase 1 issues: UI consistency, URL updates, extension detection debugging, UX improvements",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T14:06:47.786619100-05:00",
+      "updated_at": "2025-12-25T14:06:47.786619100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 248,
+      "change_id": "c887a416-080a-4b42-a1fc-536c8d6edd74",
+      "node_type": "outcome",
+      "title": "Fixed Phase 1 issues: Updated popup UI to match web app colors (purple/cyan/orange), updated API URL to atlast.byarielm.fyi, fixed URL pattern to detect following pages (added flexibility for trailing slashes), added comprehensive console logging for debugging. Documented testing steps in README. Proposed UX improvements: auto-navigate button + contextual hints.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T16:28:54.299966500-05:00",
+      "updated_at": "2025-12-25T16:28:54.299966500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     }
   ],
   "edges": [
@@ -5325,6 +5347,28 @@
       "weight": 1.0,
       "rationale": "Implementation complete with successful build",
       "created_at": "2025-12-25T13:52:34.014142700-05:00"
+    },
+    {
+      "id": 239,
+      "from_node_id": 184,
+      "to_node_id": 247,
+      "from_change_id": "919c42ef-9fae-473f-b755-ee32d8999204",
+      "to_change_id": "c8276478-87e3-43b3-b763-e7964a776fad",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Post-implementation fixes and improvements",
+      "created_at": "2025-12-25T14:06:49.088067800-05:00"
+    },
+    {
+      "id": 240,
+      "from_node_id": 247,
+      "to_node_id": 248,
+      "from_change_id": "c8276478-87e3-43b3-b763-e7964a776fad",
+      "to_change_id": "c887a416-080a-4b42-a1fc-536c8d6edd74",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fixes complete and documented",
+      "created_at": "2025-12-25T16:28:55.599385300-05:00"
     }
   ]
 }

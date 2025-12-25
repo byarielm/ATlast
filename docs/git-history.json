@@ -32,20 +32,20 @@
     "files_changed": 6
   },
   {
+    "hash": "a80fc6cec1518b6143981b37ccd2ea54415faeda",
+    "short_hash": "a80fc6c",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-24T19:42:51-05:00",
+    "message": "update CLAUDE.md: include decision graph in code commits\n\nAdded guidance to run deciduous sync before commits and stage graph\nupdates together with code changes. Decision graph is part of code\nhistory and should not be committed separately.",
+    "files_changed": 3
+  },
+  {
     "hash": "f79a669dd6528340d453cb28e9fed2bd5232d46c",
     "short_hash": "f79a669",
     "author": "Ariel M. Lighty",
     "date": "2025-12-24T19:38:51-05:00",
     "message": "move tooltip from hero to login form as superscript\n\n- Removed tooltip from HeroSection (ATmosphere now plain text)\n- Added superscript info icon next to 'ATmosphere' in login form text\n- Tooltip content left-aligned for better readability\n- Maintains platform-agnostic design",
     "files_changed": 2
-  },
-  {
-    "hash": "6a2bfa021b6221894d7d7b2b5b193aea7c106ca6",
-    "short_hash": "6a2bfa0",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-24T19:38:51-05:00",
-    "message": "move tooltip from hero to login form as superscript\n\n- Removed tooltip from HeroSection (ATmosphere now plain text)\n- Added superscript info icon next to 'ATmosphere' in login form text\n- Tooltip content left-aligned for better readability\n- Maintains platform-agnostic design",
-    "files_changed": 4
   },
   {
     "hash": "9bdca934948a284e1315961b4430bae0b6617cbe",
