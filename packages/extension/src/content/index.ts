@@ -30,7 +30,8 @@ const PLATFORMS: PlatformConfig[] = [
     platform: 'twitter',
     displayName: 'Twitter/X',
     hostPatterns: ['twitter.com', 'x.com'],
-    followingPathPattern: /^\/[^/]+\/following$/,
+    // Match /username/following or /following with optional trailing slash
+    followingPathPattern: /^\/?([^/]+\/)?following\/?$/,
     createScraper: () => new TwitterScraper()
   }
   // Future platforms can be added here:
@@ -152,10 +153,18 @@ onMessage(async (message: Message) => {
  * Notify background of current page on load
  */
 (function init() {
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+
+  console.log('[ATlast] Content script loaded');
+  console.log('[ATlast] Current URL:', window.location.href);
+  console.log('[ATlast] Host:', host);
+  console.log('[ATlast] Path:', path);
+
   const detection = detectPlatform();
 
   if (detection) {
-    console.log(`[ATlast] Detected ${detection.config.displayName} ${detection.pageType} page`);
+    console.log(`[ATlast] ✅ Detected ${detection.config.displayName} ${detection.pageType} page`);
 
     // Notify background that we're on a supported page
     sendToBackground({
@@ -165,6 +174,17 @@ onMessage(async (message: Message) => {
         platform: detection.config.platform,
         pageType: detection.pageType
       }
+    }).then(() => {
+      console.log('[ATlast] ✅ Notified background: ready state');
+    }).catch(err => {
+      console.error('[ATlast] ❌ Failed to notify background:', err);
     });
+  } else {
+    console.log('[ATlast] ℹ️ Not on a supported page');
+    console.log('[ATlast] Supported patterns:', PLATFORMS.map(p => ({
+      platform: p.platform,
+      hosts: p.hostPatterns,
+      pattern: p.followingPathPattern.toString()
+    })));
   }
 })();
