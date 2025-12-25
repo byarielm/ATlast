@@ -1924,6 +1924,72 @@
       "created_at": "2025-12-24T18:35:10.368162900-05:00",
       "updated_at": "2025-12-24T18:35:10.368162900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"9bdca93\",\"confidence\":100}"
+    },
+    {
+      "id": 176,
+      "change_id": "85d33a42-5cbc-44b8-8e97-afd3edb1eeda",
+      "node_type": "goal",
+      "title": "Refactor ATmosphere tooltip: make HeroSection clickable instead of hover, add tooltip to login input, left-align text",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-24T18:50:43.883772100-05:00",
+      "updated_at": "2025-12-24T19:39:08.057232200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 177,
+      "change_id": "dbe4421e-0496-4e3d-8548-e1c9156ce023",
+      "node_type": "action",
+      "title": "Reading HeroSection to understand current tooltip implementation",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:50:46.648351400-05:00",
+      "updated_at": "2025-12-24T18:50:46.648351400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 178,
+      "change_id": "96b417f2-4236-48bb-8ad3-3104f9f9c3b7",
+      "node_type": "action",
+      "title": "Implementing clickable tooltip for HeroSection and adding tooltip to HandleInput",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:51:19.077525300-05:00",
+      "updated_at": "2025-12-24T18:51:19.077525300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 179,
+      "change_id": "21ac5b6e-575e-46fb-8695-1a7b44fd0f68",
+      "node_type": "outcome",
+      "title": "Successfully refactored tooltips: HeroSection ATmosphere tooltip now clickable (trigger='click') with click-outside-to-close, added 'Your Bluesky Handle' label with left-aligned tooltip on login form, enhanced Tooltip component with trigger and align props. Build passes.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T18:54:08.099877300-05:00",
+      "updated_at": "2025-12-24T18:54:08.099877300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 180,
+      "change_id": "28e2400d-a153-4c27-a75b-e6b249355649",
+      "node_type": "outcome",
+      "title": "Successfully moved tooltip from HeroSection to Login form. Removed tooltip from HeroSection 'ATmosphere' text. Added superscript info icon next to 'ATmosphere' in login form with left-aligned tooltip content. Platform-agnostic design maintained.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T19:06:33.954975-05:00",
+      "updated_at": "2025-12-24T19:06:33.954975-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 181,
+      "change_id": "acba6854-0d74-4547-91ba-391149cc5e57",
+      "node_type": "action",
+      "title": "Committed tooltip refactor to git",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-24T19:39:04.481280600-05:00",
+      "updated_at": "2025-12-24T19:39:04.481280600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"f79a669\",\"confidence\":100}"
     }
   ],
   "edges": [
@@ -3807,6 +3873,61 @@
       "weight": 1.0,
       "rationale": "Committed to repository",
       "created_at": "2025-12-24T18:35:12.609336500-05:00"
+    },
+    {
+      "id": 172,
+      "from_node_id": 176,
+      "to_node_id": 177,
+      "from_change_id": "85d33a42-5cbc-44b8-8e97-afd3edb1eeda",
+      "to_change_id": "dbe4421e-0496-4e3d-8548-e1c9156ce023",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Investigation action",
+      "created_at": "2025-12-24T18:50:49.358413200-05:00"
+    },
+    {
+      "id": 173,
+      "from_node_id": 177,
+      "to_node_id": 178,
+      "from_change_id": "dbe4421e-0496-4e3d-8548-e1c9156ce023",
+      "to_change_id": "96b417f2-4236-48bb-8ad3-3104f9f9c3b7",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation based on analysis",
+      "created_at": "2025-12-24T18:51:21.616689800-05:00"
+    },
+    {
+      "id": 174,
+      "from_node_id": 178,
+      "to_node_id": 179,
+      "from_change_id": "96b417f2-4236-48bb-8ad3-3104f9f9c3b7",
+      "to_change_id": "21ac5b6e-575e-46fb-8695-1a7b44fd0f68",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-24T18:54:10.755729900-05:00"
+    },
+    {
+      "id": 175,
+      "from_node_id": 178,
+      "to_node_id": 180,
+      "from_change_id": "96b417f2-4236-48bb-8ad3-3104f9f9c3b7",
+      "to_change_id": "28e2400d-a153-4c27-a75b-e6b249355649",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-24T19:06:36.936132900-05:00"
+    },
+    {
+      "id": 176,
+      "from_node_id": 180,
+      "to_node_id": 181,
+      "from_change_id": "28e2400d-a153-4c27-a75b-e6b249355649",
+      "to_change_id": "acba6854-0d74-4547-91ba-391149cc5e57",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Committed to repository",
+      "created_at": "2025-12-24T19:39:06.240788400-05:00"
     }
   ]
 }

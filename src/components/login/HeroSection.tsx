@@ -1,11 +1,12 @@
 import FireflyLogo from "../../assets/at-firefly-logo.svg?react";
-import Tooltip from "../common/Tooltip";
 
 interface HeroSectionProps {
   reducedMotion?: boolean;
 }
 
-export default function HeroSection({ reducedMotion = false }: HeroSectionProps) {
+export default function HeroSection({
+  reducedMotion = false,
+}: HeroSectionProps) {
   return (
     <div className="text-center md:text-left">
       <div className="justify-center md:justify-start mb-4">
@@ -17,18 +18,8 @@ export default function HeroSection({ reducedMotion = false }: HeroSectionProps)
       <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-purple-600 via-cyan-500 to-pink-500 dark:from-cyan-300 dark:via-purple-300 dark:to-pink-300 bg-clip-text text-transparent mb-3 md:mb-4">
         ATlast
       </h1>
-      <p className="text-xl md:text-2xl lg:text-2xl text-purple-900 dark:text-cyan-100 mb-2 font-medium inline-flex items-center gap-2 justify-center md:justify-start w-full">
-        <span>Find Your Light in the ATmosphere</span>
-        <Tooltip
-          content={
-            <div>
-              <p className="font-semibold mb-1">What's the ATmosphere?</p>
-              <p className="text-xs leading-relaxed">
-                The <strong>ATmosphere</strong> is an open network of social apps that use one login, including Bluesky, Blacksky, Tangled, Flashes, Leaflet, and more. Once you login, you can explore the social apps that let you follow different people!
-              </p>
-            </div>
-          }
-        />
+      <p className="text-xl md:text-2xl lg:text-2xl text-purple-900 dark:text-cyan-100 mb-2 font-medium">
+        Find Your Light in the ATmosphere
       </p>
       <p className="text-purple-750 dark:text-cyan-250 mb-2">
         Reconnect with your internet, one firefly at a time

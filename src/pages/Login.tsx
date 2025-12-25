@@ -8,6 +8,7 @@ import HeroSection from "../components/login/HeroSection";
 import ValuePropsSection from "../components/login/ValuePropsSection";
 import HowItWorksSection from "../components/login/HowItWorksSection";
 import HandleInput from "../components/login/HandleInput";
+import Tooltip from "../components/common/Tooltip";
 
 interface LoginPageProps {
   onSubmit: (handle: string) => void;
@@ -48,7 +49,7 @@ export default function LoginPage({
       try {
         const url = new URL(
           "xrpc/app.bsky.actor.searchActorsTypeahead",
-          "https://public.api.bsky.app"
+          "https://public.api.bsky.app",
         );
         url.searchParams.set("q", handle);
         url.searchParams.set("limit", "1");
@@ -168,7 +169,23 @@ export default function LoginPage({
                   Light Up Your Network
                 </h2>
                 <p className="text-purple-750 dark:text-cyan-250 text-center mb-6">
-                  Reconnect in the ATmosphere as:
+                  Reconnect in the ATmosphere
+                  <sup className="ml-0.5">
+                    <Tooltip
+                      content={
+                        <div className="text-left">
+                          <p className="font-semibold mb-1">
+                            What's the ATmosphere?
+                          </p>
+                          <p className="text-xs leading-relaxed">
+                            The <strong>ATmosphere</strong> is a shared home for
+                            social apps using one login. Your follows stay with
+                            you, even if you change apps.
+                          </p>
+                        </div>
+                      }
+                    />
+                  </sup>{" "}
                 </p>
 
                 <form
@@ -177,6 +194,12 @@ export default function LoginPage({
                   method="post"
                 >
                   <div>
+                    <label
+                      htmlFor="atproto-handle"
+                      className="block text-sm font-semibold text-purple-900 dark:text-cyan-100 mb-2"
+                    >
+                      Your ATmosphere Handle
+                    </label>
                     <actor-typeahead rows={5}>
                       <HandleInput
                         ref={inputRef}
