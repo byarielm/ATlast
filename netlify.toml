@@ -1,7 +1,7 @@
 [build]
-  command = "npm run build"
-  functions = "netlify/functions"
-  publish = "dist"
+  command = "pnpm run build"
+  functions = "packages/functions/src"
+  publish = "packages/web/dist"
 
 [[redirects]]
   from = "/oauth-client-metadata.json"

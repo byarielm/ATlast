@@ -1,5 +1,21 @@
 [
   {
+    "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",
+    "short_hash": "c3e7afa",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T12:47:38-05:00",
+    "message": "migrate to pnpm monorepo structure\n\nRestructured codebase into pnpm workspace with three packages:\n- packages/web: React frontend (from src/)\n- packages/functions: Netlify serverless functions (from netlify/functions/)\n- packages/shared: Shared TypeScript types for Platform and Import APIs\n\nChanges:\n- Created pnpm-workspace.yaml for workspace configuration\n- Moved all web app files to packages/web/\n- Moved all Netlify functions to packages/functions/src/\n- Created packages/shared with Platform enum and ExtensionImportRequest/Response types\n- Updated netlify.toml to point to new paths\n- Updated root package.json scripts to use pnpm workspace commands\n- All dependencies split appropriately between packages\n\nPhase 0 (Monorepo Migration) from PLAN.md completed successfully.\nBuilds and dev server tested and working.",
+    "files_changed": 317
+  },
+  {
+    "hash": "e2d6a7e940ea402570c9397a722a4050c735cb6d",
+    "short_hash": "e2d6a7e",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-24T21:09:33-05:00",
+    "message": "remove .claude/ and dist/ from repository\n\nThese directories are already in .gitignore but were committed\nbefore the ignore rules were added. Removed from tracking while\nkeeping local files intact.",
+    "files_changed": 6
+  },
+  {
     "hash": "f79a669dd6528340d453cb28e9fed2bd5232d46c",
     "short_hash": "f79a669",
     "author": "Ariel M. Lighty",
@@ -8,20 +24,20 @@
     "files_changed": 2
   },
   {
+    "hash": "0e44908bfb09f54559dbc307dbdec87b46c48bcf",
+    "short_hash": "0e44908",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-24T18:36:10-05:00",
+    "message": "update decision graph after avatar fix",
+    "files_changed": 3
+  },
+  {
     "hash": "9bdca934948a284e1315961b4430bae0b6617cbe",
     "short_hash": "9bdca93",
     "author": "Ariel M. Lighty",
     "date": "2025-12-24T18:35:00-05:00",
     "message": "fix login avatar display by fetching from Bluesky API\n\nactor-typeahead component doesn't expose avatar data via events or attributes.\nAdded debounced API fetch (300ms) to searchActorsTypeahead endpoint when\nhandle is entered. Avatar now displays for both typeahead selections and\nmanually entered handles.",
     "files_changed": 1
-  },
-  {
-    "hash": "0411d34fc6418f1b887bbec2470cee9fe7e2d98b",
-    "short_hash": "0411d34",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-24T16:53:27-05:00",
-    "message": "add rotating platform-agnostic placeholder examples\n\nCreated useRotatingPlaceholder hook:\n- Rotates through 4 platform examples every 3 seconds\n- .bsky.social, .blacksky.app, .tgnl.sh, .com\n- Demonstrates platform flexibility without overwhelming users",
-    "files_changed": 2
   },
   {
     "hash": "6cd4d622930e2a43531f2df40d930ceb5d2b4dbc",

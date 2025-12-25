@@ -1,14 +1,14 @@
 {
-  "name": "at-last",
+  "name": "@atlast/root",
   "homepage": "https://byarielm.github.io/ATlast",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "netlify dev",
-    "dev:mock": "vite --mode mock",
+    "dev:mock": "pnpm --filter @atlast/web dev",
     "dev:full": "netlify dev",
-    "build": "vite build",
+    "build": "pnpm --filter @atlast/web build",
     "init-db": "tsx scripts/init-local-db.ts",
     "generate-key": "tsx scripts/generate-encryption-key.ts"
   },
