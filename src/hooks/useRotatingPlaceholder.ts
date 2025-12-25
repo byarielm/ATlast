@@ -3,8 +3,14 @@ import { useState, useEffect } from "react";
 const PLATFORM_EXAMPLES = [
   "username.bsky.social",
   "username.blacksky.app",
-  "username.tgnl.sh",
+  "username.sprk.so",
   "username.com",
+  "username.northsky.social",
+  "username.tngl.sh",
+  "username.neocities.org",
+  "username.myatproto.social",
+  "username.newsgrounds.com",
+  "username.etheirys.social",
 ];
 
 const ROTATION_INTERVAL = 3000; // 3 seconds
