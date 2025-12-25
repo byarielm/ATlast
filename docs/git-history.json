@@ -1,5 +1,13 @@
 [
   {
+    "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
+    "short_hash": "ba29fd6",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 5
+  },
+  {
     "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
     "short_hash": "32cdee3",
     "author": "Ariel M. Lighty",

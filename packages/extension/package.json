@@ -1,0 +1,20 @@
+{
+  "name": "@atlast/extension",
+  "version": "1.0.0",
+  "description": "ATlast Importer - Browser extension for importing follows from Twitter/X and other platforms",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --watch",
+    "package:chrome": "cd dist/chrome && zip -r ../chrome.zip ."
+  },
+  "dependencies": {
+    "@atlast/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.256",
+    "esbuild": "^0.19.11",
+    "typescript": "^5.3.3"
+  }
+}

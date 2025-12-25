@@ -245,6 +245,87 @@ export default function App() {
     }
   }, [logout, setSearchResults, setAriaAnnouncement, error]);
 
+  // Extension import handler
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const importId = urlParams.get('importId');
+
+    if (!importId || !session) {
+      return;
+    }
+
+    // Fetch and process extension import
+    async function handleExtensionImport(id: string) {
+      try {
+        setStatusMessage('Loading import from extension...');
+        setCurrentStep('loading');
+
+        const response = await fetch(
+          `/.netlify/functions/get-extension-import?importId=${id}`
+        );
+
+        if (!response.ok) {
+          throw new Error('Import not found or expired');
+        }
+
+        const importData = await response.json();
+
+        // Convert usernames to search results
+        const platform = importData.platform;
+        setCurrentPlatform(platform);
+
+        const initialResults: SearchResult[] = importData.usernames.map((username: string) => ({
+          sourceUser: username,
+          sourcePlatform: platform,
+          isSearching: true,
+          atprotoMatches: [],
+          selectedMatches: new Set<string>(),
+        }));
+
+        setSearchResults(initialResults);
+
+        const uploadId = crypto.randomUUID();
+        const followLexicon = ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
+
+        // Start search
+        await searchAllUsers(
+          initialResults,
+          setStatusMessage,
+          () => {
+            setCurrentStep('results');
+
+            // Save results after search completes
+            setTimeout(() => {
+              setSearchResults((currentResults) => {
+                if (currentResults.length > 0) {
+                  saveResults(uploadId, platform, currentResults);
+                }
+                return currentResults;
+              });
+            }, 1000);
+
+            // Clear import ID from URL
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete('importId');
+            window.history.replaceState({}, '', newUrl);
+          },
+          followLexicon
+        );
+      } catch (err) {
+        console.error('Extension import error:', err);
+        error('Failed to load import from extension. Please try again.');
+        setCurrentStep('home');
+
+        // Clear import ID from URL on error
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete('importId');
+        window.history.replaceState({}, '', newUrl);
+      }
+    }
+
+    handleExtensionImport(importId);
+  }, [session, currentDestinationAppId, setStatusMessage, setCurrentStep, setSearchResults, searchAllUsers, saveResults, error]);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen relative overflow-hidden">
