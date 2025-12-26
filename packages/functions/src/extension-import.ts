@@ -54,7 +54,8 @@ const extensionImportHandler: AuthenticatedHandler = async (context) => {
     uploadId,
     context.did,
     validatedData.platform,
-    validatedData.usernames.length
+    validatedData.usernames.length,
+    0 // matchedUsers - will be updated after search
   );
 
   console.log(`[extension-import] Created upload ${uploadId} for user ${context.did}`);

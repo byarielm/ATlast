@@ -1,5 +1,21 @@
 [
   {
+    "hash": "1a355fe785eb1768dba3f4c3a8ba631904d1d6d6",
+    "short_hash": "1a355fe",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T00:33:21-05:00",
+    "message": "fix extension-import: add missing matchedUsers parameter to createUpload\n\nThe createUpload method expects 5 parameters but we were only passing 4,\ncausing NaN to be inserted for unmatched_users calculation. Now passing 0\nfor matchedUsers (will be updated after search is performed).",
+    "files_changed": 1
+  },
+  {
+    "hash": "b00ecad7a2c576962cb78de5b50f301e4664830e",
+    "short_hash": "b00ecad",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T00:26:09-05:00",
+    "message": "refactor extension to require authentication and use proper upload flow\n\nRemoved temporary storage approach and implemented proper authentication flow:\n\nExtension changes:\n- Added session check to popup init flow (checkSession in api-client)\n- Added \"not logged in\" state with login prompts\n- Updated uploadToATlast to include credentials for cookie-based auth\n- Extension now requires user to be logged in BEFORE scanning\n\nBackend changes:\n- Converted extension-import to AuthenticatedHandler (requires auth)\n- Now creates upload records immediately (no temporary storage)\n- Removed extension_imports table from database schema\n- Deleted get-extension-import function (no longer needed)\n- Deleted import-store utility (temporary approach removed)\n\nFrontend changes:\n- Removed ExtensionImport page and /import/:id route\n- Extension uploads now use same flow as file uploads\n\nThis matches the correct user flow: user logs in to ATlast first, then\nextension creates permanent upload records directly (same as file uploads).\n\nBuilt extension successfully for dev environment.",
+    "files_changed": 12
+  },
+  {
     "hash": "d0bcf337b6d223a86443f6f67767e87b74e4dd7d",
     "short_hash": "d0bcf33",
     "author": "Ariel M. Lighty",
@@ -8,20 +24,12 @@
     "files_changed": 12
   },
   {
-    "hash": "69db377f7f6dd4e38677f2507ad660cdf1a66465",
-    "short_hash": "69db377",
+    "hash": "90067b8feb9f40512b9732a05b1a8756f338a481",
+    "short_hash": "90067b8",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T22:00:53-05:00",
-    "message": "update decision graph",
-    "files_changed": 2
-  },
-  {
-    "hash": "917687b455a241413e60086b751902156352e098",
-    "short_hash": "917687b",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T20:59:22-05:00",
-    "message": "update decision graph",
-    "files_changed": 2
+    "date": "2025-12-25T21:43:51-05:00",
+    "message": "add dev server health check and offline detection to extension\n\nFeatures:\n- Check server health on popup init (dev mode only)\n- Show 'server offline' state with setup instructions\n- 'Check Again' button to retry connection\n- Display target server URL for debugging\n- 3-second timeout for health checks\n\nFixes port 8888 conflict workflow - extension now prompts user\nto start dev server instead of hanging silently.",
+    "files_changed": 4
   },
   {
     "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",
