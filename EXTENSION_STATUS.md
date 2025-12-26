@@ -1,6 +1,6 @@
 # Extension Implementation Status
 
-## Current State: READY FOR TESTING ⚠️
+## Current State: DEBUGGING 🔧
 
 ### What's Complete ✅
 
@@ -83,7 +83,14 @@
 
 ### Current Issues 🐛
 
-None known - ready for testing!
+**Fixed:**
+- ✅ NaN database error - Fixed missing `matchedUsers` parameter in `extension-import.ts` (node #287)
+- ✅ Database initialized successfully (node #288)
+
+**Active Debugging:**
+- Extension upload flow has bugs that need investigation
+- Upload completes but results page behavior needs verification
+- Need to test end-to-end flow thoroughly
 
 ### Next Steps 📋
 
@@ -133,11 +140,13 @@ None known - ready for testing!
 
 ### Decision Graph Summary
 
-**Total nodes:** 284
+**Total nodes:** 288
 **Key decisions tracked:**
 - Environment configuration approach (#261-269)
 - Port 8888 conflict resolution (#270-274)
 - CORS permissions fix (#275-277)
 - Storage approach: in-memory → database → proper auth flow (#278-284)
+- Refactor and build (#285-286)
+- Bug fixes: NaN parameter error (#287), database initialization (#288)
 
 **Live graph:** https://notactuallytreyanastasio.github.io/deciduous/
