@@ -3343,6 +3343,61 @@
       "created_at": "2025-12-26T13:51:52.256909300-05:00",
       "updated_at": "2025-12-26T13:51:52.256909300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 305,
+      "change_id": "8ad6ef53-29a2-442e-b88f-9e0541634950",
+      "node_type": "goal",
+      "title": "Fix extension flow: auto-search after load, history navigation, time formatting",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T14:05:53.798547500-05:00",
+      "updated_at": "2025-12-26T14:05:53.798547500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 306,
+      "change_id": "481942f8-5905-4948-a1cb-ee320a98271b",
+      "node_type": "observation",
+      "title": "handleLoadUpload expects existing results but extension creates empty upload - need to load source accounts and trigger search",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T14:06:18.067673100-05:00",
+      "updated_at": "2025-12-26T14:06:18.067673100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 307,
+      "change_id": "ae01acc1-f5ff-481b-823f-de2d4f1843a2",
+      "node_type": "observation",
+      "title": "Extension-import creates upload and source_accounts but NOT user_source_follows - get-upload-details returns empty because it queries FROM user_source_follows",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T14:08:57.918421600-05:00",
+      "updated_at": "2025-12-26T14:08:57.918421600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 308,
+      "change_id": "2368cae0-9ae1-4ca0-9ace-8c3555f9e679",
+      "node_type": "action",
+      "title": "Add user_source_follows creation to extension-import endpoint",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T14:09:03.035871-05:00",
+      "updated_at": "2025-12-26T14:09:03.035871-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 309,
+      "change_id": "cd9b88e7-fe8d-4ee0-a187-e99eef0b7e64",
+      "node_type": "outcome",
+      "title": "Fixed all extension flow issues: added user_source_follows creation, auto-search after load, time formatting",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T14:11:09.055850200-05:00",
+      "updated_at": "2025-12-26T14:11:09.055850200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6568,6 +6623,61 @@
       "weight": 1.0,
       "rationale": "Implementation complete",
       "created_at": "2025-12-26T13:51:54.561857100-05:00"
+    },
+    {
+      "id": 294,
+      "from_node_id": 304,
+      "to_node_id": 305,
+      "from_change_id": "dff4aef7-8732-4aae-a6be-f44fb42b4941",
+      "to_change_id": "8ad6ef53-29a2-442e-b88f-9e0541634950",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New issues found in testing",
+      "created_at": "2025-12-26T14:05:56.045966300-05:00"
+    },
+    {
+      "id": 295,
+      "from_node_id": 305,
+      "to_node_id": 306,
+      "from_change_id": "8ad6ef53-29a2-442e-b88f-9e0541634950",
+      "to_change_id": "481942f8-5905-4948-a1cb-ee320a98271b",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause identified",
+      "created_at": "2025-12-26T14:06:20.512128100-05:00"
+    },
+    {
+      "id": 296,
+      "from_node_id": 306,
+      "to_node_id": 307,
+      "from_change_id": "481942f8-5905-4948-a1cb-ee320a98271b",
+      "to_change_id": "ae01acc1-f5ff-481b-823f-de2d4f1843a2",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause found",
+      "created_at": "2025-12-26T14:09:00.202061-05:00"
+    },
+    {
+      "id": 297,
+      "from_node_id": 307,
+      "to_node_id": 308,
+      "from_change_id": "ae01acc1-f5ff-481b-823f-de2d4f1843a2",
+      "to_change_id": "2368cae0-9ae1-4ca0-9ace-8c3555f9e679",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to fix",
+      "created_at": "2025-12-26T14:09:05.743608600-05:00"
+    },
+    {
+      "id": 298,
+      "from_node_id": 308,
+      "to_node_id": 309,
+      "from_change_id": "2368cae0-9ae1-4ca0-9ace-8c3555f9e679",
+      "to_change_id": "cd9b88e7-fe8d-4ee0-a187-e99eef0b7e64",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T14:11:11.543447500-05:00"
     }
   ]
 }

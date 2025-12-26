@@ -148,7 +148,7 @@ export default function HistoryTab({
                         {upload.totalUsers === 1 ? "user found" : "users found"}
                       </Badge>
                       <Badge variant="info">
-                        Uploaded {formatRelativeTime(upload.createdAt)}
+                        {formatRelativeTime(upload.createdAt)}
                       </Badge>
                     </>
                   }

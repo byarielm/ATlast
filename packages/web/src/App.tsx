@@ -177,15 +177,20 @@ export default function App() {
           return;
         }
 
-        const platform = "tiktok";
+        // Detect platform from first result's username or default to twitter for extension imports
+        const platform = "twitter"; // Extension imports are always from Twitter for now
         setCurrentPlatform(platform);
 
+        // Check if this is a new upload with no matches yet
+        const hasMatches = data.results.some(r => r.atprotoMatches.length > 0);
+
         const loadedResults: SearchResult[] = data.results.map((result) => ({
-          ...result,
+          sourceUser: result.sourceUser.username,
           sourcePlatform: platform,
-          isSearching: false,
+          isSearching: !hasMatches, // Search if no matches exist yet
+          atprotoMatches: result.atprotoMatches || [],
           selectedMatches: new Set<string>(
-            result.atprotoMatches
+            (result.atprotoMatches || [])
               .filter(
                 (match) =>
                   !match.followStatus ||
@@ -198,6 +203,20 @@ export default function App() {
 
         setSearchResults(loadedResults);
         setCurrentStep("results");
+
+        // If no matches yet, trigger search
+        if (!hasMatches) {
+          setStatusMessage("Starting search for matches...");
+          const followLexicon = ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
+          await searchAllUsers(loadedResults, followLexicon);
+
+          // Save results after search completes
+          const updatedResults = loadedResults.filter(r => !r.isSearching);
+          if (updatedResults.length > 0) {
+            await saveResults(uploadId, platform, updatedResults);
+          }
+        }
+
         // Announce to screen readers only - visual feedback is navigation to results page
         setAriaAnnouncement(
           `Loaded ${loadedResults.length} results from previous upload`,
@@ -208,7 +227,7 @@ export default function App() {
         setCurrentStep("home");
       }
     },
-    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error],
+    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error, currentDestinationAppId, searchAllUsers, saveResults],
   );
 
   // Login handler

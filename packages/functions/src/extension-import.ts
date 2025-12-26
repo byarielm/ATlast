@@ -60,13 +60,22 @@ const extensionImportHandler: AuthenticatedHandler = async (context) => {
 
   console.log(`[extension-import] Created upload ${uploadId} for user ${context.did}`);
 
-  // Save source accounts using bulk insert
+  // Save source accounts using bulk insert and link to upload
   try {
-    await sourceAccountRepo.bulkCreate(
+    const sourceAccountIdMap = await sourceAccountRepo.bulkCreate(
       validatedData.platform,
       validatedData.usernames
     );
     console.log(`[extension-import] Saved ${validatedData.usernames.length} source accounts`);
+
+    // Link source accounts to this upload
+    const links = Array.from(sourceAccountIdMap.values()).map(sourceAccountId => ({
+      sourceAccountId,
+      sourceDate: validatedData.metadata.scrapedAt
+    }));
+
+    await sourceAccountRepo.linkUserToAccounts(uploadId, context.did, links);
+    console.log(`[extension-import] Linked ${links.length} source accounts to upload`);
   } catch (error) {
     console.error('[extension-import] Error saving source accounts:', error);
     // Continue anyway - upload is created, frontend can still search
