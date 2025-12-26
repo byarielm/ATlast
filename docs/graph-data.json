@@ -2727,6 +2727,105 @@
       "created_at": "2025-12-25T16:28:54.299966500-05:00",
       "updated_at": "2025-12-25T16:28:54.299966500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 249,
+      "change_id": "582e4e97-99df-4686-a9ef-762b851a62ec",
+      "node_type": "action",
+      "title": "Debugging extension state communication: content script detects page but popup shows idle state",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T18:35:58.553577600-05:00",
+      "updated_at": "2025-12-25T18:35:58.553577600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 250,
+      "change_id": "4655082d-fab8-4415-a088-c41552402127",
+      "node_type": "outcome",
+      "title": "Fixed critical messaging bug in extension: onMessage wrapper was discarding handler return values, only sending {success: true}. This prevented popup from receiving state updates from background worker. Now properly forwards actual data.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T18:52:37.132035600-05:00",
+      "updated_at": "2025-12-25T18:52:37.132035600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"0718100\",\"confidence\":95}"
+    },
+    {
+      "id": 251,
+      "change_id": "072f963c-3e06-445a-be4f-0a045e27c6c2",
+      "node_type": "action",
+      "title": "Adding dark mode support to extension popup UI",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T18:56:20.061388800-05:00",
+      "updated_at": "2025-12-25T18:56:20.061388800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 252,
+      "change_id": "b5cd9aed-c8cc-4d70-8790-b11a21d751fc",
+      "node_type": "outcome",
+      "title": "Added dark mode support to extension popup using CSS media queries for prefers-color-scheme. All UI elements now have dark variants matching web app's dark theme.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T19:00:24.260632-05:00",
+      "updated_at": "2025-12-25T19:00:24.260632-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"0718100\",\"confidence\":90}"
+    },
+    {
+      "id": 253,
+      "change_id": "af40219a-2094-4e5f-8e96-4b5c9850669b",
+      "node_type": "action",
+      "title": "Testing extension scraping functionality end-to-end",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T19:03:39.068139400-05:00",
+      "updated_at": "2025-12-25T19:03:39.068139400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 254,
+      "change_id": "c765751c-c23b-4a27-bfc9-e118b799e1cc",
+      "node_type": "observation",
+      "title": "Twitter scraper found 0 users despite 3 visible on page",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T19:16:57.382459700-05:00",
+      "updated_at": "2025-12-25T19:16:57.382459700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 255,
+      "change_id": "9f99eb8c-d15b-41b0-af92-c36de5048fdd",
+      "node_type": "action",
+      "title": "Inspecting Twitter DOM to identify correct user element selector",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T19:17:04.041798100-05:00",
+      "updated_at": "2025-12-25T19:17:04.041798100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"HEAD~1\",\"confidence\":95}"
+    },
+    {
+      "id": 256,
+      "change_id": "3f9c13ee-b216-4e00-ab04-9ad45712228a",
+      "node_type": "outcome",
+      "title": "Discovered [data-testid=\"UserCell\"] is correct selector, not UserName",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T19:17:11.208998400-05:00",
+      "updated_at": "2025-12-25T19:17:11.208998400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 257,
+      "change_id": "eccb2bb1-413e-4d9f-8eb8-eb753bd5b82b",
+      "node_type": "outcome",
+      "title": "Fixed scraper selector and added upload validation for 0 results",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-25T19:17:27.907683600-05:00",
+      "updated_at": "2025-12-25T19:17:27.907683600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"c35fb0d\",\"confidence\":95,\"files\":[\"packages/extension/src/content/scrapers/twitter-scraper.ts\",\"packages/extension/src/popup/popup.ts\"]}"
     }
   ],
   "edges": [
@@ -5369,6 +5468,105 @@
       "weight": 1.0,
       "rationale": "Fixes complete and documented",
       "created_at": "2025-12-25T16:28:55.599385300-05:00"
+    },
+    {
+      "id": 241,
+      "from_node_id": 247,
+      "to_node_id": 249,
+      "from_change_id": "c8276478-87e3-43b3-b763-e7964a776fad",
+      "to_change_id": "582e4e97-99df-4686-a9ef-762b851a62ec",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Follow-up debugging after initial fixes",
+      "created_at": "2025-12-25T18:36:00.949506600-05:00"
+    },
+    {
+      "id": 242,
+      "from_node_id": 249,
+      "to_node_id": 250,
+      "from_change_id": "582e4e97-99df-4686-a9ef-762b851a62ec",
+      "to_change_id": "4655082d-fab8-4415-a088-c41552402127",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause identified and fixed",
+      "created_at": "2025-12-25T18:52:40.291421600-05:00"
+    },
+    {
+      "id": 243,
+      "from_node_id": 184,
+      "to_node_id": 251,
+      "from_change_id": "919c42ef-9fae-473f-b755-ee32d8999204",
+      "to_change_id": "072f963c-3e06-445a-be4f-0a045e27c6c2",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "UI polish for extension",
+      "created_at": "2025-12-25T18:56:23.458768300-05:00"
+    },
+    {
+      "id": 244,
+      "from_node_id": 251,
+      "to_node_id": 252,
+      "from_change_id": "072f963c-3e06-445a-be4f-0a045e27c6c2",
+      "to_change_id": "b5cd9aed-c8cc-4d70-8790-b11a21d751fc",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Dark mode implementation complete",
+      "created_at": "2025-12-25T19:00:27.045687800-05:00"
+    },
+    {
+      "id": 245,
+      "from_node_id": 184,
+      "to_node_id": 253,
+      "from_change_id": "919c42ef-9fae-473f-b755-ee32d8999204",
+      "to_change_id": "af40219a-2094-4e5f-8e96-4b5c9850669b",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Testing actual scraping after fixing detection",
+      "created_at": "2025-12-25T19:03:41.610950300-05:00"
+    },
+    {
+      "id": 246,
+      "from_node_id": 184,
+      "to_node_id": 254,
+      "from_change_id": "919c42ef-9fae-473f-b755-ee32d8999204",
+      "to_change_id": "c765751c-c23b-4a27-bfc9-e118b799e1cc",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Bug found during testing",
+      "created_at": "2025-12-25T19:17:19.516534800-05:00"
+    },
+    {
+      "id": 247,
+      "from_node_id": 254,
+      "to_node_id": 255,
+      "from_change_id": "c765751c-c23b-4a27-bfc9-e118b799e1cc",
+      "to_change_id": "9f99eb8c-d15b-41b0-af92-c36de5048fdd",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Needed to debug selector",
+      "created_at": "2025-12-25T19:17:19.704435600-05:00"
+    },
+    {
+      "id": 248,
+      "from_node_id": 255,
+      "to_node_id": 256,
+      "from_change_id": "9f99eb8c-d15b-41b0-af92-c36de5048fdd",
+      "to_change_id": "3f9c13ee-b216-4e00-ab04-9ad45712228a",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Found correct selector via browser inspection",
+      "created_at": "2025-12-25T19:17:19.896961300-05:00"
+    },
+    {
+      "id": 249,
+      "from_node_id": 256,
+      "to_node_id": 257,
+      "from_change_id": "3f9c13ee-b216-4e00-ab04-9ad45712228a",
+      "to_change_id": "eccb2bb1-413e-4d9f-8eb8-eb753bd5b82b",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implemented fix based on discovery",
+      "created_at": "2025-12-25T19:17:34.829447100-05:00"
     }
   ]
 }

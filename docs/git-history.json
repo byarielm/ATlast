@@ -1,11 +1,35 @@
 [
   {
-    "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
-    "short_hash": "ba29fd6",
+    "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",
+    "short_hash": "c35fb0d",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 5
+    "date": "2025-12-25T19:16:38-05:00",
+    "message": "add validation to prevent uploading empty results\n\nCheck if usernames array has items before attempting upload.\nShows clear error message instead of hanging.",
+    "files_changed": 1
+  },
+  {
+    "hash": "8cf10ff35152d0a02bc4de228a9e418916b3eef9",
+    "short_hash": "8cf10ff",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T19:15:51-05:00",
+    "message": "fix Twitter scraper to use UserCell selector\n\nChanged from [data-testid=\"UserName\"] (doesn't exist) to\n[data-testid=\"UserCell\"] (actual DOM element). Extract username\nfrom profile link href instead of span text.",
+    "files_changed": 1
+  },
+  {
+    "hash": "0718100fbf6342cb21e8877e32b6f590b0b8cc57",
+    "short_hash": "0718100",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T18:52:32-05:00",
+    "message": "fix critical messaging bug: onMessage was discarding return values\n\nThe onMessage wrapper in messaging.ts was only sending {success: true}\ninstead of the actual handler return value. This caused the popup to\nreceive undefined state even though the background worker was correctly\nstoring it.\n\nChanges:\n- messaging.ts: Changed onMessage to forward handler return values\n- background service-worker.ts: Added comprehensive logging\n- popup.ts: Added state change listener and detailed logging\n\nThis fixes the issue where popup showed 'Go to...' even when on the\nfollowing page.",
+    "files_changed": 3
+  },
+  {
+    "hash": "85db81991b845467cfa8650d9f42d6a1ecd93017",
+    "short_hash": "85db819",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T16:32:41-05:00",
+    "message": "add extension testing and debugging guide\n\nCreated comprehensive README.md with:\n- Build instructions\n- Chrome loading steps\n- Step-by-step testing guide\n- Console logging documentation\n- Common issues and solutions\n- Architecture overview\n- Future enhancements roadmap\n\nIncludes debugging tips for URL pattern detection issues.",
+    "files_changed": 1
   },
   {
     "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
@@ -14,6 +38,14 @@
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 4
+  },
+  {
+    "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
+    "short_hash": "ba29fd6",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 5
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",
@@ -30,14 +62,6 @@
     "date": "2025-12-24T21:09:33-05:00",
     "message": "remove .claude/ and dist/ from repository\n\nThese directories are already in .gitignore but were committed\nbefore the ignore rules were added. Removed from tracking while\nkeeping local files intact.",
     "files_changed": 6
-  },
-  {
-    "hash": "a80fc6cec1518b6143981b37ccd2ea54415faeda",
-    "short_hash": "a80fc6c",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-24T19:42:51-05:00",
-    "message": "update CLAUDE.md: include decision graph in code commits\n\nAdded guidance to run deciduous sync before commits and stage graph\nupdates together with code changes. Decision graph is part of code\nhistory and should not be committed separately.",
-    "files_changed": 3
   },
   {
     "hash": "f79a669dd6528340d453cb28e9fed2bd5232d46c",
