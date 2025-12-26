@@ -1,7 +1,7 @@
 import type { Handler, HandlerEvent } from '@netlify/functions';
 import type { ExtensionImportRequest, ExtensionImportResponse } from '@atlast/shared';
 import { z } from 'zod';
-import crypto from 'crypto';
+import { storeImport } from './utils/import-store.js';
 
 /**
  * Validation schema for extension import request
@@ -16,34 +16,6 @@ const ExtensionImportSchema = z.object({
     sourceUrl: z.string().url()
   })
 });
-
-/**
- * Simple in-memory store for extension imports
- * TODO: Move to database for production
- */
-const importStore = new Map<string, ExtensionImportRequest>();
-
-/**
- * Generate a random import ID
- */
-function generateImportId(): string {
-  return crypto.randomBytes(16).toString('hex');
-}
-
-/**
- * Store import data and return import ID
- */
-function storeImport(data: ExtensionImportRequest): string {
-  const importId = generateImportId();
-  importStore.set(importId, data);
-
-  // Auto-expire after 1 hour
-  setTimeout(() => {
-    importStore.delete(importId);
-  }, 60 * 60 * 1000);
-
-  return importId;
-}
 
 /**
  * Extension import endpoint
@@ -137,10 +109,3 @@ export const handler: Handler = async (event: HandlerEvent) => {
   }
 };
 
-/**
- * Get import endpoint (helper for import page)
- * GET /extension-import/:id
- */
-export function getImport(importId: string): ExtensionImportRequest | null {
-  return importStore.get(importId) || null;
-}

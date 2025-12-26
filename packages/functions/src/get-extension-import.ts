@@ -1,11 +1,6 @@
 import type { Handler, HandlerEvent } from '@netlify/functions';
 import type { ExtensionImportRequest } from '@atlast/shared';
-
-/**
- * Import store (shared with extension-import.ts)
- * In production, this would be a database query
- */
-const importStore = new Map<string, ExtensionImportRequest>();
+import { getImport } from './utils/import-store.js';
 
 /**
  * Get extension import by ID
@@ -49,8 +44,8 @@ export const handler: Handler = async (event: HandlerEvent) => {
       };
     }
 
-    // Get import data
-    const importData = importStore.get(importId);
+    // Get import data from shared store
+    const importData = getImport(importId);
 
     if (!importData) {
       return {
