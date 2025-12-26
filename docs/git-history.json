@@ -8,11 +8,11 @@
     "files_changed": 1
   },
   {
-    "hash": "8cf10ff35152d0a02bc4de228a9e418916b3eef9",
-    "short_hash": "8cf10ff",
+    "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",
+    "short_hash": "c35fb0d",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T19:15:51-05:00",
-    "message": "fix Twitter scraper to use UserCell selector\n\nChanged from [data-testid=\"UserName\"] (doesn't exist) to\n[data-testid=\"UserCell\"] (actual DOM element). Extract username\nfrom profile link href instead of span text.",
+    "date": "2025-12-25T19:16:38-05:00",
+    "message": "add validation to prevent uploading empty results\n\nCheck if usernames array has items before attempting upload.\nShows clear error message instead of hanging.",
     "files_changed": 1
   },
   {
@@ -24,12 +24,12 @@
     "files_changed": 3
   },
   {
-    "hash": "85db81991b845467cfa8650d9f42d6a1ecd93017",
-    "short_hash": "85db819",
+    "hash": "5df643807a2539010d0bbb8beb1576d4aab13697",
+    "short_hash": "5df6438",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T16:32:41-05:00",
-    "message": "add extension testing and debugging guide\n\nCreated comprehensive README.md with:\n- Build instructions\n- Chrome loading steps\n- Step-by-step testing guide\n- Console logging documentation\n- Common issues and solutions\n- Architecture overview\n- Future enhancements roadmap\n\nIncludes debugging tips for URL pattern detection issues.",
-    "files_changed": 1
+    "date": "2025-12-25T16:32:49-05:00",
+    "message": "update decision graph after extension fixes",
+    "files_changed": 2
   },
   {
     "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",

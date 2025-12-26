@@ -1856,7 +1856,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:23:05.987261100-05:00",
-      "updated_at": "2025-12-24T21:23:44.329800100-05:00",
+      "updated_at": "2025-12-25T20:28:31.354062300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -1867,7 +1867,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:24:33.075823300-05:00",
-      "updated_at": "2025-12-24T21:23:44.439262500-05:00",
+      "updated_at": "2025-12-25T20:28:31.517807100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -1878,7 +1878,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:24:37.875781600-05:00",
-      "updated_at": "2025-12-24T21:23:44.565467900-05:00",
+      "updated_at": "2025-12-25T20:28:31.661275800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -1889,7 +1889,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:24:51.231785800-05:00",
-      "updated_at": "2025-12-24T21:23:44.664500-05:00",
+      "updated_at": "2025-12-25T20:28:31.802909200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -1900,7 +1900,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:24:56.020367200-05:00",
-      "updated_at": "2025-12-24T21:23:44.782440600-05:00",
+      "updated_at": "2025-12-25T20:28:31.949390600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -1911,7 +1911,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:27:32.316881600-05:00",
-      "updated_at": "2025-12-24T21:23:44.897139700-05:00",
+      "updated_at": "2025-12-25T20:28:32.120324300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -1922,7 +1922,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:35:10.368162900-05:00",
-      "updated_at": "2025-12-24T21:23:45.036991800-05:00",
+      "updated_at": "2025-12-25T20:28:32.280586200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"9bdca93\",\"confidence\":100}"
     },
     {
@@ -1944,7 +1944,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:50:46.648351400-05:00",
-      "updated_at": "2025-12-24T21:23:45.163778600-05:00",
+      "updated_at": "2025-12-25T20:28:32.440957600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -1955,7 +1955,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:51:19.077525300-05:00",
-      "updated_at": "2025-12-24T21:23:45.303984200-05:00",
+      "updated_at": "2025-12-25T20:28:32.590991700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -1966,7 +1966,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T18:54:08.099877300-05:00",
-      "updated_at": "2025-12-24T21:23:45.503300-05:00",
+      "updated_at": "2025-12-25T20:28:32.747426300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -1977,7 +1977,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T19:06:33.954975-05:00",
-      "updated_at": "2025-12-24T21:23:45.638531800-05:00",
+      "updated_at": "2025-12-25T20:28:32.905315400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -1988,7 +1988,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T19:39:04.481280600-05:00",
-      "updated_at": "2025-12-24T21:23:45.764252800-05:00",
+      "updated_at": "2025-12-25T20:28:33.066343500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"f79a669\",\"confidence\":100}"
     },
     {
@@ -1999,7 +1999,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T19:43:00.524530200-05:00",
-      "updated_at": "2025-12-24T21:23:45.899743900-05:00",
+      "updated_at": "2025-12-25T20:28:33.275537500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2010,7 +2010,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-24T21:09:41.558024500-05:00",
-      "updated_at": "2025-12-24T21:23:46.019444200-05:00",
+      "updated_at": "2025-12-25T20:28:33.476127300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"e2d6a7e\",\"confidence\":95}"
     },
     {
@@ -2019,9 +2019,9 @@
       "node_type": "goal",
       "title": "Support Twitter/X file uploads for finding follows on Bluesky",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:26:53.493477900-05:00",
-      "updated_at": "2025-12-24T21:26:53.493477900-05:00",
+      "updated_at": "2025-12-25T20:28:50.067903-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":70,\"prompt\":\"Let's plan how to support twitter file uploads. Log with deciduous, but we're otherwise not coding solutions yet. This data doesn't include the usernames in file exports (see twitter_following file). For the \\\"userLink\\\" we have e.g. \\\"https://twitter.com/intent/user?user_id=1103954565026775041\\\". If I visit that in browser, it returns \\\"https://x.com/intent/user?screen_name=veggero\\\" where veggero is the username I want to extract. X is notoriously problematic and I don't want to pay to use their API. What options are there for helping users extract their follows?\"}"
     },
     {
@@ -2030,9 +2030,9 @@
       "node_type": "observation",
       "title": "Twitter exports contain user_id URLs not usernames. URL redirect reveals screen_name but requires HTTP request per user. X API is paid/restrictive.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:01.471000200-05:00",
-      "updated_at": "2025-12-24T21:27:01.471000200-05:00",
+      "updated_at": "2025-12-25T20:28:50.217388700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -2041,9 +2041,9 @@
       "node_type": "decision",
       "title": "Choose approach for resolving Twitter user_ids to usernames without paid API",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:09.956279700-05:00",
-      "updated_at": "2025-12-24T21:27:09.956279700-05:00",
+      "updated_at": "2025-12-25T20:28:50.393807600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":60}"
     },
     {
@@ -2052,9 +2052,9 @@
       "node_type": "option",
       "title": "Server-side redirect following - Backend fetches URLs, follows redirects to extract screen_name",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:34.979800400-05:00",
-      "updated_at": "2025-12-24T21:27:34.979800400-05:00",
+      "updated_at": "2025-12-25T20:28:50.575555600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":50}"
     },
     {
@@ -2063,9 +2063,9 @@
       "node_type": "option",
       "title": "Browser extension - User installs extension that can bypass CORS and resolve URLs client-side",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:36.674409200-05:00",
-      "updated_at": "2025-12-24T21:27:36.674409200-05:00",
+      "updated_at": "2025-12-25T20:28:50.776512300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":55}"
     },
     {
@@ -2074,9 +2074,9 @@
       "node_type": "option",
       "title": "Local CLI tool - User downloads script, runs on their machine, uploads resolved usernames",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:38.389965800-05:00",
-      "updated_at": "2025-12-24T21:27:38.389965800-05:00",
+      "updated_at": "2025-12-25T20:28:50.969735900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":60}"
     },
     {
@@ -2085,9 +2085,9 @@
       "node_type": "option",
       "title": "Third-party lookup services - Use existing services that cache Twitter user data",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:40.189045-05:00",
-      "updated_at": "2025-12-24T21:27:40.189045-05:00",
+      "updated_at": "2025-12-25T20:28:51.158043200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":40}"
     },
     {
@@ -2096,9 +2096,9 @@
       "node_type": "option",
       "title": "BYOK (Bring Your Own Key) - User provides their X API credentials",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:42.001403800-05:00",
-      "updated_at": "2025-12-24T21:27:42.001403800-05:00",
+      "updated_at": "2025-12-25T20:28:51.330860100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":35}"
     },
     {
@@ -2107,9 +2107,9 @@
       "node_type": "option",
       "title": "Hybrid: try public resolution first, fall back to manual/assisted workflow for failures",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:27:43.817921400-05:00",
-      "updated_at": "2025-12-24T21:27:43.817921400-05:00",
+      "updated_at": "2025-12-25T20:28:51.511337600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":65}"
     },
     {
@@ -2118,9 +2118,9 @@
       "node_type": "action",
       "title": "Exploring Nitter instances and codebase for user_id to screen_name resolution",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:34:28.812168300-05:00",
-      "updated_at": "2025-12-24T21:34:28.812168300-05:00",
+      "updated_at": "2025-12-25T20:28:51.682957-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":70}"
     },
     {
@@ -2129,9 +2129,9 @@
       "node_type": "observation",
       "title": "Nitter is dead (Feb 2024) - Twitter killed guest accounts. Running instances now require real account tokens. Not viable for our use case.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:37:02.191252500-05:00",
-      "updated_at": "2025-12-24T21:37:02.191252500-05:00",
+      "updated_at": "2025-12-25T20:28:51.868644100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -2140,9 +2140,9 @@
       "node_type": "observation",
       "title": "Sky Follower Bridge extension works differently - extracts usernames from visible X Following page (no user_id resolution needed), searches Bluesky API. But requires user to visit X in browser.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:37:13.017860100-05:00",
-      "updated_at": "2025-12-24T21:37:13.017860100-05:00",
+      "updated_at": "2025-12-25T20:28:52.021584300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2151,9 +2151,9 @@
       "node_type": "observation",
       "title": "Free web tools (tweethunter.io, get-id-x.foundtt.com) convert user_id to screen_name, but single lookups only - no bulk/API access. Likely use Twitter API under hood.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:37:14.862442-05:00",
-      "updated_at": "2025-12-24T21:37:14.862442-05:00",
+      "updated_at": "2025-12-25T20:28:52.177672200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2162,9 +2162,9 @@
       "node_type": "observation",
       "title": "bird.makeup uses Twitter's internal GraphQL API (UserByScreenName endpoint) with guest tokens + hard-coded bearer tokens from Twitter's web client. Mimics browser behavior. Requires guest token rotation.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:44:03.348278800-05:00",
-      "updated_at": "2025-12-24T21:44:03.348278800-05:00",
+      "updated_at": "2025-12-25T20:28:52.329588100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2173,9 +2173,9 @@
       "node_type": "observation",
       "title": "Twitter GraphQL has UsersByRestIds endpoint - takes user_ids, returns full user data including screen_name. Batched (efficient). Available via twitter-api-client Python library. Requires cookies or guest session.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:44:05.652057700-05:00",
-      "updated_at": "2025-12-24T21:44:05.652057700-05:00",
+      "updated_at": "2025-12-25T20:28:52.486498700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2184,9 +2184,9 @@
       "node_type": "option",
       "title": "Use Twitter's internal GraphQL API (UsersByRestIds) with guest tokens - server-side batch resolution like bird.makeup does",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:44:18.877137600-05:00",
-      "updated_at": "2025-12-24T21:44:18.877137600-05:00",
+      "updated_at": "2025-12-25T20:28:52.662921500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":55}"
     },
     {
@@ -2195,9 +2195,9 @@
       "node_type": "option",
       "title": "Recommend Sky Follower Bridge extension - user visits X Following page, extension extracts visible usernames (no user_id resolution needed)",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:44:20.815603600-05:00",
-      "updated_at": "2025-12-24T21:44:20.815603600-05:00",
+      "updated_at": "2025-12-25T20:28:52.833590700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":70}"
     },
     {
@@ -2206,9 +2206,9 @@
       "node_type": "action",
       "title": "Exploring: logged-in user scenarios, guided extension flow, mobile browser extension support",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:49:50.584503-05:00",
-      "updated_at": "2025-12-24T21:49:50.584503-05:00",
+      "updated_at": "2025-12-25T20:28:52.985059400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":75}"
     },
     {
@@ -2217,9 +2217,9 @@
       "node_type": "observation",
       "title": "Nitter with logged-in accounts: possible but fragile. Requires cookie extraction (twikit), accounts get locked after ~1 month, needs 2FA. Still requires operator to maintain sessions - not viable for user self-service.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:10.472455-05:00",
-      "updated_at": "2025-12-24T21:54:10.472455-05:00",
+      "updated_at": "2025-12-25T20:28:53.154229500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":80}"
     },
     {
@@ -2228,9 +2228,9 @@
       "node_type": "observation",
       "title": "Mobile extension support: Android (Firefox, Kiwi, Lemur) supports extensions. iOS Safari blocks bookmarklet JS execution since iOS 15. Chrome Android bookmarklets work via address bar typing. iOS is problematic.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:12.748288800-05:00",
-      "updated_at": "2025-12-24T21:54:12.748288800-05:00",
+      "updated_at": "2025-12-25T20:28:53.304032600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2239,9 +2239,9 @@
       "node_type": "observation",
       "title": "Twitter DOM scraping: data-testid selectors (UserName, tweet) are stable. Class names are volatile (css-xxxxx). Can scroll + collect via setTimeout loop. Works from browser console or extension.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:14.693164400-05:00",
-      "updated_at": "2025-12-24T21:54:14.693164400-05:00",
+      "updated_at": "2025-12-25T20:28:53.447433100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2250,9 +2250,9 @@
       "node_type": "decision",
       "title": "Choose Twitter extraction approach: extension-only vs hybrid (extension + bookmarklet) vs defer to existing tools (Sky Follower Bridge)",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:33.357036500-05:00",
-      "updated_at": "2025-12-24T21:54:33.357036500-05:00",
+      "updated_at": "2025-12-25T20:28:53.598287400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":65}"
     },
     {
@@ -2261,9 +2261,9 @@
       "node_type": "option",
       "title": "Build ATlast browser extension: scrapes Following page, auto-uploads to ATlast, searches Bluesky. Desktop Chrome/Firefox/Edge only.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:37.257977100-05:00",
-      "updated_at": "2025-12-24T21:54:37.257977100-05:00",
+      "updated_at": "2025-12-25T20:28:53.764906800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":70}"
     },
     {
@@ -2272,9 +2272,9 @@
       "node_type": "option",
       "title": "Guided console script flow: ATlast provides copy-paste JS, user runs in DevTools, copies output, pastes into ATlast. Works on any desktop browser.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:39.243220600-05:00",
-      "updated_at": "2025-12-24T21:54:39.243220600-05:00",
+      "updated_at": "2025-12-25T20:28:53.946062600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":60}"
     },
     {
@@ -2283,9 +2283,9 @@
       "node_type": "option",
       "title": "Partner with/recommend Sky Follower Bridge: already built, maintained, multi-platform. ATlast focuses on data export files only.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:41.213585600-05:00",
-      "updated_at": "2025-12-24T21:54:41.213585600-05:00",
+      "updated_at": "2025-12-25T20:28:54.119472-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":75}"
     },
     {
@@ -2294,9 +2294,9 @@
       "node_type": "option",
       "title": "Hybrid mobile approach: Android users use Firefox+extension, iOS users directed to desktop or data export workflow.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:54:43.197638400-05:00",
-      "updated_at": "2025-12-24T21:54:43.197638400-05:00",
+      "updated_at": "2025-12-25T20:28:54.279188900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":55}"
     },
     {
@@ -2305,9 +2305,9 @@
       "node_type": "outcome",
       "title": "Decision: Build ATlast extension rather than defer to Sky Follower Bridge. Provides integrated UX, ATlast branding, control over features.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:57:28.158619100-05:00",
-      "updated_at": "2025-12-24T21:57:28.158619100-05:00",
+      "updated_at": "2025-12-25T20:28:54.440713700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2316,9 +2316,9 @@
       "node_type": "observation",
       "title": "Twitter data export confirmed: only contains user_ids, not usernames. Data export path not viable for Twitter - must use live scraping approach.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:57:29.885392-05:00",
-      "updated_at": "2025-12-24T21:57:29.885392-05:00",
+      "updated_at": "2025-12-25T20:28:54.599116900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -2327,9 +2327,9 @@
       "node_type": "action",
       "title": "Exploring iOS Shortcuts as alternative to browser extension for iOS users",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-24T21:57:33.637829900-05:00",
-      "updated_at": "2025-12-24T21:57:33.637829900-05:00",
+      "updated_at": "2025-12-25T20:28:54.780851500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":60}"
     },
     {
@@ -2338,9 +2338,9 @@
       "node_type": "observation",
       "title": "iOS Shortcuts 'Run JavaScript on Webpage' CAN access authenticated Safari pages via share sheet. BUT has strict timeout (few seconds). Infinite scroll with setTimeout would fail. Can only grab currently visible content.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:44:56.295986200-05:00",
-      "updated_at": "2025-12-25T11:44:56.295986200-05:00",
+      "updated_at": "2025-12-25T20:28:54.964208100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2349,9 +2349,9 @@
       "node_type": "observation",
       "title": "iOS Safari Web Extensions (iOS 15+) use WebExtensions API - same as Chrome/Firefox. Content scripts run without timeout limits. BUT requires App Store distribution as part of an iOS app.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:44:57.917114500-05:00",
-      "updated_at": "2025-12-25T11:44:57.917114500-05:00",
+      "updated_at": "2025-12-25T20:28:55.180690-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2360,9 +2360,9 @@
       "node_type": "option",
       "title": "iOS Safari Web Extension: Build iOS app with Safari extension component. Full scraping capability. Requires App Store approval and iOS app wrapper.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:44:59.390903800-05:00",
-      "updated_at": "2025-12-25T11:44:59.390903800-05:00",
+      "updated_at": "2025-12-25T20:28:55.363281300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":50}"
     },
     {
@@ -2371,9 +2371,9 @@
       "node_type": "option",
       "title": "iOS Shortcuts partial solution: User manually scrolls to load all follows, then runs Shortcut to grab visible usernames. Multiple runs needed. Friction but no app install.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:45:00.878455400-05:00",
-      "updated_at": "2025-12-25T11:45:00.878455400-05:00",
+      "updated_at": "2025-12-25T20:28:55.528923400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":45}"
     },
     {
@@ -2382,9 +2382,9 @@
       "node_type": "action",
       "title": "Documenting Twitter extension plan in PLAN.md",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:49:19.000575700-05:00",
-      "updated_at": "2025-12-25T11:49:19.000575700-05:00",
+      "updated_at": "2025-12-25T20:28:55.685318400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2393,9 +2393,9 @@
       "node_type": "decision",
       "title": "Choose data handoff method: URL params vs POST API vs File download vs Clipboard",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:52:07.068146500-05:00",
-      "updated_at": "2025-12-25T11:52:07.068146500-05:00",
+      "updated_at": "2025-12-25T20:28:55.872754500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":65}"
     },
     {
@@ -2404,9 +2404,9 @@
       "node_type": "outcome",
       "title": "Data handoff: POST to API endpoint. New Netlify function will receive usernames from extension.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:59:54.233674400-05:00",
-      "updated_at": "2025-12-25T11:59:54.233674400-05:00",
+      "updated_at": "2025-12-25T20:28:56.042547300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2415,9 +2415,9 @@
       "node_type": "outcome",
       "title": "MVP scope: Twitter Following page only. Fastest path to value. Followers/Lists deferred.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:59:55.996600300-05:00",
-      "updated_at": "2025-12-25T11:59:55.996600300-05:00",
+      "updated_at": "2025-12-25T20:28:56.175260300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2426,9 +2426,9 @@
       "node_type": "outcome",
       "title": "iOS deferred: Focus on desktop Chrome/Firefox first. iOS users use desktop browser for now.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:59:57.486482-05:00",
-      "updated_at": "2025-12-25T11:59:57.486482-05:00",
+      "updated_at": "2025-12-25T20:28:56.311595300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2437,9 +2437,9 @@
       "node_type": "outcome",
       "title": "Platform scope: Twitter only for v1, but architecture accommodates Threads/Instagram/TikTok for later.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T11:59:59.101111400-05:00",
-      "updated_at": "2025-12-25T11:59:59.101111400-05:00",
+      "updated_at": "2025-12-25T20:28:56.454453700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2448,9 +2448,9 @@
       "node_type": "outcome",
       "title": "PLAN.md created with full architecture: extensible scraper pattern, POST API handoff, platform detection, implementation phases",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:02:29.281090400-05:00",
-      "updated_at": "2025-12-25T12:02:29.281090400-05:00",
+      "updated_at": "2025-12-25T20:28:56.619252700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -2459,9 +2459,9 @@
       "node_type": "decision",
       "title": "Choose extension code location: subdirectory vs monorepo vs separate repo",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:16:10.959595900-05:00",
-      "updated_at": "2025-12-25T12:16:10.959595900-05:00",
+      "updated_at": "2025-12-25T20:28:56.804059500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":70}"
     },
     {
@@ -2470,9 +2470,9 @@
       "node_type": "outcome",
       "title": "Code location: Monorepo with shared packages. Cleaner shared types, explicit separation, easier extension build isolation.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:22:56.833471-05:00",
-      "updated_at": "2025-12-25T12:22:56.833471-05:00",
+      "updated_at": "2025-12-25T20:28:56.996599800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2481,9 +2481,9 @@
       "node_type": "outcome",
       "title": "Extension name: ATlast Importer",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:22:58.495651600-05:00",
-      "updated_at": "2025-12-25T12:22:58.495651600-05:00",
+      "updated_at": "2025-12-25T20:28:57.152995400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -2492,9 +2492,9 @@
       "node_type": "outcome",
       "title": "Monorepo tool: pnpm workspaces. Fast, disk-efficient, no extra config needed.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:23:38.264057800-05:00",
-      "updated_at": "2025-12-25T12:23:38.264057800-05:00",
+      "updated_at": "2025-12-25T20:28:57.330076100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2503,9 +2503,9 @@
       "node_type": "action",
       "title": "Installing pnpm globally",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:31:53.304358200-05:00",
-      "updated_at": "2025-12-25T12:31:53.304358200-05:00",
+      "updated_at": "2025-12-25T20:28:57.476758600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -2514,9 +2514,9 @@
       "node_type": "outcome",
       "title": "pnpm installed successfully",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:32:05.671781500-05:00",
-      "updated_at": "2025-12-25T12:32:05.671781500-05:00",
+      "updated_at": "2025-12-25T20:28:57.616991200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2525,9 +2525,9 @@
       "node_type": "action",
       "title": "Creating pnpm workspace configuration",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:32:27.346988300-05:00",
-      "updated_at": "2025-12-25T12:32:27.346988300-05:00",
+      "updated_at": "2025-12-25T20:28:57.785245300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2536,9 +2536,9 @@
       "node_type": "outcome",
       "title": "Created packages/ directory structure",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:32:48.932847100-05:00",
-      "updated_at": "2025-12-25T12:32:48.932847100-05:00",
+      "updated_at": "2025-12-25T20:28:57.946014900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2547,9 +2547,9 @@
       "node_type": "outcome",
       "title": "Moved web app files to packages/web/",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:39:06.906855200-05:00",
-      "updated_at": "2025-12-25T12:39:06.906855200-05:00",
+      "updated_at": "2025-12-25T20:28:58.093258700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2558,9 +2558,9 @@
       "node_type": "outcome",
       "title": "Moved Netlify functions to packages/functions/",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:39:30.244695200-05:00",
-      "updated_at": "2025-12-25T12:39:30.244695200-05:00",
+      "updated_at": "2025-12-25T20:28:58.242753600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2569,9 +2569,9 @@
       "node_type": "outcome",
       "title": "Created packages/shared with Platform and Import types",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:40:10.860005900-05:00",
-      "updated_at": "2025-12-25T12:40:10.860005900-05:00",
+      "updated_at": "2025-12-25T20:28:58.388876500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2580,9 +2580,9 @@
       "node_type": "outcome",
       "title": "Created package.json for web and functions packages",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:40:48.235525500-05:00",
-      "updated_at": "2025-12-25T12:40:48.235525500-05:00",
+      "updated_at": "2025-12-25T20:28:58.530209-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2591,9 +2591,9 @@
       "node_type": "outcome",
       "title": "Updated netlify.toml for monorepo paths",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:41:14.525795300-05:00",
-      "updated_at": "2025-12-25T12:41:14.525795300-05:00",
+      "updated_at": "2025-12-25T20:28:58.696573900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2602,9 +2602,9 @@
       "node_type": "outcome",
       "title": "Updated root package.json for monorepo",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:41:32.390877100-05:00",
-      "updated_at": "2025-12-25T12:41:32.390877100-05:00",
+      "updated_at": "2025-12-25T20:28:58.883354700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2613,9 +2613,9 @@
       "node_type": "action",
       "title": "Installing pnpm dependencies",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:41:47.124126700-05:00",
-      "updated_at": "2025-12-25T12:41:47.124126700-05:00",
+      "updated_at": "2025-12-25T20:28:59.032552600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2624,9 +2624,9 @@
       "node_type": "outcome",
       "title": "pnpm dependencies installed successfully",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:45:05.585546200-05:00",
-      "updated_at": "2025-12-25T12:45:05.585546200-05:00",
+      "updated_at": "2025-12-25T20:28:59.211963-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2635,9 +2635,9 @@
       "node_type": "outcome",
       "title": "Build and dev commands working correctly",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:46:17.696750-05:00",
-      "updated_at": "2025-12-25T12:46:17.696750-05:00",
+      "updated_at": "2025-12-25T20:28:59.409127800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2646,9 +2646,9 @@
       "node_type": "outcome",
       "title": "Phase 0 monorepo migration completed successfully",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T12:47:54.577738400-05:00",
-      "updated_at": "2025-12-25T12:47:54.577738400-05:00",
+      "updated_at": "2025-12-25T20:28:59.608666700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"c3e7afa\",\"confidence\":100}"
     },
     {
@@ -2657,9 +2657,9 @@
       "node_type": "action",
       "title": "Configured Netlify dev for monorepo with --filter flag",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T13:21:13.981980400-05:00",
-      "updated_at": "2025-12-25T13:21:13.981980400-05:00",
+      "updated_at": "2025-12-25T20:28:59.822236700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2668,9 +2668,9 @@
       "node_type": "outcome",
       "title": "Dev server working with npx netlify-cli dev --filter @atlast/web",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T13:21:15.443574800-05:00",
-      "updated_at": "2025-12-25T13:21:15.443574800-05:00",
+      "updated_at": "2025-12-25T20:28:59.981665700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2679,9 +2679,9 @@
       "node_type": "outcome",
       "title": "Committed Netlify dev configuration for monorepo",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T13:22:42.743106400-05:00",
-      "updated_at": "2025-12-25T13:22:42.743106400-05:00",
+      "updated_at": "2025-12-25T20:29:00.147960800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"32cdee3\",\"confidence\":100}"
     },
     {
@@ -2690,9 +2690,9 @@
       "node_type": "action",
       "title": "Implementing Phase 1: Chrome Extension MVP",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T13:33:30.200281700-05:00",
-      "updated_at": "2025-12-25T13:33:30.200281700-05:00",
+      "updated_at": "2025-12-25T20:29:00.308394-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2701,9 +2701,9 @@
       "node_type": "outcome",
       "title": "Phase 1 Chrome Extension MVP complete: Built browser extension with Twitter scraping, Netlify backend API, and web app integration. Extension scrapes Twitter Following page, uploads to ATlast API, searches Bluesky. All 13 tasks completed successfully.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T13:52:32.693778200-05:00",
-      "updated_at": "2025-12-25T13:52:32.693778200-05:00",
+      "updated_at": "2025-12-25T20:29:00.488222-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"ba29fd6\",\"confidence\":95}"
     },
     {
@@ -2712,9 +2712,9 @@
       "node_type": "action",
       "title": "Fixing Phase 1 issues: UI consistency, URL updates, extension detection debugging, UX improvements",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T14:06:47.786619100-05:00",
-      "updated_at": "2025-12-25T14:06:47.786619100-05:00",
+      "updated_at": "2025-12-25T20:29:00.686531100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2723,9 +2723,9 @@
       "node_type": "outcome",
       "title": "Fixed Phase 1 issues: Updated popup UI to match web app colors (purple/cyan/orange), updated API URL to atlast.byarielm.fyi, fixed URL pattern to detect following pages (added flexibility for trailing slashes), added comprehensive console logging for debugging. Documented testing steps in README. Proposed UX improvements: auto-navigate button + contextual hints.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T16:28:54.299966500-05:00",
-      "updated_at": "2025-12-25T16:28:54.299966500-05:00",
+      "updated_at": "2025-12-25T20:29:00.854847500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -2734,9 +2734,9 @@
       "node_type": "action",
       "title": "Debugging extension state communication: content script detects page but popup shows idle state",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T18:35:58.553577600-05:00",
-      "updated_at": "2025-12-25T18:35:58.553577600-05:00",
+      "updated_at": "2025-12-25T20:29:01.021646300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2745,9 +2745,9 @@
       "node_type": "outcome",
       "title": "Fixed critical messaging bug in extension: onMessage wrapper was discarding handler return values, only sending {success: true}. This prevented popup from receiving state updates from background worker. Now properly forwards actual data.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T18:52:37.132035600-05:00",
-      "updated_at": "2025-12-25T18:52:37.132035600-05:00",
+      "updated_at": "2025-12-25T20:29:01.201613200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"0718100\",\"confidence\":95}"
     },
     {
@@ -2756,9 +2756,9 @@
       "node_type": "action",
       "title": "Adding dark mode support to extension popup UI",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T18:56:20.061388800-05:00",
-      "updated_at": "2025-12-25T18:56:20.061388800-05:00",
+      "updated_at": "2025-12-25T20:29:01.368606700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2767,9 +2767,9 @@
       "node_type": "outcome",
       "title": "Added dark mode support to extension popup using CSS media queries for prefers-color-scheme. All UI elements now have dark variants matching web app's dark theme.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T19:00:24.260632-05:00",
-      "updated_at": "2025-12-25T19:00:24.260632-05:00",
+      "updated_at": "2025-12-25T20:29:01.534399500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"0718100\",\"confidence\":90}"
     },
     {
@@ -2778,9 +2778,9 @@
       "node_type": "action",
       "title": "Testing extension scraping functionality end-to-end",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T19:03:39.068139400-05:00",
-      "updated_at": "2025-12-25T19:03:39.068139400-05:00",
+      "updated_at": "2025-12-25T20:29:01.739170100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -2789,9 +2789,9 @@
       "node_type": "observation",
       "title": "Twitter scraper found 0 users despite 3 visible on page",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T19:16:57.382459700-05:00",
-      "updated_at": "2025-12-25T19:16:57.382459700-05:00",
+      "updated_at": "2025-12-25T20:29:01.901149200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2800,9 +2800,9 @@
       "node_type": "action",
       "title": "Inspecting Twitter DOM to identify correct user element selector",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T19:17:04.041798100-05:00",
-      "updated_at": "2025-12-25T19:17:04.041798100-05:00",
+      "updated_at": "2025-12-25T20:29:02.085218400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"HEAD~1\",\"confidence\":95}"
     },
     {
@@ -2811,9 +2811,9 @@
       "node_type": "outcome",
       "title": "Discovered [data-testid=\"UserCell\"] is correct selector, not UserName",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T19:17:11.208998400-05:00",
-      "updated_at": "2025-12-25T19:17:11.208998400-05:00",
+      "updated_at": "2025-12-25T20:29:02.251368700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -2822,10 +2822,142 @@
       "node_type": "outcome",
       "title": "Fixed scraper selector and added upload validation for 0 results",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-25T19:17:27.907683600-05:00",
-      "updated_at": "2025-12-25T19:17:27.907683600-05:00",
+      "updated_at": "2025-12-25T20:29:02.401055-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"c35fb0d\",\"confidence\":95,\"files\":[\"packages/extension/src/content/scrapers/twitter-scraper.ts\",\"packages/extension/src/popup/popup.ts\"]}"
+    },
+    {
+      "id": 258,
+      "change_id": "b8c6cd90-7f32-461e-aad5-537cc1cbfafe",
+      "node_type": "goal",
+      "title": "Fix extension 'Open on ATlast' button hanging issue",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:33:35.514071900-05:00",
+      "updated_at": "2025-12-25T20:55:39.361373900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"let's working on 2, right now the \\\"open on atlast\\\" just hangs. we need this to work for a dev env and production. dev should test against twitter acct following from justadev_atlast and use dev server for atlast web + db actions. production should use atlast.byarielm.fyi\"}"
+    },
+    {
+      "id": 259,
+      "change_id": "c68dfdc1-7f88-446d-b5dd-7eb514bc26c8",
+      "node_type": "action",
+      "title": "Analyzing extension build process and environment configuration",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:35:13.533009500-05:00",
+      "updated_at": "2025-12-25T20:55:39.533175900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 260,
+      "change_id": "7083c996-e161-497c-abfd-07e90be3fdc9",
+      "node_type": "observation",
+      "title": "Extension build doesn't inject environment variables - import.meta.env is undefined at runtime",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:35:29.938536500-05:00",
+      "updated_at": "2025-12-25T20:55:39.689178100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 261,
+      "change_id": "570173f7-1960-479f-a99a-3d2433e1f8ee",
+      "node_type": "action",
+      "title": "Update extension build to inject environment variables at build time",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:35:40.623066400-05:00",
+      "updated_at": "2025-12-25T20:55:39.870362300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 262,
+      "change_id": "b8097a68-a63f-4cb6-aeac-2ed746e90126",
+      "node_type": "observation",
+      "title": "extension-import endpoint exists and works - stores data in-memory, returns /import/{id} redirectUrl",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:39:48.726836800-05:00",
+      "updated_at": "2025-12-25T20:55:40.038602600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 263,
+      "change_id": "b5109344-a5d3-43b3-b743-b06730453514",
+      "node_type": "observation",
+      "title": "Web app missing React Router setup - ExtensionImport page exists but no routing configured",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:41:08.737003400-05:00",
+      "updated_at": "2025-12-25T20:55:40.194612-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 264,
+      "change_id": "4e9b17fd-14c8-4fbb-8b23-020dbc6ba364",
+      "node_type": "decision",
+      "title": "Choose approach for handling extension import: Add React Router vs URL params vs localStorage",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:41:17.897166200-05:00",
+      "updated_at": "2025-12-25T20:55:40.355350300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 265,
+      "change_id": "ae943152-ffe4-468e-b4ca-e806996be861",
+      "node_type": "outcome",
+      "title": "Add React Router - ExtensionImport page already uses routing hooks, cleanest approach for URL-based navigation",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:41:32.594148300-05:00",
+      "updated_at": "2025-12-25T20:55:40.513677-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 266,
+      "change_id": "b2720400-7337-4fac-aca8-822cfb79e33f",
+      "node_type": "action",
+      "title": "Installing react-router-dom and setting up routes",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:41:46.555915400-05:00",
+      "updated_at": "2025-12-25T20:55:40.663101700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 267,
+      "change_id": "72263b57-78a4-4282-a805-0af9722677e1",
+      "node_type": "observation",
+      "title": "CRITICAL BUG: extension-import and get-extension-import use separate in-memory Maps - data not shared between serverless functions",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:43:54.283917100-05:00",
+      "updated_at": "2025-12-25T20:55:40.816595200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 268,
+      "change_id": "440f0c78-a314-4ec5-b56d-4c00ce7df8d4",
+      "node_type": "action",
+      "title": "Create shared import store module to fix serverless function data sharing",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:44:17.619685100-05:00",
+      "updated_at": "2025-12-25T20:55:40.977099300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 269,
+      "change_id": "25c635ed-46d5-4933-9e90-b67556bbdf27",
+      "node_type": "outcome",
+      "title": "Fixed 'Open on ATlast' hanging issues: added React Router, created shared import store, configured dev/prod builds",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T20:45:43.007046800-05:00",
+      "updated_at": "2025-12-25T20:55:41.141035900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -5567,6 +5699,116 @@
       "weight": 1.0,
       "rationale": "Implemented fix based on discovery",
       "created_at": "2025-12-25T19:17:34.829447100-05:00"
+    },
+    {
+      "id": 250,
+      "from_node_id": 258,
+      "to_node_id": 259,
+      "from_change_id": "b8c6cd90-7f32-461e-aad5-537cc1cbfafe",
+      "to_change_id": "c68dfdc1-7f88-446d-b5dd-7eb514bc26c8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Investigation step for goal",
+      "created_at": "2025-12-25T20:35:27.600584800-05:00"
+    },
+    {
+      "id": 251,
+      "from_node_id": 259,
+      "to_node_id": 260,
+      "from_change_id": "c68dfdc1-7f88-446d-b5dd-7eb514bc26c8",
+      "to_change_id": "7083c996-e161-497c-abfd-07e90be3fdc9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Finding from analysis",
+      "created_at": "2025-12-25T20:35:38.315750700-05:00"
+    },
+    {
+      "id": 252,
+      "from_node_id": 260,
+      "to_node_id": 261,
+      "from_change_id": "7083c996-e161-497c-abfd-07e90be3fdc9",
+      "to_change_id": "570173f7-1960-479f-a99a-3d2433e1f8ee",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action based on finding",
+      "created_at": "2025-12-25T20:36:00.910717800-05:00"
+    },
+    {
+      "id": 253,
+      "from_node_id": 263,
+      "to_node_id": 264,
+      "from_change_id": "b5109344-a5d3-43b3-b743-b06730453514",
+      "to_change_id": "4e9b17fd-14c8-4fbb-8b23-020dbc6ba364",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision based on observation",
+      "created_at": "2025-12-25T20:41:30.258496100-05:00"
+    },
+    {
+      "id": 254,
+      "from_node_id": 264,
+      "to_node_id": 265,
+      "from_change_id": "4e9b17fd-14c8-4fbb-8b23-020dbc6ba364",
+      "to_change_id": "ae943152-ffe4-468e-b4ca-e806996be861",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision outcome",
+      "created_at": "2025-12-25T20:41:44.053117400-05:00"
+    },
+    {
+      "id": 255,
+      "from_node_id": 265,
+      "to_node_id": 266,
+      "from_change_id": "ae943152-ffe4-468e-b4ca-e806996be861",
+      "to_change_id": "b2720400-7337-4fac-aca8-822cfb79e33f",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action based on outcome",
+      "created_at": "2025-12-25T20:42:29.679655600-05:00"
+    },
+    {
+      "id": 256,
+      "from_node_id": 266,
+      "to_node_id": 267,
+      "from_change_id": "b2720400-7337-4fac-aca8-822cfb79e33f",
+      "to_change_id": "72263b57-78a4-4282-a805-0af9722677e1",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause discovered during implementation",
+      "created_at": "2025-12-25T20:44:15.140752600-05:00"
+    },
+    {
+      "id": 257,
+      "from_node_id": 267,
+      "to_node_id": 268,
+      "from_change_id": "72263b57-78a4-4282-a805-0af9722677e1",
+      "to_change_id": "440f0c78-a314-4ec5-b56d-4c00ce7df8d4",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to fix the issue",
+      "created_at": "2025-12-25T20:44:44.317390900-05:00"
+    },
+    {
+      "id": 258,
+      "from_node_id": 268,
+      "to_node_id": 269,
+      "from_change_id": "440f0c78-a314-4ec5-b56d-4c00ce7df8d4",
+      "to_change_id": "25c635ed-46d5-4933-9e90-b67556bbdf27",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-25T20:45:58.408835800-05:00"
+    },
+    {
+      "id": 259,
+      "from_node_id": 258,
+      "to_node_id": 269,
+      "from_change_id": "b8c6cd90-7f32-461e-aad5-537cc1cbfafe",
+      "to_change_id": "25c635ed-46d5-4933-9e90-b67556bbdf27",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Goal achieved",
+      "created_at": "2025-12-25T20:46:01.117086400-05:00"
     }
   ]
 }
