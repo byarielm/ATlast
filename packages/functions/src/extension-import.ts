@@ -1,7 +1,12 @@
-import type { Handler, HandlerEvent } from '@netlify/functions';
+import { AuthenticatedHandler } from './core/types';
 import type { ExtensionImportRequest, ExtensionImportResponse } from '@atlast/shared';
 import { z } from 'zod';
-import { storeImport } from './utils/import-store.js';
+import crypto from 'crypto';
+import { withAuthErrorHandling } from './core/middleware';
+import { ValidationError } from './core/errors';
+import { UploadRepository, SourceAccountRepository } from './repositories';
+import { normalize } from './utils/string.utils';
+import { successResponse } from './utils';
 
 /**
  * Validation schema for extension import request
@@ -20,92 +25,68 @@ const ExtensionImportSchema = z.object({
 /**
  * Extension import endpoint
  * POST /extension-import
+ *
+ * Requires authentication. Creates upload and saves usernames immediately.
  */
-export const handler: Handler = async (event: HandlerEvent) => {
-  // CORS headers
-  const headers = {
-    'Access-Control-Allow-Origin': '*', // TODO: Restrict in production
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Content-Type': 'application/json',
+const extensionImportHandler: AuthenticatedHandler = async (context) => {
+  const body: ExtensionImportRequest = JSON.parse(context.event.body || '{}');
+
+  // Validate request
+  const validatedData = ExtensionImportSchema.parse(body);
+
+  console.log('[extension-import] Received import:', {
+    did: context.did,
+    platform: validatedData.platform,
+    usernameCount: validatedData.usernames.length,
+    pageType: validatedData.metadata.pageType,
+    extensionVersion: validatedData.metadata.extensionVersion
+  });
+
+  // Generate upload ID
+  const uploadId = crypto.randomBytes(16).toString('hex');
+
+  // Create upload and save source accounts
+  const uploadRepo = new UploadRepository();
+  const sourceAccountRepo = new SourceAccountRepository();
+
+  // Create upload record
+  await uploadRepo.createUpload(
+    uploadId,
+    context.did,
+    validatedData.platform,
+    validatedData.usernames.length
+  );
+
+  console.log(`[extension-import] Created upload ${uploadId} for user ${context.did}`);
+
+  // Save source accounts
+  let savedCount = 0;
+  for (const username of validatedData.usernames) {
+    const normalizedUsername = normalize(username);
+
+    try {
+      await sourceAccountRepo.upsertSourceAccount(
+        validatedData.platform,
+        username,
+        normalizedUsername
+      );
+      savedCount++;
+    } catch (error) {
+      console.error(`[extension-import] Error saving username ${username}:`, error);
+      // Continue with other usernames
+    }
+  }
+
+  console.log(`[extension-import] Saved ${savedCount}/${validatedData.usernames.length} source accounts`);
+
+  // Return upload data for frontend to search
+  const response: ExtensionImportResponse = {
+    importId: uploadId,
+    usernameCount: validatedData.usernames.length,
+    redirectUrl: `/results?uploadId=${uploadId}` // Frontend will handle this
   };
 
-  // Handle OPTIONS preflight
-  if (event.httpMethod === 'OPTIONS') {
-    return {
-      statusCode: 204,
-      headers,
-      body: '',
-    };
-  }
-
-  // Only allow POST
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers,
-      body: JSON.stringify({ error: 'Method not allowed' }),
-    };
-  }
-
-  try {
-    // Parse and validate request body
-    const body = JSON.parse(event.body || '{}');
-    const validatedData = ExtensionImportSchema.parse(body);
-
-    console.log('[extension-import] Received import:', {
-      platform: validatedData.platform,
-      usernameCount: validatedData.usernames.length,
-      pageType: validatedData.metadata.pageType,
-      extensionVersion: validatedData.metadata.extensionVersion
-    });
-
-    // Store the import data
-    const importId = storeImport(validatedData);
-
-    // Get base URL from event (handles local and production)
-    const baseUrl = event.headers.host?.includes('localhost') || event.headers.host?.includes('127.0.0.1')
-      ? `http://${event.headers.host}`
-      : `https://${event.headers.host}`;
-
-    const redirectUrl = `${baseUrl}/import/${importId}`;
-
-    // Return response
-    const response: ExtensionImportResponse = {
-      importId,
-      usernameCount: validatedData.usernames.length,
-      redirectUrl
-    };
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify(response),
-    };
-  } catch (error) {
-    console.error('[extension-import] Error:', error);
-
-    // Handle validation errors
-    if (error instanceof z.ZodError) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({
-          error: 'Validation error',
-          details: error.errors
-        }),
-      };
-    }
-
-    // Handle other errors
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({
-        error: 'Internal server error',
-        message: error instanceof Error ? error.message : 'Unknown error'
-      }),
-    };
-  }
+  return successResponse(response);
 };
 
+export const handler = withAuthErrorHandling(extensionImportHandler);

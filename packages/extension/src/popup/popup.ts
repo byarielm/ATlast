@@ -15,7 +15,8 @@ const states = {
   complete: document.getElementById('state-complete')!,
   uploading: document.getElementById('state-uploading')!,
   error: document.getElementById('state-error')!,
-  offline: document.getElementById('state-offline')!
+  offline: document.getElementById('state-offline')!,
+  notLoggedIn: document.getElementById('state-not-logged-in')!
 };
 
 const elements = {
@@ -29,7 +30,9 @@ const elements = {
   btnStart: document.getElementById('btn-start')! as HTMLButtonElement,
   btnUpload: document.getElementById('btn-upload')! as HTMLButtonElement,
   btnRetry: document.getElementById('btn-retry')! as HTMLButtonElement,
-  btnCheckServer: document.getElementById('btn-check-server')! as HTMLButtonElement
+  btnCheckServer: document.getElementById('btn-check-server')! as HTMLButtonElement,
+  btnOpenAtlast: document.getElementById('btn-open-atlast')! as HTMLButtonElement,
+  btnRetryLogin: document.getElementById('btn-retry-login')! as HTMLButtonElement
 };
 
 /**
@@ -157,8 +160,10 @@ async function uploadToATlast(): Promise<void> {
 
     console.log('[Popup] Upload successful:', response.importId);
 
-    // Open ATlast with import ID
-    chrome.tabs.create({ url: response.redirectUrl });
+    // Open ATlast at results page with upload data
+    const { getApiUrl } = await import('../lib/api-client.js');
+    const resultsUrl = `${getApiUrl()}${response.redirectUrl}`;
+    chrome.tabs.create({ url: resultsUrl });
 
   } catch (error) {
     console.error('[Popup] Error uploading:', error);
@@ -247,6 +252,38 @@ async function init(): Promise<void> {
       return;
     }
   }
+
+  // Check if user is logged in to ATlast
+  console.log('[Popup] 🔐 Checking login status...');
+  const { checkSession } = await import('../lib/api-client.js');
+  const session = await checkSession();
+
+  if (!session) {
+    console.log('[Popup] ❌ Not logged in');
+    showState('notLoggedIn');
+
+    // Set up login buttons
+    elements.btnOpenAtlast.addEventListener('click', () => {
+      chrome.tabs.create({ url: getApiUrl() });
+    });
+
+    elements.btnRetryLogin.addEventListener('click', async () => {
+      elements.btnRetryLogin.disabled = true;
+      elements.btnRetryLogin.textContent = 'Checking...';
+
+      const newSession = await checkSession();
+      if (newSession) {
+        // User is now logged in, re-initialize
+        init();
+      } else {
+        elements.btnRetryLogin.disabled = false;
+        elements.btnRetryLogin.textContent = 'Check Again';
+      }
+    });
+    return;
+  }
+
+  console.log('[Popup] ✅ Logged in as', session.handle);
 
   // Get current state
   console.log('[Popup] 📡 Requesting state from background...');

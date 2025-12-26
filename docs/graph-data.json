@@ -3046,6 +3046,105 @@
       "created_at": "2025-12-25T21:59:27.214048800-05:00",
       "updated_at": "2025-12-25T21:59:41.037717800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 278,
+      "change_id": "fa11e7d7-ac30-4d0e-bc8a-d2332f724d92",
+      "node_type": "goal",
+      "title": "Store extension imports in database and integrate with existing upload flow",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T22:05:53.102585900-05:00",
+      "updated_at": "2025-12-25T22:20:26.309175100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"Import Error: Import not found or expired. Please try scanning again. - received after \\\"Open in ATlast\\\". We should be storing this in the existing DB schema with a \\\"save to ATlast\\\" button that also navigates to the results for that upload in atlast.\"}"
+    },
+    {
+      "id": 279,
+      "change_id": "0710252d-bcf6-4708-b67f-d9615a0dad6e",
+      "node_type": "observation",
+      "title": "In-memory store doesn't work in serverless - each Netlify function can run in different process. Need database storage.",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T22:06:43.366406500-05:00",
+      "updated_at": "2025-12-25T22:20:26.419201900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 280,
+      "change_id": "f38929d4-0ad0-43ec-a25c-a9dd6f9ee7fd",
+      "node_type": "action",
+      "title": "Create extension_imports table and update endpoints to use database",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T22:06:46.169277300-05:00",
+      "updated_at": "2025-12-25T22:20:26.516060800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 281,
+      "change_id": "0e917ade-9f83-4246-9a66-1aa2dfef7c41",
+      "node_type": "outcome",
+      "title": "Replaced in-memory storage with database persistence for extension imports",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-25T22:20:19.197297700-05:00",
+      "updated_at": "2025-12-25T22:20:26.608871700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 282,
+      "change_id": "206347b5-4178-43dd-bb05-657b3788a6b0",
+      "node_type": "action",
+      "title": "Refactoring to proper flow: check session, save immediately, match real upload behavior",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-26T00:00:13.136356300-05:00",
+      "updated_at": "2025-12-26T00:19:11.083067300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 283,
+      "change_id": "e3adddaf-9126-4bfa-8d75-aa8b94323077",
+      "node_type": "observation",
+      "title": "Extension-import now requires auth, creates upload immediately, saves to source_accounts - matches file upload flow",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-26T00:13:01.938755900-05:00",
+      "updated_at": "2025-12-26T00:19:11.191827900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 284,
+      "change_id": "3d9caa98-6f9c-4613-9c05-92566f9ee0d5",
+      "node_type": "outcome",
+      "title": "Refactored extension flow: requires login first, creates upload immediately, matches file upload behavior",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-26T00:18:53.900318900-05:00",
+      "updated_at": "2025-12-26T00:19:11.322802200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 285,
+      "change_id": "f0da412f-562b-4e45-b83d-eba28fc22eea",
+      "node_type": "outcome",
+      "title": "Extension built successfully for dev environment",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T00:24:02.307648100-05:00",
+      "updated_at": "2025-12-26T00:24:02.307648100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95,\"files\":[\"packages/extension/build.js\",\"packages/extension/dist/\"]}"
+    },
+    {
+      "id": 286,
+      "change_id": "60c9ec75-7e3f-4aa4-b8cf-0691ef92d260",
+      "node_type": "outcome",
+      "title": "Committed extension refactor with decision graph",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T00:26:17.378515100-05:00",
+      "updated_at": "2025-12-26T00:26:17.378515100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"d0bcf33\",\"confidence\":100}"
     }
   ],
   "edges": [
@@ -5974,6 +6073,94 @@
       "weight": 1.0,
       "rationale": "Fix complete",
       "created_at": "2025-12-25T21:59:40.544320600-05:00"
+    },
+    {
+      "id": 267,
+      "from_node_id": 278,
+      "to_node_id": 279,
+      "from_change_id": "fa11e7d7-ac30-4d0e-bc8a-d2332f724d92",
+      "to_change_id": "0710252d-bcf6-4708-b67f-d9615a0dad6e",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause identified",
+      "created_at": "2025-12-25T22:07:08.406207600-05:00"
+    },
+    {
+      "id": 268,
+      "from_node_id": 279,
+      "to_node_id": 280,
+      "from_change_id": "0710252d-bcf6-4708-b67f-d9615a0dad6e",
+      "to_change_id": "f38929d4-0ad0-43ec-a25c-a9dd6f9ee7fd",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to fix",
+      "created_at": "2025-12-25T22:07:08.525762700-05:00"
+    },
+    {
+      "id": 269,
+      "from_node_id": 280,
+      "to_node_id": 281,
+      "from_change_id": "f38929d4-0ad0-43ec-a25c-a9dd6f9ee7fd",
+      "to_change_id": "0e917ade-9f83-4246-9a66-1aa2dfef7c41",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-25T22:20:23.139445800-05:00"
+    },
+    {
+      "id": 270,
+      "from_node_id": 278,
+      "to_node_id": 281,
+      "from_change_id": "fa11e7d7-ac30-4d0e-bc8a-d2332f724d92",
+      "to_change_id": "0e917ade-9f83-4246-9a66-1aa2dfef7c41",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Goal achieved",
+      "created_at": "2025-12-25T22:20:23.242682400-05:00"
+    },
+    {
+      "id": 271,
+      "from_node_id": 282,
+      "to_node_id": 284,
+      "from_change_id": "206347b5-4178-43dd-bb05-657b3788a6b0",
+      "to_change_id": "3d9caa98-6f9c-4613-9c05-92566f9ee0d5",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Refactor complete",
+      "created_at": "2025-12-26T00:18:57.785597400-05:00"
+    },
+    {
+      "id": 272,
+      "from_node_id": 283,
+      "to_node_id": 284,
+      "from_change_id": "e3adddaf-9126-4bfa-8d75-aa8b94323077",
+      "to_change_id": "3d9caa98-6f9c-4613-9c05-92566f9ee0d5",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Key observation about flow",
+      "created_at": "2025-12-26T00:18:57.901372200-05:00"
+    },
+    {
+      "id": 273,
+      "from_node_id": 284,
+      "to_node_id": 285,
+      "from_change_id": "3d9caa98-6f9c-4613-9c05-92566f9ee0d5",
+      "to_change_id": "f0da412f-562b-4e45-b83d-eba28fc22eea",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Build completed after refactoring extension flow",
+      "created_at": "2025-12-26T00:24:07.711141900-05:00"
+    },
+    {
+      "id": 274,
+      "from_node_id": 285,
+      "to_node_id": 286,
+      "from_change_id": "f0da412f-562b-4e45-b83d-eba28fc22eea",
+      "to_change_id": "60c9ec75-7e3f-4aa4-b8cf-0691ef92d260",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Committed after successful build",
+      "created_at": "2025-12-26T00:26:22.985765600-05:00"
     }
   ]
 }

@@ -40,6 +40,7 @@ export async function uploadToATlast(
   try {
     const response = await fetch(url, {
       method: 'POST',
+      credentials: 'include', // Include cookies for auth
       headers: {
         'Content-Type': 'application/json'
       },
@@ -98,4 +99,36 @@ export async function checkServerHealth(): Promise<boolean> {
  */
 export function getApiUrl(): string {
   return ATLAST_API_URL;
+}
+
+/**
+ * Check if user is logged in to ATlast
+ * Returns user profile if logged in, null otherwise
+ */
+export async function checkSession(): Promise<{
+  did: string;
+  handle: string;
+  displayName?: string;
+  avatar?: string;
+} | null> {
+  try {
+    const response = await fetch(`${ATLAST_API_URL}/.netlify/functions/session`, {
+      method: 'GET',
+      credentials: 'include', // Include cookies
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.log('[API Client] Not logged in');
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('[API Client] Session check failed:', error);
+    return null;
+  }
 }

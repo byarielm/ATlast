@@ -1,6 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import App from './App';
-import ExtensionImport from './pages/ExtensionImport';
 
 /**
  * Application Router
@@ -12,9 +11,6 @@ export default function Router() {
       <Routes>
         {/* Main app route */}
         <Route path="/" element={<App />} />
-
-        {/* Extension import route */}
-        <Route path="/import/:importId" element={<ExtensionImport />} />
       </Routes>
     </BrowserRouter>
   );
