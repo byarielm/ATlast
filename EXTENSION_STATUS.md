@@ -86,11 +86,14 @@
 **Fixed:**
 - ✅ NaN database error - Fixed missing `matchedUsers` parameter in `extension-import.ts` (node #287)
 - ✅ Database initialized successfully (node #288)
+- ✅ API response unwrapping - Fixed api-client to access ApiResponse.data field (nodes #290-295)
+  - Backend wraps responses in `{ success: true, data: {...} }`
+  - Extension was expecting flat response, causing undefined errors
+  - Fixed both `uploadToATlast` and `checkSession` functions
 
-**Active Debugging:**
-- Extension upload flow has bugs that need investigation
-- Upload completes but results page behavior needs verification
-- Need to test end-to-end flow thoroughly
+**Active Testing:**
+- Ready for end-to-end testing with fixed upload flow
+- Extension should now properly redirect to results page
 
 ### Next Steps 📋
 
@@ -140,7 +143,7 @@
 
 ### Decision Graph Summary
 
-**Total nodes:** 288
+**Total nodes:** 295
 **Key decisions tracked:**
 - Environment configuration approach (#261-269)
 - Port 8888 conflict resolution (#270-274)
@@ -148,5 +151,6 @@
 - Storage approach: in-memory → database → proper auth flow (#278-284)
 - Refactor and build (#285-286)
 - Bug fixes: NaN parameter error (#287), database initialization (#288)
+- API response unwrapping fix (#290-295)
 
 **Live graph:** https://notactuallytreyanastasio.github.io/deciduous/

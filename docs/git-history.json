@@ -1,5 +1,13 @@
 [
   {
+    "hash": "95636330f387598f55017eda668fb9f91ccde509",
+    "short_hash": "9563633",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T13:35:52-05:00",
+    "message": "fix extension api-client: unwrap ApiResponse.data structure\n\nBackend endpoints use successResponse() which wraps data in:\n  { success: true, data: {...} }\n\nExtension was expecting flat response structure, causing:\n- uploadToATlast to return undefined (missing importId, redirectUrl)\n- checkSession to return wrapped object instead of user data\n- Invalid URL error: \"http://127.0.0.1:8888undefined\"\n\nFixed both uploadToATlast and checkSession to access apiResponse.data",
+    "files_changed": 2
+  },
+  {
     "hash": "34bd9dcd1237971a87627b148c0452b8484e4871",
     "short_hash": "34bd9dc",
     "author": "Ariel M. Lighty",
@@ -8,12 +16,12 @@
     "files_changed": 4
   },
   {
-    "hash": "a8a4b0a819297dec7b92d02036699cc86b2523ce",
-    "short_hash": "a8a4b0a",
+    "hash": "a203bc343b1768cd51e08b51ed296eddb51d21b7",
+    "short_hash": "a203bc3",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T00:33:21-05:00",
-    "message": "fix extension-import: add missing matchedUsers parameter to createUpload\n\nThe createUpload method expects 5 parameters but we were only passing 4,\ncausing NaN to be inserted for unmatched_users calculation. Now passing 0\nfor matchedUsers (will be updated after search is performed).",
-    "files_changed": 3
+    "date": "2025-12-26T00:50:44-05:00",
+    "message": "update documentation with current debugging status\n\nPLAN.md updates:\n- Added current status section with recent fixes and active work\n- Marked Phase 0 as complete\n- Marked Phase 1 as in progress (debugging)\n- Updated changelog with 2025-12-26 progress\n- Updated decision graph count to 288 nodes\n\nEXTENSION_STATUS.md updates:\n- Changed state from READY FOR TESTING to DEBUGGING\n- Added fixed issues section (NaN bug, database init)\n- Added active debugging section\n- Updated decision graph summary to 288 nodes\n- Added node references for recent fixes (#287-288)\n\nDecision graph:\n- Synced with latest nodes (288 total, 276 edges)\n- Tracked database initialization outcome",
+    "files_changed": 4
   },
   {
     "hash": "1a355fe785eb1768dba3f4c3a8ba631904d1d6d6",
@@ -32,12 +40,12 @@
     "files_changed": 12
   },
   {
-    "hash": "6b352a5609e1934fab14caadd4f5545d09412018",
-    "short_hash": "6b352a5",
+    "hash": "a8857408ab62183b99005fb7993d101319cfb929",
+    "short_hash": "a885740",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T21:44:00-05:00",
-    "message": "update decision graph",
-    "files_changed": 2
+    "date": "2025-12-25T22:00:14-05:00",
+    "message": "add host permissions for ATlast API servers\n\nFix CORS blocking extension health checks and API calls:\n- Add http://127.0.0.1:8888/* (dev)\n- Add http://localhost:8888/* (alt dev)\n- Add https://atlast.byarielm.fyi/* (prod)\n\nExtension can now make requests to ATlast servers without\nCORS errors.",
+    "files_changed": 1
   },
   {
     "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",

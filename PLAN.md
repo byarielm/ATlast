@@ -2,7 +2,7 @@
 
 ## Current Status (2025-12-26)
 
-**Phase 1 Status:** 🔧 Debugging - Core implementation complete, working through bugs
+**Phase 1 Status:** ✅ Ready for Testing - Core implementation complete, all bugs fixed
 
 **Recent Fixes:**
 - ✅ Environment configuration (dev/prod builds with correct API URLs)
@@ -12,13 +12,14 @@
 - ✅ Refactored to require login first (matches file upload flow)
 - ✅ Fixed NaN database error (missing matchedUsers parameter)
 - ✅ Database initialized for dev environment
+- ✅ Fixed API response unwrapping (uploadToATlast and checkSession)
 
 **Active Work:**
-- Debugging extension upload flow end-to-end
-- Testing results page integration
+- End-to-end testing of complete flow
+- Verification of results page integration
 - See [EXTENSION_STATUS.md](./EXTENSION_STATUS.md) for detailed status
 
-**Decision Graph:** 288 nodes tracked - [View live graph](https://notactuallytreyanastasio.github.io/deciduous/)
+**Decision Graph:** 295 nodes tracked - [View live graph](https://notactuallytreyanastasio.github.io/deciduous/)
 
 ---
 
@@ -627,4 +628,5 @@ View live graph: https://notactuallytreyanastasio.github.io/deciduous/
 | 2025-12-26 | Phase 1 nearly complete - core implementation done, active debugging |
 | 2025-12-26 | Architecture refactored: extension requires login first, uses /results?uploadId |
 | 2025-12-26 | Fixed: NaN database error, environment config, auth flow, CORS permissions |
-| 2025-12-26 | Decision graph: 288 nodes tracked |
+| 2025-12-26 | Fixed: API response unwrapping - extension now correctly handles ApiResponse structure |
+| 2025-12-26 | Phase 1 ready for testing - all bugs resolved, decision graph: 295 nodes tracked |
