@@ -9,7 +9,10 @@
   ],
   "host_permissions": [
     "https://twitter.com/*",
-    "https://x.com/*"
+    "https://x.com/*",
+    "http://127.0.0.1:8888/*",
+    "http://localhost:8888/*",
+    "https://atlast.byarielm.fyi/*"
   ],
   "background": {
     "service_worker": "background/service-worker.js",
