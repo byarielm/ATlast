@@ -1,19 +1,19 @@
 [
   {
-    "hash": "53a16e4753ed6ad7215846f95531be2d4f6ce035",
-    "short_hash": "53a16e4",
+    "hash": "90067b8feb9f40512b9732a05b1a8756f338a481",
+    "short_hash": "90067b8",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T20:59:15-05:00",
-    "message": "fix extension import data sharing with shared store\n\nCritical bug fix: extension-import and get-extension-import were using\nseparate in-memory Maps, causing 404 errors when fetching import data.\n\n- Create shared utils/import-store.ts module\n- Both functions now use same Map instance\n- Add logging for debugging\n- Note: In-memory storage only works for dev (single process)\n  Production needs database/Redis/Netlify Blobs",
-    "files_changed": 3
+    "date": "2025-12-25T21:43:51-05:00",
+    "message": "add dev server health check and offline detection to extension\n\nFeatures:\n- Check server health on popup init (dev mode only)\n- Show 'server offline' state with setup instructions\n- 'Check Again' button to retry connection\n- Display target server URL for debugging\n- 3-second timeout for health checks\n\nFixes port 8888 conflict workflow - extension now prompts user\nto start dev server instead of hanging silently.",
+    "files_changed": 4
   },
   {
-    "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",
-    "short_hash": "c35fb0d",
+    "hash": "4d1480611a83f82da7bb2fe4c89f9f2180ecfa7b",
+    "short_hash": "4d14806",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-25T19:16:38-05:00",
-    "message": "add validation to prevent uploading empty results\n\nCheck if usernames array has items before attempting upload.\nShows clear error message instead of hanging.",
-    "files_changed": 1
+    "date": "2025-12-25T20:58:38-05:00",
+    "message": "add environment-based build configuration for extension\n\n- Add dev vs prod build modes using --prod flag\n- Inject API URL at build time via esbuild define\n- Dev: http://127.0.0.1:8888\n- Prod: https://atlast.byarielm.fyi\n- Add build:prod and package:prod scripts",
+    "files_changed": 3
   },
   {
     "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",
