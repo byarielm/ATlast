@@ -12,6 +12,13 @@ body {
   background: linear-gradient(135deg, #faf5ff 0%, #ffffff 50%, #ecfeff 100%);
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e0f2fe;
+    background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0c4a6e 100%);
+  }
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -74,10 +81,22 @@ main {
   color: #334155;
 }
 
+@media (prefers-color-scheme: dark) {
+  .message {
+    color: #e0f2fe;
+  }
+}
+
 .hint {
   font-size: 13px;
   color: #64748b;
   margin-top: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hint {
+    color: #94a3b8;
+  }
 }
 
 .btn-primary {
@@ -122,6 +141,18 @@ main {
   background: #faf5ff;
 }
 
+@media (prefers-color-scheme: dark) {
+  .btn-secondary {
+    background: #1e1b4b;
+    color: #06b6d4;
+    border-color: #06b6d4;
+  }
+
+  .btn-secondary:hover {
+    background: #312e81;
+  }
+}
+
 .progress {
   margin-top: 20px;
 }
@@ -133,6 +164,12 @@ main {
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .progress-bar {
+    background: #1e293b;
+  }
 }
 
 .progress-fill {
@@ -154,10 +191,22 @@ main {
   color: #334155;
 }
 
+@media (prefers-color-scheme: dark) {
+  .progress-text {
+    color: #e0f2fe;
+  }
+}
+
 .status-message {
   font-size: 13px;
   color: #64748b;
   margin-top: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .status-message {
+    color: #94a3b8;
+  }
 }
 
 .count-display {
@@ -166,9 +215,21 @@ main {
   margin-top: 8px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .count-display {
+    color: #94a3b8;
+  }
+}
+
 .count-display strong {
   color: #ea580c;
   font-size: 18px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .count-display strong {
+    color: #fb923c;
+  }
 }
 
 .error-message {
@@ -181,6 +242,14 @@ main {
   border-left: 3px solid #dc2626;
 }
 
+@media (prefers-color-scheme: dark) {
+  .error-message {
+    color: #fca5a5;
+    background: #450a0a;
+    border-left-color: #ef4444;
+  }
+}
+
 footer {
   padding: 16px;
   text-align: center;
@@ -188,11 +257,24 @@ footer {
   background: white;
 }
 
+@media (prefers-color-scheme: dark) {
+  footer {
+    border-top-color: #1e293b;
+    background: #0f172a;
+  }
+}
+
 footer a {
   color: #ea580c;
   text-decoration: none;
   font-size: 13px;
   font-weight: 500;
+}
+
+@media (prefers-color-scheme: dark) {
+  footer a {
+    color: #fb923c;
+  }
 }
 
 footer a:hover {
