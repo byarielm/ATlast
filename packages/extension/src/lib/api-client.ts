@@ -52,8 +52,9 @@ export async function uploadToATlast(
       throw new Error(`Upload failed: ${response.status} ${errorText}`);
     }
 
-    const data: ExtensionImportResponse = await response.json();
-    return data;
+    // Backend wraps response in ApiResponse structure: { success: true, data: {...} }
+    const apiResponse: { success: boolean; data: ExtensionImportResponse } = await response.json();
+    return apiResponse.data;
   } catch (error) {
     console.error('[API Client] Upload error:', error);
     throw error instanceof Error
@@ -125,8 +126,9 @@ export async function checkSession(): Promise<{
       return null;
     }
 
-    const data = await response.json();
-    return data;
+    // Backend wraps response in ApiResponse structure: { success: true, data: {...} }
+    const apiResponse: { success: boolean; data: any } = await response.json();
+    return apiResponse.data;
   } catch (error) {
     console.error('[API Client] Session check failed:', error);
     return null;

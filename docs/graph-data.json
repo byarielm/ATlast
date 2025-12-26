@@ -3130,9 +3130,9 @@
       "node_type": "outcome",
       "title": "Extension built successfully for dev environment",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T00:24:02.307648100-05:00",
-      "updated_at": "2025-12-26T00:24:02.307648100-05:00",
+      "updated_at": "2025-12-26T13:22:38.789519700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95,\"files\":[\"packages/extension/build.js\",\"packages/extension/dist/\"]}"
     },
     {
@@ -3141,9 +3141,9 @@
       "node_type": "outcome",
       "title": "Committed extension refactor with decision graph",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T00:26:17.378515100-05:00",
-      "updated_at": "2025-12-26T00:26:17.378515100-05:00",
+      "updated_at": "2025-12-26T13:22:40.829054100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"d0bcf33\",\"confidence\":100}"
     },
     {
@@ -3152,9 +3152,9 @@
       "node_type": "action",
       "title": "Fixed NaN database error in extension-import",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T00:33:28.860934100-05:00",
-      "updated_at": "2025-12-26T00:33:28.860934100-05:00",
+      "updated_at": "2025-12-26T13:22:42.926736300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"1a355fe\",\"confidence\":95,\"files\":[\"packages/functions/src/extension-import.ts\"]}"
     },
     {
@@ -3163,9 +3163,9 @@
       "node_type": "outcome",
       "title": "Database initialized successfully for dev environment",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T00:47:09.629444300-05:00",
-      "updated_at": "2025-12-26T00:47:09.629444300-05:00",
+      "updated_at": "2025-12-26T13:22:45.174366200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100,\"files\":[\"packages/functions/src/init-db.ts\"]}"
     },
     {
@@ -3174,10 +3174,65 @@
       "node_type": "action",
       "title": "Updated PLAN.md and EXTENSION_STATUS.md with current debugging status",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T00:50:51.291667400-05:00",
-      "updated_at": "2025-12-26T00:50:51.291667400-05:00",
+      "updated_at": "2025-12-26T13:22:47.378106200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"34bd9dc\",\"confidence\":100,\"files\":[\"PLAN.md\",\"EXTENSION_STATUS.md\"]}"
+    },
+    {
+      "id": 290,
+      "change_id": "d73fc969-78c0-4721-8db5-88014cb4a0a6",
+      "node_type": "goal",
+      "title": "Fix extension upload errors - undefined response and invalid URL",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:31:45.695565800-05:00",
+      "updated_at": "2025-12-26T13:31:45.695565800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 291,
+      "change_id": "1d88fcb9-3f0e-400b-aabd-7b1564064fd9",
+      "node_type": "observation",
+      "title": "Backend returns correct structure but response might be wrapped by successResponse helper",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:32:20.697112800-05:00",
+      "updated_at": "2025-12-26T13:32:20.697112800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 292,
+      "change_id": "22c007f9-6e84-4a72-bc6f-462b94655b40",
+      "node_type": "observation",
+      "title": "successResponse wraps data in {success: true, data: {...}} structure - extension expects flat response",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:32:50.409160400-05:00",
+      "updated_at": "2025-12-26T13:32:50.409160400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 293,
+      "change_id": "59087762-06cf-4be1-8a15-fb2244070951",
+      "node_type": "action",
+      "title": "Fix api-client.ts to unwrap ApiResponse.data field",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:32:54.625124500-05:00",
+      "updated_at": "2025-12-26T13:32:54.625124500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 294,
+      "change_id": "6a2f6150-4b32-45ee-b2c7-cd5094fdd8c6",
+      "node_type": "outcome",
+      "title": "Fixed API client to unwrap ApiResponse.data - both uploadToATlast and checkSession now correctly access nested data field",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:34:09.012837500-05:00",
+      "updated_at": "2025-12-26T13:34:09.012837500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6227,6 +6282,50 @@
       "weight": 1.0,
       "rationale": "Documented current state after fixes",
       "created_at": "2025-12-26T00:50:58.391390400-05:00"
+    },
+    {
+      "id": 278,
+      "from_node_id": 290,
+      "to_node_id": 291,
+      "from_change_id": "d73fc969-78c0-4721-8db5-88014cb4a0a6",
+      "to_change_id": "1d88fcb9-3f0e-400b-aabd-7b1564064fd9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Initial observation",
+      "created_at": "2025-12-26T13:32:22.732622800-05:00"
+    },
+    {
+      "id": 279,
+      "from_node_id": 291,
+      "to_node_id": 292,
+      "from_change_id": "1d88fcb9-3f0e-400b-aabd-7b1564064fd9",
+      "to_change_id": "22c007f9-6e84-4a72-bc6f-462b94655b40",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Found root cause",
+      "created_at": "2025-12-26T13:32:52.519089400-05:00"
+    },
+    {
+      "id": 280,
+      "from_node_id": 292,
+      "to_node_id": 293,
+      "from_change_id": "22c007f9-6e84-4a72-bc6f-462b94655b40",
+      "to_change_id": "59087762-06cf-4be1-8a15-fb2244070951",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to fix",
+      "created_at": "2025-12-26T13:32:56.783062600-05:00"
+    },
+    {
+      "id": 281,
+      "from_node_id": 293,
+      "to_node_id": 294,
+      "from_change_id": "59087762-06cf-4be1-8a15-fb2244070951",
+      "to_change_id": "6a2f6150-4b32-45ee-b2c7-cd5094fdd8c6",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T13:34:11.125730600-05:00"
     }
   ]
 }
