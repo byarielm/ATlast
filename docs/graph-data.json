@@ -3244,6 +3244,61 @@
       "created_at": "2025-12-26T13:36:02.733197600-05:00",
       "updated_at": "2025-12-26T13:36:02.733197600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"9563633\",\"confidence\":95}"
+    },
+    {
+      "id": 296,
+      "change_id": "e2427bfe-84a1-4dee-adf4-28a9c1b739e2",
+      "node_type": "observation",
+      "title": "Extension upload flow fixed and ready for testing - API response unwrapping resolves undefined errors",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:37:35.844832-05:00",
+      "updated_at": "2025-12-26T13:37:35.844832-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"9ca7347\",\"confidence\":95}"
+    },
+    {
+      "id": 297,
+      "change_id": "74ea361f-577c-4058-b833-6666e777ee00",
+      "node_type": "goal",
+      "title": "Fix backend repository method error and missing frontend route",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:43:03.332690700-05:00",
+      "updated_at": "2025-12-26T13:43:03.332690700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 298,
+      "change_id": "c373be70-157a-420d-bc11-4364fe22d091",
+      "node_type": "observation",
+      "title": "Two issues: 1) SourceAccountRepository has getOrCreate/bulkCreate not upsertSourceAccount, 2) Router only has / route, no /results route",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:43:28.902663600-05:00",
+      "updated_at": "2025-12-26T13:43:28.902663600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 299,
+      "change_id": "8edd7e11-54b4-4c5b-8379-37b1ec1e7d7d",
+      "node_type": "action",
+      "title": "Fix backend to use bulkCreate and frontend to handle uploadId param",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:44:28.406069900-05:00",
+      "updated_at": "2025-12-26T13:44:28.406069900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 300,
+      "change_id": "876412ec-a214-4bf7-b48a-b7706c698085",
+      "node_type": "outcome",
+      "title": "Fixed both issues: backend uses bulkCreate, redirects to /?uploadId, frontend loads results from uploadId param",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T13:45:58.309042200-05:00",
+      "updated_at": "2025-12-26T13:45:58.309042200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6359,6 +6414,61 @@
       "weight": 1.0,
       "rationale": "Goal achieved",
       "created_at": "2025-12-26T13:36:06.860603400-05:00"
+    },
+    {
+      "id": 284,
+      "from_node_id": 295,
+      "to_node_id": 296,
+      "from_change_id": "ceaed4fe-5fd0-4542-8f3a-bd4640dfaadf",
+      "to_change_id": "e2427bfe-84a1-4dee-adf4-28a9c1b739e2",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Documentation updated",
+      "created_at": "2025-12-26T13:37:37.858859900-05:00"
+    },
+    {
+      "id": 285,
+      "from_node_id": 296,
+      "to_node_id": 297,
+      "from_change_id": "e2427bfe-84a1-4dee-adf4-28a9c1b739e2",
+      "to_change_id": "74ea361f-577c-4058-b833-6666e777ee00",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New issues found during testing",
+      "created_at": "2025-12-26T13:43:05.419406600-05:00"
+    },
+    {
+      "id": 286,
+      "from_node_id": 297,
+      "to_node_id": 298,
+      "from_change_id": "74ea361f-577c-4058-b833-6666e777ee00",
+      "to_change_id": "c373be70-157a-420d-bc11-4364fe22d091",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause analysis",
+      "created_at": "2025-12-26T13:43:31.032670900-05:00"
+    },
+    {
+      "id": 287,
+      "from_node_id": 298,
+      "to_node_id": 299,
+      "from_change_id": "c373be70-157a-420d-bc11-4364fe22d091",
+      "to_change_id": "8edd7e11-54b4-4c5b-8379-37b1ec1e7d7d",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to fix both issues",
+      "created_at": "2025-12-26T13:44:30.495551600-05:00"
+    },
+    {
+      "id": 288,
+      "from_node_id": 299,
+      "to_node_id": 300,
+      "from_change_id": "8edd7e11-54b4-4c5b-8379-37b1ec1e7d7d",
+      "to_change_id": "876412ec-a214-4bf7-b48a-b7706c698085",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T13:46:00.313229300-05:00"
     }
   ]
 }

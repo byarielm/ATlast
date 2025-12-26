@@ -60,31 +60,23 @@ const extensionImportHandler: AuthenticatedHandler = async (context) => {
 
   console.log(`[extension-import] Created upload ${uploadId} for user ${context.did}`);
 
-  // Save source accounts
-  let savedCount = 0;
-  for (const username of validatedData.usernames) {
-    const normalizedUsername = normalize(username);
-
-    try {
-      await sourceAccountRepo.upsertSourceAccount(
-        validatedData.platform,
-        username,
-        normalizedUsername
-      );
-      savedCount++;
-    } catch (error) {
-      console.error(`[extension-import] Error saving username ${username}:`, error);
-      // Continue with other usernames
-    }
+  // Save source accounts using bulk insert
+  try {
+    await sourceAccountRepo.bulkCreate(
+      validatedData.platform,
+      validatedData.usernames
+    );
+    console.log(`[extension-import] Saved ${validatedData.usernames.length} source accounts`);
+  } catch (error) {
+    console.error('[extension-import] Error saving source accounts:', error);
+    // Continue anyway - upload is created, frontend can still search
   }
-
-  console.log(`[extension-import] Saved ${savedCount}/${validatedData.usernames.length} source accounts`);
 
   // Return upload data for frontend to search
   const response: ExtensionImportResponse = {
     importId: uploadId,
     usernameCount: validatedData.usernames.length,
-    redirectUrl: `/results?uploadId=${uploadId}` // Frontend will handle this
+    redirectUrl: `/?uploadId=${uploadId}` // Frontend will load results from uploadId param
   };
 
   return successResponse(response);

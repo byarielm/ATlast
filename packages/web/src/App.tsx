@@ -326,6 +326,24 @@ export default function App() {
     handleExtensionImport(importId);
   }, [session, currentDestinationAppId, setStatusMessage, setCurrentStep, setSearchResults, searchAllUsers, saveResults, error]);
 
+  // Load results from uploadId URL parameter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const uploadId = urlParams.get('uploadId');
+
+    if (!uploadId || !session) {
+      return;
+    }
+
+    // Load results for this upload
+    loadUploadResults(uploadId);
+
+    // Clean up URL parameter after loading
+    const newUrl = new URL(window.location.href);
+    newUrl.searchParams.delete('uploadId');
+    window.history.replaceState({}, '', newUrl);
+  }, [session, loadUploadResults]);
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen relative overflow-hidden">
