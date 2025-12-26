@@ -1,11 +1,19 @@
 [
   {
-    "hash": "581ed00fec3c0c5f472c6ff92e00bf4ed5b27e9a",
-    "short_hash": "581ed00",
+    "hash": "6ced3f0b015af1c9126559a393996576402cfd03",
+    "short_hash": "6ced3f0",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T13:47:37-05:00",
-    "message": "fix extension import: use bulkCreate and handle uploadId param\n\nBackend fixes:\n- Use SourceAccountRepository.bulkCreate() instead of non-existent upsertSourceAccount()\n- Change redirectUrl from /results?uploadId= to /?uploadId=\n- More efficient bulk insert instead of loop\n\nFrontend fixes:\n- Add useEffect to load results when uploadId param present\n- Calls loadUploadResults(uploadId) automatically on page load\n- Cleans up URL param after loading\n\nResolves:\n- \"sourceAccountRepo.upsertSourceAccount is not a function\" error\n- \"No routes matched location /results?uploadId=...\" routing error",
-    "files_changed": 4
+    "date": "2025-12-26T14:12:46-05:00",
+    "message": "fix extension flow: create user_source_follows, auto-search, time display\n\nBackend (extension-import.ts):\n- Now creates user_source_follows entries linking upload to source accounts\n- Without these, get-upload-details returned empty (queries FROM user_source_follows)\n- Uses bulkCreate return value (Map<username, id>) to create links\n\nFrontend (App.tsx):\n- handleLoadUpload now detects if upload has no matches yet\n- Sets isSearching: true for new uploads\n- Automatically triggers searchAllUsers for new uploads\n- Saves results after search completes\n- Changed platform from hardcoded \"tiktok\" to \"twitter\"\n\nFrontend (HistoryTab.tsx):\n- Fixed time display: removed \"Uploaded\" prefix\n- Now shows \"about 5 hours ago\" instead of \"Uploaded in about 5 hours\"\n- formatRelativeTime with addSuffix already provides complete sentence\n\nResolves:\n- Empty results on page load\n- No automatic searching\n- History navigation not working (will work after search)\n- Grammatically incorrect time display",
+    "files_changed": 5
+  },
+  {
+    "hash": "b6b8c3968bbe1d71e38d2acbea3f31c77f08656a",
+    "short_hash": "b6b8c39",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T13:52:59-05:00",
+    "message": "fix: correct function name to handleLoadUpload in uploadId useEffect",
+    "files_changed": 3
   },
   {
     "hash": "581ed00fec3c0c5f472c6ff92e00bf4ed5b27e9a",
@@ -32,6 +40,14 @@
     "files_changed": 2
   },
   {
+    "hash": "a203bc343b1768cd51e08b51ed296eddb51d21b7",
+    "short_hash": "a203bc3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T00:50:44-05:00",
+    "message": "update documentation with current debugging status\n\nPLAN.md updates:\n- Added current status section with recent fixes and active work\n- Marked Phase 0 as complete\n- Marked Phase 1 as in progress (debugging)\n- Updated changelog with 2025-12-26 progress\n- Updated decision graph count to 288 nodes\n\nEXTENSION_STATUS.md updates:\n- Changed state from READY FOR TESTING to DEBUGGING\n- Added fixed issues section (NaN bug, database init)\n- Added active debugging section\n- Updated decision graph summary to 288 nodes\n- Added node references for recent fixes (#287-288)\n\nDecision graph:\n- Synced with latest nodes (288 total, 276 edges)\n- Tracked database initialization outcome",
+    "files_changed": 4
+  },
+  {
     "hash": "34bd9dcd1237971a87627b148c0452b8484e4871",
     "short_hash": "34bd9dc",
     "author": "Ariel M. Lighty",
@@ -46,14 +62,6 @@
     "date": "2025-12-26T00:33:21-05:00",
     "message": "fix extension-import: add missing matchedUsers parameter to createUpload\n\nThe createUpload method expects 5 parameters but we were only passing 4,\ncausing NaN to be inserted for unmatched_users calculation. Now passing 0\nfor matchedUsers (will be updated after search is performed).",
     "files_changed": 1
-  },
-  {
-    "hash": "a8a4b0a819297dec7b92d02036699cc86b2523ce",
-    "short_hash": "a8a4b0a",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-26T00:33:21-05:00",
-    "message": "fix extension-import: add missing matchedUsers parameter to createUpload\n\nThe createUpload method expects 5 parameters but we were only passing 4,\ncausing NaN to be inserted for unmatched_users calculation. Now passing 0\nfor matchedUsers (will be updated after search is performed).",
-    "files_changed": 3
   },
   {
     "hash": "d0bcf337b6d223a86443f6f67767e87b74e4dd7d",

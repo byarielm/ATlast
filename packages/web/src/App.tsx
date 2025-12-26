@@ -206,15 +206,21 @@ export default function App() {
 
         // If no matches yet, trigger search
         if (!hasMatches) {
-          setStatusMessage("Starting search for matches...");
           const followLexicon = ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
-          await searchAllUsers(loadedResults, followLexicon);
 
-          // Save results after search completes
-          const updatedResults = loadedResults.filter(r => !r.isSearching);
-          if (updatedResults.length > 0) {
-            await saveResults(uploadId, platform, updatedResults);
-          }
+          await searchAllUsers(
+            loadedResults,
+            (message) => setStatusMessage(message),
+            async () => {
+              // Search complete - save results
+              // Use current searchResults state which has been updated by searchAllUsers
+              const currentResults = searchResults.filter(r => !r.isSearching);
+              if (currentResults.length > 0) {
+                await saveResults(uploadId, platform, currentResults);
+              }
+            },
+            followLexicon
+          );
         }
 
         // Announce to screen readers only - visual feedback is navigation to results page
@@ -227,7 +233,7 @@ export default function App() {
         setCurrentStep("home");
       }
     },
-    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error, currentDestinationAppId, searchAllUsers, saveResults],
+    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error, currentDestinationAppId, searchAllUsers, saveResults, searchResults],
   );
 
   // Login handler

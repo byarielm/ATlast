@@ -3398,6 +3398,50 @@
       "created_at": "2025-12-26T14:11:09.055850200-05:00",
       "updated_at": "2025-12-26T14:11:09.055850200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 310,
+      "change_id": "51369a2c-17ec-4be3-ba4f-240b770d7211",
+      "node_type": "outcome",
+      "title": "Committed all extension flow fixes",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T14:16:08.387214900-05:00",
+      "updated_at": "2025-12-26T14:16:08.387214900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"6ced3f0\",\"confidence\":95}"
+    },
+    {
+      "id": 311,
+      "change_id": "91d7bad2-a8a3-47c3-8fad-558919b207b0",
+      "node_type": "observation",
+      "title": "searchAllUsers called with wrong parameters - missing onProgressUpdate callback",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T16:07:21.838974100-05:00",
+      "updated_at": "2025-12-26T16:07:21.838974100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 312,
+      "change_id": "9a95c7e6-6339-475f-9b20-5fa3057e0a9f",
+      "node_type": "action",
+      "title": "Fix searchAllUsers call with correct parameters and callbacks",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T16:08:18.523845400-05:00",
+      "updated_at": "2025-12-26T16:08:18.523845400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 313,
+      "change_id": "5fae9da8-2a31-4f99-9686-7bfb28c443e8",
+      "node_type": "outcome",
+      "title": "Fixed searchAllUsers call - now passes onProgressUpdate and onComplete callbacks",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T16:08:24.248208800-05:00",
+      "updated_at": "2025-12-26T16:08:24.248208800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6678,6 +6722,61 @@
       "weight": 1.0,
       "rationale": "Implementation complete",
       "created_at": "2025-12-26T14:11:11.543447500-05:00"
+    },
+    {
+      "id": 299,
+      "from_node_id": 309,
+      "to_node_id": 310,
+      "from_change_id": "cd9b88e7-fe8d-4ee0-a187-e99eef0b7e64",
+      "to_change_id": "51369a2c-17ec-4be3-ba4f-240b770d7211",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Committed to repository",
+      "created_at": "2025-12-26T14:16:10.702697200-05:00"
+    },
+    {
+      "id": 300,
+      "from_node_id": 305,
+      "to_node_id": 310,
+      "from_change_id": "8ad6ef53-29a2-442e-b88f-9e0541634950",
+      "to_change_id": "51369a2c-17ec-4be3-ba4f-240b770d7211",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "All goals achieved",
+      "created_at": "2025-12-26T14:16:12.935280500-05:00"
+    },
+    {
+      "id": 301,
+      "from_node_id": 310,
+      "to_node_id": 311,
+      "from_change_id": "51369a2c-17ec-4be3-ba4f-240b770d7211",
+      "to_change_id": "91d7bad2-a8a3-47c3-8fad-558919b207b0",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New error found",
+      "created_at": "2025-12-26T16:07:24.117669300-05:00"
+    },
+    {
+      "id": 302,
+      "from_node_id": 311,
+      "to_node_id": 312,
+      "from_change_id": "91d7bad2-a8a3-47c3-8fad-558919b207b0",
+      "to_change_id": "9a95c7e6-6339-475f-9b20-5fa3057e0a9f",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix applied",
+      "created_at": "2025-12-26T16:08:21.431326200-05:00"
+    },
+    {
+      "id": 303,
+      "from_node_id": 312,
+      "to_node_id": 313,
+      "from_change_id": "9a95c7e6-6339-475f-9b20-5fa3057e0a9f",
+      "to_change_id": "5fae9da8-2a31-4f99-9686-7bfb28c443e8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T16:08:26.942822600-05:00"
     }
   ]
 }
