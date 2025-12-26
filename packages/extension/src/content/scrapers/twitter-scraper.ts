@@ -6,35 +6,36 @@ import { BaseScraper } from './base-scraper.js';
  */
 export class TwitterScraper extends BaseScraper {
   /**
-   * Returns the stable selector for Twitter username elements
-   * data-testid="UserName" is used consistently across Twitter's UI
+   * Returns the stable selector for Twitter user cells
+   * data-testid="UserCell" contains each user row
    */
   getUsernameSelector(): string {
-    return '[data-testid="UserName"]';
+    return '[data-testid="UserCell"]';
   }
 
   /**
-   * Extracts username from Twitter UserName element
-   * Structure: <div data-testid="UserName">
-   *   <div><span>Display Name</span></div>
-   *   <div><span>@handle</span></div>
-   * </div>
+   * Extracts username from Twitter UserCell element
+   * Each UserCell contains profile links with href="/username"
    */
   extractUsername(element: Element): string | null {
-    // Find all spans within the UserName element
-    const spans = element.querySelectorAll('span');
+    // Find all links in the cell
+    const links = element.querySelectorAll('a');
 
-    for (const span of spans) {
-      const text = span.textContent?.trim();
+    for (const link of links) {
+      const href = link.getAttribute('href');
 
-      // Look for text starting with @
-      if (text && text.startsWith('@')) {
-        // Remove @ prefix and convert to lowercase
-        const username = text.slice(1).toLowerCase();
+      // Profile links are like /username (not /i/something or /username/status/...)
+      if (href && href.startsWith('/') && !href.startsWith('/i/')) {
+        const parts = href.split('/');
 
-        // Validate username format (alphanumeric + underscore)
-        if (/^[a-z0-9_]+$/i.test(username)) {
-          return username;
+        // Should be exactly 2 parts: ['', 'username']
+        if (parts.length === 2 && parts[1]) {
+          const username = parts[1].toLowerCase();
+
+          // Validate username format (alphanumeric + underscore)
+          if (/^[a-z0-9_]+$/i.test(username)) {
+            return username;
+          }
         }
       }
     }
