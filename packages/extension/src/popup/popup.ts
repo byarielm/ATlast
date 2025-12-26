@@ -130,6 +130,10 @@ async function uploadToATlast(): Promise<void> {
       throw new Error('No scan results found');
     }
 
+    if (state.result.usernames.length === 0) {
+      throw new Error('No users found. Please scan the page first.');
+    }
+
     // Import API client
     const { uploadToATlast: apiUpload, getExtensionVersion } = await import('../lib/api-client.js');
 
