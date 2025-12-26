@@ -336,13 +336,13 @@ export default function App() {
     }
 
     // Load results for this upload
-    loadUploadResults(uploadId);
+    handleLoadUpload(uploadId);
 
     // Clean up URL parameter after loading
     const newUrl = new URL(window.location.href);
     newUrl.searchParams.delete('uploadId');
     window.history.replaceState({}, '', newUrl);
-  }, [session, loadUploadResults]);
+  }, [session, handleLoadUpload]);
 
   return (
     <ErrorBoundary>
