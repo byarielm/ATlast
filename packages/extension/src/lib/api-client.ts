@@ -2,10 +2,15 @@
  * ATlast API client for extension
  */
 
-// API URL configuration
-const ATLAST_API_URL = import.meta.env?.MODE === 'production'
-  ? 'https://atlast.byarielm.fyi'
-  : 'http://127.0.0.1:8888';
+// These are replaced at build time by esbuild
+declare const __ATLAST_API_URL__: string;
+declare const __BUILD_MODE__: string;
+
+// API URL configuration - injected at build time
+const ATLAST_API_URL = __ATLAST_API_URL__;
+
+console.log(`[API Client] Running in ${__BUILD_MODE__} mode`);
+console.log(`[API Client] API URL: ${ATLAST_API_URL}`);
 
 export interface ExtensionImportRequest {
   platform: string;

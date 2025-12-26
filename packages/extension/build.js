@@ -6,6 +6,16 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const watch = process.argv.includes('--watch');
+const isProd = process.argv.includes('--prod') || process.env.NODE_ENV === 'production';
+const mode = isProd ? 'production' : 'development';
+
+// Environment-specific configuration
+const ATLAST_API_URL = mode === 'production'
+  ? 'https://atlast.byarielm.fyi'
+  : 'http://127.0.0.1:8888';
+
+console.log(`🌍 Building for ${mode} mode`);
+console.log(`🔗 API URL: ${ATLAST_API_URL}`);
 
 // Clean dist directory
 const distDir = path.join(__dirname, 'dist', 'chrome');
@@ -21,6 +31,10 @@ const buildConfigBase = {
   sourcemap: watch ? 'inline' : false,
   target: 'es2020',
   format: 'esm',
+  define: {
+    '__ATLAST_API_URL__': JSON.stringify(ATLAST_API_URL),
+    '__BUILD_MODE__': JSON.stringify(mode),
+  },
 };
 
 // Build scripts
