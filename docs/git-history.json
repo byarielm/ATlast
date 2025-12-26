@@ -1,5 +1,13 @@
 [
   {
+    "hash": "53a16e4753ed6ad7215846f95531be2d4f6ce035",
+    "short_hash": "53a16e4",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T20:59:15-05:00",
+    "message": "fix extension import data sharing with shared store\n\nCritical bug fix: extension-import and get-extension-import were using\nseparate in-memory Maps, causing 404 errors when fetching import data.\n\n- Create shared utils/import-store.ts module\n- Both functions now use same Map instance\n- Add logging for debugging\n- Note: In-memory storage only works for dev (single process)\n  Production needs database/Redis/Netlify Blobs",
+    "files_changed": 3
+  },
+  {
     "hash": "c35fb0d83202607facc203dfe10325e8672ea67e",
     "short_hash": "c35fb0d",
     "author": "Ariel M. Lighty",
@@ -22,14 +30,6 @@
     "date": "2025-12-25T18:52:32-05:00",
     "message": "fix critical messaging bug: onMessage was discarding return values\n\nThe onMessage wrapper in messaging.ts was only sending {success: true}\ninstead of the actual handler return value. This caused the popup to\nreceive undefined state even though the background worker was correctly\nstoring it.\n\nChanges:\n- messaging.ts: Changed onMessage to forward handler return values\n- background service-worker.ts: Added comprehensive logging\n- popup.ts: Added state change listener and detailed logging\n\nThis fixes the issue where popup showed 'Go to...' even when on the\nfollowing page.",
     "files_changed": 3
-  },
-  {
-    "hash": "5df643807a2539010d0bbb8beb1576d4aab13697",
-    "short_hash": "5df6438",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T16:32:49-05:00",
-    "message": "update decision graph after extension fixes",
-    "files_changed": 2
   },
   {
     "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
