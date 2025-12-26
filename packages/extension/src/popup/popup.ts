@@ -14,7 +14,8 @@ const states = {
   scraping: document.getElementById('state-scraping')!,
   complete: document.getElementById('state-complete')!,
   uploading: document.getElementById('state-uploading')!,
-  error: document.getElementById('state-error')!
+  error: document.getElementById('state-error')!,
+  offline: document.getElementById('state-offline')!
 };
 
 const elements = {
@@ -23,10 +24,12 @@ const elements = {
   finalCount: document.getElementById('final-count')!,
   statusMessage: document.getElementById('status-message')!,
   errorMessage: document.getElementById('error-message')!,
+  serverUrl: document.getElementById('server-url')!,
   progressFill: document.getElementById('progress-fill')! as HTMLElement,
   btnStart: document.getElementById('btn-start')! as HTMLButtonElement,
   btnUpload: document.getElementById('btn-upload')! as HTMLButtonElement,
-  btnRetry: document.getElementById('btn-retry')! as HTMLButtonElement
+  btnRetry: document.getElementById('btn-retry')! as HTMLButtonElement,
+  btnCheckServer: document.getElementById('btn-check-server')! as HTMLButtonElement
 };
 
 /**
@@ -193,10 +196,57 @@ async function pollForUpdates(): Promise<void> {
 }
 
 /**
+ * Check server health and show offline state if needed
+ */
+async function checkServer(): Promise<boolean> {
+  console.log('[Popup] 🏥 Checking server health...');
+
+  // Import health check function
+  const { checkServerHealth, getApiUrl } = await import('../lib/api-client.js');
+
+  const isOnline = await checkServerHealth();
+
+  if (!isOnline) {
+    console.log('[Popup] ❌ Server is offline');
+    showState('offline');
+    elements.serverUrl.textContent = `Trying to reach: ${getApiUrl()}`;
+    return false;
+  }
+
+  console.log('[Popup] ✅ Server is online');
+  return true;
+}
+
+/**
  * Initialize popup
  */
 async function init(): Promise<void> {
   console.log('[Popup] 🚀 Initializing popup...');
+
+  // Check server health first (only in dev mode)
+  const { getApiUrl } = await import('../lib/api-client.js');
+  const isDev = getApiUrl().includes('127.0.0.1') || getApiUrl().includes('localhost');
+
+  if (isDev) {
+    const serverOnline = await checkServer();
+    if (!serverOnline) {
+      // Set up retry button
+      elements.btnCheckServer.addEventListener('click', async () => {
+        elements.btnCheckServer.disabled = true;
+        elements.btnCheckServer.textContent = 'Checking...';
+
+        const online = await checkServer();
+        if (online) {
+          // Server is back online, re-initialize
+          init();
+        } else {
+          elements.btnCheckServer.disabled = false;
+          elements.btnCheckServer.textContent = 'Check Again';
+        }
+      });
+      return;
+    }
+  }
 
   // Get current state
   console.log('[Popup] 📡 Requesting state from background...');

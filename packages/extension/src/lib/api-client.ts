@@ -67,3 +67,35 @@ export async function uploadToATlast(
 export function getExtensionVersion(): string {
   return chrome.runtime.getManifest().version;
 }
+
+/**
+ * Check if ATlast server is running
+ * Returns true if server is reachable, false otherwise
+ */
+export async function checkServerHealth(): Promise<boolean> {
+  try {
+    // Try to fetch the root URL with a short timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+    const response = await fetch(ATLAST_API_URL, {
+      method: 'HEAD',
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    // Any response (even 404) means server is running
+    return true;
+  } catch (error) {
+    console.error('[API Client] Server health check failed:', error);
+    return false;
+  }
+}
+
+/**
+ * Get the API URL (for display purposes)
+ */
+export function getApiUrl(): string {
+  return ATLAST_API_URL;
+}

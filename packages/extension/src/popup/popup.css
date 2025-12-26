@@ -4,6 +4,22 @@
   box-sizing: border-box;
 }
 
+code {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  display: inline-block;
+  margin: 8px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  code {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
 body {
   width: 350px;
   min-height: 400px;

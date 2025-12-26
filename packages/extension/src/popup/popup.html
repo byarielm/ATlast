@@ -64,6 +64,18 @@
         <p id="error-message" class="error-message"></p>
         <button id="btn-retry" class="btn-secondary">Try Again</button>
       </div>
+
+      <!-- Server offline state -->
+      <div id="state-offline" class="state hidden">
+        <div class="icon">🔌</div>
+        <p class="message">ATlast server not running</p>
+        <p class="error-message">
+          Start the dev server:<br>
+          <code>npx netlify-cli dev --filter @atlast/web</code>
+        </p>
+        <p class="hint" id="server-url"></p>
+        <button id="btn-check-server" class="btn-primary">Check Again</button>
+      </div>
     </main>
 
     <footer>
