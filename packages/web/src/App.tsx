@@ -197,9 +197,8 @@ export default function App() {
         }));
 
         setSearchResults(loadedResults);
-        setCurrentStep("results");
 
-        // If no matches yet, trigger search
+        // If no matches yet, trigger search BEFORE navigating to results
         if (!hasMatches) {
           const followLexicon = ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
 
@@ -207,12 +206,15 @@ export default function App() {
             loadedResults,
             (message) => setStatusMessage(message),
             async (finalResults) => {
-              // Search complete - save results
-              // finalResults contains the updated results with all matches found
+              // Search complete - save results and navigate to results page
               await saveResults(uploadId, platform, finalResults);
+              setCurrentStep("results");
             },
             followLexicon
           );
+        } else {
+          // Already has matches, navigate to results immediately
+          setCurrentStep("results");
         }
 
         // Announce to screen readers only - visual feedback is navigation to results page
