@@ -34,8 +34,8 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS oauth_states (
         key TEXT PRIMARY KEY,
         data JSONB NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW(),
-        expires_at TIMESTAMP NOT NULL
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        expires_at TIMESTAMPTZ NOT NULL
       )
     `;
 
@@ -43,8 +43,8 @@ export class DatabaseService {
       CREATE TABLE IF NOT EXISTS oauth_sessions (
         key TEXT PRIMARY KEY,
         data JSONB NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW(),
-        expires_at TIMESTAMP NOT NULL
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        expires_at TIMESTAMPTZ NOT NULL
       )
     `;
 
@@ -53,8 +53,8 @@ export class DatabaseService {
         session_id TEXT PRIMARY KEY,
         did TEXT NOT NULL,
         fingerprint JSONB,
-        created_at TIMESTAMP DEFAULT NOW(),
-        expires_at TIMESTAMP NOT NULL
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        expires_at TIMESTAMPTZ NOT NULL
       )
     `;
 
@@ -63,8 +63,8 @@ export class DatabaseService {
         upload_id TEXT PRIMARY KEY,
         did TEXT NOT NULL,
         source_platform TEXT NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW(),
-        last_checked TIMESTAMP,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        last_checked TIMESTAMPTZ,
         total_users INTEGER NOT NULL,
         matched_users INTEGER DEFAULT 0,
         unmatched_users INTEGER DEFAULT 0
@@ -77,10 +77,10 @@ export class DatabaseService {
         source_platform TEXT NOT NULL,
         source_username TEXT NOT NULL,
         normalized_username TEXT NOT NULL,
-        last_checked TIMESTAMP,
+        last_checked TIMESTAMPTZ,
         match_found BOOLEAN DEFAULT FALSE,
-        match_found_at TIMESTAMP,
-        created_at TIMESTAMP DEFAULT NOW(),
+        match_found_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(source_platform, normalized_username)
       )
     `;
@@ -92,7 +92,7 @@ export class DatabaseService {
         did TEXT NOT NULL,
         source_account_id INTEGER NOT NULL REFERENCES source_accounts(id) ON DELETE CASCADE,
         source_date TEXT,
-        created_at TIMESTAMP DEFAULT NOW(),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
         UNIQUE(upload_id, source_account_id)
       )
     `;
@@ -109,11 +109,11 @@ export class DatabaseService {
         post_count INTEGER,
         follower_count INTEGER,
         match_score INTEGER NOT NULL,
-        found_at TIMESTAMP DEFAULT NOW(),
-        last_verified TIMESTAMP,
+        found_at TIMESTAMPTZ DEFAULT NOW(),
+        last_verified TIMESTAMPTZ,
         is_active BOOLEAN DEFAULT TRUE,
         follow_status JSONB DEFAULT '{}',
-        last_follow_check TIMESTAMP,
+        last_follow_check TIMESTAMPTZ,
         UNIQUE(source_account_id, atproto_did)
       )
     `;
@@ -125,13 +125,13 @@ export class DatabaseService {
         atproto_match_id INTEGER NOT NULL REFERENCES atproto_matches(id) ON DELETE CASCADE,
         source_account_id INTEGER NOT NULL REFERENCES source_accounts(id) ON DELETE CASCADE,
         notified BOOLEAN DEFAULT FALSE,
-        notified_at TIMESTAMP,
+        notified_at TIMESTAMPTZ,
         viewed BOOLEAN DEFAULT FALSE,
-        viewed_at TIMESTAMP,
+        viewed_at TIMESTAMPTZ,
         followed BOOLEAN DEFAULT FALSE,
-        followed_at TIMESTAMP,
+        followed_at TIMESTAMPTZ,
         dismissed BOOLEAN DEFAULT FALSE,
-        dismissed_at TIMESTAMP,
+        dismissed_at TIMESTAMPTZ,
         UNIQUE(did, atproto_match_id)
       )
     `;
@@ -141,9 +141,9 @@ export class DatabaseService {
         id SERIAL PRIMARY KEY,
         did TEXT NOT NULL,
         new_matches_count INTEGER NOT NULL,
-        created_at TIMESTAMP DEFAULT NOW(),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
         sent BOOLEAN DEFAULT FALSE,
-        sent_at TIMESTAMP,
+        sent_at TIMESTAMPTZ,
         retry_count INTEGER DEFAULT 0,
         last_error TEXT
       )
