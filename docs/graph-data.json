@@ -3585,6 +3585,17 @@
       "created_at": "2025-12-26T21:46:14.340967100-05:00",
       "updated_at": "2025-12-26T21:46:14.340967100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"aacbbaa\",\"confidence\":95}"
+    },
+    {
+      "id": 327,
+      "change_id": "ed9ceca3-e53e-430c-8f0f-386b287b0915",
+      "node_type": "outcome",
+      "title": "Optimized Vite config with explicit dependency pre-bundling",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T21:57:16.155112400-05:00",
+      "updated_at": "2025-12-26T21:57:16.155112400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"e04934f\",\"confidence\":85}"
     }
   ],
   "edges": [
@@ -7074,6 +7085,17 @@
       "weight": 1.0,
       "rationale": "User reported upload times showing 5 hours ahead - timezone offset issue",
       "created_at": "2025-12-26T21:46:24.801578500-05:00"
+    },
+    {
+      "id": 318,
+      "from_node_id": 326,
+      "to_node_id": 327,
+      "from_change_id": "af76ea64-b0b1-4577-b521-4ec21cc555e1",
+      "to_change_id": "ed9ceca3-e53e-430c-8f0f-386b287b0915",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "User reported slow dev server startup - 4.5s from Vite",
+      "created_at": "2025-12-26T21:57:18.723545100-05:00"
     }
   ]
 }
