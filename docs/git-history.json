@@ -1,11 +1,19 @@
 [
   {
-    "hash": "fcf682bb8969aca108262348e7e17531077713be",
-    "short_hash": "fcf682b",
+    "hash": "fe29bb3e5faa0151f63c14724f7509af669860de",
+    "short_hash": "fe29bb3",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T15:48:44-05:00",
-    "message": "docs: improve decision graph workflow with lifecycle management\n\nUpdated CLAUDE.md with comprehensive node lifecycle management:\n- Added node status transitions (pending → in_progress → completed)\n- Correct orphan detection commands (awk instead of cut)\n- Common mistakes section with examples\n- Enhanced audit checklist with status verification\n- Verification workflow after node creation\n\nAlso updated extension popup with ATmosphere branding.\n\nDecision graph now at 331 nodes, 332 edges - all orphans resolved.",
-    "files_changed": 4
+    "date": "2025-12-27T16:02:10-05:00",
+    "message": "docs: update all .md files to reflect current project status\n\nUpdated 4 markdown files with current state:\n\nEXTENSION_STATUS.md:\n- Changed status from DEBUGGING to COMPLETE\n- Updated decision graph count (295 → 332 nodes)\n- Added recently completed section (nodes 296-332)\n- Marked all extension bugs as resolved\n\nCONTRIBUTING.md:\n- Replaced npm with pnpm throughout\n- Added monorepo structure documentation\n- Updated development commands (netlify-cli dev --filter)\n- Added extension development workflow\n\nPLAN.md:\n- Updated status to Phase 1 COMPLETE\n- Added all recent fixes to completion list\n- Updated decision graph count to 332 nodes\n- Added changelog entries for latest work\n\npackages/extension/README.md:\n- Added prerequisites section (dev server + login required)\n- Updated build commands with dev/prod distinction\n- Added Step 0: Start ATlast Dev Server\n- Added common issues for auth and server states\n\nAll files now accurately reflect completion status and use pnpm.",
+    "files_changed": 6
+  },
+  {
+    "hash": "2a163c5f033a79324b100a236ea26c905909bfc6",
+    "short_hash": "2a163c5",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-27T15:49:08-05:00",
+    "message": "docs: update decision graph after documentation improvements",
+    "files_changed": 2
   },
   {
     "hash": "fcf682bb8969aca108262348e7e17531077713be",
@@ -24,12 +32,12 @@
     "files_changed": 1
   },
   {
-    "hash": "aacbbaa27797781098dacdfd0194c93cd71d7bd2",
-    "short_hash": "aacbbaa",
+    "hash": "8f692c7ff534680b09e98e16c58e5effa0badd9f",
+    "short_hash": "8f692c7",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T21:46:06-05:00",
-    "message": "fix: use TIMESTAMPTZ for all timestamp columns\n\nChanged all TIMESTAMP columns to TIMESTAMPTZ (timestamp with timezone) to\nproperly handle timezone-aware timestamps across all tables:\n- oauth_states (created_at, expires_at)\n- oauth_sessions (created_at, expires_at)\n- user_sessions (created_at, expires_at)\n- user_uploads (created_at, last_checked)\n- source_accounts (last_checked, match_found_at, created_at)\n- user_source_follows (created_at)\n- atproto_matches (found_at, last_verified, last_follow_check)\n- user_match_status (notified_at, viewed_at, followed_at, dismissed_at)\n- notification_queue (created_at, sent_at)\n\nThis fixes the 5-hour timezone offset issue where timestamps were stored\nwithout timezone info, causing display errors across different timezones.",
-    "files_changed": 1
+    "date": "2025-12-26T21:48:59-05:00",
+    "message": "docs: update decision graph after timezone fix",
+    "files_changed": 2
   },
   {
     "hash": "aacbbaa27797781098dacdfd0194c93cd71d7bd2",
