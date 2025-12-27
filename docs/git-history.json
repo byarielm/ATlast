@@ -1,5 +1,21 @@
 [
   {
+    "hash": "aacbbaa27797781098dacdfd0194c93cd71d7bd2",
+    "short_hash": "aacbbaa",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T21:46:06-05:00",
+    "message": "fix: use TIMESTAMPTZ for all timestamp columns\n\nChanged all TIMESTAMP columns to TIMESTAMPTZ (timestamp with timezone) to\nproperly handle timezone-aware timestamps across all tables:\n- oauth_states (created_at, expires_at)\n- oauth_sessions (created_at, expires_at)\n- user_sessions (created_at, expires_at)\n- user_uploads (created_at, last_checked)\n- source_accounts (last_checked, match_found_at, created_at)\n- user_source_follows (created_at)\n- atproto_matches (found_at, last_verified, last_follow_check)\n- user_match_status (notified_at, viewed_at, followed_at, dismissed_at)\n- notification_queue (created_at, sent_at)\n\nThis fixes the 5-hour timezone offset issue where timestamps were stored\nwithout timezone info, causing display errors across different timezones.",
+    "files_changed": 1
+  },
+  {
+    "hash": "c5adc15091cc520735b7d5c3d1ef1a9f4ff38a2f",
+    "short_hash": "c5adc15",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-26T21:28:48-05:00",
+    "message": "docs: update decision graph after loading screen fix",
+    "files_changed": 2
+  },
+  {
     "hash": "46626f4a18eaaaaf42368361130bb1ddc7bd9677",
     "short_hash": "46626f4",
     "author": "Ariel M. Lighty",
@@ -16,20 +32,12 @@
     "files_changed": 4
   },
   {
-    "hash": "212660a996d6b0f1db59f9532d2b3968c7113f10",
-    "short_hash": "212660a",
+    "hash": "0afa0ffafd9b05f12d7d52c50082a54f237e09d8",
+    "short_hash": "0afa0ff",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T20:58:45-05:00",
-    "message": "fix: pass final search results to onComplete callback\n\nFixes issue where results were displayed but not saved to database until\npage refresh. Root cause: onComplete callback accessed stale searchResults\nfrom closure instead of updated state.\n\nChanges:\n- useSearch.searchAllUsers: onComplete now receives SearchResult[] param\n- useSearch: uses setSearchResults updater to get current state\n- App.tsx: updated all 3 searchAllUsers calls to use finalResults\n- Removed setTimeout workarounds\n\nResult: Extension and file upload flows now save immediately after search.",
-    "files_changed": 4
-  },
-  {
-    "hash": "6ced3f0b015af1c9126559a393996576402cfd03",
-    "short_hash": "6ced3f0",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-26T14:12:46-05:00",
-    "message": "fix extension flow: create user_source_follows, auto-search, time display\n\nBackend (extension-import.ts):\n- Now creates user_source_follows entries linking upload to source accounts\n- Without these, get-upload-details returned empty (queries FROM user_source_follows)\n- Uses bulkCreate return value (Map<username, id>) to create links\n\nFrontend (App.tsx):\n- handleLoadUpload now detects if upload has no matches yet\n- Sets isSearching: true for new uploads\n- Automatically triggers searchAllUsers for new uploads\n- Saves results after search completes\n- Changed platform from hardcoded \"tiktok\" to \"twitter\"\n\nFrontend (HistoryTab.tsx):\n- Fixed time display: removed \"Uploaded\" prefix\n- Now shows \"about 5 hours ago\" instead of \"Uploaded in about 5 hours\"\n- formatRelativeTime with addSuffix already provides complete sentence\n\nResolves:\n- Empty results on page load\n- No automatic searching\n- History navigation not working (will work after search)\n- Grammatically incorrect time display",
-    "files_changed": 5
+    "date": "2025-12-26T20:20:50-05:00",
+    "message": "fix: sourceUser should be object {username, date} not string\n\nWas setting sourceUser to result.sourceUser.username (string)\nShould be result.sourceUser (SourceUser object)\n\nThis caused:\n- useSearch to call batch.map(r => r.sourceUser.username) on strings\n- .username on string returns undefined\n- batch-search-actors received null values\n- ValidationError: expected string, received null\n\nAlso caused localeCompare error when sorting undefined values.",
+    "files_changed": 3
   },
   {
     "hash": "6ced3f0b015af1c9126559a393996576402cfd03",
@@ -104,20 +112,20 @@
     "files_changed": 3
   },
   {
-    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
-    "short_hash": "32cdee3",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 4
-  },
-  {
     "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
     "short_hash": "ba29fd6",
     "author": "Ariel M. Lighty",
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 5
+  },
+  {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",
