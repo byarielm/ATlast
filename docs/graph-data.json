@@ -3185,9 +3185,9 @@
       "node_type": "goal",
       "title": "Fix extension upload errors - undefined response and invalid URL",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:31:45.695565800-05:00",
-      "updated_at": "2025-12-26T13:31:45.695565800-05:00",
+      "updated_at": "2025-12-27T17:49:55.246500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -3196,9 +3196,9 @@
       "node_type": "observation",
       "title": "Backend returns correct structure but response might be wrapped by successResponse helper",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:32:20.697112800-05:00",
-      "updated_at": "2025-12-26T13:32:20.697112800-05:00",
+      "updated_at": "2025-12-27T17:49:55.310376600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3207,9 +3207,9 @@
       "node_type": "observation",
       "title": "successResponse wraps data in {success: true, data: {...}} structure - extension expects flat response",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:32:50.409160400-05:00",
-      "updated_at": "2025-12-26T13:32:50.409160400-05:00",
+      "updated_at": "2025-12-27T17:49:55.384830800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3218,9 +3218,9 @@
       "node_type": "action",
       "title": "Fix api-client.ts to unwrap ApiResponse.data field",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:32:54.625124500-05:00",
-      "updated_at": "2025-12-26T13:32:54.625124500-05:00",
+      "updated_at": "2025-12-27T17:49:55.449186500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3229,9 +3229,9 @@
       "node_type": "outcome",
       "title": "Fixed API client to unwrap ApiResponse.data - both uploadToATlast and checkSession now correctly access nested data field",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:34:09.012837500-05:00",
-      "updated_at": "2025-12-26T13:34:09.012837500-05:00",
+      "updated_at": "2025-12-27T17:49:55.512809400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3240,9 +3240,9 @@
       "node_type": "outcome",
       "title": "Committed API response fix to git",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:36:02.733197600-05:00",
-      "updated_at": "2025-12-26T13:36:02.733197600-05:00",
+      "updated_at": "2025-12-27T17:49:55.576426900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"9563633\",\"confidence\":95}"
     },
     {
@@ -3251,9 +3251,9 @@
       "node_type": "observation",
       "title": "Extension upload flow fixed and ready for testing - API response unwrapping resolves undefined errors",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:37:35.844832-05:00",
-      "updated_at": "2025-12-26T13:37:35.844832-05:00",
+      "updated_at": "2025-12-27T17:49:55.653339900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"9ca7347\",\"confidence\":95}"
     },
     {
@@ -3262,9 +3262,9 @@
       "node_type": "goal",
       "title": "Fix backend repository method error and missing frontend route",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:43:03.332690700-05:00",
-      "updated_at": "2025-12-26T13:43:03.332690700-05:00",
+      "updated_at": "2025-12-27T17:49:55.729232100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3273,9 +3273,9 @@
       "node_type": "observation",
       "title": "Two issues: 1) SourceAccountRepository has getOrCreate/bulkCreate not upsertSourceAccount, 2) Router only has / route, no /results route",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:43:28.902663600-05:00",
-      "updated_at": "2025-12-26T13:43:28.902663600-05:00",
+      "updated_at": "2025-12-27T17:49:55.791246300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3284,9 +3284,9 @@
       "node_type": "action",
       "title": "Fix backend to use bulkCreate and frontend to handle uploadId param",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:44:28.406069900-05:00",
-      "updated_at": "2025-12-26T13:44:28.406069900-05:00",
+      "updated_at": "2025-12-27T17:49:55.863335500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3295,9 +3295,9 @@
       "node_type": "outcome",
       "title": "Fixed both issues: backend uses bulkCreate, redirects to /?uploadId, frontend loads results from uploadId param",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:45:58.309042200-05:00",
-      "updated_at": "2025-12-26T13:45:58.309042200-05:00",
+      "updated_at": "2025-12-27T17:49:55.947393200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3306,9 +3306,9 @@
       "node_type": "outcome",
       "title": "Committed fixes for bulkCreate and uploadId handling",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:47:48.770693200-05:00",
-      "updated_at": "2025-12-26T13:47:48.770693200-05:00",
+      "updated_at": "2025-12-27T17:49:56.029469300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"581ed00\",\"confidence\":95}"
     },
     {
@@ -3317,9 +3317,9 @@
       "node_type": "observation",
       "title": "Frontend error: loadUploadResults not defined - need to check function scope",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:50:59.977950500-05:00",
-      "updated_at": "2025-12-26T13:50:59.977950500-05:00",
+      "updated_at": "2025-12-27T17:49:56.093781100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3328,9 +3328,9 @@
       "node_type": "action",
       "title": "Fix useEffect to call handleLoadUpload instead of non-existent loadUploadResults",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:51:36.007564400-05:00",
-      "updated_at": "2025-12-26T13:51:36.007564400-05:00",
+      "updated_at": "2025-12-27T17:49:56.169258900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3339,9 +3339,9 @@
       "node_type": "outcome",
       "title": "Fixed function name - now calls handleLoadUpload correctly",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T13:51:52.256909300-05:00",
-      "updated_at": "2025-12-26T13:51:52.256909300-05:00",
+      "updated_at": "2025-12-27T17:49:56.234188500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3350,9 +3350,9 @@
       "node_type": "goal",
       "title": "Fix extension flow: auto-search after load, history navigation, time formatting",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T14:05:53.798547500-05:00",
-      "updated_at": "2025-12-26T14:05:53.798547500-05:00",
+      "updated_at": "2025-12-27T17:49:56.309329800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3361,9 +3361,9 @@
       "node_type": "observation",
       "title": "handleLoadUpload expects existing results but extension creates empty upload - need to load source accounts and trigger search",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T14:06:18.067673100-05:00",
-      "updated_at": "2025-12-26T14:06:18.067673100-05:00",
+      "updated_at": "2025-12-27T17:49:56.384145700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3372,9 +3372,9 @@
       "node_type": "observation",
       "title": "Extension-import creates upload and source_accounts but NOT user_source_follows - get-upload-details returns empty because it queries FROM user_source_follows",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T14:08:57.918421600-05:00",
-      "updated_at": "2025-12-26T14:08:57.918421600-05:00",
+      "updated_at": "2025-12-27T17:49:56.459539400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -3383,9 +3383,9 @@
       "node_type": "action",
       "title": "Add user_source_follows creation to extension-import endpoint",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T14:09:03.035871-05:00",
-      "updated_at": "2025-12-26T14:09:03.035871-05:00",
+      "updated_at": "2025-12-27T17:49:56.523841100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3394,9 +3394,9 @@
       "node_type": "outcome",
       "title": "Fixed all extension flow issues: added user_source_follows creation, auto-search after load, time formatting",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T14:11:09.055850200-05:00",
-      "updated_at": "2025-12-26T14:11:09.055850200-05:00",
+      "updated_at": "2025-12-27T17:49:56.588486100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3405,9 +3405,9 @@
       "node_type": "outcome",
       "title": "Committed all extension flow fixes",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T14:16:08.387214900-05:00",
-      "updated_at": "2025-12-26T14:16:08.387214900-05:00",
+      "updated_at": "2025-12-27T17:49:56.670180800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"6ced3f0\",\"confidence\":95}"
     },
     {
@@ -3416,9 +3416,9 @@
       "node_type": "observation",
       "title": "searchAllUsers called with wrong parameters - missing onProgressUpdate callback",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T16:07:21.838974100-05:00",
-      "updated_at": "2025-12-26T16:07:21.838974100-05:00",
+      "updated_at": "2025-12-27T17:49:56.746464900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3427,9 +3427,9 @@
       "node_type": "action",
       "title": "Fix searchAllUsers call with correct parameters and callbacks",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T16:08:18.523845400-05:00",
-      "updated_at": "2025-12-26T16:08:18.523845400-05:00",
+      "updated_at": "2025-12-27T17:49:56.809583600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3438,9 +3438,9 @@
       "node_type": "outcome",
       "title": "Fixed searchAllUsers call - now passes onProgressUpdate and onComplete callbacks",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T16:08:24.248208800-05:00",
-      "updated_at": "2025-12-26T16:08:24.248208800-05:00",
+      "updated_at": "2025-12-27T17:49:56.884711900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3449,9 +3449,9 @@
       "node_type": "goal",
       "title": "Fix validation error and undefined localeCompare in extension flow",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:17:59.516959100-05:00",
-      "updated_at": "2025-12-26T20:17:59.516959100-05:00",
+      "updated_at": "2025-12-27T17:49:56.971434500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3460,9 +3460,9 @@
       "node_type": "observation",
       "title": "Two errors: 1) batch-search-actors gets null in usernames array, 2) Frontend localeCompare on undefined - likely wrong SearchResult structure",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:18:03.693879700-05:00",
-      "updated_at": "2025-12-26T20:18:03.693879700-05:00",
+      "updated_at": "2025-12-27T17:49:57.049131800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3471,9 +3471,9 @@
       "node_type": "action",
       "title": "Fix SearchResult structure - sourceUser should be object not string",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:19:47.621459800-05:00",
-      "updated_at": "2025-12-26T20:19:47.621459800-05:00",
+      "updated_at": "2025-12-27T17:49:57.127563700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3482,9 +3482,9 @@
       "node_type": "outcome",
       "title": "Fixed SearchResult structure - sourceUser is now correct SourceUser object instead of string",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:20:22.507291300-05:00",
-      "updated_at": "2025-12-26T20:20:22.507291300-05:00",
+      "updated_at": "2025-12-27T17:49:57.190209200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3493,9 +3493,9 @@
       "node_type": "goal",
       "title": "Fix results not saving to database and timestamp timezone issue",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:37:03.493239600-05:00",
-      "updated_at": "2025-12-26T20:37:03.493239600-05:00",
+      "updated_at": "2025-12-27T17:49:57.263765-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3603,9 +3603,9 @@
       "node_type": "outcome",
       "title": "Fixed decision graph integrity - linked 18 orphan nodes to parent goals, marked nodes 319-327 as completed",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-27T15:38:21.291457500-05:00",
-      "updated_at": "2025-12-27T15:38:21.291457500-05:00",
+      "updated_at": "2025-12-27T17:49:54.129059900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -3614,9 +3614,9 @@
       "node_type": "observation",
       "title": "Decision graph audit revealed systematic issues: 18 orphan nodes, incorrect status (pending vs completed), wrong orphan detection commands in recovery workflow",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-27T15:40:23.238704300-05:00",
-      "updated_at": "2025-12-27T15:40:23.238704300-05:00",
+      "updated_at": "2025-12-27T17:49:57.327650700-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3627,7 +3627,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-27T15:41:04.067444-05:00",
-      "updated_at": "2025-12-27T15:47:53.643256600-05:00",
+      "updated_at": "2025-12-27T17:49:57.403361400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3638,7 +3638,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-27T15:47:49.308750700-05:00",
-      "updated_at": "2025-12-27T15:47:55.838439500-05:00",
+      "updated_at": "2025-12-27T17:49:57.478252800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -3649,7 +3649,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-27T15:48:47.658343800-05:00",
-      "updated_at": "2025-12-27T15:48:51.950405900-05:00",
+      "updated_at": "2025-12-27T17:49:57.553143200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"fcf682b\",\"confidence\":100}"
     },
     {
@@ -3660,7 +3660,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-27T15:50:48.815758500-05:00",
-      "updated_at": "2025-12-27T15:59:50.747036600-05:00",
+      "updated_at": "2025-12-27T17:49:57.630386-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"review and update the .md files thru the project based on current project status.\"}"
     },
     {
@@ -3671,7 +3671,7 @@
       "description": null,
       "status": "completed",
       "created_at": "2025-12-27T15:51:22.583189100-05:00",
-      "updated_at": "2025-12-27T15:52:10.859032400-05:00",
+      "updated_at": "2025-12-27T17:49:57.707946400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3680,9 +3680,9 @@
       "node_type": "observation",
       "title": "Analyzed all project .md files - found outdated information in CONTRIBUTING.md (npm→pnpm), EXTENSION_STATUS.md (debugging→completed), PLAN.md (optimization status), extension README (build commands)",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-27T15:52:06.741629200-05:00",
-      "updated_at": "2025-12-27T15:52:06.741629200-05:00",
+      "updated_at": "2025-12-27T17:49:57.786343300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -3691,9 +3691,9 @@
       "node_type": "decision",
       "title": "Choose which .md files to update based on priority and impact",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-27T15:52:30.322805700-05:00",
-      "updated_at": "2025-12-27T15:52:30.322805700-05:00",
+      "updated_at": "2025-12-27T17:49:57.849977800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
     },
     {
@@ -3772,6 +3772,83 @@
       "created_at": "2025-12-27T16:02:13.397776700-05:00",
       "updated_at": "2025-12-27T16:02:56.131931100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"fe29bb3\",\"confidence\":100}"
+    },
+    {
+      "id": 344,
+      "change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "node_type": "goal",
+      "title": "Add Tailwind CSS to extension for design consistency",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T17:59:23.523767600-05:00",
+      "updated_at": "2025-12-27T18:07:53.271415-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"yes\"}"
+    },
+    {
+      "id": 345,
+      "change_id": "0ef352ed-538b-4632-8b62-ebb17603f944",
+      "node_type": "action",
+      "title": "Installing Tailwind CSS and PostCSS dependencies",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:00:41.652670100-05:00",
+      "updated_at": "2025-12-27T18:00:43.901523100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 346,
+      "change_id": "888e6ad0-5002-4cdb-b35e-f4214ca07dfa",
+      "node_type": "action",
+      "title": "Creating Tailwind and PostCSS config files",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:01:27.404433500-05:00",
+      "updated_at": "2025-12-27T18:01:29.980132200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 347,
+      "change_id": "fae7a634-d921-4b6f-9620-0c58d88b863e",
+      "node_type": "action",
+      "title": "Updating build.js to process CSS with PostCSS + Tailwind",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:01:50.537140900-05:00",
+      "updated_at": "2025-12-27T18:01:53.031316700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 348,
+      "change_id": "c25a8f4b-8bf1-4a33-bef9-3731dfd83627",
+      "node_type": "action",
+      "title": "Converting popup.css to use Tailwind directives",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:02:42.167814700-05:00",
+      "updated_at": "2025-12-27T18:02:44.488653900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 349,
+      "change_id": "c65ee3d9-62a0-47aa-870a-f6422ff2536a",
+      "node_type": "action",
+      "title": "Converting popup.html to use Tailwind utility classes",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:03:00.465637900-05:00",
+      "updated_at": "2025-12-27T18:03:02.815261100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 350,
+      "change_id": "8136e615-5baa-4fe5-9a7d-d672ff1a6f85",
+      "node_type": "outcome",
+      "title": "Successfully integrated Tailwind CSS into extension",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:07:49.869572400-05:00",
+      "updated_at": "2025-12-27T18:07:52.136827400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -7558,6 +7635,72 @@
       "weight": 1.0,
       "rationale": "Git commit with all documentation updates",
       "created_at": "2025-12-27T16:02:15.712335700-05:00"
+    },
+    {
+      "id": 345,
+      "from_node_id": 344,
+      "to_node_id": 345,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "0ef352ed-538b-4632-8b62-ebb17603f944",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Installation step for Tailwind integration",
+      "created_at": "2025-12-27T18:00:42.787737600-05:00"
+    },
+    {
+      "id": 346,
+      "from_node_id": 344,
+      "to_node_id": 346,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "888e6ad0-5002-4cdb-b35e-f4214ca07dfa",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Configuration step for Tailwind",
+      "created_at": "2025-12-27T18:01:28.695956-05:00"
+    },
+    {
+      "id": 347,
+      "from_node_id": 344,
+      "to_node_id": 347,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "fae7a634-d921-4b6f-9620-0c58d88b863e",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Build process integration",
+      "created_at": "2025-12-27T18:01:51.815468700-05:00"
+    },
+    {
+      "id": 348,
+      "from_node_id": 344,
+      "to_node_id": 348,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "c25a8f4b-8bf1-4a33-bef9-3731dfd83627",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "CSS conversion step",
+      "created_at": "2025-12-27T18:02:43.312580-05:00"
+    },
+    {
+      "id": 349,
+      "from_node_id": 344,
+      "to_node_id": 349,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "c65ee3d9-62a0-47aa-870a-f6422ff2536a",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "HTML conversion step",
+      "created_at": "2025-12-27T18:03:01.642571400-05:00"
+    },
+    {
+      "id": 350,
+      "from_node_id": 344,
+      "to_node_id": 350,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "8136e615-5baa-4fe5-9a7d-d672ff1a6f85",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Final outcome of Tailwind integration",
+      "created_at": "2025-12-27T18:07:51.011406300-05:00"
     }
   ]
 }

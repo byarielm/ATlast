@@ -2,6 +2,9 @@ import * as esbuild from 'esbuild';
 import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
+import postcss from 'postcss';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -76,6 +79,9 @@ async function build() {
     // Copy static files
     copyStaticFiles();
 
+    // Process CSS with Tailwind
+    await processCSS();
+
     if (!watch) {
       console.log('✨ Build complete!');
     }
@@ -85,12 +91,40 @@ async function build() {
   }
 }
 
+// Process CSS with PostCSS (Tailwind + Autoprefixer)
+async function processCSS() {
+  const cssPath = path.join(__dirname, 'src/popup/popup.css');
+  const outputPath = path.join(distDir, 'popup/popup.css');
+
+  const css = fs.readFileSync(cssPath, 'utf8');
+
+  // Import cssnano dynamically for production minification
+  const plugins = [tailwindcss, autoprefixer];
+  if (isProd) {
+    const cssnano = (await import('cssnano')).default;
+    plugins.push(cssnano);
+  }
+
+  const result = await postcss(plugins).process(css, {
+    from: cssPath,
+    to: outputPath,
+  });
+
+  // Create directory if it doesn't exist
+  const destDir = path.dirname(outputPath);
+  if (!fs.existsSync(destDir)) {
+    fs.mkdirSync(destDir, { recursive: true });
+  }
+
+  fs.writeFileSync(outputPath, result.css);
+  console.log('🎨 Processed CSS with Tailwind');
+}
+
 // Copy static files
 function copyStaticFiles() {
   const filesToCopy = [
     { from: 'manifest.json', to: 'manifest.json' },
     { from: 'src/popup/popup.html', to: 'popup/popup.html' },
-    { from: 'src/popup/popup.css', to: 'popup/popup.css' },
   ];
 
   for (const file of filesToCopy) {
