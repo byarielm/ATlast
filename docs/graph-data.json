@@ -3530,6 +3530,28 @@
       "created_at": "2025-12-26T20:39:45.657720100-05:00",
       "updated_at": "2025-12-26T20:39:45.657720100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 322,
+      "change_id": "2e824556-15c7-4656-b771-1b85cc628edc",
+      "node_type": "observation",
+      "title": "onComplete callback in handleLoadUpload accesses stale searchResults from closure - state updated by searchAllUsers not visible to callback",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:51:55.431293100-05:00",
+      "updated_at": "2025-12-26T20:51:55.431293100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 323,
+      "change_id": "88fc65bc-c2da-4df7-b79e-ba80d93e5b77",
+      "node_type": "outcome",
+      "title": "Fixed stale closure issue - onComplete now receives finalResults from useSearch state",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:55:36.922743800-05:00",
+      "updated_at": "2025-12-26T20:55:36.922743800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6964,6 +6986,28 @@
       "weight": 1.0,
       "rationale": "Implementation complete",
       "created_at": "2025-12-26T20:39:48.757903800-05:00"
+    },
+    {
+      "id": 313,
+      "from_node_id": 321,
+      "to_node_id": 322,
+      "from_change_id": "ac843fbc-1953-4b61-8ef3-4c88c98572f5",
+      "to_change_id": "2e824556-15c7-4656-b771-1b85cc628edc",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New UX issue found",
+      "created_at": "2025-12-26T20:51:58.153139700-05:00"
+    },
+    {
+      "id": 314,
+      "from_node_id": 322,
+      "to_node_id": 323,
+      "from_change_id": "2e824556-15c7-4656-b771-1b85cc628edc",
+      "to_change_id": "88fc65bc-c2da-4df7-b79e-ba80d93e5b77",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T20:55:40.014892600-05:00"
     }
   ]
 }

@@ -18,7 +18,7 @@ export function useSearch(session: AtprotoSession | null) {
   const searchAllUsers = useCallback(async (
     resultsToSearch: SearchResult[],
     onProgressUpdate: (message: string) => void,
-    onComplete: () => void,
+    onComplete: (finalResults: SearchResult[]) => void,
     followLexicon?: string,
   ) => {
     if (!session || resultsToSearch.length === 0) return;
@@ -132,7 +132,12 @@ export function useSearch(session: AtprotoSession | null) {
     onProgressUpdate(
       `Search complete! Found ${totalFound} matches out of ${totalSearched} users searched.`,
     );
-    onComplete();
+
+    // Get current results from state to pass to onComplete
+    setSearchResults((currentResults) => {
+      onComplete(currentResults);
+      return currentResults;
+    });
   }, [session]);
 
   const toggleMatchSelection = useCallback((resultIndex: number, did: string) => {

@@ -1,10 +1,10 @@
 [
   {
-    "hash": "a90f3a813fd9527e8e59bb1da242e7b67555a8eb",
-    "short_hash": "a90f3a8",
+    "hash": "0afa0ffafd9b05f12d7d52c50082a54f237e09d8",
+    "short_hash": "0afa0ff",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T16:11:04-05:00",
-    "message": "fix: pass onProgressUpdate and onComplete callbacks to searchAllUsers",
+    "date": "2025-12-26T20:20:50-05:00",
+    "message": "fix: sourceUser should be object {username, date} not string\n\nWas setting sourceUser to result.sourceUser.username (string)\nShould be result.sourceUser (SourceUser object)\n\nThis caused:\n- useSearch to call batch.map(r => r.sourceUser.username) on strings\n- .username on string returns undefined\n- batch-search-actors received null values\n- ValidationError: expected string, received null\n\nAlso caused localeCompare error when sorting undefined values.",
     "files_changed": 3
   },
   {
@@ -24,11 +24,11 @@
     "files_changed": 4
   },
   {
-    "hash": "9ca734749fbaa014828f8437afc5e515610afd31",
-    "short_hash": "9ca7347",
+    "hash": "581ed00fec3c0c5f472c6ff92e00bf4ed5b27e9a",
+    "short_hash": "581ed00",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T13:37:24-05:00",
-    "message": "update documentation: extension ready for testing after API response fix",
+    "date": "2025-12-26T13:47:37-05:00",
+    "message": "fix extension import: use bulkCreate and handle uploadId param\n\nBackend fixes:\n- Use SourceAccountRepository.bulkCreate() instead of non-existent upsertSourceAccount()\n- Change redirectUrl from /results?uploadId= to /?uploadId=\n- More efficient bulk insert instead of loop\n\nFrontend fixes:\n- Add useEffect to load results when uploadId param present\n- Calls loadUploadResults(uploadId) automatically on page load\n- Cleans up URL param after loading\n\nResolves:\n- \"sourceAccountRepo.upsertSourceAccount is not a function\" error\n- \"No routes matched location /results?uploadId=...\" routing error",
     "files_changed": 4
   },
   {
@@ -88,20 +88,20 @@
     "files_changed": 3
   },
   {
-    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
-    "short_hash": "32cdee3",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 4
-  },
-  {
     "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
     "short_hash": "ba29fd6",
     "author": "Ariel M. Lighty",
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 5
+  },
+  {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",

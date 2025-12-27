@@ -139,18 +139,13 @@ export default function App() {
       searchAllUsers(
         initialResults,
         setStatusMessage,
-        () => {
+        (finalResults) => {
           setCurrentStep("results");
 
           // Save results after search completes
-          setTimeout(() => {
-            setSearchResults((currentResults) => {
-              if (currentResults.length > 0) {
-                saveResults(uploadId, platform, currentResults);
-              }
-              return currentResults;
-            });
-          }, 1000);
+          if (finalResults.length > 0) {
+            saveResults(uploadId, platform, finalResults);
+          }
         },
         followLexicon,
       );
@@ -211,13 +206,10 @@ export default function App() {
           await searchAllUsers(
             loadedResults,
             (message) => setStatusMessage(message),
-            async () => {
+            async (finalResults) => {
               // Search complete - save results
-              // Use current searchResults state which has been updated by searchAllUsers
-              const currentResults = searchResults.filter(r => !r.isSearching);
-              if (currentResults.length > 0) {
-                await saveResults(uploadId, platform, currentResults);
-              }
+              // finalResults contains the updated results with all matches found
+              await saveResults(uploadId, platform, finalResults);
             },
             followLexicon
           );
@@ -233,7 +225,7 @@ export default function App() {
         setCurrentStep("home");
       }
     },
-    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error, currentDestinationAppId, searchAllUsers, saveResults, searchResults],
+    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error, currentDestinationAppId, searchAllUsers, saveResults],
   );
 
   // Login handler
@@ -316,18 +308,13 @@ export default function App() {
         await searchAllUsers(
           initialResults,
           setStatusMessage,
-          () => {
+          (finalResults) => {
             setCurrentStep('results');
 
             // Save results after search completes
-            setTimeout(() => {
-              setSearchResults((currentResults) => {
-                if (currentResults.length > 0) {
-                  saveResults(uploadId, platform, currentResults);
-                }
-                return currentResults;
-              });
-            }, 1000);
+            if (finalResults.length > 0) {
+              saveResults(uploadId, platform, finalResults);
+            }
 
             // Clear import ID from URL
             const newUrl = new URL(window.location.href);
