@@ -4,12 +4,18 @@ Browser extension for importing Twitter/X follows to find them on Bluesky.
 
 ## Development
 
+**Prerequisites:**
+- ATlast dev server must be running at `http://127.0.0.1:8888`
+- You must be logged in to ATlast before using the extension
+
 ### Build Extension
 
 ```bash
+# From project root:
 cd packages/extension
 pnpm install
-pnpm run build
+pnpm run build        # Dev build (uses http://127.0.0.1:8888)
+pnpm run build:prod   # Production build (uses https://atlast.byarielm.fyi)
 ```
 
 The built extension will be in `dist/chrome/`.
@@ -23,6 +29,16 @@ The built extension will be in `dist/chrome/`.
 5. The extension should now appear in your extensions list
 
 ### Testing the Extension
+
+#### Step 0: Start ATlast Dev Server
+
+```bash
+# From project root:
+npx netlify-cli dev --filter @atlast/web
+# Server will start at http://127.0.0.1:8888
+```
+
+Then open `http://127.0.0.1:8888` and log in with your Bluesky handle.
 
 #### Step 1: Navigate to Twitter Following Page
 
@@ -89,6 +105,20 @@ Open Chrome DevTools (F12) and check the Console tab for `[ATlast]` messages:
 
 #### Common Issues
 
+**Issue: Extension shows "Not logged in to ATlast"**
+
+Solution:
+1. Open `http://127.0.0.1:8888` in a new tab
+2. Log in with your Bluesky handle
+3. Return to extension and click "Check Again"
+
+**Issue: Extension shows "ATlast server not running"**
+
+Solution:
+1. Start dev server: `npx netlify-cli dev --filter @atlast/web`
+2. Wait for server to start at `http://127.0.0.1:8888`
+3. Click "Check Again" in extension
+
 **Issue: Popup shows "Go to x.com/following" even when on following page**
 
 Possible causes:
@@ -120,12 +150,15 @@ Debug steps:
 For production deployment (Chrome Web Store):
 
 ```bash
-pnpm run build
+cd packages/extension
+pnpm run build:prod  # Uses production API URL
 cd dist/chrome
 zip -r ../chrome.zip .
 ```
 
 Upload `dist/chrome.zip` to Chrome Web Store.
+
+**Note:** Production build connects to `https://atlast.byarielm.fyi` instead of local dev server.
 
 ## Architecture
 

@@ -27,7 +27,7 @@ Perfect for frontend contributors who want to jump in quickly!
 ```bash
 git clone <repo-url>
 cd atlast
-npm install
+pnpm install
 ```
 
 2. Create .env.local
@@ -40,7 +40,7 @@ VITE_ENABLE_DATABASE=false
 
 3. Start Development
 ```bash
-npm run dev:mock
+pnpm run dev:mock
 ```
 
 4. Open Your Browser  
@@ -61,6 +61,7 @@ For contributors working on backend features, OAuth, or database operations.
 ### Prerequisites
 
 - Node.js 18+
+- pnpm (install with `npm install -g pnpm`)
 - PostgreSQL (or Neon account)
 - OpenSSL (for key generation)
 
@@ -68,8 +69,7 @@ For contributors working on backend features, OAuth, or database operations.
 ```bash
 git clone <repo-url>
 cd atlast
-npm install
-npm install -g netlify-cli
+pnpm install
 ```
 
 2. Database Setup  
@@ -144,12 +144,14 @@ CONTEXT=dev
 
 7. Initialize Database
 ```bash
-npm run init-db
+pnpm run init-db
 ```
 
 8. Start Development Server
 ```bash
-npm run dev:full
+npx netlify-cli dev --filter @atlast/web
+# Or use the alias:
+pnpm run dev
 ```
 
 9. Test OAuth
@@ -163,24 +165,41 @@ npm run dev:full
 
 ## Project Structure
 
+**Monorepo using pnpm workspaces:**
+
 ```
 atlast/
-├── src/
-│   ├── assets/         # Logo
-│   ├── components/     # UI components (React)
-│   ├── constants/      # 
-│   ├── pages/          # Page components
-│   ├── hooks/          # Custom hooks
-│   ├── lib/
-│   │   ├── apiClient/  # API client (real + mock)
-│   │   ├── fileExtractor.ts  # Chooses parser, handles file upload and data extraction
-│   │   ├── parserLogic.ts  # Parses file for usernames
-│   │   ├── platformDefinitions.ts  # File types and username locations 
-│   │   └── config.ts   # Environment config
-│   └── types/          # TypeScript types
-├── netlify/
-│   └── functions/      # Backend API
-└── public/             # 
+├── packages/
+│   ├── web/                    # Frontend React app
+│   │   ├── src/
+│   │   │   ├── assets/         # Logo
+│   │   │   ├── components/     # UI components (React)
+│   │   │   ├── pages/          # Page components
+│   │   │   ├── hooks/          # Custom hooks
+│   │   │   ├── lib/
+│   │   │   │   ├── api/        # API client (real + mock)
+│   │   │   │   ├── parsers/    # File parsing logic
+│   │   │   │   └── config.ts   # Environment config
+│   │   │   └── types/          # TypeScript types
+│   │   └── package.json
+│   ├── functions/              # Netlify serverless functions
+│   │   ├── src/
+│   │   │   ├── core/           # Middleware, types, config
+│   │   │   ├── infrastructure/ # Database, OAuth, cache
+│   │   │   ├── services/       # Business logic
+│   │   │   ├── repositories/   # Data access layer
+│   │   │   └── utils/          # Shared utilities
+│   │   └── package.json
+│   ├── extension/              # Browser extension
+│   │   ├── src/
+│   │   │   ├── content/        # Content scripts, scrapers
+│   │   │   ├── popup/          # Extension popup UI
+│   │   │   ├── background/     # Service worker
+│   │   │   └── lib/            # Extension utilities
+│   │   └── package.json
+│   └── shared/                 # Shared types (future)
+├── pnpm-workspace.yaml
+└── netlify.toml
 ```
 
 ### UI Color System
@@ -227,21 +246,35 @@ Both modes: amber-* or orange-* backgrounds with accessible text contrast
 
 ## Task Workflows
 
-### Adding a New Social Platform
+### Adding a New Social Platform Parser
 
-1. Create `src/lib/platforms/yourplatform.ts`
-2. Implement parser following `tiktok.ts` or `instagram.ts`
-3. Register in `src/lib/platforms/registry.ts`
-4. Update `src/constants/platforms.ts`
-5. Test with real data file
+1. Add parsing rules to `packages/web/src/lib/parsers/platformDefinitions.ts`
+2. Follow existing patterns (TikTok, Instagram)
+3. Test with real data export file
+4. Update platform selection UI if needed
 
 ### Adding a New API Endpoint
 
-1. Create `netlify/functions/your-endpoint.ts`
-2. Add authentication check (copy from existing)
-3. Update `src/lib/apiClient/realApiClient.ts`
-4. Update `src/lib/apiClient/mockApiClient.ts`
+1. Create `packages/functions/src/your-endpoint.ts`
+2. Add authentication check using `withAuthErrorHandling()` middleware
+3. Update `packages/web/src/lib/api/adapters/RealApiAdapter.ts`
+4. Update `packages/web/src/lib/api/adapters/MockApiAdapter.ts`
 5. Use in components via `apiClient.yourMethod()`
+
+### Working with the Extension
+
+```bash
+cd packages/extension
+pnpm install
+pnpm run build       # Build for Chrome
+pnpm run build:prod  # Build for production
+
+# Load in Chrome:
+# 1. Go to chrome://extensions
+# 2. Enable Developer mode
+# 3. Click "Load unpacked"
+# 4. Select packages/extension/dist/chrome/
+```
 
 ### Styling Changes
 
@@ -257,12 +290,13 @@ Both modes: amber-* or orange-* backgrounds with accessible text contrast
 
 ### Before Submitting
 
-- [ ] Test in mock mode: `npm run dev:mock`
-- [ ] Test in full mode (if backend changes): `npm run dev:full`
+- [ ] Test in mock mode: `pnpm run dev:mock`
+- [ ] Test in full mode (if backend changes): `npx netlify-cli dev --filter @atlast/web`
 - [ ] Check both light and dark themes
 - [ ] Test mobile responsiveness
 - [ ] No console errors
 - [ ] Code follows existing patterns
+- [ ] Run `pnpm run build` successfully
 
 ### Pull Request Process
 
