@@ -3486,6 +3486,50 @@
       "created_at": "2025-12-26T20:20:22.507291300-05:00",
       "updated_at": "2025-12-26T20:20:22.507291300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 318,
+      "change_id": "371f788d-46df-4651-b338-f9310f8ae810",
+      "node_type": "goal",
+      "title": "Fix results not saving to database and timestamp timezone issue",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:37:03.493239600-05:00",
+      "updated_at": "2025-12-26T20:37:03.493239600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 319,
+      "change_id": "28681ed9-6d12-476e-a60d-291ee2034952",
+      "node_type": "observation",
+      "title": "save-results has hasRecentUpload check that skips saving if upload created within 5 seconds - extension-import creates upload then save-results is called immediately, gets skipped!",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:37:34.735156200-05:00",
+      "updated_at": "2025-12-26T20:37:34.735156200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 320,
+      "change_id": "04f6a182-c5a1-4844-b186-24605a8e74a9",
+      "node_type": "action",
+      "title": "Fix save-results to skip duplicate check for extension uploads and handle timestamps correctly",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:38:45.703038700-05:00",
+      "updated_at": "2025-12-26T20:38:45.703038700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 321,
+      "change_id": "ac843fbc-1953-4b61-8ef3-4c88c98572f5",
+      "node_type": "outcome",
+      "title": "Fixed save-results to check if upload exists by ID instead of recent time check - extension flow now saves matches",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:39:45.657720100-05:00",
+      "updated_at": "2025-12-26T20:39:45.657720100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6876,6 +6920,50 @@
       "weight": 1.0,
       "rationale": "Goal achieved",
       "created_at": "2025-12-26T20:20:26.885283800-05:00"
+    },
+    {
+      "id": 309,
+      "from_node_id": 317,
+      "to_node_id": 318,
+      "from_change_id": "3a24a4a2-b4d0-4629-a29b-b33994d50e75",
+      "to_change_id": "371f788d-46df-4651-b338-f9310f8ae810",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New issues found",
+      "created_at": "2025-12-26T20:37:06.303637800-05:00"
+    },
+    {
+      "id": 310,
+      "from_node_id": 318,
+      "to_node_id": 319,
+      "from_change_id": "371f788d-46df-4651-b338-f9310f8ae810",
+      "to_change_id": "28681ed9-6d12-476e-a60d-291ee2034952",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause found",
+      "created_at": "2025-12-26T20:37:37.527168300-05:00"
+    },
+    {
+      "id": 311,
+      "from_node_id": 319,
+      "to_node_id": 320,
+      "from_change_id": "28681ed9-6d12-476e-a60d-291ee2034952",
+      "to_change_id": "04f6a182-c5a1-4844-b186-24605a8e74a9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to fix",
+      "created_at": "2025-12-26T20:38:48.486046-05:00"
+    },
+    {
+      "id": 312,
+      "from_node_id": 320,
+      "to_node_id": 321,
+      "from_change_id": "04f6a182-c5a1-4844-b186-24605a8e74a9",
+      "to_change_id": "ac843fbc-1953-4b61-8ef3-4c88c98572f5",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T20:39:48.757903800-05:00"
     }
   ]
 }

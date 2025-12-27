@@ -66,24 +66,22 @@ const saveResultsHandler: AuthenticatedHandler = async (context) => {
   const matchRepo = new MatchRepository();
   let matchedCount = 0;
 
-  const hasRecent = await uploadRepo.hasRecentUpload(context.did);
-  if (hasRecent) {
-    console.log(
-      `User ${context.did} already saved within 5 seconds, skipping duplicate`,
-    );
-    return successResponse({
-      success: true,
-      message: "Recently saved",
-    });
-  }
+  // Check if this specific upload already exists
+  const existingUpload = await uploadRepo.getUpload(uploadId, context.did);
 
-  await uploadRepo.createUpload(
-    uploadId,
-    context.did,
-    sourcePlatform,
-    results.length,
-    0,
-  );
+  if (!existingUpload) {
+    // Upload doesn't exist - create it (file upload flow)
+    await uploadRepo.createUpload(
+      uploadId,
+      context.did,
+      sourcePlatform,
+      results.length,
+      0,
+    );
+  } else {
+    // Upload exists (extension flow) - just update it with matches
+    console.log(`[save-results] Updating existing upload ${uploadId} with matches`);
+  }
 
   const allUsernames = results.map((r) => r.sourceUser.username);
   const sourceAccountIdMap = await sourceAccountRepo.bulkCreate(
