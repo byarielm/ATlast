@@ -8,12 +8,12 @@
     "files_changed": 5
   },
   {
-    "hash": "b6b8c3968bbe1d71e38d2acbea3f31c77f08656a",
-    "short_hash": "b6b8c39",
+    "hash": "6ced3f0b015af1c9126559a393996576402cfd03",
+    "short_hash": "6ced3f0",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T13:52:59-05:00",
-    "message": "fix: correct function name to handleLoadUpload in uploadId useEffect",
-    "files_changed": 3
+    "date": "2025-12-26T14:12:46-05:00",
+    "message": "fix extension flow: create user_source_follows, auto-search, time display\n\nBackend (extension-import.ts):\n- Now creates user_source_follows entries linking upload to source accounts\n- Without these, get-upload-details returned empty (queries FROM user_source_follows)\n- Uses bulkCreate return value (Map<username, id>) to create links\n\nFrontend (App.tsx):\n- handleLoadUpload now detects if upload has no matches yet\n- Sets isSearching: true for new uploads\n- Automatically triggers searchAllUsers for new uploads\n- Saves results after search completes\n- Changed platform from hardcoded \"tiktok\" to \"twitter\"\n\nFrontend (HistoryTab.tsx):\n- Fixed time display: removed \"Uploaded\" prefix\n- Now shows \"about 5 hours ago\" instead of \"Uploaded in about 5 hours\"\n- formatRelativeTime with addSuffix already provides complete sentence\n\nResolves:\n- Empty results on page load\n- No automatic searching\n- History navigation not working (will work after search)\n- Grammatically incorrect time display",
+    "files_changed": 5
   },
   {
     "hash": "581ed00fec3c0c5f472c6ff92e00bf4ed5b27e9a",
@@ -40,12 +40,12 @@
     "files_changed": 2
   },
   {
-    "hash": "a203bc343b1768cd51e08b51ed296eddb51d21b7",
-    "short_hash": "a203bc3",
+    "hash": "95636330f387598f55017eda668fb9f91ccde509",
+    "short_hash": "9563633",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T00:50:44-05:00",
-    "message": "update documentation with current debugging status\n\nPLAN.md updates:\n- Added current status section with recent fixes and active work\n- Marked Phase 0 as complete\n- Marked Phase 1 as in progress (debugging)\n- Updated changelog with 2025-12-26 progress\n- Updated decision graph count to 288 nodes\n\nEXTENSION_STATUS.md updates:\n- Changed state from READY FOR TESTING to DEBUGGING\n- Added fixed issues section (NaN bug, database init)\n- Added active debugging section\n- Updated decision graph summary to 288 nodes\n- Added node references for recent fixes (#287-288)\n\nDecision graph:\n- Synced with latest nodes (288 total, 276 edges)\n- Tracked database initialization outcome",
-    "files_changed": 4
+    "date": "2025-12-26T13:35:52-05:00",
+    "message": "fix extension api-client: unwrap ApiResponse.data structure\n\nBackend endpoints use successResponse() which wraps data in:\n  { success: true, data: {...} }\n\nExtension was expecting flat response structure, causing:\n- uploadToATlast to return undefined (missing importId, redirectUrl)\n- checkSession to return wrapped object instead of user data\n- Invalid URL error: \"http://127.0.0.1:8888undefined\"\n\nFixed both uploadToATlast and checkSession to access apiResponse.data",
+    "files_changed": 2
   },
   {
     "hash": "34bd9dcd1237971a87627b148c0452b8484e4871",
@@ -88,20 +88,20 @@
     "files_changed": 3
   },
   {
-    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
-    "short_hash": "32cdee3",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 4
-  },
-  {
     "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
     "short_hash": "ba29fd6",
     "author": "Ariel M. Lighty",
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 5
+  },
+  {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",

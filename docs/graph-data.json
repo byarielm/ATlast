@@ -3442,6 +3442,50 @@
       "created_at": "2025-12-26T16:08:24.248208800-05:00",
       "updated_at": "2025-12-26T16:08:24.248208800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 314,
+      "change_id": "6837403f-1e30-4a71-bcf5-71db0cac6afc",
+      "node_type": "goal",
+      "title": "Fix validation error and undefined localeCompare in extension flow",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:17:59.516959100-05:00",
+      "updated_at": "2025-12-26T20:17:59.516959100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 315,
+      "change_id": "a08d22fc-5970-4a5d-8454-4a1ef2efc7e4",
+      "node_type": "observation",
+      "title": "Two errors: 1) batch-search-actors gets null in usernames array, 2) Frontend localeCompare on undefined - likely wrong SearchResult structure",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:18:03.693879700-05:00",
+      "updated_at": "2025-12-26T20:18:03.693879700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 316,
+      "change_id": "58ef0c82-402c-4fff-8421-83c5417475b1",
+      "node_type": "action",
+      "title": "Fix SearchResult structure - sourceUser should be object not string",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:19:47.621459800-05:00",
+      "updated_at": "2025-12-26T20:19:47.621459800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 317,
+      "change_id": "3a24a4a2-b4d0-4629-a29b-b33994d50e75",
+      "node_type": "outcome",
+      "title": "Fixed SearchResult structure - sourceUser is now correct SourceUser object instead of string",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-26T20:20:22.507291300-05:00",
+      "updated_at": "2025-12-26T20:20:22.507291300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -6777,6 +6821,61 @@
       "weight": 1.0,
       "rationale": "Implementation complete",
       "created_at": "2025-12-26T16:08:26.942822600-05:00"
+    },
+    {
+      "id": 304,
+      "from_node_id": 313,
+      "to_node_id": 314,
+      "from_change_id": "5fae9da8-2a31-4f99-9686-7bfb28c443e8",
+      "to_change_id": "6837403f-1e30-4a71-bcf5-71db0cac6afc",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New errors found",
+      "created_at": "2025-12-26T20:18:01.626612100-05:00"
+    },
+    {
+      "id": 305,
+      "from_node_id": 314,
+      "to_node_id": 315,
+      "from_change_id": "6837403f-1e30-4a71-bcf5-71db0cac6afc",
+      "to_change_id": "a08d22fc-5970-4a5d-8454-4a1ef2efc7e4",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Initial analysis",
+      "created_at": "2025-12-26T20:18:45.898518700-05:00"
+    },
+    {
+      "id": 306,
+      "from_node_id": 315,
+      "to_node_id": 316,
+      "from_change_id": "a08d22fc-5970-4a5d-8454-4a1ef2efc7e4",
+      "to_change_id": "58ef0c82-402c-4fff-8421-83c5417475b1",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix identified",
+      "created_at": "2025-12-26T20:19:50.103362300-05:00"
+    },
+    {
+      "id": 307,
+      "from_node_id": 316,
+      "to_node_id": 317,
+      "from_change_id": "58ef0c82-402c-4fff-8421-83c5417475b1",
+      "to_change_id": "3a24a4a2-b4d0-4629-a29b-b33994d50e75",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-26T20:20:24.693529800-05:00"
+    },
+    {
+      "id": 308,
+      "from_node_id": 314,
+      "to_node_id": 317,
+      "from_change_id": "6837403f-1e30-4a71-bcf5-71db0cac6afc",
+      "to_change_id": "3a24a4a2-b4d0-4629-a29b-b33994d50e75",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Goal achieved",
+      "created_at": "2025-12-26T20:20:26.885283800-05:00"
     }
   ]
 }

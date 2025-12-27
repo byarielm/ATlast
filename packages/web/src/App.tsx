@@ -185,7 +185,7 @@ export default function App() {
         const hasMatches = data.results.some(r => r.atprotoMatches.length > 0);
 
         const loadedResults: SearchResult[] = data.results.map((result) => ({
-          sourceUser: result.sourceUser.username,
+          sourceUser: result.sourceUser, // SourceUser object { username, date }
           sourcePlatform: platform,
           isSearching: !hasMatches, // Search if no matches exist yet
           atprotoMatches: result.atprotoMatches || [],
