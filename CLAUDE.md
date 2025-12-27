@@ -78,6 +78,99 @@ Prompts are viewable in the TUI detail panel (`deciduous tui`) and web viewer.
 
 **Root `goal` nodes are the ONLY valid orphans.**
 
+### Node Lifecycle Management
+
+**Every node has a lifecycle. Update status in REAL-TIME:**
+
+```bash
+# 1. Create node (defaults to 'pending')
+deciduous add action "Implementing feature X" -c 85
+
+# 2. IMMEDIATELY link to parent (before doing anything else)
+deciduous link <parent_id> <new_node_id> -r "Reason for connection"
+
+# 3. Mark as in_progress BEFORE starting work
+deciduous status <node_id> in_progress
+
+# 4. Do the work...
+
+# 5. Mark as completed IMMEDIATELY after work finishes
+deciduous status <node_id> completed
+```
+
+**Status Transitions:**
+- `pending` → Default state when created
+- `in_progress` → Mark BEFORE starting work (only ONE at a time)
+- `completed` → Mark IMMEDIATELY when done (proven by git commit, test pass, etc.)
+
+**CRITICAL RULES:**
+- ✅ Link nodes IMMEDIATELY after creation (same command sequence)
+- ✅ Update status to `completed` as soon as work is done
+- ✅ Only ONE node should be `in_progress` at a time
+- ✅ Verify link exists before moving on (check `deciduous edges`)
+- ❌ NEVER leave completed work marked as `pending`
+- ❌ NEVER create orphan nodes (except root goals)
+- ❌ NEVER batch status updates - update immediately
+
+**Verification Workflow:**
+```bash
+# After creating and linking a node, verify:
+deciduous edges | grep <new_node_id>  # Should show incoming edge
+deciduous nodes | grep <new_node_id>  # Check status is correct
+```
+
+**Common Mistakes That Break the Graph:**
+
+1. **Creating nodes without linking** → Orphans
+   ```bash
+   # WRONG
+   deciduous add action "Fix bug" -c 85
+   # (forget to link, move on to next task)
+
+   # RIGHT
+   deciduous add action "Fix bug" -c 85
+   deciduous link 42 43 -r "Action to resolve goal #42"
+   ```
+
+2. **Leaving nodes as "pending" after work completes** → Stale status
+   ```bash
+   # WRONG
+   git commit -m "fix: bug fixed"
+   # (forget to update node status)
+
+   # RIGHT
+   git commit -m "fix: bug fixed"
+   deciduous status 43 completed
+   ```
+
+3. **Batch-creating multiple nodes before linking** → Connection gaps
+   ```bash
+   # WRONG
+   deciduous add action "Task 1" -c 85
+   deciduous add action "Task 2" -c 85
+   deciduous add action "Task 3" -c 85
+   # (now have to remember all IDs to link)
+
+   # RIGHT
+   deciduous add action "Task 1" -c 85
+   deciduous link 42 43 -r "First task"
+   deciduous add action "Task 2" -c 85
+   deciduous link 42 44 -r "Second task"
+   ```
+
+4. **Not regenerating parent list during orphan checks** → False positives
+   ```bash
+   # WRONG
+   # (generate parent list once)
+   deciduous link X Y -r "fix orphan"
+   # (check orphans with stale parent list)
+
+   # RIGHT
+   deciduous link X Y -r "fix orphan"
+   # Regenerate parent list before checking again
+   deciduous edges | tail -n+3 | awk '{print $3}' | sort -u > /tmp/has_parent.txt
+   ```
+
 ### Quick Commands
 
 ```bash
@@ -181,9 +274,32 @@ auto_detect = true
 
 ### Audit Checklist (Before Every Sync)
 
-1. Does every **outcome** link back to what caused it?
-2. Does every **action** link to why you did it?
-3. Any **dangling outcomes** without parents?
+Run these checks before `deciduous sync`:
+
+1. **Connection integrity**: Does every non-goal node have a parent?
+   ```bash
+   deciduous edges | tail -n+3 | awk '{print $3}' | sort -u > /tmp/has_parent.txt
+   deciduous nodes | tail -n+3 | awk '{print $1}' > /tmp/all_nodes.txt
+   while read id; do grep -q "^$id$" /tmp/has_parent.txt || echo "CHECK: $id"; done < /tmp/all_nodes.txt
+   # Only root goals should appear
+   ```
+
+2. **Status accuracy**: Are completed nodes marked `completed`?
+   ```bash
+   deciduous nodes | grep pending
+   # Review: is this work actually still pending, or is it done?
+   ```
+
+3. **Active work**: Is there exactly ONE `in_progress` node?
+   ```bash
+   deciduous nodes | grep in_progress
+   # Should see 0-1 nodes, not multiple
+   ```
+
+4. **Logical flow**: Does every outcome link back to what caused it?
+   - `outcome` → `action` or `goal`
+   - `action` → `goal` or `decision`
+   - `observation` → related `goal` or `action`
 
 ### Session Start Checklist
 

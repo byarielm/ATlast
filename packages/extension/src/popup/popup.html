@@ -1,99 +1,119 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ATlast Importer</title>
-  <link rel="stylesheet" href="popup.css">
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>ATlast Importer</h1>
-      <p class="tagline">Find your follows on Bluesky</p>
-    </header>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>ATlast Importer</title>
+        <link rel="stylesheet" href="popup.css" />
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>ATlast Importer</h1>
+                <p class="tagline">Find your follows in the ATmosphere</p>
+            </header>
 
-    <main id="app">
-      <!-- Idle state -->
-      <div id="state-idle" class="state hidden">
-        <div class="icon">🔍</div>
-        <p class="message">Go to your Twitter/X Following page to start</p>
-        <p class="hint">Visit x.com/yourusername/following</p>
-      </div>
+            <main id="app">
+                <!-- Idle state -->
+                <div id="state-idle" class="state hidden">
+                    <div class="icon">🔍</div>
+                    <p class="message">
+                        Go to your Twitter/X Following page to start
+                    </p>
+                    <p class="hint">Visit x.com/yourusername/following</p>
+                </div>
 
-      <!-- Ready state -->
-      <div id="state-ready" class="state hidden">
-        <div class="icon">✅</div>
-        <p class="message">Ready to scan <span id="platform-name"></span></p>
-        <button id="btn-start" class="btn-primary">Start Scan</button>
-      </div>
+                <!-- Ready state -->
+                <div id="state-ready" class="state hidden">
+                    <div class="icon">✅</div>
+                    <p class="message">
+                        Ready to scan <span id="platform-name"></span>
+                    </p>
+                    <button id="btn-start" class="btn-primary">
+                        Start Scan
+                    </button>
+                </div>
 
-      <!-- Scraping state -->
-      <div id="state-scraping" class="state hidden">
-        <div class="icon spinner">⏳</div>
-        <p class="message">Scanning...</p>
-        <div class="progress">
-          <div class="progress-bar">
-            <div id="progress-fill" class="progress-fill"></div>
-          </div>
-          <p class="progress-text">
-            Found <span id="count">0</span> users
-          </p>
-          <p id="status-message" class="status-message"></p>
+                <!-- Scraping state -->
+                <div id="state-scraping" class="state hidden">
+                    <div class="icon spinner">⏳</div>
+                    <p class="message">Scanning...</p>
+                    <div class="progress">
+                        <div class="progress-bar">
+                            <div id="progress-fill" class="progress-fill"></div>
+                        </div>
+                        <p class="progress-text">
+                            Found <span id="count">0</span> users
+                        </p>
+                        <p id="status-message" class="status-message"></p>
+                    </div>
+                </div>
+
+                <!-- Complete state -->
+                <div id="state-complete" class="state hidden">
+                    <div class="icon">🎉</div>
+                    <p class="message">Scan complete!</p>
+                    <p class="count-display">
+                        Found <strong id="final-count">0</strong> users
+                    </p>
+                    <button id="btn-upload" class="btn-primary">
+                        Open in ATlast
+                    </button>
+                </div>
+
+                <!-- Uploading state -->
+                <div id="state-uploading" class="state hidden">
+                    <div class="icon spinner">📤</div>
+                    <p class="message">Uploading to ATlast...</p>
+                </div>
+
+                <!-- Error state -->
+                <div id="state-error" class="state hidden">
+                    <div class="icon">⚠️</div>
+                    <p class="message">Error</p>
+                    <p id="error-message" class="error-message"></p>
+                    <button id="btn-retry" class="btn-secondary">
+                        Try Again
+                    </button>
+                </div>
+
+                <!-- Server offline state -->
+                <div id="state-offline" class="state hidden">
+                    <div class="icon">🔌</div>
+                    <p class="message">ATlast server not running</p>
+                    <p class="error-message">
+                        Start the dev server:<br />
+                        <code>npx netlify-cli dev --filter @atlast/web</code>
+                    </p>
+                    <p class="hint" id="server-url"></p>
+                    <button id="btn-check-server" class="btn-primary">
+                        Check Again
+                    </button>
+                </div>
+
+                <!-- Not logged in state -->
+                <div id="state-not-logged-in" class="state hidden">
+                    <div class="icon">🔐</div>
+                    <p class="message">Not logged in to ATlast</p>
+                    <p class="error-message">
+                        Please log in to ATlast first, then return here to scan.
+                    </p>
+                    <button id="btn-open-atlast" class="btn-primary">
+                        Open ATlast
+                    </button>
+                    <button id="btn-retry-login" class="btn-secondary">
+                        Check Again
+                    </button>
+                </div>
+            </main>
+
+            <footer>
+                <a href="https://atlast.byarielm.fyi" target="_blank"
+                    >atlast.byarielm.fyi</a
+                >
+            </footer>
         </div>
-      </div>
 
-      <!-- Complete state -->
-      <div id="state-complete" class="state hidden">
-        <div class="icon">🎉</div>
-        <p class="message">Scan complete!</p>
-        <p class="count-display">Found <strong id="final-count">0</strong> users</p>
-        <button id="btn-upload" class="btn-primary">Open in ATlast</button>
-      </div>
-
-      <!-- Uploading state -->
-      <div id="state-uploading" class="state hidden">
-        <div class="icon spinner">📤</div>
-        <p class="message">Uploading to ATlast...</p>
-      </div>
-
-      <!-- Error state -->
-      <div id="state-error" class="state hidden">
-        <div class="icon">⚠️</div>
-        <p class="message">Error</p>
-        <p id="error-message" class="error-message"></p>
-        <button id="btn-retry" class="btn-secondary">Try Again</button>
-      </div>
-
-      <!-- Server offline state -->
-      <div id="state-offline" class="state hidden">
-        <div class="icon">🔌</div>
-        <p class="message">ATlast server not running</p>
-        <p class="error-message">
-          Start the dev server:<br>
-          <code>npx netlify-cli dev --filter @atlast/web</code>
-        </p>
-        <p class="hint" id="server-url"></p>
-        <button id="btn-check-server" class="btn-primary">Check Again</button>
-      </div>
-
-      <!-- Not logged in state -->
-      <div id="state-not-logged-in" class="state hidden">
-        <div class="icon">🔐</div>
-        <p class="message">Not logged in to ATlast</p>
-        <p class="error-message">
-          Please log in to ATlast first, then return here to scan.
-        </p>
-        <button id="btn-open-atlast" class="btn-primary">Open ATlast</button>
-        <button id="btn-retry-login" class="btn-secondary">Check Again</button>
-      </div>
-    </main>
-
-    <footer>
-      <a href="https://atlast.byarielm.fyi" target="_blank">atlast.byarielm.fyi</a>
-    </footer>
-  </div>
-
-  <script type="module" src="popup.js"></script>
-</body>
+        <script type="module" src="popup.js"></script>
+    </body>
 </html>

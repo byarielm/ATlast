@@ -3504,9 +3504,9 @@
       "node_type": "observation",
       "title": "save-results has hasRecentUpload check that skips saving if upload created within 5 seconds - extension-import creates upload then save-results is called immediately, gets skipped!",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:37:34.735156200-05:00",
-      "updated_at": "2025-12-26T20:37:34.735156200-05:00",
+      "updated_at": "2025-12-27T15:37:51.134056500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     },
     {
@@ -3515,9 +3515,9 @@
       "node_type": "action",
       "title": "Fix save-results to skip duplicate check for extension uploads and handle timestamps correctly",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:38:45.703038700-05:00",
-      "updated_at": "2025-12-26T20:38:45.703038700-05:00",
+      "updated_at": "2025-12-27T15:37:51.269445900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3526,9 +3526,9 @@
       "node_type": "outcome",
       "title": "Fixed save-results to check if upload exists by ID instead of recent time check - extension flow now saves matches",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:39:45.657720100-05:00",
-      "updated_at": "2025-12-26T20:39:45.657720100-05:00",
+      "updated_at": "2025-12-27T15:37:51.395550200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3537,9 +3537,9 @@
       "node_type": "observation",
       "title": "onComplete callback in handleLoadUpload accesses stale searchResults from closure - state updated by searchAllUsers not visible to callback",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:51:55.431293100-05:00",
-      "updated_at": "2025-12-26T20:51:55.431293100-05:00",
+      "updated_at": "2025-12-27T15:37:51.544390300-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3548,9 +3548,9 @@
       "node_type": "outcome",
       "title": "Fixed stale closure issue - onComplete now receives finalResults from useSearch state",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:55:36.922743800-05:00",
-      "updated_at": "2025-12-26T20:55:36.922743800-05:00",
+      "updated_at": "2025-12-27T15:37:51.688947900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -3559,9 +3559,9 @@
       "node_type": "outcome",
       "title": "Committed stale closure fix - results now save immediately after search completes",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T20:58:48.266958800-05:00",
-      "updated_at": "2025-12-26T20:58:48.266958800-05:00",
+      "updated_at": "2025-12-27T15:37:51.824656100-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"212660a\",\"confidence\":95}"
     },
     {
@@ -3570,9 +3570,9 @@
       "node_type": "outcome",
       "title": "Loading screen now shows during extension upload search",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T21:20:42.635515100-05:00",
-      "updated_at": "2025-12-26T21:20:42.635515100-05:00",
+      "updated_at": "2025-12-27T15:37:51.996612500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"46626f4\",\"confidence\":95}"
     },
     {
@@ -3581,9 +3581,9 @@
       "node_type": "outcome",
       "title": "Fixed timezone issue - all timestamp columns now use TIMESTAMPTZ",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T21:46:14.340967100-05:00",
-      "updated_at": "2025-12-26T21:46:14.340967100-05:00",
+      "updated_at": "2025-12-27T15:37:52.151895800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"aacbbaa\",\"confidence\":95}"
     },
     {
@@ -3592,10 +3592,54 @@
       "node_type": "outcome",
       "title": "Optimized Vite config with explicit dependency pre-bundling",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-26T21:57:16.155112400-05:00",
-      "updated_at": "2025-12-26T21:57:16.155112400-05:00",
+      "updated_at": "2025-12-27T15:37:52.289922500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"commit\":\"e04934f\",\"confidence\":85}"
+    },
+    {
+      "id": 328,
+      "change_id": "7823be1a-fca9-4cb5-9e62-dfbc8cb71e55",
+      "node_type": "outcome",
+      "title": "Fixed decision graph integrity - linked 18 orphan nodes to parent goals, marked nodes 319-327 as completed",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-27T15:38:21.291457500-05:00",
+      "updated_at": "2025-12-27T15:38:21.291457500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
+    },
+    {
+      "id": 329,
+      "change_id": "c839ec54-b098-4030-8ff4-857549b17363",
+      "node_type": "observation",
+      "title": "Decision graph audit revealed systematic issues: 18 orphan nodes, incorrect status (pending vs completed), wrong orphan detection commands in recovery workflow",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-27T15:40:23.238704300-05:00",
+      "updated_at": "2025-12-27T15:40:23.238704300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 330,
+      "change_id": "1f554b87-3775-450b-a3a1-b23eeebc7e38",
+      "node_type": "action",
+      "title": "Analyzing decision graph issues and updating CLAUDE.md with improved workflow",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T15:41:04.067444-05:00",
+      "updated_at": "2025-12-27T15:47:53.643256600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 331,
+      "change_id": "8c746dd6-d571-4446-8a53-af6279fc9c21",
+      "node_type": "outcome",
+      "title": "Updated CLAUDE.md and .claude/ files with node lifecycle management, correct orphan detection commands, and common mistakes section",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T15:47:49.308750700-05:00",
+      "updated_at": "2025-12-27T15:47:55.838439500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":100}"
     }
   ],
   "edges": [
@@ -7096,6 +7140,160 @@
       "weight": 1.0,
       "rationale": "User reported slow dev server startup - 4.5s from Vite",
       "created_at": "2025-12-26T21:57:18.723545100-05:00"
+    },
+    {
+      "id": 319,
+      "from_node_id": 305,
+      "to_node_id": 325,
+      "from_change_id": "8ad6ef53-29a2-442e-b88f-9e0541634950",
+      "to_change_id": "e44f45f8-bac9-4a49-ac68-ac9d7d113226",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implemented loading screen for extension upload flow",
+      "created_at": "2025-12-27T15:22:53.706223600-05:00"
+    },
+    {
+      "id": 320,
+      "from_node_id": 318,
+      "to_node_id": 326,
+      "from_change_id": "371f788d-46df-4651-b338-f9310f8ae810",
+      "to_change_id": "af76ea64-b0b1-4577-b521-4ec21cc555e1",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fixed timezone issue with TIMESTAMPTZ migration",
+      "created_at": "2025-12-27T15:22:56.160485500-05:00"
+    },
+    {
+      "id": 321,
+      "from_node_id": 69,
+      "to_node_id": 67,
+      "from_change_id": "5754ca49-f09b-489f-a4b0-f412159f4cd4",
+      "to_change_id": "6aef16a0-0524-4ad9-a8ff-b335069c860d",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to understand current duplicate types",
+      "created_at": "2025-12-27T15:36:45.647337400-05:00"
+    },
+    {
+      "id": 322,
+      "from_node_id": 110,
+      "to_node_id": 117,
+      "from_change_id": "22b9c3db-9f95-45d7-a3ed-bdfac54677db",
+      "to_change_id": "d78b544a-8897-4149-ac48-4f35f6def985",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Cleanup observation during codebase cleanup",
+      "created_at": "2025-12-27T15:36:47.932994300-05:00"
+    },
+    {
+      "id": 323,
+      "from_node_id": 110,
+      "to_node_id": 183,
+      "from_change_id": "22b9c3db-9f95-45d7-a3ed-bdfac54677db",
+      "to_change_id": "6e1851e2-134c-4c8f-86af-5487fda7d05c",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Removed build artifacts from git history",
+      "created_at": "2025-12-27T15:36:50.152456600-05:00"
+    },
+    {
+      "id": 324,
+      "from_node_id": 184,
+      "to_node_id": 228,
+      "from_change_id": "919c42ef-9fae-473f-b755-ee32d8999204",
+      "to_change_id": "7958ec7b-ff18-41d4-b1e1-fc9fa5603a1b",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Installing pnpm for monorepo structure",
+      "created_at": "2025-12-27T15:36:52.522283200-05:00"
+    },
+    {
+      "id": 325,
+      "from_node_id": 258,
+      "to_node_id": 262,
+      "from_change_id": "b8c6cd90-7f32-461e-aad5-537cc1cbfafe",
+      "to_change_id": "b8097a68-a63f-4cb6-aeac-2ed746e90126",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Discovered extension-import endpoint during debugging",
+      "created_at": "2025-12-27T15:36:55.150261400-05:00"
+    },
+    {
+      "id": 326,
+      "from_node_id": 258,
+      "to_node_id": 263,
+      "from_change_id": "b8c6cd90-7f32-461e-aad5-537cc1cbfafe",
+      "to_change_id": "b5109344-a5d3-43b3-b743-b06730453514",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Discovered routing issue during debugging",
+      "created_at": "2025-12-27T15:36:57.690344600-05:00"
+    },
+    {
+      "id": 327,
+      "from_node_id": 270,
+      "to_node_id": 275,
+      "from_change_id": "8cf80c58-e909-4f0b-85e8-ac15d7cf3640",
+      "to_change_id": "dcc9f401-1a68-479e-97de-7a04e5597e00",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Discovered CORS blocking health check",
+      "created_at": "2025-12-27T15:37:00.388733200-05:00"
+    },
+    {
+      "id": 328,
+      "from_node_id": 278,
+      "to_node_id": 282,
+      "from_change_id": "fa11e7d7-ac30-4d0e-bc8a-d2332f724d92",
+      "to_change_id": "206347b5-4178-43dd-bb05-657b3788a6b0",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Refactoring extension flow to match upload behavior",
+      "created_at": "2025-12-27T15:37:02.697547600-05:00"
+    },
+    {
+      "id": 329,
+      "from_node_id": 278,
+      "to_node_id": 283,
+      "from_change_id": "fa11e7d7-ac30-4d0e-bc8a-d2332f724d92",
+      "to_change_id": "e3adddaf-9126-4bfa-8d75-aa8b94323077",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Observation after implementing auth and upload creation",
+      "created_at": "2025-12-27T15:37:04.961909600-05:00"
+    },
+    {
+      "id": 330,
+      "from_node_id": 328,
+      "to_node_id": 329,
+      "from_change_id": "7823be1a-fca9-4cb5-9e62-dfbc8cb71e55",
+      "to_change_id": "c839ec54-b098-4030-8ff4-857549b17363",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Analysis of what went wrong during graph maintenance",
+      "created_at": "2025-12-27T15:40:25.442264900-05:00"
+    },
+    {
+      "id": 331,
+      "from_node_id": 329,
+      "to_node_id": 330,
+      "from_change_id": "c839ec54-b098-4030-8ff4-857549b17363",
+      "to_change_id": "1f554b87-3775-450b-a3a1-b23eeebc7e38",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Action to prevent future graph integrity issues",
+      "created_at": "2025-12-27T15:41:06.239618300-05:00"
+    },
+    {
+      "id": 332,
+      "from_node_id": 330,
+      "to_node_id": 331,
+      "from_change_id": "1f554b87-3775-450b-a3a1-b23eeebc7e38",
+      "to_change_id": "8c746dd6-d571-4446-8a53-af6279fc9c21",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Successfully completed documentation updates",
+      "created_at": "2025-12-27T15:47:51.427087400-05:00"
     }
   ]
 }

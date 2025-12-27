@@ -8,12 +8,12 @@
     "files_changed": 1
   },
   {
-    "hash": "8f692c7ff534680b09e98e16c58e5effa0badd9f",
-    "short_hash": "8f692c7",
+    "hash": "e04934ffb5e2d78791fcd23bc3afeb4d438a5546",
+    "short_hash": "e04934f",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T21:48:59-05:00",
-    "message": "docs: update decision graph after timezone fix",
-    "files_changed": 2
+    "date": "2025-12-26T21:57:05-05:00",
+    "message": "perf: optimize Vite dev server startup\n\nAdded explicit optimizeDeps.include to pre-bundle common dependencies:\n- React ecosystem (react, react-dom, react-router-dom)\n- Icon libraries (@icons-pack/react-simple-icons, lucide-react)\n- Other deps (date-fns, jszip, zustand, @tanstack/react-virtual)\n\nAlso added server.fs.allow config for monorepo file serving.\n\nThis should speed up subsequent dev server starts by ensuring these\ndependencies are consistently pre-bundled.",
+    "files_changed": 1
   },
   {
     "hash": "aacbbaa27797781098dacdfd0194c93cd71d7bd2",
@@ -32,12 +32,12 @@
     "files_changed": 1
   },
   {
-    "hash": "212660a996d6b0f1db59f9532d2b3968c7113f10",
-    "short_hash": "212660a",
+    "hash": "46626f4a18eaaaaf42368361130bb1ddc7bd9677",
+    "short_hash": "46626f4",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-26T20:58:45-05:00",
-    "message": "fix: pass final search results to onComplete callback\n\nFixes issue where results were displayed but not saved to database until\npage refresh. Root cause: onComplete callback accessed stale searchResults\nfrom closure instead of updated state.\n\nChanges:\n- useSearch.searchAllUsers: onComplete now receives SearchResult[] param\n- useSearch: uses setSearchResults updater to get current state\n- App.tsx: updated all 3 searchAllUsers calls to use finalResults\n- Removed setTimeout workarounds\n\nResult: Extension and file upload flows now save immediately after search.",
-    "files_changed": 4
+    "date": "2025-12-26T21:20:34-05:00",
+    "message": "fix: show loading screen during extension upload search\n\nPreviously when loading an upload from extension that hadn't been searched yet,\nthe app would immediately navigate to the results page showing 'none' for all\nmatches, then update them as the search progressed.\n\nNow it behaves like the file upload flow:\n- Shows loading screen during search\n- Navigates to results only after search completes and results are saved\n- If upload already has matches, navigates to results immediately",
+    "files_changed": 1
   },
   {
     "hash": "212660a996d6b0f1db59f9532d2b3968c7113f10",
@@ -120,20 +120,20 @@
     "files_changed": 3
   },
   {
-    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
-    "short_hash": "32cdee3",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 4
-  },
-  {
     "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
     "short_hash": "ba29fd6",
     "author": "Ariel M. Lighty",
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 5
+  },
+  {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",
