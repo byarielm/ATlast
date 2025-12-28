@@ -30,7 +30,7 @@ const sessionHandler: SimpleHandler = async (event) => {
     return successResponse(cached, 200, {
       "Cache-Control": "private, max-age=300",
       "X-Cache-Status": "HIT",
-    });
+    }, event);
   }
 
   const { agent } = await SessionService.getAgentForSession(sessionId, event);
@@ -50,7 +50,7 @@ const sessionHandler: SimpleHandler = async (event) => {
   return successResponse(profileData, 200, {
     "Cache-Control": "private, max-age=300",
     "X-Cache-Status": "MISS",
-  });
+  }, event);
 };
 
 export const handler = withErrorHandling(sessionHandler);

@@ -3937,6 +3937,83 @@
       "created_at": "2025-12-27T22:09:28.843864300-05:00",
       "updated_at": "2025-12-27T22:09:32.017503200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 359,
+      "change_id": "4a7d5885-1713-4ba7-ad13-bb12b58c9410",
+      "node_type": "outcome",
+      "title": "Committed fixes to git",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:10:25.576235500-05:00",
+      "updated_at": "2025-12-27T22:10:28.961887300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"bd3aabb\",\"confidence\":95}"
+    },
+    {
+      "id": 360,
+      "change_id": "706d5a7f-08ed-43f7-aee5-0bed28d9402a",
+      "node_type": "goal",
+      "title": "Fix extension not detecting login session despite dev server running",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:23:13.072419900-05:00",
+      "updated_at": "2025-12-27T22:41:49.160848100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"dark mode is fixed, but the extension in /chrome/ uploaded still is saying login with atlast and dev server is running\"}"
+    },
+    {
+      "id": 361,
+      "change_id": "aecf2327-d20d-4c6c-b6b0-06ccf26a2b27",
+      "node_type": "observation",
+      "title": "Extension dist/chrome contains production build, not dev build. User ran build:prod last.",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:23:45.918832500-05:00",
+      "updated_at": "2025-12-27T22:23:48.919570500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 362,
+      "change_id": "e897db97-44d8-4993-b4c3-0d829265b2f8",
+      "node_type": "observation",
+      "title": "Dev build now deployed. Extension will check session at http://127.0.0.1:8888/.netlify/functions/session with credentials:include",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:24:17.767230200-05:00",
+      "updated_at": "2025-12-27T22:24:20.981953100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 363,
+      "change_id": "2c62bfa3-d148-4448-8c2b-d0cf1e94ceb0",
+      "node_type": "observation",
+      "title": "Found CORS issue: successResponse uses 'Access-Control-Allow-Origin: *' which blocks credentialed requests from extension",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:24:51.861265800-05:00",
+      "updated_at": "2025-12-27T22:24:55.482724500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 364,
+      "change_id": "560d6bea-47ec-408d-919b-15ca7198aac9",
+      "node_type": "action",
+      "title": "Updating CORS headers to support credentialed requests from extension",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:25:23.035212700-05:00",
+      "updated_at": "2025-12-27T22:26:03.046221900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 365,
+      "change_id": "3ef0c9e9-aa40-4914-a5f4-32bcfaf68d04",
+      "node_type": "outcome",
+      "title": "Fixed CORS to support credentialed requests from extensions",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:41:38.430661200-05:00",
+      "updated_at": "2025-12-27T22:41:48.981429600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -7866,6 +7943,72 @@
       "weight": 1.0,
       "rationale": "Final outcome of fixes",
       "created_at": "2025-12-27T22:09:30.425884400-05:00"
+    },
+    {
+      "id": 358,
+      "from_node_id": 352,
+      "to_node_id": 359,
+      "from_change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "to_change_id": "4a7d5885-1713-4ba7-ad13-bb12b58c9410",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Git commit for fixes",
+      "created_at": "2025-12-27T22:10:27.225192300-05:00"
+    },
+    {
+      "id": 359,
+      "from_node_id": 360,
+      "to_node_id": 361,
+      "from_change_id": "706d5a7f-08ed-43f7-aee5-0bed28d9402a",
+      "to_change_id": "aecf2327-d20d-4c6c-b6b0-06ccf26a2b27",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause analysis",
+      "created_at": "2025-12-27T22:23:47.445630900-05:00"
+    },
+    {
+      "id": 360,
+      "from_node_id": 360,
+      "to_node_id": 362,
+      "from_change_id": "706d5a7f-08ed-43f7-aee5-0bed28d9402a",
+      "to_change_id": "e897db97-44d8-4993-b4c3-0d829265b2f8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Rebuilt dev version",
+      "created_at": "2025-12-27T22:24:19.438433600-05:00"
+    },
+    {
+      "id": 361,
+      "from_node_id": 360,
+      "to_node_id": 363,
+      "from_change_id": "706d5a7f-08ed-43f7-aee5-0bed28d9402a",
+      "to_change_id": "2c62bfa3-d148-4448-8c2b-d0cf1e94ceb0",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause: CORS configuration",
+      "created_at": "2025-12-27T22:24:53.741163700-05:00"
+    },
+    {
+      "id": 362,
+      "from_node_id": 360,
+      "to_node_id": 364,
+      "from_change_id": "706d5a7f-08ed-43f7-aee5-0bed28d9402a",
+      "to_change_id": "560d6bea-47ec-408d-919b-15ca7198aac9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation of CORS fix",
+      "created_at": "2025-12-27T22:25:24.843330900-05:00"
+    },
+    {
+      "id": 363,
+      "from_node_id": 360,
+      "to_node_id": 365,
+      "from_change_id": "706d5a7f-08ed-43f7-aee5-0bed28d9402a",
+      "to_change_id": "3ef0c9e9-aa40-4914-a5f4-32bcfaf68d04",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "CORS fix completed",
+      "created_at": "2025-12-27T22:41:44.160528300-05:00"
     }
   ]
 }
