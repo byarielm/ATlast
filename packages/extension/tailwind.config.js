@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  // Use class-based dark mode to match web app
-  darkMode: "class",
+  // Use media query dark mode to automatically respect system preference
+  darkMode: "media",
 
   // Scan popup HTML and TypeScript files
   content: [

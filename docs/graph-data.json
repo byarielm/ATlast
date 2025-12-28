@@ -3849,6 +3849,94 @@
       "created_at": "2025-12-27T18:07:49.869572400-05:00",
       "updated_at": "2025-12-27T18:07:52.136827400-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 351,
+      "change_id": "9468bcb3-78ec-4dae-8d8f-968ba6f5b3fe",
+      "node_type": "outcome",
+      "title": "Committed Tailwind CSS integration to git",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T18:38:55.689869700-05:00",
+      "updated_at": "2025-12-27T18:39:01.013284600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"commit\":\"d07180c\",\"confidence\":95}"
+    },
+    {
+      "id": 352,
+      "change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "node_type": "goal",
+      "title": "Fix extension dark mode and dev/prod detection issues",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:05:50.675487800-05:00",
+      "updated_at": "2025-12-27T22:09:32.111749500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90,\"prompt\":\"there now seems to be an issue with dark mode not activating, and either an issue with detecting dev vs prod or the copy is just wrong. analyze and fix.\"}"
+    },
+    {
+      "id": 353,
+      "change_id": "eaed6e9b-9f16-4b45-8783-44ea2ea1f2a9",
+      "node_type": "observation",
+      "title": "Found two issues: 1) darkMode: 'class' requires manual .dark class addition, 2) Dev/prod detection may be incorrect",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:06:19.509001-05:00",
+      "updated_at": "2025-12-27T22:06:23.515277300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 354,
+      "change_id": "d66fc83e-9737-4047-8ce2-e2ba857aeea9",
+      "node_type": "decision",
+      "title": "Choose dark mode strategy: media queries vs class-based with JS",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:07:01.587088200-05:00",
+      "updated_at": "2025-12-27T22:07:07.798171700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 355,
+      "change_id": "76e2a379-7803-4c82-8013-be6b62f2d360",
+      "node_type": "outcome",
+      "title": "Chose media queries - simpler and matches original behavior",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:07:04.660558100-05:00",
+      "updated_at": "2025-12-27T22:07:07.897193100-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 356,
+      "change_id": "df681aa8-e470-4ead-a0d2-a4095febfa3d",
+      "node_type": "action",
+      "title": "Fixing dark mode config to use media queries",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:07:24.774976300-05:00",
+      "updated_at": "2025-12-27T22:07:30.392290200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 357,
+      "change_id": "57060303-5a30-4f11-a752-a02376df5ea7",
+      "node_type": "action",
+      "title": "Making server offline message conditional on build mode",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:07:49.952419800-05:00",
+      "updated_at": "2025-12-27T22:09:00.514201500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 358,
+      "change_id": "fc211ac7-7a1a-4b69-835a-992c354e8237",
+      "node_type": "outcome",
+      "title": "Successfully fixed dark mode and dev/prod messaging",
+      "description": null,
+      "status": "completed",
+      "created_at": "2025-12-27T22:09:28.843864300-05:00",
+      "updated_at": "2025-12-27T22:09:32.017503200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
   "edges": [
@@ -7701,6 +7789,83 @@
       "weight": 1.0,
       "rationale": "Final outcome of Tailwind integration",
       "created_at": "2025-12-27T18:07:51.011406300-05:00"
+    },
+    {
+      "id": 351,
+      "from_node_id": 344,
+      "to_node_id": 351,
+      "from_change_id": "2a06900e-ea62-4adf-81d5-7f0cf1a29b31",
+      "to_change_id": "9468bcb3-78ec-4dae-8d8f-968ba6f5b3fe",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Git commit for Tailwind integration",
+      "created_at": "2025-12-27T18:38:58.347778400-05:00"
+    },
+    {
+      "id": 352,
+      "from_node_id": 352,
+      "to_node_id": 353,
+      "from_change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "to_change_id": "eaed6e9b-9f16-4b45-8783-44ea2ea1f2a9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Initial analysis of issues",
+      "created_at": "2025-12-27T22:06:21.516165300-05:00"
+    },
+    {
+      "id": 353,
+      "from_node_id": 352,
+      "to_node_id": 354,
+      "from_change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "to_change_id": "d66fc83e-9737-4047-8ce2-e2ba857aeea9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Need to decide dark mode approach",
+      "created_at": "2025-12-27T22:07:03.103941500-05:00"
+    },
+    {
+      "id": 354,
+      "from_node_id": 354,
+      "to_node_id": 355,
+      "from_change_id": "d66fc83e-9737-4047-8ce2-e2ba857aeea9",
+      "to_change_id": "76e2a379-7803-4c82-8013-be6b62f2d360",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Decision outcome",
+      "created_at": "2025-12-27T22:07:06.239151500-05:00"
+    },
+    {
+      "id": 355,
+      "from_node_id": 352,
+      "to_node_id": 356,
+      "from_change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "to_change_id": "df681aa8-e470-4ead-a0d2-a4095febfa3d",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation of dark mode fix",
+      "created_at": "2025-12-27T22:07:26.713411300-05:00"
+    },
+    {
+      "id": 356,
+      "from_node_id": 352,
+      "to_node_id": 357,
+      "from_change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "to_change_id": "57060303-5a30-4f11-a752-a02376df5ea7",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation of server message fix",
+      "created_at": "2025-12-27T22:07:51.662925600-05:00"
+    },
+    {
+      "id": 357,
+      "from_node_id": 352,
+      "to_node_id": 358,
+      "from_change_id": "b852ce18-1747-4c26-a65e-acfbbed2b1a5",
+      "to_change_id": "fc211ac7-7a1a-4b69-835a-992c354e8237",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Final outcome of fixes",
+      "created_at": "2025-12-27T22:09:30.425884400-05:00"
     }
   ]
 }

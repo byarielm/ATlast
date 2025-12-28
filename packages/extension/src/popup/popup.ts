@@ -5,6 +5,9 @@ import {
   type ExtensionState
 } from '../lib/messaging.js';
 
+// Build mode injected at build time
+declare const __BUILD_MODE__: string;
+
 /**
  * DOM elements
  */
@@ -26,6 +29,7 @@ const elements = {
   statusMessage: document.getElementById('status-message')!,
   errorMessage: document.getElementById('error-message')!,
   serverUrl: document.getElementById('server-url')!,
+  devInstructions: document.getElementById('dev-instructions')!,
   progressFill: document.getElementById('progress-fill')! as HTMLElement,
   btnStart: document.getElementById('btn-start')! as HTMLButtonElement,
   btnUpload: document.getElementById('btn-upload')! as HTMLButtonElement,
@@ -214,7 +218,20 @@ async function checkServer(): Promise<boolean> {
   if (!isOnline) {
     console.log('[Popup] ❌ Server is offline');
     showState('offline');
-    elements.serverUrl.textContent = `Trying to reach: ${getApiUrl()}`;
+
+    // Show appropriate message based on build mode
+    const apiUrl = getApiUrl();
+    const isDev = __BUILD_MODE__ === 'development';
+
+    // Hide dev instructions in production
+    if (!isDev) {
+      elements.devInstructions.classList.add('hidden');
+    }
+
+    elements.serverUrl.textContent = isDev
+      ? `Development server at ${apiUrl}`
+      : `Cannot reach ${apiUrl}`;
+
     return false;
   }
 
