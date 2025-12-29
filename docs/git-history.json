@@ -1,11 +1,11 @@
 [
   {
-    "hash": "603cf0a187850664336a12c9e5cbb49038906f53",
-    "short_hash": "603cf0a",
+    "hash": "be9f4207b61429400e44ccfda326595c1087235c",
+    "short_hash": "be9f420",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T22:42:43-05:00",
-    "message": "fix: CORS for extension credentialed requests\n\nUpdated CORS headers to support credentials from Chrome extensions:\n- Added getCorsHeaders() to detect chrome-extension:// origins\n- Changed from wildcard Access-Control-Allow-Origin to specific origin\n- Added Access-Control-Allow-Credentials: true for credentialed requests\n- Updated session endpoint to pass event for CORS header detection",
-    "files_changed": 4
+    "date": "2025-12-28T19:21:29-05:00",
+    "message": "feat: add Firefox support with webextension-polyfill\n\nImplemented cross-browser compatibility for the extension:\n\n- Installed webextension-polyfill for unified browser.* API\n- Replaced all chrome.* API calls with browser.* imports\n- Updated build system to output both chrome/ and firefox/ directories\n- Created Firefox-specific manifest with browser_specific_settings",
+    "files_changed": 12
   },
   {
     "hash": "603cf0a187850664336a12c9e5cbb49038906f53",
@@ -32,12 +32,12 @@
     "files_changed": 9
   },
   {
-    "hash": "fe29bb3e5faa0151f63c14724f7509af669860de",
-    "short_hash": "fe29bb3",
+    "hash": "6ac877ee6d1990bdab4ef3b03ac59f4682afe0a5",
+    "short_hash": "6ac877e",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T16:02:10-05:00",
-    "message": "docs: update all .md files to reflect current project status\n\nUpdated 4 markdown files with current state:\n\nEXTENSION_STATUS.md:\n- Changed status from DEBUGGING to COMPLETE\n- Updated decision graph count (295 → 332 nodes)\n- Added recently completed section (nodes 296-332)\n- Marked all extension bugs as resolved\n\nCONTRIBUTING.md:\n- Replaced npm with pnpm throughout\n- Added monorepo structure documentation\n- Updated development commands (netlify-cli dev --filter)\n- Added extension development workflow\n\nPLAN.md:\n- Updated status to Phase 1 COMPLETE\n- Added all recent fixes to completion list\n- Updated decision graph count to 332 nodes\n- Added changelog entries for latest work\n\npackages/extension/README.md:\n- Added prerequisites section (dev server + login required)\n- Updated build commands with dev/prod distinction\n- Added Step 0: Start ATlast Dev Server\n- Added common issues for auth and server states\n\nAll files now accurately reflect completion status and use pnpm.",
-    "files_changed": 6
+    "date": "2025-12-27T16:03:56-05:00",
+    "message": "docs: update decision graph after markdown updates",
+    "files_changed": 2
   },
   {
     "hash": "fe29bb3e5faa0151f63c14724f7509af669860de",
@@ -160,20 +160,20 @@
     "files_changed": 3
   },
   {
-    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
-    "short_hash": "32cdee3",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 4
-  },
-  {
     "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
     "short_hash": "ba29fd6",
     "author": "Ariel M. Lighty",
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 5
+  },
+  {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",

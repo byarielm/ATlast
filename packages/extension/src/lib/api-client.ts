@@ -78,19 +78,20 @@ export function getExtensionVersion(): string {
  */
 export async function checkServerHealth(): Promise<boolean> {
   try {
-    // Try to fetch the root URL with a short timeout
+    // Try to fetch the health endpoint with a short timeout
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-    const response = await fetch(ATLAST_API_URL, {
-      method: 'HEAD',
-      signal: controller.signal
+    const response = await fetch(`${ATLAST_API_URL}/.netlify/functions/health`, {
+      method: 'GET',
+      signal: controller.signal,
+      credentials: 'include', // Include for CORS
     });
 
     clearTimeout(timeoutId);
 
-    // Any response (even 404) means server is running
-    return true;
+    // Any successful response means server is running
+    return response.ok;
   } catch (error) {
     console.error('[API Client] Server health check failed:', error);
     return false;
