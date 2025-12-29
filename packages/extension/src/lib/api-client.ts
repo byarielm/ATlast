@@ -116,9 +116,33 @@ export async function checkSession(): Promise<{
   avatar?: string;
 } | null> {
   try {
-    const response = await fetch(`${ATLAST_API_URL}/.netlify/functions/session`, {
+    // Try to get session cookie using browser.cookies API
+    // This works around Firefox's cookie partitioning for extensions
+    let sessionId: string | null = null;
+
+    try {
+      const cookieName = __BUILD_MODE__ === 'production' ? 'atlast_session' : 'atlast_session_dev';
+      const cookie = await browser.cookies.get({
+        url: ATLAST_API_URL,
+        name: cookieName
+      });
+
+      if (cookie) {
+        sessionId = cookie.value;
+        console.log('[API Client] Found session cookie:', cookieName);
+      }
+    } catch (cookieError) {
+      console.log('[API Client] Could not read cookie:', cookieError);
+    }
+
+    // Build URL with session parameter if we have one
+    const url = sessionId
+      ? `${ATLAST_API_URL}/.netlify/functions/session?session=${sessionId}`
+      : `${ATLAST_API_URL}/.netlify/functions/session`;
+
+    const response = await fetch(url, {
       method: 'GET',
-      credentials: 'include', // Include cookies
+      credentials: 'include', // Include cookies as fallback
       headers: {
         'Accept': 'application/json'
       }

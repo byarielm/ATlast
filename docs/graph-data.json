@@ -4296,9 +4296,9 @@
       "node_type": "observation",
       "title": "Health endpoint gets CORS headers correctly (moz-extension detected). Session endpoint error middleware doesn't pass event to errorResponse, returns wildcard CORS. Need to fix error middleware to pass event.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T20:55:32.024834200-05:00",
-      "updated_at": "2025-12-28T20:55:32.024834200-05:00",
+      "updated_at": "2025-12-28T21:38:14.729731500-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -4307,9 +4307,9 @@
       "node_type": "action",
       "title": "Fixed error middleware to pass event to errorResponse for proper CORS headers on errors",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T20:56:38.876266200-05:00",
-      "updated_at": "2025-12-28T20:56:38.876266200-05:00",
+      "updated_at": "2025-12-28T21:38:14.888627800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -4318,9 +4318,42 @@
       "node_type": "outcome",
       "title": "Fixed Firefox extension CORS completely. Error middleware now passes event to errorResponse so Firefox extension origin is properly reflected in error responses with credentials. Debug logging removed.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T21:37:22.780953600-05:00",
-      "updated_at": "2025-12-28T21:37:22.780953600-05:00",
+      "updated_at": "2025-12-28T21:38:15.071425500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 394,
+      "change_id": "3b0dea7a-c3cd-45a8-ba1a-f1040aa4e1d9",
+      "node_type": "observation",
+      "title": "CORS fully working - Firefox extension origin properly reflected with credentials. But cookies not sent from extension despite credentials:include. Cookie set in web context not accessible from extension context due to Firefox cookie partitioning.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T21:46:45.822343200-05:00",
+      "updated_at": "2025-12-28T21:46:45.822343200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 395,
+      "change_id": "8a93413f-a09c-4cc1-8693-4fe90dc055c4",
+      "node_type": "action",
+      "title": "Updated extension checkSession to read cookie via browser.cookies API and pass as query parameter. Workaround for Firefox SameSite=Lax cookie partitioning.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T21:52:22.059862700-05:00",
+      "updated_at": "2025-12-28T21:52:22.059862700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 396,
+      "change_id": "864dd973-5f15-4e31-a7da-c548dbbe1f0e",
+      "node_type": "outcome",
+      "title": "Extension now uses browser.cookies.get() API to read session cookie and pass as query parameter. Workaround for Firefox SameSite=Lax cookie partitioning in extensions. Extension rebuilt successfully.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T22:51:31.578965200-05:00",
+      "updated_at": "2025-12-28T22:51:31.578965200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
@@ -8603,6 +8636,39 @@
       "weight": 1.0,
       "rationale": "Complete fix with cleanup",
       "created_at": "2025-12-28T21:37:27.704906300-05:00"
+    },
+    {
+      "id": 390,
+      "from_node_id": 393,
+      "to_node_id": 394,
+      "from_change_id": "aafd9977-8800-4152-9f7f-b817db6df573",
+      "to_change_id": "3b0dea7a-c3cd-45a8-ba1a-f1040aa4e1d9",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New issue - cookie partitioning",
+      "created_at": "2025-12-28T21:46:48.417911400-05:00"
+    },
+    {
+      "id": 391,
+      "from_node_id": 394,
+      "to_node_id": 395,
+      "from_change_id": "3b0dea7a-c3cd-45a8-ba1a-f1040aa4e1d9",
+      "to_change_id": "8a93413f-a09c-4cc1-8693-4fe90dc055c4",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Workaround using browser.cookies API",
+      "created_at": "2025-12-28T21:52:52.704792400-05:00"
+    },
+    {
+      "id": 392,
+      "from_node_id": 395,
+      "to_node_id": 396,
+      "from_change_id": "8a93413f-a09c-4cc1-8693-4fe90dc055c4",
+      "to_change_id": "864dd973-5f15-4e31-a7da-c548dbbe1f0e",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Complete workaround",
+      "created_at": "2025-12-28T22:51:33.159870400-05:00"
     }
   ]
 }

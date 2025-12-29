@@ -1,10 +1,10 @@
 [
   {
-    "hash": "bb14ec5fb6426bbf4a7bc8bf1661bfbad29f16bd",
-    "short_hash": "bb14ec5",
+    "hash": "15b67054a684ebb2a21761a1774ba15f9b1c29e2",
+    "short_hash": "15b6705",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-28T20:32:16-05:00",
-    "message": "fix: add Firefox extension CORS support\n\n- Added moz-extension:// origin detection to CORS handler\n- Added cookies permission to Firefox manifest for credentialed requests\n- Functions now properly reflect Firefox extension origins with credentials",
+    "date": "2025-12-28T20:38:38-05:00",
+    "message": "fix: add health check function for extension server detection\n\n- Created /health function endpoint with CORS support\n- Updated checkServerHealth to use function endpoint instead of root URL\n- Fixes Firefox extension server detection with proper CORS headers",
     "files_changed": 5
   },
   {
@@ -24,12 +24,12 @@
     "files_changed": 5
   },
   {
-    "hash": "d07180cd3a19328b82b35118e525b59d4e2e060b",
-    "short_hash": "d07180c",
+    "hash": "bd3aabb75abb1875aef125610fcdccb14967a8e3",
+    "short_hash": "bd3aabb",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T18:38:39-05:00",
-    "message": "feat: add Tailwind CSS to extension\n\nReplaced 299 lines of vanilla CSS with Tailwind for design consistency with web app. Production build minified to 13KB.",
-    "files_changed": 9
+    "date": "2025-12-27T22:10:11-05:00",
+    "message": "fix: extension dark mode and build mode messaging\n\n- Changed darkMode from 'class' to 'media' for automatic system preference detection\n- Made server offline message conditional on build mode (dev vs prod)\n- Hide dev server instructions in production builds",
+    "files_changed": 5
   },
   {
     "hash": "d07180cd3a19328b82b35118e525b59d4e2e060b",
@@ -160,20 +160,20 @@
     "files_changed": 3
   },
   {
-    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
-    "short_hash": "32cdee3",
-    "author": "Ariel M. Lighty",
-    "date": "2025-12-25T13:22:32-05:00",
-    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
-    "files_changed": 4
-  },
-  {
     "hash": "ba29fd68872913ba0a587aa7f29f97b3d373a732",
     "short_hash": "ba29fd6",
     "author": "Ariel M. Lighty",
     "date": "2025-12-25T13:22:32-05:00",
     "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
     "files_changed": 5
+  },
+  {
+    "hash": "32cdee3aeac7ef986df47e0fff786b5f7471e55b",
+    "short_hash": "32cdee3",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-25T13:22:32-05:00",
+    "message": "configure Netlify dev for monorepo with --filter flag\n\nFixed Netlify CLI monorepo detection issue by using --filter flag:\n- Updated root package.json scripts to use 'npx netlify-cli dev --filter @atlast/web'\n- Updated netlify.toml [dev] section to use npm with --prefix for framework command\n- Added monorepo development instructions to CLAUDE.md\n- Documented Windows Git Bash compatibility issue with netlify command\n\nSolution: Use 'npx netlify-cli dev --filter @atlast/web' to bypass monorepo\nproject selection prompt and specify which workspace package to run.\n\nDev server now runs successfully at http://localhost:8888 with all backend\nfunctions loaded.",
+    "files_changed": 4
   },
   {
     "hash": "c3e7afad396d130791d801a85cbfc9643bcd6309",
