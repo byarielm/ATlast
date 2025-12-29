@@ -21,7 +21,7 @@ export function withErrorHandling(handler: SimpleHandler): Handler {
       }
 
       if (error instanceof ApiError) {
-        return errorResponse(error.message, error.statusCode, error.details);
+        return errorResponse(error.message, error.statusCode, error.details, event);
       }
 
       // Unknown errors
@@ -29,6 +29,7 @@ export function withErrorHandling(handler: SimpleHandler): Handler {
         "Internal server error",
         500,
         error instanceof Error ? error.message : "Unknown error",
+        event,
       );
     }
   };
@@ -48,13 +49,14 @@ export function withAuthErrorHandling(handler: AuthenticatedHandler): Handler {
       console.error("Authenticated handler error:", error);
 
       if (error instanceof ApiError) {
-        return errorResponse(error.message, error.statusCode, error.details);
+        return errorResponse(error.message, error.statusCode, error.details, event);
       }
 
       return errorResponse(
         "Internal server error",
         500,
         error instanceof Error ? error.message : "Unknown error",
+        event,
       );
     }
   };

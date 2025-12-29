@@ -4263,9 +4263,9 @@
       "node_type": "observation",
       "title": "Health check uses HEAD request to root URL (Vite server), not a Netlify function. Doesn't get CORS headers from getCorsHeaders. Need dedicated health endpoint or change check to use existing function.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T20:37:22.132717600-05:00",
-      "updated_at": "2025-12-28T20:37:22.132717600-05:00",
+      "updated_at": "2025-12-28T20:38:41.630020900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -4274,9 +4274,53 @@
       "node_type": "outcome",
       "title": "Created /health function endpoint with CORS support. Updated checkServerHealth to use /.netlify/functions/health instead of root URL. Extension rebuilt successfully.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T20:38:19.981309500-05:00",
-      "updated_at": "2025-12-28T20:38:19.981309500-05:00",
+      "updated_at": "2025-12-28T20:38:41.780183300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 390,
+      "change_id": "cfdcf45b-47b3-4239-8053-417bd31957ed",
+      "node_type": "observation",
+      "title": "Server receives session request but returns CORS wildcard (*) instead of extension origin. No session cookie received. Origin header might not be sent by Firefox extension or not detected correctly.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:48:12.770638500-05:00",
+      "updated_at": "2025-12-28T20:48:12.770638500-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 391,
+      "change_id": "2b53a419-9a47-4285-9a12-9bdfaeeb9ff0",
+      "node_type": "observation",
+      "title": "Health endpoint gets CORS headers correctly (moz-extension detected). Session endpoint error middleware doesn't pass event to errorResponse, returns wildcard CORS. Need to fix error middleware to pass event.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:55:32.024834200-05:00",
+      "updated_at": "2025-12-28T20:55:32.024834200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 392,
+      "change_id": "c941d136-3405-483d-bf34-7fb011f6d072",
+      "node_type": "action",
+      "title": "Fixed error middleware to pass event to errorResponse for proper CORS headers on errors",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:56:38.876266200-05:00",
+      "updated_at": "2025-12-28T20:56:38.876266200-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 393,
+      "change_id": "aafd9977-8800-4152-9f7f-b817db6df573",
+      "node_type": "outcome",
+      "title": "Fixed Firefox extension CORS completely. Error middleware now passes event to errorResponse so Firefox extension origin is properly reflected in error responses with credentials. Debug logging removed.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T21:37:22.780953600-05:00",
+      "updated_at": "2025-12-28T21:37:22.780953600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
@@ -8515,6 +8559,50 @@
       "weight": 1.0,
       "rationale": "Fix implemented",
       "created_at": "2025-12-28T20:38:22.044029100-05:00"
+    },
+    {
+      "id": 386,
+      "from_node_id": 389,
+      "to_node_id": 390,
+      "from_change_id": "f522d5b2-c325-4f34-9f27-b8ea5c50618d",
+      "to_change_id": "cfdcf45b-47b3-4239-8053-417bd31957ed",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Issue persists - need to debug headers",
+      "created_at": "2025-12-28T20:48:14.949702100-05:00"
+    },
+    {
+      "id": 387,
+      "from_node_id": 390,
+      "to_node_id": 391,
+      "from_change_id": "cfdcf45b-47b3-4239-8053-417bd31957ed",
+      "to_change_id": "2b53a419-9a47-4285-9a12-9bdfaeeb9ff0",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause identified from debug logs",
+      "created_at": "2025-12-28T20:55:34.094943700-05:00"
+    },
+    {
+      "id": 388,
+      "from_node_id": 391,
+      "to_node_id": 392,
+      "from_change_id": "2b53a419-9a47-4285-9a12-9bdfaeeb9ff0",
+      "to_change_id": "c941d136-3405-483d-bf34-7fb011f6d072",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix implemented",
+      "created_at": "2025-12-28T20:57:35.872426900-05:00"
+    },
+    {
+      "id": 389,
+      "from_node_id": 392,
+      "to_node_id": 393,
+      "from_change_id": "c941d136-3405-483d-bf34-7fb011f6d072",
+      "to_change_id": "aafd9977-8800-4152-9f7f-b817db6df573",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Complete fix with cleanup",
+      "created_at": "2025-12-28T21:37:27.704906300-05:00"
     }
   ]
 }
