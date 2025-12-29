@@ -4032,9 +4032,9 @@
       "node_type": "goal",
       "title": "Create Firefox-compatible version of Twitter scraper extension",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T18:09:33.241860800-05:00",
-      "updated_at": "2025-12-28T18:09:33.241860800-05:00",
+      "updated_at": "2025-12-28T19:21:32.412499-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":85,\"prompt\":\"let's make the extension have a firefox compatible version too.\"}"
     },
     {
@@ -4120,9 +4120,9 @@
       "node_type": "action",
       "title": "Installing webextension-polyfill and updating source files to use browser.* API",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T19:08:14.642882400-05:00",
-      "updated_at": "2025-12-28T19:08:14.642882400-05:00",
+      "updated_at": "2025-12-28T19:21:32.531034800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
     },
     {
@@ -4131,9 +4131,130 @@
       "node_type": "outcome",
       "title": "Successfully implemented Firefox compatibility with webextension-polyfill. Both Chrome and Firefox builds compile successfully. Chrome uses service_worker (MV3), Firefox uses scripts array with browser_specific_settings. All chrome.* API calls replaced with browser.* imports.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T19:14:22.309457600-05:00",
-      "updated_at": "2025-12-28T19:14:22.309457600-05:00",
+      "updated_at": "2025-12-28T19:21:32.658297400-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 377,
+      "change_id": "1dffa024-413f-4a95-b069-66db350abfaa",
+      "node_type": "goal",
+      "title": "Fix Firefox extension server detection and login check",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:14:51.646204800-05:00",
+      "updated_at": "2025-12-28T20:14:51.646204800-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85,\"prompt\":\"The extension works in chrome. In firefox, it's failing to detect that the dev server is running and open + logged in on firefox. There's no right-click to inspect on the popup either.\"}"
+    },
+    {
+      "id": 378,
+      "change_id": "9d5626d2-a9ae-42aa-8fda-be3c7528156f",
+      "node_type": "observation",
+      "title": "Firefox extension debugging differs from Chrome - need to use about:debugging Inspect button or Browser Console, not right-click popup",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:15:11.710473-05:00",
+      "updated_at": "2025-12-28T20:15:11.710473-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 379,
+      "change_id": "7a5af3fe-8567-4f1c-85cd-e47891704974",
+      "node_type": "observation",
+      "title": "Potential Firefox issues: 1) CORS with credentials:include may be stricter, 2) Cookie partitioning/third-party cookie blocking, 3) Extension needs explicit host_permissions for cookies to work. Firefox manifest has host_permissions but may need additional cookie permissions.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:15:31.278249900-05:00",
+      "updated_at": "2025-12-28T20:15:31.278249900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":85}"
+    },
+    {
+      "id": 380,
+      "change_id": "9c197aae-18d5-46ae-87e7-82c240c8f313",
+      "node_type": "action",
+      "title": "Adding cookies permission to Firefox manifest for credentials:include support",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:16:12.019659700-05:00",
+      "updated_at": "2025-12-28T20:16:12.019659700-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 381,
+      "change_id": "485a03b0-8a25-4fdf-a8e2-9d3a25c8edf8",
+      "node_type": "outcome",
+      "title": "Fixed Firefox cookie issue by adding cookies permission to manifest. Firefox requires explicit permission even with host_permissions. Rebuild successful.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:16:41.702322300-05:00",
+      "updated_at": "2025-12-28T20:16:41.702322300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 382,
+      "change_id": "35b13d37-0228-435f-a4bc-c5c42811fec3",
+      "node_type": "observation",
+      "title": "Firefox blocks extension fetch with CORS error despite host_permissions. Server responds 200 but missing Access-Control-Allow-Origin header. Firefox stricter than Chrome on extension CORS.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:17:23.414134300-05:00",
+      "updated_at": "2025-12-28T20:17:23.414134300-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 383,
+      "change_id": "adc120cd-e56d-400a-9b3e-8207880378c3",
+      "node_type": "action",
+      "title": "Adding CORS headers to netlify.toml for extension compatibility - wildcard origin with credentials for dev",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:18:22.172869600-05:00",
+      "updated_at": "2025-12-28T20:18:22.172869600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 384,
+      "change_id": "0f77bfd9-590f-4f1e-be08-78a9deef6d8a",
+      "node_type": "outcome",
+      "title": "Added CORS headers to netlify.toml for all paths including root and functions. Headers include Access-Control-Allow-Origin:*, Allow-Credentials:true for dev environment. User needs to restart dev server.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:19:54.829093600-05:00",
+      "updated_at": "2025-12-28T20:19:54.829093600-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":90}"
+    },
+    {
+      "id": 385,
+      "change_id": "cc0910f0-2381-4aee-bb5d-397cb0f804d1",
+      "node_type": "observation",
+      "title": "CORS wildcard (*) incompatible with credentials:include. Browser security prevents wildcard CORS with credentialed requests. Extension origins are dynamic (moz-extension://, chrome-extension://). Need to handle CORS in serverless functions by reflecting request origin.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:27:31.848523900-05:00",
+      "updated_at": "2025-12-28T20:27:31.848523900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 386,
+      "change_id": "ad4a5ca7-15d1-4776-8ede-6b615613f6e1",
+      "node_type": "action",
+      "title": "Adding moz-extension:// origin detection to CORS handler for Firefox extension support",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:28:31.661326900-05:00",
+      "updated_at": "2025-12-28T20:28:31.661326900-05:00",
+      "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
+    },
+    {
+      "id": 387,
+      "change_id": "cffdee0f-8535-4d88-83ed-fdf6101f7ac3",
+      "node_type": "outcome",
+      "title": "Fixed Firefox extension CORS by adding moz-extension:// origin detection to response.utils.ts. Reverted netlify.toml changes as functions handle CORS correctly. User needs to restart dev server.",
+      "description": null,
+      "status": "pending",
+      "created_at": "2025-12-28T20:29:39.856303800-05:00",
+      "updated_at": "2025-12-28T20:29:39.856303800-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],
@@ -8240,6 +8361,116 @@
       "weight": 1.0,
       "rationale": "Implementation completed successfully",
       "created_at": "2025-12-28T19:14:24.961595600-05:00"
+    },
+    {
+      "id": 374,
+      "from_node_id": 377,
+      "to_node_id": 378,
+      "from_change_id": "1dffa024-413f-4a95-b069-66db350abfaa",
+      "to_change_id": "9d5626d2-a9ae-42aa-8fda-be3c7528156f",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "First observation about debugging",
+      "created_at": "2025-12-28T20:15:13.725635900-05:00"
+    },
+    {
+      "id": 375,
+      "from_node_id": 378,
+      "to_node_id": 379,
+      "from_change_id": "9d5626d2-a9ae-42aa-8fda-be3c7528156f",
+      "to_change_id": "7a5af3fe-8567-4f1c-85cd-e47891704974",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Hypothesis about root causes",
+      "created_at": "2025-12-28T20:15:33.187041700-05:00"
+    },
+    {
+      "id": 376,
+      "from_node_id": 379,
+      "to_node_id": 380,
+      "from_change_id": "7a5af3fe-8567-4f1c-85cd-e47891704974",
+      "to_change_id": "9c197aae-18d5-46ae-87e7-82c240c8f313",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix based on hypothesis",
+      "created_at": "2025-12-28T20:16:14.104406300-05:00"
+    },
+    {
+      "id": 377,
+      "from_node_id": 380,
+      "to_node_id": 381,
+      "from_change_id": "9c197aae-18d5-46ae-87e7-82c240c8f313",
+      "to_change_id": "485a03b0-8a25-4fdf-a8e2-9d3a25c8edf8",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix implemented and tested",
+      "created_at": "2025-12-28T20:16:43.953511400-05:00"
+    },
+    {
+      "id": 378,
+      "from_node_id": 381,
+      "to_node_id": 382,
+      "from_change_id": "485a03b0-8a25-4fdf-a8e2-9d3a25c8edf8",
+      "to_change_id": "35b13d37-0228-435f-a4bc-c5c42811fec3",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Root cause identified from error logs",
+      "created_at": "2025-12-28T20:17:25.488041200-05:00"
+    },
+    {
+      "id": 379,
+      "from_node_id": 382,
+      "to_node_id": 383,
+      "from_change_id": "35b13d37-0228-435f-a4bc-c5c42811fec3",
+      "to_change_id": "adc120cd-e56d-400a-9b3e-8207880378c3",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix for CORS issue",
+      "created_at": "2025-12-28T20:19:41.484076700-05:00"
+    },
+    {
+      "id": 380,
+      "from_node_id": 383,
+      "to_node_id": 384,
+      "from_change_id": "adc120cd-e56d-400a-9b3e-8207880378c3",
+      "to_change_id": "0f77bfd9-590f-4f1e-be08-78a9deef6d8a",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Implementation complete",
+      "created_at": "2025-12-28T20:19:56.872404900-05:00"
+    },
+    {
+      "id": 381,
+      "from_node_id": 384,
+      "to_node_id": 385,
+      "from_change_id": "0f77bfd9-590f-4f1e-be08-78a9deef6d8a",
+      "to_change_id": "cc0910f0-2381-4aee-bb5d-397cb0f804d1",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "New error reveals real issue",
+      "created_at": "2025-12-28T20:27:34.035766400-05:00"
+    },
+    {
+      "id": 382,
+      "from_node_id": 385,
+      "to_node_id": 386,
+      "from_change_id": "cc0910f0-2381-4aee-bb5d-397cb0f804d1",
+      "to_change_id": "ad4a5ca7-15d1-4776-8ede-6b615613f6e1",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Fix for Firefox extension origin",
+      "created_at": "2025-12-28T20:28:33.839045700-05:00"
+    },
+    {
+      "id": 383,
+      "from_node_id": 386,
+      "to_node_id": 387,
+      "from_change_id": "ad4a5ca7-15d1-4776-8ede-6b615613f6e1",
+      "to_change_id": "cffdee0f-8535-4d88-83ed-fdf6101f7ac3",
+      "edge_type": "leads_to",
+      "weight": 1.0,
+      "rationale": "Complete fix implemented",
+      "created_at": "2025-12-28T20:30:09.745415200-05:00"
     }
   ]
 }

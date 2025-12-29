@@ -22,7 +22,7 @@ function getCorsHeaders(event?: HandlerEvent): Record<string, string> {
     'https://atlast.byarielm.fyi',
   ];
 
-  const isExtension = origin.startsWith('chrome-extension://');
+  const isExtension = origin.startsWith('chrome-extension://') || origin.startsWith('moz-extension://');
   const isAllowedOrigin = allowedOrigins.includes(origin);
 
   if (isExtension || isAllowedOrigin) {
