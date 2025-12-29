@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import {
   MessageType,
   onMessage,
@@ -150,7 +151,7 @@ async function handleScrapeError(message: ScrapeErrorMessage): Promise<void> {
 /**
  * Log extension installation
  */
-chrome.runtime.onInstalled.addListener((details) => {
+browser.runtime.onInstalled.addListener((details) => {
   console.log('[Background] Extension installed:', details.reason);
 
   if (details.reason === 'install') {

@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import type { ScraperProgress, ScraperResult } from '../content/scrapers/base-scraper.js';
 
 /**
@@ -87,27 +88,27 @@ export interface ExtensionState {
  * Send message to background script
  */
 export function sendToBackground<T = any>(message: Message): Promise<T> {
-  return chrome.runtime.sendMessage(message);
+  return browser.runtime.sendMessage(message);
 }
 
 /**
  * Send message to active tab's content script
  */
 export async function sendToContent(message: Message): Promise<any> {
-  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
   if (!tab.id) {
     throw new Error('No active tab found');
   }
-  return chrome.tabs.sendMessage(tab.id, message);
+  return browser.tabs.sendMessage(tab.id, message);
 }
 
 /**
  * Listen for messages
  */
 export function onMessage(
-  handler: (message: Message, sender: chrome.runtime.MessageSender) => any | Promise<any>
+  handler: (message: Message, sender: browser.Runtime.MessageSender) => any | Promise<any>
 ): void {
-  chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const result = handler(message, sender);
 
     // Handle async handlers

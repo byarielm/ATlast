@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "ATlast Importer",
+  "version": "1.0.0",
+  "description": "Import your Twitter/X follows to find them on Bluesky",
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://twitter.com/*",
+    "https://x.com/*",
+    "http://127.0.0.1:8888/*",
+    "http://localhost:8888/*",
+    "https://atlast.byarielm.fyi/*"
+  ],
+  "background": {
+    "scripts": ["background/service-worker.js"],
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://twitter.com/*",
+        "https://x.com/*"
+      ],
+      "js": ["content/index.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "atlast-importer@byarielm.fyi",
+      "strict_min_version": "109.0"
+    }
+  }
+}

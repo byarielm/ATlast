@@ -9,13 +9,17 @@
     "build:prod": "node build.js --prod",
     "dev": "node build.js --watch",
     "package:chrome": "cd dist/chrome && zip -r ../chrome.zip .",
-    "package:prod": "npm run build:prod && npm run package:chrome"
+    "package:firefox": "cd dist/firefox && zip -r ../firefox.zip .",
+    "package:all": "pnpm run package:chrome && pnpm run package:firefox",
+    "package:prod": "pnpm run build:prod && pnpm run package:all"
   },
   "dependencies": {
-    "@atlast/shared": "workspace:*"
+    "@atlast/shared": "workspace:*",
+    "webextension-polyfill": "^0.12.0"
   },
   "devDependencies": {
     "@types/chrome": "^0.0.256",
+    "@types/webextension-polyfill": "^0.12.4",
     "autoprefixer": "^10.4.23",
     "cssnano": "^7.1.2",
     "esbuild": "^0.19.11",

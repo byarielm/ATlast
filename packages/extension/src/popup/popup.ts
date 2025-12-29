@@ -1,3 +1,4 @@
+import browser from 'webextension-polyfill';
 import {
   MessageType,
   sendToBackground,
@@ -167,7 +168,7 @@ async function uploadToATlast(): Promise<void> {
     // Open ATlast at results page with upload data
     const { getApiUrl } = await import('../lib/api-client.js');
     const resultsUrl = `${getApiUrl()}${response.redirectUrl}`;
-    chrome.tabs.create({ url: resultsUrl });
+    browser.tabs.create({ url: resultsUrl });
 
   } catch (error) {
     console.error('[Popup] Error uploading:', error);
@@ -281,7 +282,7 @@ async function init(): Promise<void> {
 
     // Set up login buttons
     elements.btnOpenAtlast.addEventListener('click', () => {
-      chrome.tabs.create({ url: getApiUrl() });
+      browser.tabs.create({ url: getApiUrl() });
     });
 
     elements.btnRetryLogin.addEventListener('click', async () => {
@@ -322,7 +323,7 @@ async function init(): Promise<void> {
   });
 
   // Listen for storage changes (when background updates state)
-  chrome.storage.onChanged.addListener((changes, areaName) => {
+  browser.storage.onChanged.addListener((changes, areaName) => {
     if (areaName === 'local' && changes.extensionState) {
       const newState = changes.extensionState.newValue;
       console.log('[Popup] 🔄 Storage changed, new state:', newState);

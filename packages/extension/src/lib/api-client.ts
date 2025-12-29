@@ -2,6 +2,8 @@
  * ATlast API client for extension
  */
 
+import browser from 'webextension-polyfill';
+
 // These are replaced at build time by esbuild
 declare const __ATLAST_API_URL__: string;
 declare const __BUILD_MODE__: string;
@@ -67,7 +69,7 @@ export async function uploadToATlast(
  * Get extension version from manifest
  */
 export function getExtensionVersion(): string {
-  return chrome.runtime.getManifest().version;
+  return browser.runtime.getManifest().version;
 }
 
 /**

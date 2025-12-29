@@ -21,11 +21,11 @@ console.log(`🌍 Building for ${mode} mode`);
 console.log(`🔗 API URL: ${ATLAST_API_URL}`);
 
 // Clean dist directory
-const distDir = path.join(__dirname, 'dist', 'chrome');
-if (fs.existsSync(distDir)) {
-  fs.rmSync(distDir, { recursive: true });
+const distBaseDir = path.join(__dirname, 'dist');
+if (fs.existsSync(distBaseDir)) {
+  fs.rmSync(distBaseDir, { recursive: true });
 }
-fs.mkdirSync(distDir, { recursive: true });
+fs.mkdirSync(distBaseDir, { recursive: true });
 
 // Build configuration base
 const buildConfigBase = {
@@ -38,52 +38,64 @@ const buildConfigBase = {
     '__ATLAST_API_URL__': JSON.stringify(ATLAST_API_URL),
     '__BUILD_MODE__': JSON.stringify(mode),
   },
+  // Include webextension-polyfill in the bundle
+  external: [],
 };
 
-// Build scripts
-const scripts = [
-  {
-    ...buildConfigBase,
-    entryPoints: ['src/content/index.ts'],
-    outfile: path.join(distDir, 'content', 'index.js'),
-  },
-  {
-    ...buildConfigBase,
-    entryPoints: ['src/background/service-worker.ts'],
-    outfile: path.join(distDir, 'background', 'service-worker.js'),
-  },
-  {
-    ...buildConfigBase,
-    entryPoints: ['src/popup/popup.ts'],
-    outfile: path.join(distDir, 'popup', 'popup.js'),
-  },
-];
+// Build scripts for a specific browser
+function getScripts(browser) {
+  const distDir = path.join(distBaseDir, browser);
+  return [
+    {
+      ...buildConfigBase,
+      entryPoints: ['src/content/index.ts'],
+      outfile: path.join(distDir, 'content', 'index.js'),
+    },
+    {
+      ...buildConfigBase,
+      entryPoints: ['src/background/service-worker.ts'],
+      outfile: path.join(distDir, 'background', 'service-worker.js'),
+    },
+    {
+      ...buildConfigBase,
+      entryPoints: ['src/popup/popup.ts'],
+      outfile: path.join(distDir, 'popup', 'popup.js'),
+    },
+  ];
+}
 
 // Build function
 async function build() {
   try {
-    console.log('🔨 Building extension...');
+    console.log('🔨 Building extension for Chrome and Firefox...');
 
-    // Build all scripts
-    for (const config of scripts) {
-      if (watch) {
-        const ctx = await esbuild.context(config);
-        await ctx.watch();
-        console.log(`👀 Watching ${path.basename(config.entryPoints[0])}...`);
-      } else {
-        await esbuild.build(config);
-        console.log(`✅ Built ${path.basename(config.entryPoints[0])}`);
+    const browsers = ['chrome', 'firefox'];
+
+    for (const browser of browsers) {
+      console.log(`\n📦 Building ${browser} version...`);
+      const scripts = getScripts(browser);
+
+      // Build all scripts
+      for (const config of scripts) {
+        if (watch) {
+          const ctx = await esbuild.context(config);
+          await ctx.watch();
+          console.log(`👀 Watching ${browser}/${path.basename(config.entryPoints[0])}...`);
+        } else {
+          await esbuild.build(config);
+          console.log(`✅ Built ${browser}/${path.basename(config.entryPoints[0])}`);
+        }
       }
+
+      // Copy static files
+      copyStaticFiles(browser);
+
+      // Process CSS with Tailwind
+      await processCSS(browser);
     }
 
-    // Copy static files
-    copyStaticFiles();
-
-    // Process CSS with Tailwind
-    await processCSS();
-
     if (!watch) {
-      console.log('✨ Build complete!');
+      console.log('\n✨ Build complete for both browsers!');
     }
   } catch (error) {
     console.error('❌ Build failed:', error);
@@ -92,8 +104,9 @@ async function build() {
 }
 
 // Process CSS with PostCSS (Tailwind + Autoprefixer)
-async function processCSS() {
+async function processCSS(browser) {
   const cssPath = path.join(__dirname, 'src/popup/popup.css');
+  const distDir = path.join(distBaseDir, browser);
   const outputPath = path.join(distDir, 'popup/popup.css');
 
   const css = fs.readFileSync(cssPath, 'utf8');
@@ -121,14 +134,20 @@ async function processCSS() {
 }
 
 // Copy static files
-function copyStaticFiles() {
+function copyStaticFiles(browser) {
+  const distDir = path.join(distBaseDir, browser);
+
   const filesToCopy = [
-    { from: 'manifest.json', to: 'manifest.json' },
+    { from: `manifest.${browser}.json`, to: 'manifest.json', fallback: 'manifest.json' },
     { from: 'src/popup/popup.html', to: 'popup/popup.html' },
   ];
 
   for (const file of filesToCopy) {
-    const srcPath = path.join(__dirname, file.from);
+    // Try to use browser-specific file first, fall back to default
+    let srcPath = path.join(__dirname, file.from);
+    if (file.fallback && !fs.existsSync(srcPath)) {
+      srcPath = path.join(__dirname, file.fallback);
+    }
     const destPath = path.join(distDir, file.to);
 
     // Create directory if it doesn't exist

@@ -1,5 +1,13 @@
 [
   {
+    "hash": "603cf0a187850664336a12c9e5cbb49038906f53",
+    "short_hash": "603cf0a",
+    "author": "Ariel M. Lighty",
+    "date": "2025-12-27T22:42:43-05:00",
+    "message": "fix: CORS for extension credentialed requests\n\nUpdated CORS headers to support credentials from Chrome extensions:\n- Added getCorsHeaders() to detect chrome-extension:// origins\n- Changed from wildcard Access-Control-Allow-Origin to specific origin\n- Added Access-Control-Allow-Credentials: true for credentialed requests\n- Updated session endpoint to pass event for CORS header detection",
+    "files_changed": 4
+  },
+  {
     "hash": "bd3aabb75abb1875aef125610fcdccb14967a8e3",
     "short_hash": "bd3aabb",
     "author": "Ariel M. Lighty",
@@ -8,12 +16,12 @@
     "files_changed": 5
   },
   {
-    "hash": "d07180cd3a19328b82b35118e525b59d4e2e060b",
-    "short_hash": "d07180c",
+    "hash": "bd3aabb75abb1875aef125610fcdccb14967a8e3",
+    "short_hash": "bd3aabb",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T18:38:39-05:00",
-    "message": "feat: add Tailwind CSS to extension\n\nReplaced 299 lines of vanilla CSS with Tailwind for design consistency with web app. Production build minified to 13KB.",
-    "files_changed": 9
+    "date": "2025-12-27T22:10:11-05:00",
+    "message": "fix: extension dark mode and build mode messaging\n\n- Changed darkMode from 'class' to 'media' for automatic system preference detection\n- Made server offline message conditional on build mode (dev vs prod)\n- Hide dev server instructions in production builds",
+    "files_changed": 5
   },
   {
     "hash": "d07180cd3a19328b82b35118e525b59d4e2e060b",
@@ -32,12 +40,12 @@
     "files_changed": 6
   },
   {
-    "hash": "fcf682bb8969aca108262348e7e17531077713be",
-    "short_hash": "fcf682b",
+    "hash": "2a163c5f033a79324b100a236ea26c905909bfc6",
+    "short_hash": "2a163c5",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T15:48:44-05:00",
-    "message": "docs: improve decision graph workflow with lifecycle management\n\nUpdated CLAUDE.md with comprehensive node lifecycle management:\n- Added node status transitions (pending → in_progress → completed)\n- Correct orphan detection commands (awk instead of cut)\n- Common mistakes section with examples\n- Enhanced audit checklist with status verification\n- Verification workflow after node creation\n\nAlso updated extension popup with ATmosphere branding.\n\nDecision graph now at 331 nodes, 332 edges - all orphans resolved.",
-    "files_changed": 4
+    "date": "2025-12-27T15:49:08-05:00",
+    "message": "docs: update decision graph after documentation improvements",
+    "files_changed": 2
   },
   {
     "hash": "fcf682bb8969aca108262348e7e17531077713be",
