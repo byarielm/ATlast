@@ -1,11 +1,11 @@
 [
   {
-    "hash": "15b67054a684ebb2a21761a1774ba15f9b1c29e2",
-    "short_hash": "15b6705",
+    "hash": "18f4ca7017ea6ca5d959f5d9596690c17b171bc3",
+    "short_hash": "18f4ca7",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-28T20:38:38-05:00",
-    "message": "fix: add health check function for extension server detection\n\n- Created /health function endpoint with CORS support\n- Updated checkServerHealth to use function endpoint instead of root URL\n- Fixes Firefox extension server detection with proper CORS headers",
-    "files_changed": 5
+    "date": "2025-12-28T21:38:11-05:00",
+    "message": "fix: pass event to errorResponse for proper CORS on errors\n\n- Error middleware now passes event parameter to errorResponse\n- Fixes Firefox extension CORS headers on authentication errors\n- Both withErrorHandling and withAuthErrorHandling updated\n- Extension origin properly reflected in all error responses",
+    "files_changed": 3
   },
   {
     "hash": "603cf0a187850664336a12c9e5cbb49038906f53",
@@ -16,12 +16,12 @@
     "files_changed": 4
   },
   {
-    "hash": "bd3aabb75abb1875aef125610fcdccb14967a8e3",
-    "short_hash": "bd3aabb",
+    "hash": "603cf0a187850664336a12c9e5cbb49038906f53",
+    "short_hash": "603cf0a",
     "author": "Ariel M. Lighty",
-    "date": "2025-12-27T22:10:11-05:00",
-    "message": "fix: extension dark mode and build mode messaging\n\n- Changed darkMode from 'class' to 'media' for automatic system preference detection\n- Made server offline message conditional on build mode (dev vs prod)\n- Hide dev server instructions in production builds",
-    "files_changed": 5
+    "date": "2025-12-27T22:42:43-05:00",
+    "message": "fix: CORS for extension credentialed requests\n\nUpdated CORS headers to support credentials from Chrome extensions:\n- Added getCorsHeaders() to detect chrome-extension:// origins\n- Changed from wildcard Access-Control-Allow-Origin to specific origin\n- Added Access-Control-Allow-Credentials: true for credentialed requests\n- Updated session endpoint to pass event for CORS header detection",
+    "files_changed": 4
   },
   {
     "hash": "bd3aabb75abb1875aef125610fcdccb14967a8e3",

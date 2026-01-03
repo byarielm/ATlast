@@ -1,12 +1,12 @@
 {
   "name": "@atlast/root",
-  "homepage": "https://byarielm.github.io/ATlast",
+  "homepage": "https://atlast.byarielm.fyi",
   "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
     "dev": "npx netlify-cli dev --filter @atlast/web",
-    "dev:mock": "pnpm --filter @atlast/web dev",
+    "dev:mock": "pnpm dev:mock --filter @atlast/web",
     "dev:full": "npx netlify-cli dev --filter @atlast/web",
     "build": "pnpm --filter @atlast/web build",
     "init-db": "tsx scripts/init-local-db.ts",

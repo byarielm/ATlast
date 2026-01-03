@@ -4329,9 +4329,9 @@
       "node_type": "observation",
       "title": "CORS fully working - Firefox extension origin properly reflected with credentials. But cookies not sent from extension despite credentials:include. Cookie set in web context not accessible from extension context due to Firefox cookie partitioning.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T21:46:45.822343200-05:00",
-      "updated_at": "2025-12-28T21:46:45.822343200-05:00",
+      "updated_at": "2025-12-28T22:51:46.665792900-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -4340,9 +4340,9 @@
       "node_type": "action",
       "title": "Updated extension checkSession to read cookie via browser.cookies API and pass as query parameter. Workaround for Firefox SameSite=Lax cookie partitioning.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T21:52:22.059862700-05:00",
-      "updated_at": "2025-12-28T21:52:22.059862700-05:00",
+      "updated_at": "2025-12-28T22:51:46.765539200-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     },
     {
@@ -4351,9 +4351,9 @@
       "node_type": "outcome",
       "title": "Extension now uses browser.cookies.get() API to read session cookie and pass as query parameter. Workaround for Firefox SameSite=Lax cookie partitioning in extensions. Extension rebuilt successfully.",
       "description": null,
-      "status": "pending",
+      "status": "completed",
       "created_at": "2025-12-28T22:51:31.578965200-05:00",
-      "updated_at": "2025-12-28T22:51:31.578965200-05:00",
+      "updated_at": "2025-12-28T22:51:46.868827600-05:00",
       "metadata_json": "{\"branch\":\"master\",\"confidence\":95}"
     }
   ],

@@ -2,7 +2,7 @@
  * ATlast API client for extension
  */
 
-import browser from 'webextension-polyfill';
+import browser from "webextension-polyfill";
 
 // These are replaced at build time by esbuild
 declare const __ATLAST_API_URL__: string;
@@ -35,18 +35,18 @@ export interface ExtensionImportResponse {
  * Upload scraped usernames to ATlast
  */
 export async function uploadToATlast(
-  request: ExtensionImportRequest
+  request: ExtensionImportRequest,
 ): Promise<ExtensionImportResponse> {
   const url = `${ATLAST_API_URL}/.netlify/functions/extension-import`;
 
   try {
     const response = await fetch(url, {
-      method: 'POST',
-      credentials: 'include', // Include cookies for auth
+      method: "POST",
+      credentials: "include", // Include cookies for auth
       headers: {
-        'Content-Type': 'application/json'
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify(request)
+      body: JSON.stringify(request),
     });
 
     if (!response.ok) {
@@ -55,13 +55,14 @@ export async function uploadToATlast(
     }
 
     // Backend wraps response in ApiResponse structure: { success: true, data: {...} }
-    const apiResponse: { success: boolean; data: ExtensionImportResponse } = await response.json();
+    const apiResponse: { success: boolean; data: ExtensionImportResponse } =
+      await response.json();
     return apiResponse.data;
   } catch (error) {
-    console.error('[API Client] Upload error:', error);
+    console.error("[API Client] Upload error:", error);
     throw error instanceof Error
       ? error
-      : new Error('Failed to upload to ATlast');
+      : new Error("Failed to upload to ATlast");
   }
 }
 
@@ -82,18 +83,21 @@ export async function checkServerHealth(): Promise<boolean> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 3000);
 
-    const response = await fetch(`${ATLAST_API_URL}/.netlify/functions/health`, {
-      method: 'GET',
-      signal: controller.signal,
-      credentials: 'include', // Include for CORS
-    });
+    const response = await fetch(
+      `${ATLAST_API_URL}/.netlify/functions/health`,
+      {
+        method: "GET",
+        signal: controller.signal,
+        credentials: "include", // Include for CORS
+      },
+    );
 
     clearTimeout(timeoutId);
 
     // Any successful response means server is running
     return response.ok;
   } catch (error) {
-    console.error('[API Client] Server health check failed:', error);
+    console.error("[API Client] Server health check failed:", error);
     return false;
   }
 }
@@ -116,23 +120,58 @@ export async function checkSession(): Promise<{
   avatar?: string;
 } | null> {
   try {
-    // Try to get session cookie using browser.cookies API
-    // This works around Firefox's cookie partitioning for extensions
+    console.log("[API Client] Checking session...");
+
     let sessionId: string | null = null;
 
+    // Strategy 1: browser.cookies API
     try {
-      const cookieName = __BUILD_MODE__ === 'production' ? 'atlast_session' : 'atlast_session_dev';
-      const cookie = await browser.cookies.get({
-        url: ATLAST_API_URL,
-        name: cookieName
-      });
+      const cookieName =
+        __BUILD_MODE__ === "production"
+          ? "atlast_session"
+          : "atlast_session_dev";
 
-      if (cookie) {
-        sessionId = cookie.value;
-        console.log('[API Client] Found session cookie:', cookieName);
+      const urls = [
+        ATLAST_API_URL,
+        "http://127.0.0.1:8888",
+        "http://localhost:8888",
+      ];
+
+      for (const url of urls) {
+        try {
+          const cookie = await browser.cookies.get({
+            url,
+            name: cookieName,
+          });
+          if (cookie?.value) {
+            sessionId = cookie.value;
+            console.log(
+              "[API Client] Found session cookie via browser.cookies API",
+            );
+            break;
+          }
+        } catch (err) {
+          console.log(`[API Client] Failed to read cookie from ${url}:`, err);
+        }
       }
     } catch (cookieError) {
-      console.log('[API Client] Could not read cookie:', cookieError);
+      console.log("[API Client] browser.cookies failed:", cookieError);
+    }
+
+    // Strategy 2: document.cookie if we have content script context
+    if (!sessionId && typeof document !== "undefined") {
+      const cookieName =
+        __BUILD_MODE__ === "production"
+          ? "atlast_session"
+          : "atlast_session_dev";
+      const cookies = document.cookie.split(";");
+      const sessionCookie = cookies.find((c) =>
+        c.trim().startsWith(`${cookieName}=`),
+      );
+      if (sessionCookie) {
+        sessionId = sessionCookie.split("=")[1];
+        console.log("[API Client] Found session cookie via document.cookie");
+      }
     }
 
     // Build URL with session parameter if we have one
@@ -140,24 +179,34 @@ export async function checkSession(): Promise<{
       ? `${ATLAST_API_URL}/.netlify/functions/session?session=${sessionId}`
       : `${ATLAST_API_URL}/.netlify/functions/session`;
 
+    console.log("[API Client] Checking session at:", url);
+
     const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include', // Include cookies as fallback
+      method: "GET",
+      credentials: "include",
       headers: {
-        'Accept': 'application/json'
-      }
+        Accept: "application/json",
+        ...(sessionId
+          ? {
+              Cookie: `${__BUILD_MODE__ === "production" ? "atlast_session" : "atlast_session_dev"}=${sessionId}`,
+            }
+          : {}),
+      },
     });
 
     if (!response.ok) {
-      console.log('[API Client] Not logged in');
+      console.log("[API Client] Session check failed:", response.status);
       return null;
     }
 
-    // Backend wraps response in ApiResponse structure: { success: true, data: {...} }
     const apiResponse: { success: boolean; data: any } = await response.json();
+    console.log(
+      "[API Client] Session check succeeded:",
+      apiResponse.data.handle,
+    );
     return apiResponse.data;
   } catch (error) {
-    console.error('[API Client] Session check failed:', error);
+    console.error("[API Client] Session check failed:", error);
     return null;
   }
 }

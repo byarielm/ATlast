@@ -93,30 +93,30 @@ pnpm install
     ```
 
 3. Generate OAuth Keys
-```bash
-# Generate private key
-openssl ecparam -name prime256v1 -genkey -noout -out private-key.pem
-
-# Extract public key
-openssl ec -in private-key.pem -pubout -out public-key.pem
-
-# View private key (copy for .env)
-cat private-key.pem
-```
+  ```bash
+  # Generate private key
+  openssl ecparam -name prime256v1 -genkey -noout -out private-key.pem
+  
+  # Extract public key
+  openssl ec -in private-key.pem -pubout -out public-key.pem
+  
+  # View private key (copy for .env)
+  cat private-key.pem
+  ```
 
 4. Extract Public Key JWK
-```bash
-node -e "
-const fs = require('fs');
-const jose = require('jose');
-const pem = fs.readFileSync('public-key.pem', 'utf8');
-jose.importSPKI(pem, 'ES256').then(key => {
-  return jose.exportJWK(key);
-}).then(jwk => {
-  console.log(JSON.stringify(jwk, null, 2));
-});
-"
-```
+  ```bash
+  node -e "
+  const fs = require('fs');
+  const jose = require('jose');
+  const pem = fs.readFileSync('public-key.pem', 'utf8');
+  jose.importSPKI(pem, 'ES256').then(key => {
+    return jose.exportJWK(key);
+  }).then(jwk => {
+    console.log(JSON.stringify(jwk, null, 2));
+  });
+  "
+  ```
 
 5. Update netlify/functions/jwks.ts  
    
@@ -124,35 +124,35 @@ jose.importSPKI(pem, 'ES256').then(key => {
 
 6. Create .env
 
-```bash
-VITE_LOCAL_MOCK=false
-VITE_API_BASE=/.netlify/functions
-
-# Database (choose one)
-NETLIFY_DATABASE_URL=postgresql://user:pass@host/db  # Neon
-# NETLIFY_DATABASE_URL=postgresql://localhost/atlast_dev  # Local
-
-# OAuth (paste your private key)
-OAUTH_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_HERE\n-----END PRIVATE KEY-----"
-
-# Local URLs (MUST use 127.0.0.1 for OAuth)
-URL=http://127.0.0.1:8888
-DEPLOY_URL=http://127.0.0.1:8888
-DEPLOY_PRIME_URL=http://127.0.0.1:8888
-CONTEXT=dev
-```
+  ```bash
+  VITE_LOCAL_MOCK=false
+  VITE_API_BASE=/.netlify/functions
+  
+  # Database (choose one)
+  NETLIFY_DATABASE_URL=postgresql://user:pass@host/db  # Neon
+  # NETLIFY_DATABASE_URL=postgresql://localhost/atlast_dev  # Local
+  
+  # OAuth (paste your private key)
+  OAUTH_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYOUR_KEY_HERE\n-----END PRIVATE KEY-----"
+  
+  # Local URLs (MUST use 127.0.0.1 for OAuth)
+  URL=http://127.0.0.1:8888
+  DEPLOY_URL=http://127.0.0.1:8888
+  DEPLOY_PRIME_URL=http://127.0.0.1:8888
+  CONTEXT=dev
+  ```
 
 7. Initialize Database
-```bash
-pnpm run init-db
-```
+  ```bash
+  pnpm run init-db
+  ```
 
 8. Start Development Server
-```bash
-npx netlify-cli dev --filter @atlast/web
-# Or use the alias:
-pnpm run dev
-```
+  ```bash
+  npx netlify-cli dev --filter @atlast/web
+  # Or use the alias:
+  pnpm run dev
+  ```
 
 9. Test OAuth
     

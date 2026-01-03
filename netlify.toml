@@ -10,7 +10,7 @@
   targetPort = 5173
   port = 8888
   functionsPort = 9999
-  autoLaunch = false
+  autoLaunch = true
 
 [[redirects]]
   from = "/oauth-client-metadata.json"

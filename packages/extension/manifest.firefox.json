@@ -3,11 +3,7 @@
   "name": "ATlast Importer",
   "version": "1.0.0",
   "description": "Import your Twitter/X follows to find them on Bluesky",
-  "permissions": [
-    "activeTab",
-    "storage",
-    "cookies"
-  ],
+  "permissions": ["activeTab", "storage", "cookies"],
   "host_permissions": [
     "https://twitter.com/*",
     "https://x.com/*",
@@ -21,10 +17,7 @@
   },
   "content_scripts": [
     {
-      "matches": [
-        "https://twitter.com/*",
-        "https://x.com/*"
-      ],
+      "matches": ["https://twitter.com/*", "https://x.com/*"],
       "js": ["content/index.js"],
       "run_at": "document_idle"
     }
@@ -44,7 +37,7 @@
   },
   "browser_specific_settings": {
     "gecko": {
-      "id": "atlast-importer@byarielm.fyi",
+      "id": "atlast-importer-dev@byarielm.fyi",
       "strict_min_version": "109.0"
     }
   }
