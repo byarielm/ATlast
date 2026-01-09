@@ -1,12 +1,16 @@
 .env
+.env.mock
 .tangled/
+.github/
 .vscode/
 .netlify/
 .claude/
 .deciduous/
 node_modules/
+docs/
 dist/
 private-key.pem
 public-jwk.json
 test-data/
 PLAN.md
+CLAUDE.md
