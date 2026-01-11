@@ -32,7 +32,7 @@ export default function UploadTab({
   return (
     <Section
       title="Upload Following Data"
-      description="Find your people on the ATmosphere"
+      description="Find your people in the ATmosphere"
       action={
         <SetupPrompt
           variant="button"

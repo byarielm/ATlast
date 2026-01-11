@@ -19,8 +19,10 @@ const Badge: React.FC<BadgeProps> = ({
     stat: "bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50",
     match: "bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50",
     info: "bg-purple-100 dark:bg-slate-900 text-purple-950 dark:text-cyan-50",
-    platform: "bg-purple-100 dark:bg-cyan-900 text-purple-600 dark:text-cyan-400",
-    status: "bg-orange-650/50 dark:bg-amber-400/50 text-orange-650 dark:text-amber-400",
+    platform:
+      "bg-purple-100 dark:bg-cyan-900 text-purple-600 dark:text-cyan-400",
+    status:
+      "bg-purple-100 dark:bg-slate-900 text-orange-650 dark:text-amber-400",
   };
 
   return (

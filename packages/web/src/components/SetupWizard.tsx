@@ -80,7 +80,7 @@ export default function SetupWizard({
       value: app.id,
       label: app.name,
       icon: app.icon,
-    })
+    }),
   );
 
   return (
@@ -257,7 +257,7 @@ export default function SetupWizard({
                       value={automationFrequency}
                       onChange={(e) =>
                         setAutomationFrequency(
-                          e.target.value as "Weekly" | "Monthly" | "Quarterly"
+                          e.target.value as "Weekly" | "Monthly" | "Quarterly",
                         )
                       }
                       className="mt-3 ml-auto max-w-xs px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm w-full text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"
@@ -290,7 +290,7 @@ export default function SetupWizard({
                   <li className="flex items-center space-x-2">
                     <Check className="w-4 h-4 text-orange-500" />
                     <span>
-                      Data saving: {saveData ? "Enabled" : "Disabled"}
+                      Data Storage: {saveData ? "Enabled" : "Disabled"}
                     </span>
                   </li>
                   <li className="flex items-center space-x-2">
