@@ -3,27 +3,38 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>ATlast Importer</title>
+        <title>ATlast Importer - Dev Mode</title>
         <link rel="stylesheet" href="popup.css" />
     </head>
     <body
-        class="w-[350px] min-h-[400px] rounded-3xl font-sans bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 mb-2 text-center"
+        class="w-[350px] min-h-[400px] font-sans text-slate-800 dark:text-cyan-50 bg-gradient-to-br from-purple-50 via-white to-cyan-50 dark:from-slate-900 dark:via-purple-950 dark:to-sky-900"
     >
+        <!-- Dev Mode Banner -->
+        <div
+            style="
+                background: #f97316;
+                color: white;
+                text-align: center;
+                padding: 4px;
+                font-size: 11px;
+                font-weight: bold;
+            "
+        >
+            🔧 DEVELOPMENT MODE
+        </div>
+
         <div class="flex flex-col min-h-[400px]">
-            <header
-                class="bg-white dark:bg-slate-900 border-b-2 border-cyan-500/50 dark:border-purple-500/50 p-5 text-center"
-            >
-                <h1
-                    class="text-xl font-bold text-purple-950 dark:text-cyan-50 space-x-3"
-                >
-                    ATlast Importer
-                </h1>
-                <p class="text-sm text-purple-750 dark:text-cyan-250">
-                    Find your people in the ATmosphere
+            <header class="bg-firefly-banner text-white p-5 text-center">
+                <h1 class="text-xl font-bold mb-1">ATlast Importer</h1>
+                <p class="text-[13px] opacity-90">
+                    Find your follows in the ATmosphere
                 </p>
             </header>
 
-            <main id="app" class="flex-1 px-5 py-6 flex">
+            <main
+                id="app"
+                class="flex-1 px-5 py-6 flex items-center justify-center"
+            >
                 <!-- Idle state -->
                 <div id="state-idle" class="w-full text-center hidden">
                     <div class="text-5xl mb-4">🔍</div>
@@ -140,26 +151,30 @@
                 </div>
 
                 <!-- Server offline state -->
-                <div id="state-offline" class="w-full hidden">
-                    <div class="text-5xl text-center mb-4">🔌</div>
+                <div id="state-offline" class="w-full text-center hidden">
+                    <div class="text-5xl mb-4">🔌</div>
                     <p
-                        class="text-base font-bold text-center mb-3 text-purple-950 dark:text-cyan-50"
+                        class="text-base font-semibold mb-3 text-slate-700 dark:text-cyan-50"
                     >
                         Server not available
                     </p>
                     <p
                         id="dev-instructions"
-                        class="text-sm text-purple-900 dark:text-cyan-100 mt-2 p-3 bg-white/50 dark:bg-slate-900/50 rounded border-l-2 border-orange-600"
+                        class="text-[13px] text-red-600 dark:text-red-400 mt-2 p-3 bg-red-50 dark:bg-red-950/50 rounded border-l-[3px] border-red-600"
                     >
                         Start the dev server:<br />
                         <code
-                            class="bg-black/10 dark:bg-white/10 px-2 py-1 rounded font-mono text-sm inline-block my-2"
+                            class="bg-black/10 dark:bg-white/10 px-2 py-1 rounded font-mono text-[11px] inline-block my-2"
                             >npx netlify-cli dev --filter @atlast/web</code
                         >
                     </p>
+                    <p
+                        class="text-[13px] text-slate-500 dark:text-slate-400 mt-2"
+                        id="server-url"
+                    ></p>
                     <button
                         id="btn-check-server"
-                        class="w-full bg-orange-600 hover:bg-orange-500 text-white font-medium py-3 px-6 rounded-lg mt-4 shadow-md hover:shadow-lg transition-all duration-200"
+                        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg mt-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-600/30 active:translate-y-0"
                     >
                         Check Again
                     </button>
@@ -193,16 +208,18 @@
                 </div>
             </main>
 
-            <footer class="text-center mb-6 rounded-3xl">
+            <footer
+                class="p-4 text-center border-t border-purple-200 dark:border-slate-800 bg-white dark:bg-slate-900"
+            >
                 <a
                     href="https://atlast.byarielm.fyi"
                     target="_blank"
-                    class="text-purple-750 dark:text-cyan-250 no-underline text-l font-medium hover:underline"
+                    class="text-orange-600 dark:text-orange-400 no-underline text-[13px] font-medium hover:underline"
                     >atlast.byarielm.fyi</a
                 >
             </footer>
         </div>
 
-        <script type="module" src="popup.ts"></script>
+        <script type="module" src="./popup-dev.ts"></script>
     </body>
 </html>

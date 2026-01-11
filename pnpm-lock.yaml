@@ -142,6 +142,9 @@ importers:
       typescript:
         specifier: ^5.3.3
         version: 5.9.3
+      vite:
+        specifier: ^5.4.21
+        version: 5.4.21(@types/node@24.10.4)
 
   packages/functions:
     dependencies:

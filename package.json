@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "npx netlify-cli dev --filter @atlast/web",
-    "dev:mock": "pnpm dev:mock --filter @atlast/web",
+    "dev:mock": "pnpm --filter @atlast/web dev",
     "dev:full": "npx netlify-cli dev --filter @atlast/web",
+    "dev:popup": "pnpm --filter @atlast/extension dev:popup",
     "build": "pnpm --filter @atlast/web build",
     "init-db": "tsx scripts/init-local-db.ts",
     "generate-key": "tsx scripts/generate-encryption-key.ts"

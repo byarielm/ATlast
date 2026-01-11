@@ -8,6 +8,7 @@
     "build": "node build.js",
     "build:prod": "node build.js --prod",
     "dev": "node build.js --watch",
+    "dev:popup": "vite",
     "package:chrome": "cd dist/chrome && zip -r ../chrome.zip .",
     "package:firefox": "cd dist/firefox && zip -r ../firefox.zip .",
     "package:all": "pnpm run package:chrome && pnpm run package:firefox",
@@ -25,6 +26,7 @@
     "esbuild": "^0.19.11",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.19",
-    "typescript": "^5.3.3"
+    "typescript": "^5.3.3",
+    "vite": "^5.4.21"
   }
 }
