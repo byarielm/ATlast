@@ -10,7 +10,7 @@ export default defineConfig({
   },
   server: {
     port: 5174,
-    open: "/popup-dev.html",
+    open: "/popup.html",
   },
   define: {
     __ATLAST_API_URL__: JSON.stringify("http://localhost:8888"),
