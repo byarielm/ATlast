@@ -28,7 +28,6 @@ const elements = {
   platformName: document.getElementById("platform-name")!,
   count: document.getElementById("count")!,
   finalCount: document.getElementById("final-count")!,
-  statusMessage: document.getElementById("status-message")!,
   errorMessage: document.getElementById("error-message")!,
   serverUrl: document.getElementById("server-url")!,
   devInstructions: document.getElementById("dev-instructions")!,
@@ -81,7 +80,6 @@ function updateUI(state: ExtensionState): void {
       showState("scraping");
       if (state.progress) {
         elements.count.textContent = state.progress.count.toString();
-        elements.statusMessage.textContent = state.progress.message || "";
 
         // Animate progress bar
         const progress = Math.min(state.progress.count / 100, 1) * 100;
