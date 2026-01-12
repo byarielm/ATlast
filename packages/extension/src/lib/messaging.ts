@@ -50,6 +50,9 @@ export interface ScrapeErrorMessage extends Message {
   type: MessageType.SCRAPE_ERROR;
   payload: {
     error: string;
+    category?: string;
+    userMessage?: string;
+    troubleshootingTips?: string[];
   };
 }
 
@@ -82,6 +85,9 @@ export interface ExtensionState {
   progress?: ScraperProgress;
   result?: ScraperResult;
   error?: string;
+  errorCategory?: string;
+  errorUserMessage?: string;
+  errorTroubleshootingTips?: string[];
 }
 
 /**

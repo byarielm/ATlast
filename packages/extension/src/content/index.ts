@@ -1,5 +1,5 @@
 import { TwitterScraper } from './scrapers/twitter-scraper.js';
-import type { BaseScraper } from './scrapers/base-scraper.js';
+import type { BaseScraper, ScraperErrorContext } from './scrapers/base-scraper.js';
 import {
   MessageType,
   onMessage,
@@ -10,6 +10,7 @@ import {
   type ScrapeCompleteMessage,
   type ScrapeErrorMessage
 } from '../lib/messaging.js';
+import { categorizeError, detectCommonScenarios, type ErrorContext } from '../lib/errors.js';
 
 /**
  * Platform configuration
@@ -102,7 +103,11 @@ async function startScraping(): Promise<void> {
 
   const scraper = config.createScraper();
 
+  // Track progress for error context
+  let lastUsersFound = 0;
+
   scraper.onProgress = (progress) => {
+    lastUsersFound = progress.count;
     const progressMessage: ScrapeProgressMessage = {
       type: MessageType.SCRAPE_PROGRESS,
       payload: progress
@@ -120,11 +125,30 @@ async function startScraping(): Promise<void> {
     currentScraper = null;
   };
 
-  scraper.onError = (error) => {
+  scraper.onError = (error, scraperContext?: ScraperErrorContext) => {
+    // Build complete error context
+    const errorContext: ErrorContext = {
+      usersFound: lastUsersFound,
+      scrollAttempts: scraperContext?.scrollAttempts || 0,
+      timeElapsed: scraperContext?.timeElapsed || 0,
+      pageUrl: scraperContext?.pageUrl || window.location.href
+    };
+
+    // Check for common scenarios first
+    let categorized = detectCommonScenarios(errorContext);
+
+    // If no common scenario detected, categorize the error
+    if (!categorized) {
+      categorized = categorizeError(error, errorContext);
+    }
+
     const errorMessage: ScrapeErrorMessage = {
       type: MessageType.SCRAPE_ERROR,
       payload: {
-        error: error.message
+        error: categorized.technicalMessage,
+        category: categorized.category,
+        userMessage: categorized.userMessage,
+        troubleshootingTips: categorized.troubleshootingTips
       }
     };
     sendToBackground(errorMessage);

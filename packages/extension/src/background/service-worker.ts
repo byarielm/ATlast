@@ -130,22 +130,30 @@ async function handleScrapeComplete(message: ScrapeCompleteMessage): Promise<voi
  * Handle scrape error
  */
 async function handleScrapeError(message: ScrapeErrorMessage): Promise<void> {
-  const { error } = message.payload;
+  const { error, category, userMessage, troubleshootingTips } = message.payload;
   const currentState = await getState();
 
   const state: ExtensionState = {
     ...currentState,
     status: 'error',
     error,
+    errorCategory: category,
+    errorUserMessage: userMessage,
+    errorTroubleshootingTips: troubleshootingTips,
     progress: {
       count: currentState.progress?.count || 0,
       status: 'error',
-      message: `Error: ${error}`
+      message: `Error: ${userMessage || error}`
     }
   };
 
   await setState(state);
-  console.error('[Background] Scraping error:', error);
+  console.error('[Background] Scraping error:', {
+    technical: error,
+    category,
+    userMessage,
+    tips: troubleshootingTips
+  });
 }
 
 /**

@@ -28,7 +28,9 @@ const elements = {
   platformName: document.getElementById("platform-name")!,
   count: document.getElementById("count")!,
   finalCount: document.getElementById("final-count")!,
-  errorMessage: document.getElementById("error-message")!,
+  errorUserMessage: document.getElementById("error-user-message")!,
+  errorTechnical: document.getElementById("error-technical")!,
+  errorTipsList: document.getElementById("error-tips-list")!,
   serverUrl: document.getElementById("server-url")!,
   devInstructions: document.getElementById("dev-instructions")!,
   progressFill: document.getElementById("progress-fill")! as HTMLElement,
@@ -100,8 +102,28 @@ function updateUI(state: ExtensionState): void {
 
     case "error":
       showState("error");
-      elements.errorMessage.textContent =
-        state.error || "An unknown error occurred";
+
+      // Display user-friendly message
+      elements.errorUserMessage.textContent =
+        state.errorUserMessage || "An error occurred";
+
+      // Display troubleshooting tips
+      elements.errorTipsList.innerHTML = "";
+      if (state.errorTroubleshootingTips && state.errorTroubleshootingTips.length > 0) {
+        state.errorTroubleshootingTips.forEach(tip => {
+          const li = document.createElement("li");
+          li.textContent = tip;
+          elements.errorTipsList.appendChild(li);
+        });
+      } else {
+        const li = document.createElement("li");
+        li.textContent = "Try refreshing the page and scanning again";
+        elements.errorTipsList.appendChild(li);
+      }
+
+      // Display technical error message
+      elements.errorTechnical.textContent =
+        state.error || "Unknown error";
       break;
 
     default:
@@ -210,7 +232,14 @@ function injectDevToolbar(): void {
   toolbar.appendChild(
     createButton("Error", {
       status: "error",
-      error: "Failed to scrape page",
+      error: "TypeError: Cannot read property 'textContent' of null at extractUsername",
+      errorCategory: "DOM_ERROR",
+      errorUserMessage: "Page structure has changed",
+      errorTroubleshootingTips: [
+        "Try refreshing the page",
+        "Make sure you're on the Following page",
+        "Extension may need an update"
+      ]
     }),
   );
 

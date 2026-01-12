@@ -13,13 +13,20 @@ export interface ScraperResult {
 export interface ScraperCallbacks {
   onProgress?: (progress: ScraperProgress) => void;
   onComplete?: (result: ScraperResult) => void;
-  onError?: (error: Error) => void;
+  onError?: (error: Error, context?: ScraperErrorContext) => void;
+}
+
+export interface ScraperErrorContext {
+  usersFound: number;
+  scrollAttempts: number;
+  timeElapsed: number;
+  pageUrl: string;
 }
 
 export abstract class BaseScraper {
   protected onProgress: (progress: ScraperProgress) => void;
   protected onComplete: (result: ScraperResult) => void;
-  protected onError: (error: Error) => void;
+  protected onError: (error: Error, context?: ScraperErrorContext) => void;
 
   constructor(callbacks: ScraperCallbacks = {}) {
     this.onProgress = callbacks.onProgress || (() => {});
@@ -45,6 +52,9 @@ export abstract class BaseScraper {
    * Scrolls page until no new users found for 3 consecutive scrolls
    */
   async scrape(): Promise<string[]> {
+    const startTime = Date.now();
+    let scrollAttempts = 0;
+
     try {
       const usernames = new Set<string>();
       let stableCount = 0;
@@ -54,6 +64,8 @@ export abstract class BaseScraper {
       this.onProgress({ count: 0, status: 'scraping', message: 'Starting scan...' });
 
       while (stableCount < maxStableCount) {
+        scrollAttempts++;
+
         // Collect visible usernames
         const elements = document.querySelectorAll(this.getUsernameSelector());
 
@@ -100,7 +112,17 @@ export abstract class BaseScraper {
       return result.usernames;
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error));
-      this.onError(err);
+      const timeElapsed = Date.now() - startTime;
+
+      // Build error context for categorization
+      const context: ScraperErrorContext = {
+        usersFound: 0, // Will be set by content script if it has the info
+        scrollAttempts,
+        timeElapsed,
+        pageUrl: window.location.href
+      };
+
+      this.onError(err, context);
       this.onProgress({
         count: 0,
         status: 'error',
