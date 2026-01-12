@@ -19,6 +19,8 @@ export default defineConfig({
     ],
   },
   server: {
+    port: 5175,
+    strictPort: true, // Don't auto-increment port if in use
     fs: {
       // Allow serving files from the monorepo root
       allow: ["../.."],

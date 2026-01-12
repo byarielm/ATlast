@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="popup.css" />
     </head>
     <body
-        class="w-[350px] min-h-[400px] rounded-3xl font-sans bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 mb-2 text-center"
+        class="w-[300px] min-h-[400px] font-sans bg-gradient-to-br from-cyan-50 via-purple-50 to-pink-50 dark:from-indigo-950 dark:via-purple-900 dark:to-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300 text-center"
     >
         <div class="flex flex-col min-h-[400px]">
             <header
@@ -23,34 +23,50 @@
                 </p>
             </header>
 
-            <main id="app" class="flex-1 px-5 py-6 flex">
+            <main
+                id="app"
+                class="flex-1 px-5 py-6 flex flex-col justify-center"
+            >
                 <!-- Idle state -->
-                <div id="state-idle" class="w-full text-center hidden">
+                <div
+                    id="state-idle"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4">🔍</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Go to your Twitter/X Following page
                     </p>
-                    <p class="text-sm text-slate-500 dark:text-cyan-100 mt-2">
-                        Visit x.com/your-username/following
-                    </p>
+                    <a
+                        href="https://x.com/following"
+                        target="_blank"
+                        class="w-full px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all mt-4 inline-block no-underline"
+                    >
+                        Open X Following
+                    </a>
                 </div>
 
                 <!-- Ready state -->
-                <div id="state-ready" class="w-full text-center hidden">
+                <div
+                    id="state-ready"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4">✅</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Ready to scan <span id="platform-name"></span>
                     </p>
                     <button
                         id="btn-start"
-                        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg mt-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-600/30 active:translate-y-0"
+                        class="w-full px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all mt-4"
                     >
                         Start Scan
                     </button>
                 </div>
 
                 <!-- Scraping state -->
-                <div id="state-scraping" class="w-full text-center hidden">
+                <div
+                    id="state-scraping"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4 spinner">⏳</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Scanning...
@@ -65,7 +81,7 @@
                             ></div>
                         </div>
                         <p
-                            class="text-base font-semibold text-slate-700 dark:text-cyan-50"
+                            class="text-base font-semibold text-purple-900 dark:text-cyan-100"
                         >
                             Found <span id="count">0</span> users
                         </p>
@@ -73,12 +89,15 @@
                 </div>
 
                 <!-- Complete state -->
-                <div id="state-complete" class="w-full text-center hidden">
+                <div
+                    id="state-complete"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4">🎉</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Scan complete!
                     </p>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">
+                    <p class="text-base text-purple-950 dark:text-cyan-50 mt-2">
                         Found
                         <strong
                             id="final-count"
@@ -89,14 +108,17 @@
                     </p>
                     <button
                         id="btn-upload"
-                        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg mt-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-600/30 active:translate-y-0"
+                        class="w-full px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white font-bold rounded-lg shadow-md hover:shadow-lg transition-all mt-4"
                     >
                         Open in ATlast
                     </button>
                 </div>
 
                 <!-- Uploading state -->
-                <div id="state-uploading" class="w-full text-center hidden">
+                <div
+                    id="state-uploading"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4 spinner">📤</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Uploading to ATlast...
@@ -104,26 +126,32 @@
                 </div>
 
                 <!-- Error state -->
-                <div id="state-error" class="w-full text-center hidden">
+                <div
+                    id="state-error"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4">⚠️</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Error
                     </p>
                     <p
                         id="error-message"
-                        class="text-[13px] text-red-600 dark:text-red-400 mt-2 p-3 bg-red-50 dark:bg-red-950/50 rounded border-l-[3px] border-red-600"
+                        class="text-sm text-purple-950 dark:text-cyan-50 mt-2 p-3 bg-white-50 dark:bg-slate-950/50 rounded border-l-[3px] border-red-600"
                     ></p>
                     <button
                         id="btn-retry"
-                        class="w-full bg-white dark:bg-purple-950 text-purple-700 dark:text-cyan-400 border-2 border-purple-700 dark:border-cyan-400 font-semibold py-2.5 px-6 rounded-lg mt-4 transition-all duration-200 hover:bg-purple-50 dark:hover:bg-purple-900"
+                        class="w-full px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all mt-4"
                     >
                         Try Again
                     </button>
                 </div>
 
                 <!-- Server offline state -->
-                <div id="state-offline" class="w-full hidden">
-                    <div class="text-5xl text-center mb-4">🔌</div>
+                <div
+                    id="state-offline"
+                    class="w-full flex flex-col justify-center text-center"
+                >
+                    <div class="text-5xl mb-4">🔌</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Server not available
                     </p>
@@ -139,45 +167,62 @@
                     </p>
                     <button
                         id="btn-check-server"
-                        class="w-full bg-orange-600 hover:bg-orange-500 text-white font-medium py-3 px-6 rounded-lg mt-4 shadow-md hover:shadow-lg transition-all duration-200"
+                        class="w-full px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all mt-4"
                     >
                         Check Again
                     </button>
                 </div>
 
                 <!-- Not logged in state -->
-                <div id="state-not-logged-in" class="w-full text-center hidden">
+                <div
+                    id="state-not-logged-in"
+                    class="w-full text-center flex flex-col justify-center"
+                >
                     <div class="text-5xl mb-4">🔐</div>
                     <p class="text-base mb-3 text-purple-950 dark:text-cyan-50">
                         Not logged in to ATlast
                     </p>
                     <p
-                        class="text-[13px] text-red-600 dark:text-red-400 mt-2 p-3 bg-red-50 dark:bg-red-950/50 rounded border-l-[3px] border-red-600"
+                        class="text-[13px] text-red-600 dark:text-red-400 mt-2 p-3 bg-white-50 dark:bg-slate-950/50 rounded border-l-2 border-red-600"
                     >
                         Please log in to ATlast first, then return here to scan.
                     </p>
                     <button
                         id="btn-open-atlast"
-                        class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg mt-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-orange-600/30 active:translate-y-0"
+                        class="w-full px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg font-bold shadow-md hover:shadow-lg transition-all mt-4"
                     >
                         Open ATlast
                     </button>
                     <button
                         id="btn-retry-login"
-                        class="w-full bg-white dark:bg-purple-950 text-purple-700 dark:text-cyan-400 border-2 border-purple-700 dark:border-cyan-400 font-semibold py-2.5 px-6 rounded-lg mt-4 transition-all duration-200 hover:bg-purple-50 dark:hover:bg-purple-900"
+                        class="w-full px-4 py-2 text-purple-750 dark:text-cyan-250 hover:text-purple-950 dark:hover:text-cyan-50 transition-colors mt-2"
                     >
                         Check Again
                     </button>
                 </div>
             </main>
 
-            <footer class="text-center mb-6 rounded-3xl">
-                <a
-                    href="https://atlast.byarielm.fyi"
-                    target="_blank"
-                    class="text-purple-750 dark:text-cyan-250 no-underline text-l font-medium hover:underline"
-                    >atlast.byarielm.fyi</a
+            <footer class="text-left">
+                <div
+                    class="mt-4 px-10 py-2 -indent-6 border-orange-650/50 dark:border-amber-400/50 bg-white/50 dark:bg-slate-900/50"
                 >
+                    <p class="text-sm text-purple-900 dark:text-cyan-100">
+                        💡 <strong>Need help?</strong> Contact @byarielm.fyi on
+                        <a
+                            href="https://bsky.app/profile/atlast.byarielm.fyi"
+                            target="_blank"
+                            class="text-orange-600 dark:text-amber-400 hover:underline"
+                            >Bluesky</a
+                        >
+                        or
+                        <a
+                            href="https://tangled.org/byarielm.fyi/atlast"
+                            target="_blank"
+                            class="text-orange-600 dark:text-amber-400 hover:underline"
+                            >Tangled</a
+                        >
+                    </p>
+                </div>
             </footer>
         </div>
 

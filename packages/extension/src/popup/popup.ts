@@ -213,8 +213,39 @@ function injectDevToolbar(): void {
       error: "Failed to scrape page",
     }),
   );
-  toolbar.appendChild(createButton("Offline", { status: "idle" }));
-  toolbar.appendChild(createButton("Not Logged In", { status: "idle" }));
+
+  // Special buttons that directly show state (not part of ExtensionState status)
+  const btnOffline = document.createElement("button");
+  btnOffline.textContent = "Offline";
+  btnOffline.style.cssText = `
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+  `;
+  btnOffline.onclick = () => {
+    showState("offline");
+  };
+  toolbar.appendChild(btnOffline);
+
+  const btnNotLoggedIn = document.createElement("button");
+  btnNotLoggedIn.textContent = "Not Logged In";
+  btnNotLoggedIn.style.cssText = `
+    background: #f97316;
+    color: white;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 11px;
+  `;
+  btnNotLoggedIn.onclick = () => {
+    showState("notLoggedIn");
+  };
+  toolbar.appendChild(btnNotLoggedIn);
 
   document.body.appendChild(toolbar);
 }
