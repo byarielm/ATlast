@@ -4,9 +4,29 @@ Browser extension for importing Twitter/X follows to find them on Bluesky.
 
 ## Development
 
-**Prerequisites:**
-- ATlast dev server must be running at `http://127.0.0.1:8888`
-- You must be logged in to ATlast before using the extension
+### Build Modes
+
+The extension supports three build modes:
+
+1. **Mock Mode** (`pnpm run build:mock`)
+   - For UI/UX testing only
+   - Shows dev toolbar with state toggle buttons
+   - No backend or browser API checks
+   - Uses fake data for all operations
+   - Perfect for rapid UI development
+
+2. **Dev Mode** (`pnpm run build:dev` or `pnpm run build`)
+   - Full extension functionality with local backend
+   - Connects to `http://127.0.0.1:8888`
+   - Requires ATlast dev server running
+   - Checks server health on startup
+   - Must be logged in to ATlast
+
+3. **Production Mode** (`pnpm run build:prod`)
+   - Full extension functionality with production backend
+   - Connects to `https://atlast.byarielm.fyi`
+   - No server health checks (assumes always online)
+   - Must be logged in to production ATlast
 
 ### Build Extension
 
@@ -14,23 +34,51 @@ Browser extension for importing Twitter/X follows to find them on Bluesky.
 # From project root:
 cd packages/extension
 pnpm install
-pnpm run build        # Dev build (uses http://127.0.0.1:8888)
-pnpm run build:prod   # Production build (uses https://atlast.byarielm.fyi)
+
+# Choose your build mode:
+pnpm run build:mock   # Mock mode - UI testing only
+pnpm run build:dev    # Dev mode - local backend (default)
+pnpm run build:prod   # Production mode - production backend
 ```
 
-The built extension will be in `dist/chrome/`.
+The built extension will be in:
+- Chrome: `dist/chrome/`
+- Firefox: `dist/firefox/`
 
-### Load in Chrome for Testing
+### Load in Browser for Testing
 
+**Chrome/Edge:**
 1. Open Chrome and navigate to `chrome://extensions`
 2. Enable **Developer mode** (toggle in top right)
 3. Click **Load unpacked**
 4. Select the `packages/extension/dist/chrome/` directory
 5. The extension should now appear in your extensions list
 
+**Firefox:**
+1. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`
+2. Click **Load Temporary Add-on**
+3. Navigate to `packages/extension/dist/firefox/` and select `manifest.json`
+4. The extension will appear in your extensions list
+
+**Important:** After rebuilding, click the reload button next to the extension in the browser's extension management page.
+
 ### Testing the Extension
 
-#### Step 0: Start ATlast Dev Server
+#### Testing Mock Mode
+
+Mock mode is perfect for UI testing without backend dependencies:
+
+1. Build in mock mode: `pnpm run build:mock`
+2. Load extension in browser
+3. Open popup - you'll see a dev toolbar at the bottom
+4. Click buttons to toggle between states (Idle, Ready, Scraping, Complete, Error, etc.)
+5. Test UI layouts, colors, and interactions
+
+#### Testing Dev/Prod Mode
+
+For full functionality testing:
+
+**Step 0: Start ATlast Dev Server** (Dev mode only)
 
 ```bash
 # From project root:
@@ -103,16 +151,30 @@ Open Chrome DevTools (F12) and check the Console tab for `[ATlast]` messages:
 [Popup] Ready
 ```
 
+#### Error Handling
+
+The extension now shows proper error states in the UI instead of browser alerts:
+
+- **Upload Errors**: Shows specific error message with troubleshooting tips based on build mode
+- **Scraping Errors**: Guides user to correct page and provides context-specific help
+- **Server Offline** (Dev mode only): Shows instructions to start local server
+- **Not Logged In**: Provides button to open ATlast login page
+
+All errors include:
+- User-friendly message explaining what went wrong
+- Specific troubleshooting steps to resolve the issue
+- Technical details in collapsible section for debugging
+
 #### Common Issues
 
 **Issue: Extension shows "Not logged in to ATlast"**
 
 Solution:
-1. Open `http://127.0.0.1:8888` in a new tab
+1. Click "Open ATlast" button in the error state
 2. Log in with your Bluesky handle
 3. Return to extension and click "Check Again"
 
-**Issue: Extension shows "ATlast server not running"**
+**Issue: Extension shows "Server not available"** (Dev mode only)
 
 Solution:
 1. Start dev server: `npx netlify-cli dev --filter @atlast/web`

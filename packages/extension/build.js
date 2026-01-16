@@ -9,11 +9,19 @@ import autoprefixer from 'autoprefixer';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const watch = process.argv.includes('--watch');
-const isProd = process.argv.includes('--prod') || process.env.NODE_ENV === 'production';
-const mode = isProd ? 'production' : 'development';
+
+// Determine build mode: mock, dev, or prod
+let mode = 'dev'; // default
+if (process.argv.includes('--mock')) {
+  mode = 'mock';
+} else if (process.argv.includes('--prod') || process.env.NODE_ENV === 'production') {
+  mode = 'prod';
+} else if (process.argv.includes('--dev')) {
+  mode = 'dev';
+}
 
 // Environment-specific configuration
-const ATLAST_API_URL = mode === 'production'
+const ATLAST_API_URL = mode === 'prod'
   ? 'https://atlast.byarielm.fyi'
   : 'http://127.0.0.1:8888';
 
@@ -30,8 +38,8 @@ fs.mkdirSync(distBaseDir, { recursive: true });
 // Build configuration base
 const buildConfigBase = {
   bundle: true,
-  minify: !watch,
-  sourcemap: watch ? 'inline' : false,
+  minify: mode === 'prod' && !watch,
+  sourcemap: mode !== 'prod' || watch ? 'inline' : false,
   target: 'es2020',
   format: 'esm',
   define: {
@@ -113,7 +121,7 @@ async function processCSS(browser) {
 
   // Import cssnano dynamically for production minification
   const plugins = [tailwindcss, autoprefixer];
-  if (isProd) {
+  if (mode === 'prod') {
     const cssnano = (await import('cssnano')).default;
     plugins.push(cssnano);
   }

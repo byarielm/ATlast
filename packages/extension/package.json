@@ -5,9 +5,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "node build.js",
+    "build": "node build.js --dev",
+    "build:mock": "node build.js --mock",
+    "build:dev": "node build.js --dev",
     "build:prod": "node build.js --prod",
-    "dev": "node build.js --watch",
+    "dev": "node build.js --dev --watch",
     "dev:popup": "vite",
     "package:chrome": "cd dist/chrome && zip -r ../chrome.zip .",
     "package:firefox": "cd dist/firefox && zip -r ../firefox.zip .",

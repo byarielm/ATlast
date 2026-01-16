@@ -7,8 +7,10 @@ import {
 } from "../lib/messaging.js";
 
 // Build mode injected at build time
-declare const __BUILD_MODE__: string;
-const IS_DEV_MODE = __BUILD_MODE__ === "development";
+declare const __BUILD_MODE__: "mock" | "dev" | "prod";
+const IS_MOCK_MODE = __BUILD_MODE__ === "mock";
+const IS_DEV_MODE = __BUILD_MODE__ === "dev";
+const IS_PROD_MODE = __BUILD_MODE__ === "prod";
 
 /**
  * DOM elements
@@ -331,10 +333,10 @@ function devSimulateScraping(): void {
 }
 
 /**
- * Initialize dev mode
+ * Initialize mock mode (UI testing with dev toolbar, no backend)
  */
-function initDevMode(): void {
-  console.log("[Popup Dev] Initializing development mode...");
+function initMockMode(): void {
+  console.log("[Popup Mock] Initializing mock mode...");
 
   // Inject dev UI
   injectDevBanner();
@@ -350,18 +352,18 @@ function initDevMode(): void {
 
   // Set up event listeners for dev mode
   elements.btnStart.addEventListener("click", () => {
-    console.log("[Popup Dev] Start scan clicked");
+    console.log("[Popup Mock] Start scan clicked");
     elements.btnStart.disabled = true;
     devSimulateScraping();
   });
 
   elements.btnUpload.addEventListener("click", () => {
-    console.log("[Popup Dev] Upload clicked");
-    alert("In dev mode - would open ATlast with results!");
+    console.log("[Popup Mock] Upload clicked");
+    alert("In mock mode - would open ATlast with results!");
   });
 
   elements.btnRetry.addEventListener("click", () => {
-    console.log("[Popup Dev] Retry clicked");
+    console.log("[Popup Mock] Retry clicked");
     devState = {
       status: "ready",
       platform: "twitter",
@@ -372,7 +374,7 @@ function initDevMode(): void {
   });
 
   elements.btnCheckServer.addEventListener("click", () => {
-    console.log("[Popup Dev] Check server clicked");
+    console.log("[Popup Mock] Check server clicked");
     devState = {
       status: "ready",
       platform: "twitter",
@@ -382,12 +384,12 @@ function initDevMode(): void {
   });
 
   elements.btnOpenAtlast.addEventListener("click", () => {
-    console.log("[Popup Dev] Open ATlast clicked");
+    console.log("[Popup Mock] Open ATlast clicked");
     window.open("http://127.0.0.1:8888", "_blank");
   });
 
   elements.btnRetryLogin.addEventListener("click", () => {
-    console.log("[Popup Dev] Retry login clicked");
+    console.log("[Popup Mock] Retry login clicked");
     devState = {
       status: "ready",
       platform: "twitter",
@@ -396,7 +398,7 @@ function initDevMode(): void {
     updateUI(devState);
   });
 
-  console.log("[Popup Dev] Ready");
+  console.log("[Popup Mock] Ready");
 }
 
 // ============================================================================
@@ -418,7 +420,22 @@ async function startScraping(): Promise<void> {
     pollForUpdates();
   } catch (error) {
     console.error("[Popup] Error starting scrape:", error);
-    alert("Error: Make sure you are on a Twitter/X Following page");
+
+    // Show error state instead of alert
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    const errorState: ExtensionState = {
+      status: "error",
+      error: errorMessage,
+      errorCategory: "SCRAPE_START_ERROR",
+      errorUserMessage: "Failed to start scan",
+      errorTroubleshootingTips: [
+        "Make sure you're on a Twitter/X Following page",
+        "Navigate to x.com/following or twitter.com/following",
+        "Refresh the page and try again",
+      ],
+    };
+
+    updateUI(errorState);
     elements.btnStart.disabled = false;
   }
 }
@@ -470,9 +487,25 @@ async function uploadToATlast(): Promise<void> {
     browser.tabs.create({ url: resultsUrl });
   } catch (error) {
     console.error("[Popup] Error uploading:", error);
-    alert("Error uploading to ATlast. Please try again.");
+
+    // Show error state instead of alert
+    const errorMessage = error instanceof Error ? error.message : "Unknown error occurred";
+    const errorState: ExtensionState = {
+      status: "error",
+      error: errorMessage,
+      errorCategory: "UPLOAD_ERROR",
+      errorUserMessage: "Failed to upload results to ATlast",
+      errorTroubleshootingTips: [
+        IS_PROD_MODE
+          ? "Make sure you're logged in at atlast.byarielm.fyi"
+          : "Make sure the dev server is running at http://127.0.0.1:8888",
+        "Check your internet connection",
+        "Try uploading again",
+      ],
+    };
+
+    updateUI(errorState);
     elements.btnUpload.disabled = false;
-    showState("complete");
   }
 }
 
@@ -518,16 +551,15 @@ async function checkServer(): Promise<boolean> {
     console.log("[Popup] Server is offline");
     showState("offline");
 
-    // Show appropriate message based on build mode
+    // Show appropriate message - dev instructions only in dev mode
     const apiUrl = getApiUrl();
-    const isDev = __BUILD_MODE__ === "development";
 
-    // Hide dev instructions in production
-    if (!isDev) {
+    // Hide dev instructions in non-dev modes
+    if (!IS_DEV_MODE) {
       elements.devInstructions.classList.add("hidden");
     }
 
-    elements.serverUrl.textContent = isDev
+    elements.serverUrl.textContent = IS_DEV_MODE
       ? `Development server at ${apiUrl}`
       : `Cannot reach ${apiUrl}`;
 
@@ -539,17 +571,13 @@ async function checkServer(): Promise<boolean> {
 }
 
 /**
- * Initialize production mode
+ * Initialize real mode (dev or prod with actual backend)
  */
-async function initProdMode(): Promise<void> {
-  console.log("[Popup] Initializing popup...");
+async function initRealMode(): Promise<void> {
+  console.log(`[Popup] Initializing in ${__BUILD_MODE__} mode...`);
 
-  // Check server health first (only in dev mode)
-  const { getApiUrl } = await import("../lib/api-client.js");
-  const isDev =
-    getApiUrl().includes("127.0.0.1") || getApiUrl().includes("localhost");
-
-  if (isDev) {
+  // Check server health only in dev mode
+  if (IS_DEV_MODE) {
     const serverOnline = await checkServer();
     if (!serverOnline) {
       // Set up retry button
@@ -560,7 +588,7 @@ async function initProdMode(): Promise<void> {
         const online = await checkServer();
         if (online) {
           // Server is back online, re-initialize
-          initProdMode();
+          initRealMode();
         } else {
           elements.btnCheckServer.disabled = false;
           elements.btnCheckServer.textContent = "Check Again";
@@ -572,7 +600,7 @@ async function initProdMode(): Promise<void> {
 
   // Check if user is logged in to ATlast
   console.log("[Popup] Checking login status...");
-  const { checkSession } = await import("../lib/api-client.js");
+  const { checkSession, getApiUrl } = await import("../lib/api-client.js");
   const session = await checkSession();
 
   if (!session) {
@@ -591,7 +619,7 @@ async function initProdMode(): Promise<void> {
       const newSession = await checkSession();
       if (newSession) {
         // User is now logged in, re-initialize
-        initProdMode();
+        initRealMode();
       } else {
         elements.btnRetryLogin.disabled = false;
         elements.btnRetryLogin.textContent = "Check Again";
@@ -643,10 +671,11 @@ async function initProdMode(): Promise<void> {
 // ============================================================================
 
 function init(): void {
-  if (IS_DEV_MODE) {
-    initDevMode();
+  if (IS_MOCK_MODE) {
+    initMockMode();
   } else {
-    initProdMode();
+    // Both dev and prod modes use real backend
+    initRealMode();
   }
 }
 
