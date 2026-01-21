@@ -12,11 +12,11 @@ export default function Firefly({ delay = 0, duration = 3 }: FireflyProps) {
 
   return (
     <div
-      className="absolute w-1 h-1 bg-firefly-amber dark:bg-firefly-glow rounded-full opacity-40 pointer-events-none"
+      className="pointer-events-none absolute size-1 rounded-full bg-firefly-amber opacity-40 dark:bg-firefly-glow"
       style={style}
       aria-hidden="true"
     >
-      <div className="absolute inset-0 bg-firefly-glow dark:bg-firefly-amber rounded-full animate-pulse blur-sm" />
+      <div className="absolute inset-0 animate-pulse rounded-full bg-firefly-glow blur-sm dark:bg-firefly-amber" />
     </div>
   );
 }

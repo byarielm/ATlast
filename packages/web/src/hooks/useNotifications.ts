@@ -16,7 +16,7 @@ export function useNotifications() {
       setNotifications((prev) => [...prev, { id, type, message }]);
       return id;
     },
-    [],
+    []
   );
 
   const removeNotification = useCallback((id: string) => {
@@ -30,22 +30,22 @@ export function useNotifications() {
   // Convenience methods
   const success = useCallback(
     (message: string) => addNotification("success", message),
-    [addNotification],
+    [addNotification]
   );
 
   const error = useCallback(
     (message: string) => addNotification("error", message),
-    [addNotification],
+    [addNotification]
   );
 
   const info = useCallback(
     (message: string) => addNotification("info", message),
-    [addNotification],
+    [addNotification]
   );
 
   const warning = useCallback(
     (message: string) => addNotification("warning", message),
-    [addNotification],
+    [addNotification]
   );
 
   return {

@@ -25,7 +25,7 @@ interface HomePageProps {
   onNavigate: (step: "home" | "login") => void;
   onFileUpload: (
     e: React.ChangeEvent<HTMLInputElement>,
-    platform: string,
+    platform: string
   ) => void;
   onLoadUpload: (uploadId: string) => void;
   currentStep: string;
@@ -97,7 +97,7 @@ export default function HomePage({
       />
 
       {/* Header */}
-      <div className="bg-white dark:bg-slate-900 border-b-2 border-cyan-500/50 dark:border-purple-500/50 overflow-x-auto">
+      <div className="overflow-x-auto border-b-2 border-cyan-500/50 bg-white dark:border-purple-500/50 dark:bg-slate-900">
         <AppHeader
           session={session}
           onLogout={onLogout}
@@ -110,8 +110,8 @@ export default function HomePage({
         />
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-xl rounded-3xl p-3 border-2 border-cyan-500/30 dark:border-purple-500/30 mb-8">
+      <div className="mx-auto max-w-6xl px-4 py-8">
+        <div className="mx-auto mb-8 max-w-6xl rounded-3xl border-2 border-cyan-500/30 bg-slate-100/50 p-3 backdrop-blur-xl dark:border-purple-500/30 dark:bg-slate-900/50">
           {/* Tab Navigation */}
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 

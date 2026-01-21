@@ -15,11 +15,11 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   className = "",
 }) => {
   return (
-    <div className={`text-center py-12 ${className}`}>
-      <Icon className="w-16 h-16 text-purple-900 dark:text-cyan-100 mx-auto mb-4" />
-      <p className="text-purple-750 dark:text-cyan-250 font-medium">{title}</p>
+    <div className={`py-12 text-center ${className}`}>
+      <Icon className="mx-auto mb-4 size-16 text-purple-900 dark:text-cyan-100" />
+      <p className="font-medium text-purple-750 dark:text-cyan-250">{title}</p>
       {message && (
-        <p className="text-sm text-purple-950 dark:text-cyan-50 mt-2">
+        <p className="mt-2 text-sm text-purple-950 dark:text-cyan-50">
           {message}
         </p>
       )}

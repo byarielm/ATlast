@@ -3,9 +3,9 @@ import Skeleton from "./Skeleton";
 
 export const SearchResultSkeleton: React.FC = () => {
   return (
-    <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-2xl shadow-sm overflow-hidden border-2 border-slate-200 dark:border-slate-700">
+    <div className="overflow-hidden rounded-2xl border-2 border-slate-200 bg-white/95 shadow-sm backdrop-blur-xl dark:border-slate-700 dark:bg-slate-800/95">
       {/* Source User Skeleton */}
-      <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-b-2 border-slate-200 dark:border-slate-700">
+      <div className="border-b-2 border-slate-200 bg-slate-50 p-4 dark:border-slate-700 dark:bg-slate-900/50">
         <div className="flex items-center space-x-3">
           <Skeleton variant="circular" width={40} height={40} />
           <div className="flex-1 space-y-2">
@@ -18,13 +18,13 @@ export const SearchResultSkeleton: React.FC = () => {
 
       {/* Match Skeleton */}
       <div className="p-4">
-        <div className="flex items-start space-x-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-200 dark:border-amber-800/30">
+        <div className="flex items-start space-x-3 rounded-xl border-2 border-amber-200 bg-amber-50 p-3 dark:border-amber-800/30 dark:bg-amber-900/10">
           <Skeleton variant="circular" width={48} height={48} />
           <div className="flex-1 space-y-2">
             <Skeleton height={16} width="75%" />
             <Skeleton height={12} width="50%" />
             <Skeleton height={12} width="100%" />
-            <div className="flex gap-2 mt-2">
+            <div className="mt-2 flex gap-2">
               <Skeleton height={20} width={80} className="rounded-full" />
               <Skeleton height={20} width={100} className="rounded-full" />
             </div>
@@ -38,7 +38,7 @@ export const SearchResultSkeleton: React.FC = () => {
 
 export const UploadHistorySkeleton: React.FC = () => {
   return (
-    <div className="flex items-center space-x-4 p-4 bg-purple-100/50 dark:bg-slate-900/50 rounded-xl border-2 border-purple-500/30 dark:border-cyan-500/30">
+    <div className="flex items-center space-x-4 rounded-xl border-2 border-purple-500/30 bg-purple-100/50 p-4 dark:border-cyan-500/30 dark:bg-slate-900/50">
       <Skeleton variant="rectangular" width={48} height={48} />
       <div className="flex-1 space-y-2">
         <Skeleton height={16} width="60%" />

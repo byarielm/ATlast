@@ -33,16 +33,16 @@ export default function SetupWizard({
 }: SetupWizardProps) {
   const [wizardStep, setWizardStep] = useState(0);
   const [selectedPlatforms, setSelectedPlatforms] = useState<Set<string>>(
-    new Set(),
+    new Set()
   );
   const [platformDestinations, setPlatformDestinations] =
     useState<PlatformDestinations>(currentSettings.platformDestinations);
   const [saveData, setSaveData] = useState(currentSettings.saveData);
   const [enableAutomation, setEnableAutomation] = useState(
-    currentSettings.enableAutomation,
+    currentSettings.enableAutomation
   );
   const [automationFrequency, setAutomationFrequency] = useState(
-    currentSettings.automationFrequency,
+    currentSettings.automationFrequency
   );
 
   if (!isOpen) return null;
@@ -80,21 +80,21 @@ export default function SetupWizard({
       value: app.id,
       label: app.name,
       icon: app.icon,
-    }),
+    })
   );
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
       <Card
         variant="wizard"
-        className="max-w-2xl w-full max-h-[90vh] flex flex-col"
+        className="flex max-h-[90vh] w-full max-w-2xl flex-col"
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b-2 border-cyan-500/30 dark:border-purple-500/30 flex-shrink-0">
-          <div className="flex items-center justify-between mb-3">
+        <div className="flex-shrink-0 border-b-2 border-cyan-500/30 px-6 py-4 dark:border-purple-500/30">
+          <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-firefly-banner dark:bg-firefly-banner-dark rounded-xl flex items-center justify-center shadow-md">
-                <Heart className="w-5 h-5 text-white" />
+              <div className="flex size-10 items-center justify-center rounded-xl bg-firefly-banner shadow-md dark:bg-firefly-banner-dark">
+                <Heart className="size-5 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-purple-950 dark:text-cyan-50">
                 Setup Assistant
@@ -102,9 +102,9 @@ export default function SetupWizard({
             </div>
             <button
               onClick={onClose}
-              className="text-purple-600 dark:text-cyan-400 hover:text-purple-950 dark:hover:text-cyan-50 transition-colors"
+              className="text-purple-600 transition-colors hover:text-purple-950 dark:text-cyan-400 dark:hover:text-cyan-50"
             >
-              <X className="w-6 h-6" />
+              <X className="size-6" />
             </button>
           </div>
           {/* Progress */}
@@ -120,14 +120,14 @@ export default function SetupWizard({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="px-6 py-4 overflow-y-auto flex-1">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           {wizardStep === 0 && (
-            <div className="text-center space-y-3">
-              <div className="text-6xl mb-2">👋</div>
+            <div className="space-y-3 text-center">
+              <div className="mb-2 text-6xl">👋</div>
               <h3 className="text-2xl font-bold text-purple-950 dark:text-cyan-50">
                 Welcome to ATlast!
               </h3>
-              <p className="text-purple-750 dark:text-cyan-250 max-w-md mx-auto">
+              <p className="mx-auto max-w-md text-purple-750 dark:text-cyan-250">
                 Let's get you set up in just a few steps. We'll help you
                 configure how you want to reconnect with your community on the
                 ATmosphere.
@@ -144,29 +144,29 @@ export default function SetupWizard({
                 Select one or more platforms you follow people on. We'll help
                 you find them on the ATmosphere.
               </p>
-              <div className="grid grid-cols-3 gap-3 mt-3">
+              <div className="mt-3 grid grid-cols-3 gap-3">
                 {Object.entries(PLATFORMS).map(([key, p]) => {
                   const isSelected = selectedPlatforms.has(key);
                   return (
                     <button
                       key={key}
                       onClick={() => togglePlatform(key)}
-                      className={`p-4 rounded-xl border-2 transition-all relative ${
+                      className={`relative rounded-xl border-2 p-4 transition-all ${
                         isSelected
-                          ? "bg-purple-100/50 dark:bg-slate-950/50 border-2 border-purple-500 dark:border-cyan-500 text-purple-950 dark:text-cyan-50"
-                          : "border-cyan-500/30 dark:border-purple-500/30 hover:bg-purple-100/50 dark:hover:bg-slate-950/50 hover:border-orange-500 dark:hover:border-amber-400"
+                          ? "border-2 border-purple-500 bg-purple-100/50 text-purple-950 dark:border-cyan-500 dark:bg-slate-950/50 dark:text-cyan-50"
+                          : "border-cyan-500/30 hover:border-orange-500 hover:bg-purple-100/50 dark:border-purple-500/30 dark:hover:border-amber-400 dark:hover:bg-slate-950/50"
                       }`}
                     >
                       {isSelected && (
-                        <div className="absolute -top-2 -right-2 w-6 h-6 bg-orange-500 dark:bg-amber-400 rounded-full flex items-center justify-center shadow-md">
-                          <Check className="w-4 h-4 text-white dark:text-slate-900" />
+                        <div className="absolute -right-2 -top-2 flex size-6 items-center justify-center rounded-full bg-orange-500 shadow-md dark:bg-amber-400">
+                          <Check className="size-4 text-white dark:text-slate-900" />
                         </div>
                       )}
                       <PlatformBadge
                         platformKey={key}
                         showName={false}
                         size="lg"
-                        className="justify-center mb-2"
+                        className="mb-2 justify-center"
                       />
                       <div className="text-sm font-medium text-purple-950 dark:text-cyan-50">
                         {p.name}
@@ -176,7 +176,7 @@ export default function SetupWizard({
                 })}
               </div>
               {selectedPlatforms.size > 0 && (
-                <div className="mt-3 px-3 py-2 rounded-lg border border-orange-650/30 dark:border-amber-400/30">
+                <div className="mt-3 rounded-lg border border-orange-650/30 px-3 py-2 dark:border-amber-400/30">
                   <p className="text-sm text-purple-750 dark:text-cyan-250">
                     ✨ {selectedPlatforms.size} platform
                     {selectedPlatforms.size !== 1 ? "s" : ""} selected
@@ -195,12 +195,12 @@ export default function SetupWizard({
                 Choose which ATmosphere app to use for each platform. You can
                 change this later.
               </p>
-              <div className="space-y-4 mt-3">
+              <div className="mt-3 space-y-4">
                 {platformsToShow.map(([key, p]) => {
                   return (
                     <div
                       key={key}
-                      className="flex items-center gap-3 px-3 max-w-lg mx-sm"
+                      className="mx-sm flex max-w-lg items-center gap-3 px-3"
                     >
                       <PlatformBadge platformKey={key} size="sm" />
                       <DropdownWithIcons
@@ -227,7 +227,7 @@ export default function SetupWizard({
           {wizardStep === 3 && (
             <div className="space-y-3">
               <div>
-                <h3 className="text-xl font-bold text-purple-950 dark:text-cyan-50 mb-1">
+                <h3 className="mb-1 text-xl font-bold text-purple-950 dark:text-cyan-50">
                   Privacy & Automation
                 </h3>
                 <p className="text-sm text-purple-750 dark:text-cyan-250">
@@ -257,10 +257,10 @@ export default function SetupWizard({
                       value={automationFrequency}
                       onChange={(e) =>
                         setAutomationFrequency(
-                          e.target.value as "Weekly" | "Monthly" | "Quarterly",
+                          e.target.value as "Weekly" | "Monthly" | "Quarterly"
                         )
                       }
-                      className="mt-3 ml-auto max-w-xs px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm w-full text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors"
+                      className="ml-auto mt-3 w-full max-w-xs rounded-lg border border-cyan-500/30 bg-white px-3 py-2 text-sm text-purple-950 transition-colors hover:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-purple-500/30 dark:bg-slate-800 dark:text-cyan-50 dark:hover:border-purple-400 dark:focus:ring-amber-400"
                     >
                       <option value="daily">Check daily</option>
                       <option value="weekly">Check weekly</option>
@@ -273,34 +273,34 @@ export default function SetupWizard({
           )}
 
           {wizardStep === 4 && (
-            <div className="text-center space-y-3">
-              <div className="text-6xl mb-2">🎉</div>
+            <div className="space-y-3 text-center">
+              <div className="mb-2 text-6xl">🎉</div>
               <h3 className="text-2xl font-bold text-purple-950 dark:text-cyan-50">
                 You're all set!
               </h3>
-              <p className="text-purple-750 dark:text-cyan-250 max-w-md mx-auto">
+              <p className="mx-auto max-w-md text-purple-750 dark:text-cyan-250">
                 Your preferences have been saved. You can change them anytime in
                 Settings.
               </p>
-              <div className="px-4 py-3 mt-3">
-                <h4 className="font-semibold text-purple-950 dark:text-cyan-50 mb-2">
+              <div className="mt-3 px-4 py-3">
+                <h4 className="mb-2 font-semibold text-purple-950 dark:text-cyan-50">
                   Quick Summary:
                 </h4>
-                <ul className="text-sm text-purple-750 dark:text-cyan-250 space-y-1 text-left max-w-sm mx-auto">
+                <ul className="mx-auto max-w-sm space-y-1 text-left text-sm text-purple-750 dark:text-cyan-250">
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-orange-500" />
+                    <Check className="size-4 text-orange-500" />
                     <span>
                       Data Storage: {saveData ? "Enabled" : "Disabled"}
                     </span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-orange-500" />
+                    <Check className="size-4 text-orange-500" />
                     <span>
                       Automation: {enableAutomation ? "Enabled" : "Disabled"}
                     </span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-orange-500" />
+                    <Check className="size-4 text-orange-500" />
                     <span>
                       Platforms:{" "}
                       {selectedPlatforms.size > 0
@@ -310,7 +310,7 @@ export default function SetupWizard({
                     </span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <Check className="w-4 h-4 text-orange-500" />
+                    <Check className="size-4 text-orange-500" />
                     <span>Ready to upload your first file!</span>
                   </li>
                 </ul>
@@ -320,11 +320,11 @@ export default function SetupWizard({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t-2 border-cyan-500/30 dark:border-purple-500/30 flex items-center justify-between flex-shrink-0">
+        <div className="flex flex-shrink-0 items-center justify-between border-t-2 border-cyan-500/30 px-6 py-4 dark:border-purple-500/30">
           <button
             onClick={() => wizardStep > 0 && setWizardStep(wizardStep - 1)}
             disabled={wizardStep === 0}
-            className="px-4 py-2 text-purple-750 dark:text-cyan-250 hover:text-purple-950 dark:hover:text-cyan-50 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+            className="px-4 py-2 text-purple-750 transition-colors hover:text-purple-950 disabled:cursor-not-allowed disabled:opacity-30 dark:text-cyan-250 dark:hover:text-cyan-50"
           >
             Back
           </button>
@@ -336,13 +336,13 @@ export default function SetupWizard({
                 handleComplete();
               }
             }}
-            className="px-6 py-2 bg-orange-600 hover:bg-orange-500 text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all flex items-center space-x-2"
+            className="flex items-center space-x-2 rounded-lg bg-orange-600 px-6 py-2 font-medium text-white shadow-md transition-all hover:bg-orange-500 hover:shadow-lg"
           >
             <span>
               {wizardStep === wizardSteps.length - 1 ? "Get Started" : "Next"}
             </span>
             {wizardStep < wizardSteps.length - 1 && (
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className="size-4" />
             )}
           </button>
         </div>

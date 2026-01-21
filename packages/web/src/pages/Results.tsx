@@ -97,15 +97,19 @@ export default function ResultsPage({
       />
 
       {/* Platform Info Banner */}
-      <div className="bg-firefly-banner dark:bg-firefly-banner-dark text-white relative overflow-hidden">
+      <div className="relative overflow-hidden bg-firefly-banner text-white dark:bg-firefly-banner-dark">
         {!reducedMotion && (
           <div className="absolute inset-0 opacity-20" aria-hidden="true">
             {[...Array(10)].map((_, i) => {
-              const animations = ["animate-float-1", "animate-float-2", "animate-float-3"];
+              const animations = [
+                "animate-float-1",
+                "animate-float-2",
+                "animate-float-3",
+              ];
               return (
                 <div
                   key={i}
-                  className={`absolute w-1 h-1 bg-white rounded-full ${animations[i % 3]}`}
+                  className={`absolute size-1 rounded-full bg-white ${animations[i % 3]}`}
                   style={{
                     left: `${Math.random() * 100}%`,
                     top: `${Math.random() * 100}%`,
@@ -115,17 +119,17 @@ export default function ResultsPage({
             })}
           </div>
         )}
-        <div className="max-w-3xl mx-auto px-4 py-6 relative">
+        <div className="relative mx-auto max-w-3xl px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur rounded-xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 text-white" />
+              <div className="flex size-12 items-center justify-center rounded-xl bg-white/20 shadow-lg backdrop-blur">
+                <Sparkles className="size-6 text-white" />
               </div>
               <div>
                 <h2 className="text-xl font-bold">
                   {totalFound} Connections Found!
                 </h2>
-                <p className="text-white/95 text-sm">
+                <p className="text-sm text-white/95">
                   From {searchResults.length} {platform.name} follows
                 </p>
               </div>
@@ -141,8 +145,8 @@ export default function ResultsPage({
       </div>
 
       {/* Action Buttons */}
-      <div className="bg-white/95 dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 sticky top-0 z-10 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 py-3 flex space-x-2">
+      <div className="sticky top-0 z-10 border-b-2 border-cyan-500/30 bg-white/95 backdrop-blur-sm dark:border-purple-500/30 dark:bg-slate-900">
+        <div className="mx-auto flex max-w-3xl space-x-2 px-4 py-3">
           <Button onClick={onSelectAll} variant="primary" className="flex-1">
             Select All
           </Button>
@@ -157,7 +161,7 @@ export default function ResultsPage({
       </div>
 
       {/* Feed Results */}
-      <div className="max-w-3xl mx-auto px-4 py-4">
+      <div className="mx-auto max-w-3xl p-4">
         <VirtualizedResultsList
           results={sortedResults}
           expandedResults={expandedResults}
@@ -170,17 +174,17 @@ export default function ResultsPage({
 
       {/* Fixed Bottom Action Bar */}
       {totalSelected > 0 && (
-        <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent dark:from-slate-900 dark:via-slate-900 dark:to-transparent pt-8 pb-6">
-          <div className="max-w-3xl mx-auto px-4">
+        <div className="fixed inset-x-0 bottom-0 bg-gradient-to-t from-white via-white to-transparent pb-6 pt-8 dark:from-slate-900 dark:via-slate-900 dark:to-transparent">
+          <div className="mx-auto max-w-3xl px-4">
             <button
               onClick={onFollowSelected}
               disabled={isFollowing}
-              className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 py-5 rounded-2xl font-bold text-lg transition-all shadow-2xl hover:shadow-3xl flex items-center justify-center space-x-3 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="hover:shadow-3xl flex w-full items-center justify-center space-x-3 rounded-2xl bg-firefly-banner py-5 text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:from-amber-600 hover:via-orange-600 hover:to-pink-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:scale-100 dark:bg-firefly-banner-dark"
             >
               <FaviconIcon
                 url={destinationApp.icon}
                 alt={destinationApp.name}
-                className="w-5 h-5"
+                className="size-5"
                 useButtonStyling={true}
               />
               <span>

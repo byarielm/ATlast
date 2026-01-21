@@ -31,7 +31,7 @@ export interface IApiClient {
   getUploadDetails(
     uploadId: string,
     page?: number,
-    pageSize?: number,
+    pageSize?: number
   ): Promise<{
     results: SearchResult[];
     pagination?: {
@@ -49,18 +49,18 @@ export interface IApiClient {
   // Search Operations
   batchSearchActors(
     usernames: string[],
-    followLexicon?: string,
+    followLexicon?: string
   ): Promise<{ results: BatchSearchResult[] }>;
 
   checkFollowStatus(
     dids: string[],
-    followLexicon: string,
+    followLexicon: string
   ): Promise<Record<string, boolean>>;
 
   // Follow Operations
   batchFollowUsers(
     dids: string[],
-    followLexicon: string,
+    followLexicon: string
   ): Promise<{
     success: boolean;
     total: number;
@@ -74,7 +74,7 @@ export interface IApiClient {
   saveResults(
     uploadId: string,
     sourcePlatform: string,
-    results: SearchResult[],
+    results: SearchResult[]
   ): Promise<SaveResultsResponse | null>;
 
   // Cache management

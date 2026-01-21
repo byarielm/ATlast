@@ -6,6 +6,7 @@
 .netlify/
 .claude/
 .deciduous/
+.serena/
 node_modules/
 docs/
 dist/

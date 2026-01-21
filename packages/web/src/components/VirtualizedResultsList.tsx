@@ -31,7 +31,8 @@ const VirtualizedResultsList: React.FC<VirtualizedResultsListProps> = ({
     // Enable dynamic measurement - virtualizer will measure actual rendered heights
     // and adjust positioning automatically
     measureElement:
-      typeof window !== "undefined" && navigator.userAgent.indexOf("Firefox") === -1
+      typeof window !== "undefined" &&
+      navigator.userAgent.indexOf("Firefox") === -1
         ? (element) => element.getBoundingClientRect().height
         : undefined,
   });

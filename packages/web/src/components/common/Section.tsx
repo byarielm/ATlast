@@ -23,7 +23,7 @@ const Section: React.FC<SectionProps> = ({
 
   return (
     <div className={`${containerClasses} ${className}`}>
-      <div className="flex items-start justify-between mb-4">
+      <div className="mb-4 flex items-start justify-between">
         <div className="flex items-center space-x-3">
           <div>
             <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">

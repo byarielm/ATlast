@@ -8,7 +8,7 @@ import { ParseRule } from "./platformDefinitions";
  **/
 export function parseTextOrHtml(
   content: string,
-  regexPattern: string,
+  regexPattern: string
 ): string[] {
   try {
     // 'g' for global matching, 's' for multiline (DOTALL equivalent)
@@ -39,7 +39,7 @@ export function parseJson(content: string, pathKeys: string[]): string[] {
 
     if (pathKeys.length < 2) {
       console.error(
-        "JSON rule must have at least two path keys (list key and target key).",
+        "JSON rule must have at least two path keys (list key and target key)."
       );
       return [];
     }
@@ -60,7 +60,7 @@ export function parseJson(content: string, pathKeys: string[]): string[] {
         currentData = currentData[key];
       } else {
         console.error(
-          `ERROR: Could not traverse JSON path up to key: ${key}. Path: ${listContainerPath.join(" -> ")}`,
+          `ERROR: Could not traverse JSON path up to key: ${key}. Path: ${listContainerPath.join(" -> ")}`
         );
         return [];
       }
@@ -84,12 +84,12 @@ export function parseJson(content: string, pathKeys: string[]): string[] {
         }
       } else {
         console.error(
-          `ERROR: Expected an array at key '${listKey}' but found a different type.`,
+          `ERROR: Expected an array at key '${listKey}' but found a different type.`
         );
       }
     } else {
       console.error(
-        `ERROR: List key '${listKey}' not found at its expected position.`,
+        `ERROR: List key '${listKey}' not found at its expected position.`
       );
     }
 
@@ -121,7 +121,7 @@ export function parseContent(content: string, rule: ParseRule): string[] {
     }
   }
   console.error(
-    `ERROR: Unsupported format or invalid rule type for rule with path: ${rule.zipPath}`,
+    `ERROR: Unsupported format or invalid rule type for rule with path: ${rule.zipPath}`
   );
   return [];
 }

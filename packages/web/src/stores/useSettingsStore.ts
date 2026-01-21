@@ -47,6 +47,6 @@ export const useSettingsStore = create<SettingsStore>()(
           state.setIsLoading(false);
         }
       },
-    },
-  ),
+    }
+  )
 );

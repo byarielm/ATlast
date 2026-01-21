@@ -49,7 +49,7 @@ export function getAtprotoApp(appId: AtprotoAppId): AtprotoApp | undefined {
  */
 export function getAtprotoAppWithFallback(
   appId: AtprotoAppId,
-  defaultApp: AtprotoAppId = "bluesky",
+  defaultApp: AtprotoAppId = "bluesky"
 ): AtprotoApp {
   return (
     getAtprotoApp(appId) || getAtprotoApp(defaultApp) || ATPROTO_APPS.bluesky
@@ -74,7 +74,7 @@ let enabledPlatformsCache: Array<[string, PlatformConfig]> | null = null;
 export function getEnabledPlatforms(): Array<[string, PlatformConfig]> {
   if (!enabledPlatformsCache) {
     enabledPlatformsCache = Object.entries(PLATFORMS).filter(
-      ([_, config]) => config.enabled,
+      ([_, config]) => config.enabled
     );
   }
   return enabledPlatformsCache;

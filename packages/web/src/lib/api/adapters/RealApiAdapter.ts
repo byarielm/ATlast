@@ -126,7 +126,7 @@ export class RealApiAdapter implements IApiClient {
   async getUploadDetails(
     uploadId: string,
     page: number = 1,
-    pageSize: number = 50,
+    pageSize: number = 50
   ): Promise<{
     results: SearchResult[];
     pagination?: any;
@@ -135,7 +135,7 @@ export class RealApiAdapter implements IApiClient {
       "upload-details",
       uploadId,
       page,
-      pageSize,
+      pageSize
     );
     const cached = this.responseCache.get<any>(cacheKey);
     if (cached) {
@@ -144,7 +144,7 @@ export class RealApiAdapter implements IApiClient {
 
     const res = await fetch(
       `/.netlify/functions/get-upload-details?uploadId=${uploadId}&page=${page}&pageSize=${pageSize}`,
-      { credentials: "include" },
+      { credentials: "include" }
     );
 
     if (!res.ok) {
@@ -159,7 +159,7 @@ export class RealApiAdapter implements IApiClient {
   }
 
   async getAllUploadDetails(
-    uploadId: string,
+    uploadId: string
   ): Promise<{ results: SearchResult[] }> {
     // Check if we have all pages cached
     const firstPageKey = generateCacheKey("upload-details", uploadId, 1, 100);
@@ -200,14 +200,14 @@ export class RealApiAdapter implements IApiClient {
 
   async checkFollowStatus(
     dids: string[],
-    followLexicon: string,
+    followLexicon: string
   ): Promise<Record<string, boolean>> {
     // Sort DIDs for consistent cache key
     const sortedDids = [...dids].sort();
     const cacheKey = generateCacheKey(
       "follow-status",
       followLexicon,
-      sortedDids.join(","),
+      sortedDids.join(",")
     );
     const cached = this.responseCache.get<Record<string, boolean>>(cacheKey);
     if (cached) {
@@ -227,27 +227,27 @@ export class RealApiAdapter implements IApiClient {
 
     const response = await res.json();
     const data = unwrapResponse<{ followStatus: Record<string, boolean> }>(
-      response,
+      response
     );
 
     this.responseCache.set(
       cacheKey,
       data.followStatus,
-      CACHE_CONFIG.FOLLOW_STATUS_TTL,
+      CACHE_CONFIG.FOLLOW_STATUS_TTL
     );
     return data.followStatus;
   }
 
   async batchSearchActors(
     usernames: string[],
-    followLexicon?: string,
+    followLexicon?: string
   ): Promise<{ results: BatchSearchResult[] }> {
     // Sort usernames for consistent cache key
     const sortedUsernames = [...usernames].sort();
     const cacheKey = generateCacheKey(
       "search",
       followLexicon || "default",
-      sortedUsernames.join(","),
+      sortedUsernames.join(",")
     );
     const cached = this.responseCache.get<any>(cacheKey);
     if (cached) {
@@ -274,7 +274,7 @@ export class RealApiAdapter implements IApiClient {
 
   async batchFollowUsers(
     dids: string[],
-    followLexicon: string,
+    followLexicon: string
   ): Promise<{
     success: boolean;
     total: number;
@@ -308,7 +308,7 @@ export class RealApiAdapter implements IApiClient {
   async saveResults(
     uploadId: string,
     sourcePlatform: string,
-    results: SearchResult[],
+    results: SearchResult[]
   ): Promise<SaveResultsResponse | null> {
     try {
       const resultsToSave = results

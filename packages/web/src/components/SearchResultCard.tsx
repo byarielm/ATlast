@@ -42,7 +42,7 @@ const MatchItem = React.memo<{
       content={
         <>
           {match.displayName && (
-            <div className="font-semibold text-purple-950 dark:text-cyan-50 leading-tight">
+            <div className="font-semibold leading-tight text-purple-950 dark:text-cyan-50">
               {match.displayName}
             </div>
           )}
@@ -50,7 +50,7 @@ const MatchItem = React.memo<{
             href={`https://bsky.app/profile/${match.handle}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight"
+            className="text-sm leading-tight text-purple-750 hover:underline dark:text-cyan-250"
           >
             @{match.handle}
           </a>
@@ -69,9 +69,10 @@ const MatchItem = React.memo<{
           {typeof match.postCount === "number" && match.postCount > 0 && (
             <StatBadge value={match.postCount} label="posts" />
           )}
-          {typeof match.followerCount === "number" && match.followerCount > 0 && (
-            <StatBadge value={match.followerCount} label="followers" />
-          )}
+          {typeof match.followerCount === "number" &&
+            match.followerCount > 0 && (
+              <StatBadge value={match.followerCount} label="followers" />
+            )}
           <Badge variant="match">{match.matchScore}% match</Badge>
         </>
       }
@@ -94,18 +95,18 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
   }) => {
     const currentApp = useMemo(
       () => getAtprotoAppWithFallback(destinationAppId),
-      [destinationAppId],
+      [destinationAppId]
     );
 
     const currentLexicon = useMemo(
       () => currentApp?.followLexicon || "app.bsky.graph.follow",
-      [currentApp],
+      [currentApp]
     );
 
     const displayMatches = useMemo(
       () =>
         isExpanded ? result.atprotoMatches : result.atprotoMatches.slice(0, 1),
-      [isExpanded, result.atprotoMatches],
+      [isExpanded, result.atprotoMatches]
     );
 
     const hasMoreMatches = result.atprotoMatches.length > 1;
@@ -113,16 +114,16 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
     return (
       <Card variant="result">
         {/* Source User */}
-        <div className="px-4 py-3 bg-purple-100 dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30">
-          <div className="flex justify-between gap-2 items-center">
-            <div className="flex-1 min-w-0">
+        <div className="border-b-2 border-cyan-500/30 bg-purple-100 px-4 py-3 dark:border-purple-500/30 dark:bg-slate-900">
+          <div className="flex items-center justify-between gap-2">
+            <div className="min-w-0 flex-1">
               <div className="flex flex-wrap gap-x-2 gap-y-1">
-                <span className="font-bold text-purple-950 dark:text-cyan-50 truncate text-base">
+                <span className="truncate text-base font-bold text-purple-950 dark:text-cyan-50">
                   @{result.sourceUser.username}
                 </span>
               </div>
             </div>
-            <div className="text-sm text-purple-750 dark:text-cyan-250 whitespace-nowrap flex-shrink-0">
+            <div className="flex-shrink-0 whitespace-nowrap text-sm text-purple-750 dark:text-cyan-250">
               {result.atprotoMatches.length}{" "}
               {result.atprotoMatches.length === 1 ? "match" : "matches"}
             </div>
@@ -131,8 +132,8 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
 
         {/* ATProto Matches */}
         {result.atprotoMatches.length === 0 ? (
-          <div className="text-center py-6">
-            <MessageCircle className="w-8 h-8 mx-auto mb-2 opacity-50 text-purple-750 dark:text-cyan-250" />
+          <div className="py-6 text-center">
+            <MessageCircle className="mx-auto mb-2 size-8 text-purple-750 opacity-50 dark:text-cyan-250" />
             <p className="text-sm text-purple-950 dark:text-cyan-50">
               Not found on the ATmosphere yet
             </p>
@@ -158,7 +159,7 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
             {hasMoreMatches && (
               <button
                 onClick={onToggleExpand}
-                className="w-full py-2 text-sm text-purple-600 hover:text-purple-950 dark:text-cyan-400 dark:hover:text-cyan-50 font-medium transition-colors flex items-center justify-center space-x-1 border-t-2 border-cyan-500/30 dark:border-purple-500/30 hover:border-orange-500 dark:hover:border-amber-400/50"
+                className="flex w-full items-center justify-center space-x-1 border-t-2 border-cyan-500/30 py-2 text-sm font-medium text-purple-600 transition-colors hover:border-orange-500 hover:text-purple-950 dark:border-purple-500/30 dark:text-cyan-400 dark:hover:border-amber-400/50 dark:hover:text-cyan-50"
               >
                 <span>
                   {isExpanded
@@ -166,7 +167,7 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
                     : `Show ${result.atprotoMatches.length - 1} more ${result.atprotoMatches.length - 1 === 1 ? "option" : "options"}`}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                  className={`size-4 transition-transform ${isExpanded ? "rotate-180" : ""}`}
                 />
               </button>
             )}
@@ -174,7 +175,7 @@ const SearchResultCard = React.memo<SearchResultCardProps>(
         )}
       </Card>
     );
-  },
+  }
 );
 
 SearchResultCard.displayName = "SearchResultCard";

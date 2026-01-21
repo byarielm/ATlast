@@ -49,7 +49,7 @@ export default function LoginPage({
       try {
         const url = new URL(
           "xrpc/app.bsky.actor.searchActorsTypeahead",
-          "https://public.api.bsky.app",
+          "https://public.api.bsky.app"
         );
         url.searchParams.set("q", handle);
         url.searchParams.set("limit", "1");
@@ -137,17 +137,17 @@ export default function LoginPage({
 
   return (
     <div className="min-h-screen">
-      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+      <div className="mx-auto max-w-6xl px-4 py-8 md:py-12">
         {/* Hero Section - Side by side on desktop */}
-        <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start mb-12 md:mb-16">
+        <div className="mb-12 grid items-start gap-8 md:mb-16 md:grid-cols-2 md:gap-12">
           <HeroSection reducedMotion={reducedMotion} />
 
           {/* Right: Login Card or Dashboard Button */}
           <div className="w-full">
             {session ? (
-              <div className="bg-white/50 dark:bg-slate-900/50 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-2 shadow-2xl">
-                <div className="text-center mb-6">
-                  <h2 className="text-2xl font-bold text-purple-950 dark:text-cyan-50 mb-2">
+              <div className="rounded-3xl border-2 border-cyan-500/30 bg-white/50 p-8 shadow-2xl backdrop-blur-xl dark:border-purple-500/30 dark:bg-slate-900/50">
+                <div className="mb-6 text-center">
+                  <h2 className="mb-2 text-2xl font-bold text-purple-950 dark:text-cyan-50">
                     You're logged in!
                   </h2>
                   <p className="text-purple-750 dark:text-cyan-250">
@@ -157,24 +157,24 @@ export default function LoginPage({
 
                 <button
                   onClick={() => onNavigate?.("home")}
-                  className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-500 dark:focus:ring-amber-400 focus:outline-none flex items-center justify-center space-x-2"
+                  className="flex w-full items-center justify-center space-x-2 rounded-xl bg-firefly-banner py-4 text-lg font-bold text-white shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-500 dark:bg-firefly-banner-dark dark:focus:ring-amber-400"
                 >
                   <span>Go to Dashboard</span>
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowRight className="size-5" />
                 </button>
               </div>
             ) : (
-              <div className="bg-white/50 dark:bg-slate-900/50 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl rounded-3xl p-8 border-2 shadow-2xl">
-                <h2 className="text-2xl font-bold text-purple-950 dark:text-cyan-50 mb-2 text-center">
+              <div className="rounded-3xl border-2 border-cyan-500/30 bg-white/50 p-8 shadow-2xl backdrop-blur-xl dark:border-purple-500/30 dark:bg-slate-900/50">
+                <h2 className="mb-2 text-center text-2xl font-bold text-purple-950 dark:text-cyan-50">
                   Light Up Your Network
                 </h2>
-                <p className="text-purple-750 dark:text-cyan-250 text-center mb-6">
+                <p className="mb-6 text-center text-purple-750 dark:text-cyan-250">
                   Reconnect in the ATmosphere
                   <sup className="ml-0.5">
                     <Tooltip
                       content={
                         <div className="text-left">
-                          <p className="font-semibold mb-1">
+                          <p className="mb-1 font-semibold">
                             What's the ATmosphere?
                           </p>
                           <p className="text-xs leading-relaxed">
@@ -196,7 +196,7 @@ export default function LoginPage({
                   <div>
                     <label
                       htmlFor="atproto-handle"
-                      className="block text-sm font-semibold text-purple-900 dark:text-cyan-100 mb-2"
+                      className="mb-2 block text-sm font-semibold text-purple-900 dark:text-cyan-100"
                     >
                       Your ATmosphere Handle
                     </label>
@@ -222,7 +222,7 @@ export default function LoginPage({
                     </actor-typeahead>
                     {strippedAtMessage && (
                       <div className="mt-2 flex items-center gap-2 text-sm text-cyan-700 dark:text-cyan-300">
-                        <Info className="w-4 h-4 flex-shrink-0" />
+                        <Info className="size-4 flex-shrink-0" />
                         <span>
                           No need for the @ symbol - we've removed it for you!
                         </span>
@@ -234,7 +234,7 @@ export default function LoginPage({
                         className="mt-2 flex items-center gap-2 text-sm text-red-600 dark:text-red-400"
                         role="alert"
                       >
-                        <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                        <AlertCircle className="size-4 flex-shrink-0" />
                         <span>{fields.handle.error}</span>
                       </div>
                     )}
@@ -243,12 +243,12 @@ export default function LoginPage({
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full bg-firefly-banner dark:bg-firefly-banner-dark text-white py-4 rounded-xl font-bold text-lg transition-all shadow-lg hover:shadow-xl focus:ring-4 focus:ring-orange-500 dark:focus:ring-amber-400 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    className="flex w-full items-center justify-center rounded-xl bg-firefly-banner py-4 text-lg font-bold text-white shadow-lg transition-all hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-orange-500 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-firefly-banner-dark dark:focus:ring-amber-400"
                     aria-label="Connect to the ATmosphere"
                   >
                     {isSubmitting ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        <div className="mr-2 size-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                         <span>Connecting...</span>
                       </>
                     ) : (
@@ -257,10 +257,10 @@ export default function LoginPage({
                   </button>
                 </form>
 
-                <div className="mt-6 pt-6 border-t-2 border-cyan-500/30 dark:border-purple-500/30">
+                <div className="mt-6 border-t-2 border-cyan-500/30 pt-6 dark:border-purple-500/30">
                   <div className="flex items-start space-x-2 text-sm text-purple-900 dark:text-cyan-100">
                     <svg
-                      className="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5"
+                      className="mt-0.5 size-5 flex-shrink-0 text-green-500"
                       fill="currentColor"
                       viewBox="0 0 20 20"
                       aria-hidden="true"
@@ -275,7 +275,7 @@ export default function LoginPage({
                       <p className="font-semibold text-purple-950 dark:text-cyan-50">
                         Secure OAuth Connection
                       </p>
-                      <p className="text-xs mt-1">
+                      <p className="mt-1 text-xs">
                         You will be directed to your account to authorize
                         access. We never see your password and you can revoke
                         access anytime.

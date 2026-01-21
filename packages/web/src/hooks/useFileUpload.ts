@@ -4,11 +4,11 @@ import type { SearchResult, UserSettings } from "../types";
 export function useFileUpload(
   onSearchStart: (results: SearchResult[], platform: string) => void,
   onStatusUpdate: (message: string) => void,
-  userSettings: UserSettings,
+  userSettings: UserSettings
 ) {
   async function handleFileUpload(
     e: React.ChangeEvent<HTMLInputElement>,
-    platform: string = "tiktok",
+    platform: string = "tiktok"
   ) {
     const file = e.target.files?.[0];
     if (!file) return;

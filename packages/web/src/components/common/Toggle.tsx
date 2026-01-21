@@ -22,7 +22,7 @@ const Toggle: React.FC<ToggleProps> = ({
   return (
     <div className="flex items-start justify-between">
       <div className="flex-1">
-        <div className="font-medium text-purple-950 dark:text-cyan-50 mb-1">
+        <div className="mb-1 font-medium text-purple-950 dark:text-cyan-50">
           {label}
         </div>
         {description && (
@@ -31,16 +31,16 @@ const Toggle: React.FC<ToggleProps> = ({
           </p>
         )}
       </div>
-      <label className="relative inline-flex items-center cursor-pointer ml-4">
+      <label className="relative ml-4 inline-flex cursor-pointer items-center">
         <input
           type="checkbox"
           id={toggleId}
           checked={checked}
           onChange={(e) => onChange(e.target.checked)}
           disabled={disabled}
-          className="sr-only peer"
+          className="peer sr-only"
         />
-        <div className="w-11 h-6 bg-gray-400 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-650/50 dark:peer-focus:ring-amber-400/50 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-700 peer-checked:bg-orange-500 dark:peer-checked:bg-orange-400 peer-disabled:opacity-50 peer-disabled:cursor-not-allowed"></div>
+        <div className="peer h-6 w-11 rounded-full bg-gray-400 after:absolute after:left-[2px] after:top-[2px] after:size-5 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-orange-500 peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-orange-650/50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50 dark:border-gray-700 dark:bg-gray-600 dark:peer-checked:bg-orange-400 dark:peer-focus:ring-amber-400/50"></div>
       </label>
     </div>
   );

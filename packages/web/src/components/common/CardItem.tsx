@@ -33,25 +33,27 @@ const CardItem: React.FC<CardItemProps> = ({
 }) => {
   return (
     <div
-      className={`${padding} cursor-pointer hover:scale-[1.01] transition-transform`}
+      className={`${padding} cursor-pointer transition-transform hover:scale-[1.01]`}
       onClick={onClick}
     >
       {/* Top row: Avatar + Content + Action */}
-      <div className="flex items-start gap-3 mb-1">
+      <div className="mb-1 flex items-start gap-3">
         {avatar}
-        <div className="flex-1 min-w-0">{content}</div>
+        <div className="min-w-0 flex-1">{content}</div>
         {action}
       </div>
 
       {/* Badges row - responsive indent based on avatar size */}
-      <div className={`flex items-center flex-wrap gap-2 pl-0 ${badgeIndentClass}`}>
+      <div
+        className={`flex flex-wrap items-center gap-2 pl-0 ${badgeIndentClass}`}
+      >
         {badges}
       </div>
 
       {/* Optional description - same responsive indent as badges */}
       {description && (
         <div
-          className={`text-sm text-purple-900 dark:text-cyan-100 line-clamp-2 mt-1 pt-2 pl-1 ${badgeIndentClass}`}
+          className={`mt-1 line-clamp-2 pl-1 pt-2 text-sm text-purple-900 dark:text-cyan-100 ${badgeIndentClass}`}
         >
           {description}
         </div>

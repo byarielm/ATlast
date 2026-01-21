@@ -17,25 +17,25 @@ export default function ThemeControls({
     <div className="flex items-center space-x-2">
       <button
         onClick={onToggleMotion}
-        className="p-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 transition-colors shadow-lg"
+        className="rounded-lg border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur-sm transition-colors hover:bg-white dark:border-slate-700 dark:bg-slate-800/90 dark:hover:bg-slate-700"
         aria-label={reducedMotion ? "Enable animations" : "Reduce motion"}
         title={reducedMotion ? "Enable animations" : "Reduce motion"}
       >
         {reducedMotion ? (
-          <Play className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          <Play className="size-5 text-slate-700 dark:text-slate-300" />
         ) : (
-          <Pause className="w-5 h-5 text-slate-700 dark:text-slate-300" />
+          <Pause className="size-5 text-slate-700 dark:text-slate-300" />
         )}
       </button>
       <button
         onClick={onToggleTheme}
-        className="p-2 bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-700 transition-colors shadow-lg"
+        className="rounded-lg border border-slate-200 bg-white/90 p-2 shadow-lg backdrop-blur-sm transition-colors hover:bg-white dark:border-slate-700 dark:bg-slate-800/90 dark:hover:bg-slate-700"
         aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       >
         {isDark ? (
-          <Sun className="w-5 h-5 text-firefly-amber" />
+          <Sun className="size-5 text-firefly-amber" />
         ) : (
-          <Moon className="w-5 h-5 text-slate-700" />
+          <Moon className="size-5 text-slate-700" />
         )}
       </button>
     </div>

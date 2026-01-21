@@ -21,12 +21,12 @@ export default function StepCard({
   return (
     <div className="text-center">
       <div
-        className={`w-12 h-12 ${colorClasses[color]} text-white rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg shadow-md`}
+        className={`size-12 ${colorClasses[color]} mx-auto mb-3 flex items-center justify-center rounded-full text-lg font-bold text-white shadow-md`}
         aria-hidden="true"
       >
         {number}
       </div>
-      <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
+      <h3 className="mb-1 font-semibold text-purple-950 dark:text-cyan-50">
         {title}
       </h3>
       <p className="text-sm text-purple-900 dark:text-cyan-100">

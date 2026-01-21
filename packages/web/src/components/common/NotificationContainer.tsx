@@ -21,7 +21,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({
 
   return createPortal(
     <div
-      className="fixed top-4 right-4 z-[9999] flex flex-col gap-2 max-w-md"
+      className="fixed right-4 top-4 z-[9999] flex max-w-md flex-col gap-2"
       aria-live="polite"
       aria-atomic="false"
     >
@@ -34,7 +34,7 @@ const NotificationContainer: React.FC<NotificationContainerProps> = ({
         />
       ))}
     </div>,
-    document.body,
+    document.body
   );
 };
 

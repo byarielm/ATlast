@@ -44,17 +44,17 @@ const Notification: React.FC<NotificationProps> = ({
 
   return (
     <div
-      className={`flex items-start gap-3 p-4 rounded-xl border-2 shadow-lg ${styleMap[type]} animate-slide-in`}
+      className={`flex items-start gap-3 rounded-xl border-2 p-4 shadow-lg ${styleMap[type]} animate-slide-in`}
       role="alert"
     >
-      <Icon className="w-5 h-5 flex-shrink-0 mt-0.5" />
+      <Icon className="mt-0.5 size-5 flex-shrink-0" />
       <p className="flex-1 text-sm font-medium">{message}</p>
       <button
         onClick={onClose}
-        className="flex-shrink-0 hover:opacity-70 transition-opacity"
+        className="flex-shrink-0 transition-opacity hover:opacity-70"
         aria-label="Close notification"
       >
-        <X className="w-5 h-5" />
+        <X className="size-5" />
       </button>
     </div>
   );

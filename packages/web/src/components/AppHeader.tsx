@@ -65,14 +65,14 @@ export default function AppHeader({
   }, [showMenu]);
 
   return (
-    <div className="bg-white dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-xl relative z-50">
-      <div className="max-w-6xl mx-auto px-4 py-1">
+    <div className="relative z-50 border-b-2 border-cyan-500/30 bg-white backdrop-blur-xl dark:border-purple-500/30 dark:bg-slate-900">
+      <div className="mx-auto max-w-6xl px-4 py-1">
         <div className="flex items-center justify-between">
           <button
             onClick={() => onNavigate(session ? "home" : "login")}
-            className="flex items-center space-x-3 hover:opacity-80 transition-opacity focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 rounded-lg px-2 py-1"
+            className="flex items-center space-x-3 rounded-lg px-2 py-1 transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400"
           >
-            <FireflyLogo className="w-14 h-10" />
+            <FireflyLogo className="h-10 w-14" />
             <h1 className="font-display text-2xl font-bold text-purple-950 dark:text-cyan-50">
               ATlast
             </h1>
@@ -92,18 +92,18 @@ export default function AppHeader({
                 <button
                   ref={buttonRef}
                   onClick={() => setShowMenu(!showMenu)}
-                  className="flex items-center space-x-3 px-3 py-1 rounded-lg hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400"
+                  className="flex items-center space-x-3 rounded-lg px-3 py-1 transition-colors hover:bg-purple-50 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:hover:bg-slate-800 dark:focus:ring-amber-400"
                 >
                   <AvatarWithFallback
                     avatar={session?.avatar}
                     handle={session?.handle || ""}
                     size="sm"
                   />
-                  <span className="text-sm font-medium text-purple-950 dark:text-cyan-50 hidden sm:inline">
+                  <span className="hidden text-sm font-medium text-purple-950 dark:text-cyan-50 sm:inline">
                     @{session?.handle}
                   </span>
                   <ChevronDown
-                    className={`w-4 h-4 text-purple-750 dark:text-cyan-250 transition-transform ${showMenu ? "rotate-180" : ""}`}
+                    className={`size-4 text-purple-750 transition-transform dark:text-cyan-250 ${showMenu ? "rotate-180" : ""}`}
                   />
                 </button>
 
@@ -111,7 +111,7 @@ export default function AppHeader({
                   createPortal(
                     <div
                       ref={menuRef}
-                      className="fixed w-64 bg-white dark:bg-slate-900 rounded-lg shadow-2xl border-2 border-cyan-500/30 dark:border-purple-500/30 py-2 z-[9999]"
+                      className="fixed z-[9999] w-64 rounded-lg border-2 border-cyan-500/30 bg-white py-2 shadow-2xl dark:border-purple-500/30 dark:bg-slate-900"
                       style={{
                         top: `${menuPosition.top}px`,
                         right: `${menuPosition.right}px`,
@@ -130,9 +130,9 @@ export default function AppHeader({
                           setShowMenu(false);
                           onNavigate("home");
                         }}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
+                        className="flex w-full items-center space-x-3 px-4 py-2 text-left transition-colors hover:bg-purple-50 dark:hover:bg-slate-800"
                       >
-                        <Home className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
+                        <Home className="size-4 text-purple-950 dark:text-cyan-50" />
                         <span className="text-purple-950 dark:text-cyan-50">
                           Dashboard
                         </span>
@@ -142,9 +142,9 @@ export default function AppHeader({
                           setShowMenu(false);
                           onNavigate("login");
                         }}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-purple-50 dark:hover:bg-slate-800 transition-colors text-left"
+                        className="flex w-full items-center space-x-3 px-4 py-2 text-left transition-colors hover:bg-purple-50 dark:hover:bg-slate-800"
                       >
-                        <Heart className="w-4 h-4 text-purple-950 dark:text-cyan-50" />
+                        <Heart className="size-4 text-purple-950 dark:text-cyan-50" />
                         <span className="text-purple-950 dark:text-cyan-50">
                           Login screen
                         </span>
@@ -154,13 +154,13 @@ export default function AppHeader({
                           setShowMenu(false);
                           onLogout();
                         }}
-                        className="w-full flex items-center space-x-3 px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-left text-red-600 dark:text-red-400"
+                        className="flex w-full items-center space-x-3 px-4 py-2 text-left text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-900/20"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="size-4" />
                         <span>Log out</span>
                       </button>
                     </div>,
-                    document.body,
+                    document.body
                   )}
               </>
             )}

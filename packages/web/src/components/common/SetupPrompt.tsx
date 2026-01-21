@@ -21,11 +21,11 @@ const SetupPrompt: React.FC<SetupPromptProps> = ({
   if (variant === "banner") {
     return (
       <div
-        className={`bg-firefly-banner-dark dark:bg-firefly-banner-dark rounded-2xl p-6 text-white mb-3 ${className}`}
+        className={`mb-3 rounded-2xl bg-firefly-banner-dark p-6 text-white dark:bg-firefly-banner-dark ${className}`}
       >
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div className="flex-1">
-            <h2 className="text-2xl font-bold mb-2">
+            <h2 className="mb-2 text-2xl font-bold">
               Need help getting started?
             </h2>
             <p className="text-white">
@@ -34,10 +34,10 @@ const SetupPrompt: React.FC<SetupPromptProps> = ({
           </div>
           <button
             onClick={onShowWizard}
-            className="bg-white text-slate-900 px-6 py-3 rounded-xl font-semibold hover:bg-slate-100 transition-all flex items-center space-x-2 whitespace-nowrap shadow-lg"
+            className="flex items-center space-x-2 whitespace-nowrap rounded-xl bg-white px-6 py-3 font-semibold text-slate-900 shadow-lg transition-all hover:bg-slate-100"
           >
             <span>Start Setup</span>
-            <ChevronRight className="w-4 h-4" />
+            <ChevronRight className="size-4" />
           </button>
         </div>
       </div>
@@ -47,9 +47,9 @@ const SetupPrompt: React.FC<SetupPromptProps> = ({
   return (
     <button
       onClick={onShowWizard}
-      className={`text-md text-orange-650 hover:text-orange-500 dark:text-amber-400 dark:hover:text-amber-300 font-medium transition-colors flex items-center space-x-1 ${className}`}
+      className={`text-md flex items-center space-x-1 font-medium text-orange-650 transition-colors hover:text-orange-500 dark:text-amber-400 dark:hover:text-amber-300 ${className}`}
     >
-      <Settings className="w-4 h-4" />
+      <Settings className="size-4" />
       <span>Configure</span>
     </button>
   );

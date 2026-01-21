@@ -40,7 +40,7 @@ export default function HistoryTab({
         />
       )}
 
-      <div className="flex items-center space-x-3 mb-4">
+      <div className="mb-4 flex items-center space-x-3">
         <div>
           <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
             Previously Uploaded
@@ -53,11 +53,11 @@ export default function HistoryTab({
 
       {/* Data Storage Disabled Notice */}
       {!userSettings.saveData && (
-        <Card className="mb-4 p-4 border-orange-650/50 dark:border-amber-400/50 bg-purple-100/50 dark:bg-slate-900/50">
+        <Card className="mb-4 border-orange-650/50 bg-purple-100/50 p-4 dark:border-amber-400/50 dark:bg-slate-900/50">
           <div className="flex items-start space-x-3">
-            <Database className="w-5 h-5 text-orange-600 dark:text-amber-400 flex-shrink-0 mt-0.5" />
+            <Database className="mt-0.5 size-5 flex-shrink-0 text-orange-600 dark:text-amber-400" />
             <div>
-              <h3 className="font-semibold text-purple-950 dark:text-cyan-50 mb-1">
+              <h3 className="mb-1 font-semibold text-purple-950 dark:text-cyan-50">
                 Data Storage Disabled
               </h3>
               <p className="text-sm text-purple-900 dark:text-cyan-100">
@@ -91,30 +91,26 @@ export default function HistoryTab({
                 ]
               ];
             return (
-              <Card
-                key={upload.uploadId}
-                variant="upload"
-                className="w-full"
-              >
+              <Card key={upload.uploadId} variant="upload" className="w-full">
                 <CardItem
                   padding="p-4"
                   badgeIndentClass="sm:pl-[56px]"
                   onClick={() => onLoadUpload(upload.uploadId)}
                   avatar={
                     <div
-                      className={`w-10 h-10 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} rounded-xl flex items-center justify-center flex-shrink-0 shadow-md`}
+                      className={`size-10 bg-gradient-to-r ${getPlatformColor(upload.sourcePlatform)} flex flex-shrink-0 items-center justify-center rounded-xl shadow-md`}
                     >
-                      <Sparkles className="w-6 h-6 text-white" />
+                      <Sparkles className="size-6 text-white" />
                     </div>
                   }
                   content={
                     <>
                       <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
-                        <div className="font-semibold text-purple-950 dark:text-cyan-50 capitalize leading-tight">
+                        <div className="font-semibold capitalize leading-tight text-purple-950 dark:text-cyan-50">
                           {upload.sourcePlatform}
                         </div>
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          <span className="text-sm text-purple-750 dark:text-cyan-250 whitespace-nowrap flex-shrink-0">
+                        <div className="flex flex-shrink-0 items-center gap-2">
+                          <span className="flex-shrink-0 whitespace-nowrap text-sm text-purple-750 dark:text-cyan-250">
                             {upload.matchedUsers}{" "}
                             {upload.matchedUsers === 1 ? "match" : "matches"}
                           </span>
@@ -126,14 +122,14 @@ export default function HistoryTab({
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="text-sm text-purple-750 dark:text-cyan-250 hover:underline leading-tight flex items-center space-x-1 w-fit"
+                          className="flex w-fit items-center space-x-1 text-sm leading-tight text-purple-750 hover:underline dark:text-cyan-250"
                         >
                           <span>{destApp.action} on</span>
 
                           <FaviconIcon
                             url={destApp.icon}
                             alt={destApp.name}
-                            className="w-3 h-3 mb-0.5 flex-shrink-0"
+                            className="mb-0.5 size-3 flex-shrink-0"
                           />
 
                           <span>{destApp.name}</span>

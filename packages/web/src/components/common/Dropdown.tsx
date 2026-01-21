@@ -25,7 +25,7 @@ const Dropdown: React.FC<DropdownProps> = ({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className={`px-3 py-2 bg-white dark:bg-slate-800 border border-cyan-500/30 dark:border-purple-500/30 rounded-lg text-sm text-purple-950 dark:text-cyan-50 hover:border-cyan-400 dark:hover:border-purple-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:focus:ring-amber-400 transition-colors ${fullWidth ? "w-full" : ""} ${className}`}
+      className={`rounded-lg border border-cyan-500/30 bg-white px-3 py-2 text-sm text-purple-950 transition-colors hover:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-purple-500/30 dark:bg-slate-800 dark:text-cyan-50 dark:hover:border-purple-400 dark:focus:ring-amber-400 ${fullWidth ? "w-full" : ""} ${className}`}
     >
       {options.map((option) => (
         <option key={option.value} value={option.value}>

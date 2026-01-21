@@ -23,10 +23,10 @@ const AvatarWithFallback = React.memo<AvatarWithFallbackProps>(
     if (!avatar || imageError) {
       return (
         <div
-          className={`${container} bg-gradient-to-br from-cyan-400 to-purple-500 rounded-full flex items-center justify-center shadow-sm ${className}`}
+          className={`${container} flex items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 to-purple-500 shadow-sm ${className}`}
           aria-label={`${handle}'s avatar`}
         >
-          <span className={`text-white font-bold ${text}`}>
+          <span className={`font-bold text-white ${text}`}>
             {fallbackInitial}
           </span>
         </div>
@@ -42,7 +42,7 @@ const AvatarWithFallback = React.memo<AvatarWithFallbackProps>(
         loading="lazy"
       />
     );
-  },
+  }
 );
 
 AvatarWithFallback.displayName = "AvatarWithFallback";

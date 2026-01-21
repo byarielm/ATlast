@@ -10,7 +10,7 @@ interface UploadTabProps {
   onPlatformSelect: (platform: string) => void;
   onFileUpload: (
     e: React.ChangeEvent<HTMLInputElement>,
-    platform: string,
+    platform: string
   ) => void;
   selectedPlatform: string;
 }

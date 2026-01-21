@@ -65,7 +65,7 @@ export function useFormValidation(initialValues: Record<string, string>) {
       }));
       return result.isValid;
     },
-    [fields],
+    [fields]
   );
 
   const validateAll = useCallback(
@@ -88,7 +88,7 @@ export function useFormValidation(initialValues: Record<string, string>) {
       setFields(newFields);
       return isValid;
     },
-    [fields],
+    [fields]
   );
 
   const reset = useCallback(() => {
@@ -110,7 +110,7 @@ export function useFormValidation(initialValues: Record<string, string>) {
         setValue(fieldName, e.target.value),
       onBlur: () => setTouched(fieldName),
     }),
-    [fields, setValue, setTouched],
+    [fields, setValue, setTouched]
   );
 
   return {

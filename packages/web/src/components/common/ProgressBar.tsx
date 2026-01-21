@@ -56,7 +56,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div className={className}>
       {showLabel && (
-        <div className="text-sm text-purple-750 dark:text-cyan-250 mb-2">
+        <div className="mb-2 text-sm text-purple-750 dark:text-cyan-250">
           {percentage}% complete
         </div>
       )}

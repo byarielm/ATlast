@@ -33,21 +33,21 @@ export default function TabNavigation({
   onTabChange,
 }: TabNavigationProps) {
   return (
-    <div className="overflow-x-auto scrollbar-hide px-4">
-      <div className="flex space-x-1 border-b-2 border-cyan-500/30 dark:border-purple-500/30 min-w-max">
+    <div className="scrollbar-hide overflow-x-auto px-4">
+      <div className="flex min-w-max space-x-1 border-b-2 border-cyan-500/30 dark:border-purple-500/30">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-3 border-b-2 transition-all whitespace-nowrap ${
+              className={`flex items-center space-x-2 whitespace-nowrap border-b-2 px-4 py-3 transition-all ${
                 activeTab === tab.id
-                  ? "border-orange-500 dark:border-orange-400 text-orange-650 dark:text-amber-400"
-                  : "border-transparent text-purple-750 dark:text-cyan-250 hover:text-purple-900 dark:hover:text-cyan-100"
+                  ? "border-orange-500 text-orange-650 dark:border-orange-400 dark:text-amber-400"
+                  : "border-transparent text-purple-750 hover:text-purple-900 dark:text-cyan-250 dark:hover:text-cyan-100"
               }`}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="size-4" />
               <span className="font-medium">{tab.label}</span>
             </button>
           );

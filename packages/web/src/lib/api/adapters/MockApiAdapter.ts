@@ -71,7 +71,7 @@ export class MockApiAdapter implements IApiClient {
 
   async checkFollowStatus(
     dids: string[],
-    followLexicon: string,
+    followLexicon: string
   ): Promise<Record<string, boolean>> {
     await delay(300);
 
@@ -97,7 +97,7 @@ export class MockApiAdapter implements IApiClient {
   async getUploadDetails(
     uploadId: string,
     page: number = 1,
-    pageSize: number = 50,
+    pageSize: number = 50
   ): Promise<{ results: SearchResult[]; pagination?: any }> {
     await delay(500);
 
@@ -111,14 +111,14 @@ export class MockApiAdapter implements IApiClient {
   }
 
   async getAllUploadDetails(
-    uploadId: string,
+    uploadId: string
   ): Promise<{ results: SearchResult[] }> {
     return this.getUploadDetails(uploadId);
   }
 
   async batchSearchActors(
     usernames: string[],
-    followLexicon?: string,
+    followLexicon?: string
   ): Promise<{ results: BatchSearchResult[] }> {
     await delay(800);
 
@@ -133,7 +133,7 @@ export class MockApiAdapter implements IApiClient {
 
   async batchFollowUsers(
     dids: string[],
-    followLexicon: string,
+    followLexicon: string
   ): Promise<{
     success: boolean;
     total: number;
@@ -163,7 +163,7 @@ export class MockApiAdapter implements IApiClient {
   async saveResults(
     uploadId: string,
     sourcePlatform: string,
-    results: SearchResult[],
+    results: SearchResult[]
   ): Promise<SaveResultsResponse | null> {
     await delay(500);
 
@@ -171,7 +171,7 @@ export class MockApiAdapter implements IApiClient {
 
     const uploads = JSON.parse(localStorage.getItem("mock_uploads") || "[]");
     const matchedUsers = results.filter(
-      (r) => r.atprotoMatches.length > 0,
+      (r) => r.atprotoMatches.length > 0
     ).length;
 
     uploads.unshift({

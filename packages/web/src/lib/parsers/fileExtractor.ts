@@ -17,7 +17,7 @@ export class DataExtractor {
 
   public async processZipArchive(
     zip: JSZip,
-    rules: ParseRule[],
+    rules: ParseRule[]
   ): Promise<ExtractionResults> {
     /** Core logic for extracting usernames from a successfully loaded ZIP archive. */
     const allExtracted: Record<string, string[]> = {};
@@ -27,14 +27,14 @@ export class DataExtractor {
       const rule = rules[i];
       const ruleId = `Rule_${i + 1}_${rule.zipPath}`;
       console.log(
-        `Processing ZIP file path ${rule.zipPath} (Format: ${rule.format})`,
+        `Processing ZIP file path ${rule.zipPath} (Format: ${rule.format})`
       );
 
       // 1. Get file object from ZIP
       const fileInZip = zip.file(rule.zipPath);
       if (!fileInZip) {
         console.warn(
-          `WARNING: File not found in ZIP: '${rule.zipPath}'. Skipping rule.`,
+          `WARNING: File not found in ZIP: '${rule.zipPath}'. Skipping rule.`
         );
         continue;
       }
@@ -65,7 +65,7 @@ export class DataExtractor {
  * Check if file is a ZIP by reading magic number
  */
 async function checkIfZipFile(
-  file: File | ArrayBuffer | Blob,
+  file: File | ArrayBuffer | Blob
 ): Promise<boolean> {
   try {
     const blob =
@@ -88,7 +88,7 @@ async function checkIfZipFile(
  */
 export async function parseDataFile(
   file: File | ArrayBuffer | Blob,
-  platform: string,
+  platform: string
 ): Promise<string[]> {
   const rules = getRulesForPlatform(platform);
 
@@ -109,7 +109,7 @@ export async function parseDataFile(
       const results = await extractor.processZipArchive(zip, rules);
 
       console.log(
-        `Successfully extracted ${results.uniqueUsernames.length} usernames from ZIP archive.`,
+        `Successfully extracted ${results.uniqueUsernames.length} usernames from ZIP archive.`
       );
       return results.uniqueUsernames;
     } catch (e) {
@@ -123,7 +123,7 @@ export async function parseDataFile(
     // We need a File object to get the name and content easily
     if (!(file instanceof File) && !(file instanceof Blob)) {
       console.error(
-        "Input failed ZIP check and lacks a name/content structure for single file parsing (must be File or Blob).",
+        "Input failed ZIP check and lacks a name/content structure for single file parsing (must be File or Blob)."
       );
       return [];
     }
@@ -146,13 +146,13 @@ export async function parseDataFile(
 
     if (!matchingRule) {
       console.error(
-        `Could not match single file '${singleFile.name}' (extension: ${fileExt}) to any rule for platform ${platform}. Available formats: ${rules.map((r) => r.format).join(", ")}`,
+        `Could not match single file '${singleFile.name}' (extension: ${fileExt}) to any rule for platform ${platform}. Available formats: ${rules.map((r) => r.format).join(", ")}`
       );
       return [];
     }
 
     console.log(
-      `Matched single file '${singleFile.name}' to rule format: ${matchingRule.format}`,
+      `Matched single file '${singleFile.name}' to rule format: ${matchingRule.format}`
     );
 
     // 3. Process as single file content
@@ -162,7 +162,7 @@ export async function parseDataFile(
 
       const uniqueUsernames = Array.from(new Set(extracted)).sort();
       console.log(
-        `Successfully extracted ${uniqueUsernames.length} unique usernames from single file.`,
+        `Successfully extracted ${uniqueUsernames.length} unique usernames from single file.`
       );
 
       return uniqueUsernames;

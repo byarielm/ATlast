@@ -75,9 +75,9 @@ export default function LoadingPage({
 
       {/* Platform Banner - Searching State */}
       <div
-        className={`bg-firefly-banner dark:bg-firefly-banner-dark text-white`}
+        className={`bg-firefly-banner text-white dark:bg-firefly-banner-dark`}
       >
-        <div className="max-w-3xl mx-auto px-4 py-6">
+        <div className="mx-auto max-w-3xl px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <PlatformBadge
@@ -87,7 +87,7 @@ export default function LoadingPage({
               />
               <div>
                 <h2 className="text-xl font-bold">Finding Your Fireflies</h2>
-                <p className="text-white text-sm">
+                <p className="text-sm text-white">
                   Searching the ATmosphere for {platform.name} follows...
                 </p>
               </div>
@@ -103,9 +103,9 @@ export default function LoadingPage({
       </div>
 
       {/* Progress Stats */}
-      <div className="bg-white/95 dark:bg-slate-900 border-b-2 border-cyan-500/30 dark:border-purple-500/30 backdrop-blur-sm">
-        <div className="max-w-3xl mx-auto px-4 py-4">
-          <StatsGroup stats={statsData} className="grid-cols-3 mb-4" />
+      <div className="border-b-2 border-cyan-500/30 bg-white/95 backdrop-blur-sm dark:border-purple-500/30 dark:bg-slate-900">
+        <div className="mx-auto max-w-3xl p-4">
+          <StatsGroup stats={statsData} className="mb-4 grid-cols-3" />
 
           <ProgressBar
             current={searchProgress.searched}
@@ -116,7 +116,7 @@ export default function LoadingPage({
       </div>
 
       {/* Skeleton Results - Matches layout of Results page */}
-      <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
+      <div className="mx-auto max-w-3xl space-y-4 p-4">
         {[...Array(8)].map((_, i) => (
           <SearchResultSkeleton key={i} />
         ))}

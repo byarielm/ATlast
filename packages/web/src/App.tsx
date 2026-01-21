@@ -25,10 +25,10 @@ const ResultsPage = lazy(() => import("./pages/Results"));
 
 // Loading fallback component
 const PageLoader: React.FC = () => (
-  <div className="p-6 max-w-md mx-auto mt-8">
-    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-8 text-center space-y-4">
-      <div className="w-16 h-16 bg-firefly-banner dark:bg-firefly-banner-dark text-white rounded-2xl mx-auto flex items-center justify-center">
-        <ArrowRight className="w-8 h-8 text-white animate-pulse" />
+  <div className="mx-auto mt-8 max-w-md p-6">
+    <div className="space-y-4 rounded-2xl bg-white p-8 text-center shadow-lg dark:bg-gray-800">
+      <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-firefly-banner text-white dark:bg-firefly-banner-dark">
+        <ArrowRight className="size-8 animate-pulse text-white" />
       </div>
       <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
         Loading...
@@ -66,7 +66,9 @@ export default function App() {
 
   // Settings state
   const userSettings = useSettingsStore((state) => state.settings);
-  const handleSettingsUpdate = useSettingsStore((state) => state.updateSettings);
+  const handleSettingsUpdate = useSettingsStore(
+    (state) => state.updateSettings
+  );
 
   // Search hook
   const {
@@ -93,7 +95,7 @@ export default function App() {
     session,
     searchResults,
     setSearchResults,
-    currentDestinationAppId,
+    currentDestinationAppId
   );
 
   // Save results handler (proper state management)
@@ -122,7 +124,7 @@ export default function App() {
         });
       }
     },
-    [userSettings.saveData, savedUploads],
+    [userSettings.saveData, savedUploads]
   );
 
   // File upload handler
@@ -147,11 +149,11 @@ export default function App() {
             saveResults(uploadId, platform, finalResults);
           }
         },
-        followLexicon,
+        followLexicon
       );
     },
     setStatusMessage,
-    userSettings,
+    userSettings
   );
 
   // Load previous upload handler
@@ -177,7 +179,9 @@ export default function App() {
         setCurrentPlatform(platform);
 
         // Check if this is a new upload with no matches yet
-        const hasMatches = data.results.some(r => r.atprotoMatches.length > 0);
+        const hasMatches = data.results.some(
+          (r) => r.atprotoMatches.length > 0
+        );
 
         const loadedResults: SearchResult[] = data.results.map((result) => ({
           sourceUser: result.sourceUser, // SourceUser object { username, date }
@@ -189,10 +193,10 @@ export default function App() {
               .filter(
                 (match) =>
                   !match.followStatus ||
-                  !Object.values(match.followStatus).some((status) => status),
+                  !Object.values(match.followStatus).some((status) => status)
               )
               .slice(0, 1)
-              .map((match) => match.did),
+              .map((match) => match.did)
           ),
         }));
 
@@ -200,7 +204,8 @@ export default function App() {
 
         // If no matches yet, trigger search BEFORE navigating to results
         if (!hasMatches) {
-          const followLexicon = ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
+          const followLexicon =
+            ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
 
           await searchAllUsers(
             loadedResults,
@@ -219,7 +224,7 @@ export default function App() {
 
         // Announce to screen readers only - visual feedback is navigation to results page
         setAriaAnnouncement(
-          `Loaded ${loadedResults.length} results from previous upload`,
+          `Loaded ${loadedResults.length} results from previous upload`
         );
       } catch (err) {
         console.error("Failed to load upload:", err);
@@ -227,7 +232,16 @@ export default function App() {
         setCurrentStep("home");
       }
     },
-    [setStatusMessage, setCurrentStep, setSearchResults, setAriaAnnouncement, error, currentDestinationAppId, searchAllUsers, saveResults],
+    [
+      setStatusMessage,
+      setCurrentStep,
+      setSearchResults,
+      setAriaAnnouncement,
+      error,
+      currentDestinationAppId,
+      searchAllUsers,
+      saveResults,
+    ]
   );
 
   // Login handler
@@ -247,7 +261,7 @@ export default function App() {
         error(errorMsg);
       }
     },
-    [login, error, setStatusMessage],
+    [login, error, setStatusMessage]
   );
 
   // Logout handler
@@ -267,7 +281,7 @@ export default function App() {
   // Extension import handler
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const importId = urlParams.get('importId');
+    const importId = urlParams.get("importId");
 
     if (!importId || !session) {
       return;
@@ -276,15 +290,15 @@ export default function App() {
     // Fetch and process extension import
     async function handleExtensionImport(id: string) {
       try {
-        setStatusMessage('Loading import from extension...');
-        setCurrentStep('loading');
+        setStatusMessage("Loading import from extension...");
+        setCurrentStep("loading");
 
         const response = await fetch(
           `/.netlify/functions/get-extension-import?importId=${id}`
         );
 
         if (!response.ok) {
-          throw new Error('Import not found or expired');
+          throw new Error("Import not found or expired");
         }
 
         const importData = await response.json();
@@ -293,25 +307,28 @@ export default function App() {
         const platform = importData.platform;
         setCurrentPlatform(platform);
 
-        const initialResults: SearchResult[] = importData.usernames.map((username: string) => ({
-          sourceUser: username,
-          sourcePlatform: platform,
-          isSearching: true,
-          atprotoMatches: [],
-          selectedMatches: new Set<string>(),
-        }));
+        const initialResults: SearchResult[] = importData.usernames.map(
+          (username: string) => ({
+            sourceUser: username,
+            sourcePlatform: platform,
+            isSearching: true,
+            atprotoMatches: [],
+            selectedMatches: new Set<string>(),
+          })
+        );
 
         setSearchResults(initialResults);
 
         const uploadId = crypto.randomUUID();
-        const followLexicon = ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
+        const followLexicon =
+          ATPROTO_APPS[currentDestinationAppId]?.followLexicon;
 
         // Start search
         await searchAllUsers(
           initialResults,
           setStatusMessage,
           (finalResults) => {
-            setCurrentStep('results');
+            setCurrentStep("results");
 
             // Save results after search completes
             if (finalResults.length > 0) {
@@ -320,30 +337,39 @@ export default function App() {
 
             // Clear import ID from URL
             const newUrl = new URL(window.location.href);
-            newUrl.searchParams.delete('importId');
-            window.history.replaceState({}, '', newUrl);
+            newUrl.searchParams.delete("importId");
+            window.history.replaceState({}, "", newUrl);
           },
           followLexicon
         );
       } catch (err) {
-        console.error('Extension import error:', err);
-        error('Failed to load import from extension. Please try again.');
-        setCurrentStep('home');
+        console.error("Extension import error:", err);
+        error("Failed to load import from extension. Please try again.");
+        setCurrentStep("home");
 
         // Clear import ID from URL on error
         const newUrl = new URL(window.location.href);
-        newUrl.searchParams.delete('importId');
-        window.history.replaceState({}, '', newUrl);
+        newUrl.searchParams.delete("importId");
+        window.history.replaceState({}, "", newUrl);
       }
     }
 
     handleExtensionImport(importId);
-  }, [session, currentDestinationAppId, setStatusMessage, setCurrentStep, setSearchResults, searchAllUsers, saveResults, error]);
+  }, [
+    session,
+    currentDestinationAppId,
+    setStatusMessage,
+    setCurrentStep,
+    setSearchResults,
+    searchAllUsers,
+    saveResults,
+    error,
+  ]);
 
   // Load results from uploadId URL parameter
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const uploadId = urlParams.get('uploadId');
+    const uploadId = urlParams.get("uploadId");
 
     if (!uploadId || !session) {
       return;
@@ -354,13 +380,13 @@ export default function App() {
 
     // Clean up URL parameter after loading
     const newUrl = new URL(window.location.href);
-    newUrl.searchParams.delete('uploadId');
-    window.history.replaceState({}, '', newUrl);
+    newUrl.searchParams.delete("uploadId");
+    window.history.replaceState({}, "", newUrl);
   }, [session, handleLoadUpload]);
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen relative overflow-hidden">
+      <div className="relative min-h-screen overflow-hidden">
         {/* Notification Container - errors only */}
         <NotificationContainer
           notifications={notifications}
@@ -375,7 +401,7 @@ export default function App() {
 
         {/* Firefly particles - only render if motion not reduced */}
         {!reducedMotion && (
-          <div className="fixed inset-0 pointer-events-none" aria-hidden="true">
+          <div className="pointer-events-none fixed inset-0" aria-hidden="true">
             {[...Array(15)].map((_, i) => (
               <Firefly
                 key={i}
@@ -389,7 +415,7 @@ export default function App() {
         {/* Skip to main content link */}
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:bg-firefly-orange focus:text-white focus:px-4 focus:py-2 focus:rounded-lg"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-firefly-orange focus:px-4 focus:py-2 focus:text-white"
         >
           Skip to main content
         </a>

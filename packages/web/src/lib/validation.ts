@@ -13,7 +13,7 @@ export interface ValidationResult {
  */
 function validateWithZod<T>(
   schema: z.ZodSchema<T>,
-  value: unknown,
+  value: unknown
 ): ValidationResult {
   const result = schema.safeParse(value);
   if (result.success) {
@@ -43,7 +43,7 @@ const handleSchema = z
       })
       .refine((val) => !/^[.-]|[.-]$/.test(val), {
         message: "Handle cannot start or end with . or -",
-      }),
+      })
   );
 
 const emailSchema = z
@@ -71,7 +71,7 @@ export function validateEmail(email: string): ValidationResult {
  */
 export function validateRequired(
   value: string,
-  fieldName: string = "This field",
+  fieldName: string = "This field"
 ): ValidationResult {
   const schema = z.string().trim().min(1, `${fieldName} is required`);
   return validateWithZod(schema, value);
@@ -83,7 +83,7 @@ export function validateRequired(
 export function validateMinLength(
   value: string,
   minLength: number,
-  fieldName: string = "This field",
+  fieldName: string = "This field"
 ): ValidationResult {
   const schema = z
     .string()
@@ -98,7 +98,7 @@ export function validateMinLength(
 export function validateMaxLength(
   value: string,
   maxLength: number,
-  fieldName: string = "This field",
+  fieldName: string = "This field"
 ): ValidationResult {
   const schema = z
     .string()

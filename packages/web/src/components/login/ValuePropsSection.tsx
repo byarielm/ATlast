@@ -3,7 +3,7 @@ import ValuePropCard from "./ValuePropCard";
 
 export default function ValuePropsSection() {
   return (
-    <div className="grid md:grid-cols-3 gap-4 md:gap-6 mb-12 md:mb-16 max-w-5xl mx-auto">
+    <div className="mx-auto mb-12 grid max-w-5xl gap-4 md:mb-16 md:grid-cols-3 md:gap-6">
       <ValuePropCard
         icon={Upload}
         title="Share Your Light"

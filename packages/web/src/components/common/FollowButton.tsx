@@ -36,14 +36,14 @@ const FollowButton = React.memo<FollowButtonProps>(
       <button
         onClick={onToggle}
         disabled={disabled || isFollowed}
-        className={`p-2 rounded-full font-medium transition-all flex-shrink-0 self-start ${getButtonStyles()}`}
+        className={`flex-shrink-0 self-start rounded-full p-2 font-medium transition-all ${getButtonStyles()}`}
         title={getTitle()}
         aria-label={getTitle()}
       >
-        <Icon className="w-4 h-4" />
+        <Icon className="size-4" />
       </button>
     );
-  },
+  }
 );
 
 FollowButton.displayName = "FollowButton";

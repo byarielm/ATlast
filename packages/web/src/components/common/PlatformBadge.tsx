@@ -40,7 +40,7 @@ const PlatformBadge: React.FC<PlatformBadgeProps> = ({
       )}
       {showName && (
         <span
-          className={`font-medium text-purple-950 dark:text-cyan-50 capitalize ${textSizes[size]}`}
+          className={`font-medium capitalize text-purple-950 dark:text-cyan-50 ${textSizes[size]}`}
         >
           {platform.name}
         </span>

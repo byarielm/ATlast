@@ -13,7 +13,7 @@ export default function PlaceholderTab({
 }: PlaceholderTabProps) {
   return (
     <div className="p-6">
-      <div className="flex items-center space-x-3 mb-6">
+      <div className="mb-6 flex items-center space-x-3">
         <h2 className="text-xl font-bold text-purple-950 dark:text-cyan-50">
           {title}
         </h2>
