@@ -1,0 +1,21 @@
+{
+  "name": "@atlast/worker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.28.0",
+  "dependencies": {
+    "@atlast/shared": "workspace:*",
+    "@atproto/api": "^0.18.16",
+    "bullmq": "^5.66.5",
+    "ioredis": "^5.9.2",
+    "kysely": "^0.28.10",
+    "pg": "^8.17.2"
+  }
+}
