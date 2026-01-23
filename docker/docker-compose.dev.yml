@@ -1,0 +1,46 @@
+# Development Docker Compose - Local Testing
+# Use this during Step 3 migration to run PostgreSQL locally
+
+version: "3.8"
+
+services:
+  # PostgreSQL Database
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: atlast
+      POSTGRES_PASSWORD: localdev
+      POSTGRES_DB: atlast
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata-dev:/var/lib/postgresql/data
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ../scripts/seed-test-data.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atlast"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (for BullMQ - add when needed in Step 4)
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata-dev:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    profiles:
+      - with-redis  # Only start with: docker compose --profile with-redis up
+
+volumes:
+  pgdata-dev:
+  redisdata-dev:
