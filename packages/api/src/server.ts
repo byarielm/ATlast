@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { secureHeaders } from "hono/secure-headers";
 import { logger } from "hono/logger";
 import { errorHandler } from "./middleware/error";
+import authRoutes from "./routes/auth";
 
 const app = new Hono();
 
@@ -42,6 +43,9 @@ app.use(
     credentials: true,
   }),
 );
+
+// Mount routes
+app.route("/api/auth", authRoutes);
 
 // Health check endpoint
 app.get("/api/health", (c) => {
