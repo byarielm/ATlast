@@ -40,7 +40,7 @@ interface EncryptedPayload {
  * @param data - Data to encrypt (will be JSON stringified)
  * @returns Encrypted payload as JSON string
  */
-export function encryptToken(data: any): string {
+export function encryptToken<T = unknown>(data: T): string {
   try {
     const key = getEncryptionKey();
     const iv = randomBytes(16);
@@ -77,7 +77,7 @@ export function encryptToken(data: any): string {
  * @param encrypted - Encrypted payload as JSON string
  * @returns Decrypted data
  */
-export function decryptToken(encrypted: string): any {
+export function decryptToken<T = unknown>(encrypted: string): T {
   try {
     const key = getEncryptionKey();
     const payload: EncryptedPayload = JSON.parse(encrypted);

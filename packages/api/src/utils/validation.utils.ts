@@ -65,10 +65,10 @@ export function validateInput<T>(schema: z.ZodSchema<T>, data: unknown): T {
 export function validateArrayInput<T>(
   body: string | null,
   fieldName: string,
-  schema: z.ZodArray<any>,
+  schema: z.ZodArray<z.ZodTypeAny>,
 ): T[] {
   const parsed = JSON.parse(body || "{}");
   const data = parsed[fieldName];
 
-  return validateInput(schema, data);
+  return validateInput(schema, data) as T[];
 }

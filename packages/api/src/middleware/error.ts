@@ -67,13 +67,18 @@ export const errorHandler = (err: Error, c: Context) => {
 
   // Handle generic ApiError (custom status codes)
   if (err instanceof ApiError) {
+    // Map known status codes, default to 500 for unknown
+    const status = [400, 401, 403, 404, 500, 503].includes(err.statusCode)
+      ? (err.statusCode as 400 | 401 | 403 | 404 | 500 | 503)
+      : 500;
+
     return c.json(
       {
         success: false,
         error: err.message,
         ...(err.details && { details: err.details }),
       },
-      err.statusCode as any,
+      status,
     );
   }
 
