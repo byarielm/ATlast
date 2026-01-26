@@ -23,18 +23,25 @@ export class PostgresStateStore {
   }
 
   async set(key: string, value: StateData): Promise<void> {
-    await db
-      .insertInto("oauth_states")
-      .values({
-        state: key,
-        data: value as unknown as Record<string, unknown>,
-      })
-      .onConflict((oc) =>
-        oc.column("state").doUpdateSet({
+    try {
+      console.log("[StateStore] Storing state:", key);
+      await db
+        .insertInto("oauth_states")
+        .values({
+          state: key,
           data: value as unknown as Record<string, unknown>,
-        }),
-      )
-      .execute();
+        })
+        .onConflict((oc) =>
+          oc.column("state").doUpdateSet({
+            data: value as unknown as Record<string, unknown>,
+          }),
+        )
+        .execute();
+      console.log("[StateStore] State stored successfully");
+    } catch (error) {
+      console.error("[StateStore] Failed to store state:", error);
+      throw error;
+    }
   }
 
   async del(key: string): Promise<void> {

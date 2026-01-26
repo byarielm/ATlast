@@ -1,3 +1,4 @@
+import "dotenv/config"; // Load environment variables first
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { cors } from "hono/cors";
@@ -5,6 +6,8 @@ import { secureHeaders } from "hono/secure-headers";
 import { logger } from "hono/logger";
 import { errorHandler } from "./middleware/error";
 import authRoutes from "./routes/auth";
+import { db } from "./db/client";
+import { sql } from "kysely";
 
 const app = new Hono();
 
@@ -47,8 +50,21 @@ app.use(
 // Mount routes
 app.route("/api/auth", authRoutes);
 
-// Health check endpoint
-app.get("/api/health", (c) => {
+// Health check endpoint (Phase 3C - with database check)
+app.get("/api/health", async (c) => {
+  let databaseStatus = "unknown";
+  let databaseLatency: number | undefined;
+
+  try {
+    const start = Date.now();
+    await sql`SELECT 1`.execute(db);
+    databaseLatency = Date.now() - start;
+    databaseStatus = "connected";
+  } catch (error) {
+    console.error("[HEALTH] Database check failed:", error);
+    databaseStatus = "disconnected";
+  }
+
   return c.json({
     success: true,
     data: {
@@ -56,6 +72,10 @@ app.get("/api/health", (c) => {
       timestamp: new Date().toISOString(),
       service: "atlast-api",
       version: "1.0.0",
+      database: {
+        status: databaseStatus,
+        latency: databaseLatency ? `${databaseLatency}ms` : undefined,
+      },
     },
   });
 });

@@ -29,15 +29,24 @@ export async function createOAuthClient(c: Context): Promise<NodeOAuthClient> {
 
   if (isDev) {
     console.log("[oauth-client] Creating loopback OAuth client");
+    console.log("[oauth-client] Client ID:", config.clientId);
+    console.log("[oauth-client] Redirect URI:", config.redirectUri);
     const clientMetadata = atprotoLoopbackClientMetadata(config.clientId);
 
-    return new NodeOAuthClient({
-      clientMetadata,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      stateStore: stateStore as any,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      sessionStore: sessionStore as any,
-    });
+    try {
+      const client = new NodeOAuthClient({
+        clientMetadata,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        stateStore: stateStore as any,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        sessionStore: sessionStore as any,
+      });
+      console.log("[oauth-client] Loopback client created successfully");
+      return client;
+    } catch (error) {
+      console.error("[oauth-client] Failed to create loopback client:", error);
+      throw error;
+    }
   }
 
   // Production client with private key

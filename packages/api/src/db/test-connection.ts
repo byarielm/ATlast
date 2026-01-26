@@ -5,6 +5,7 @@
  * Usage: tsx src/db/test-connection.ts
  */
 
+import 'dotenv/config'; // Load environment variables first
 import { db, testConnection } from './client';
 import { sql } from 'kysely';
 

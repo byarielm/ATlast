@@ -48,10 +48,14 @@ auth.post("/oauth-start", async (c) => {
       data: { url: authUrl.toString() },
     });
   } catch (error) {
+    console.error("[oauth-start] Failed:", error);
     console.error(
-      "[oauth-start] Failed:",
+      "[oauth-start] Error details:",
       error instanceof Error ? error.message : String(error),
     );
+    if (error instanceof Error && error.stack) {
+      console.error("[oauth-start] Stack trace:", error.stack);
+    }
     throw new ApiError(
       "Failed to start OAuth flow",
       500,
