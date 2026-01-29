@@ -6,6 +6,7 @@ import { secureHeaders } from "hono/secure-headers";
 import { logger } from "hono/logger";
 import { errorHandler } from "./middleware/error";
 import authRoutes from "./routes/auth";
+import searchRoutes from "./routes/search";
 import { db } from "./db/client";
 import { sql } from "kysely";
 
@@ -49,6 +50,7 @@ app.use(
 
 // Mount routes
 app.route("/api/auth", authRoutes);
+app.route("/api/search", searchRoutes);
 
 // Health check endpoint (Phase 3C - with database check)
 app.get("/api/health", async (c) => {
