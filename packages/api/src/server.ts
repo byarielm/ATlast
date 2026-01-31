@@ -7,6 +7,7 @@ import { logger } from "hono/logger";
 import { errorHandler } from "./middleware/error";
 import authRoutes from "./routes/auth";
 import searchRoutes from "./routes/search";
+import resultsRoutes from "./routes/results";
 import { db } from "./db/client";
 import { sql } from "kysely";
 
@@ -51,6 +52,7 @@ app.use(
 // Mount routes
 app.route("/api/auth", authRoutes);
 app.route("/api/search", searchRoutes);
+app.route("/api/results", resultsRoutes);
 
 // Health check endpoint (Phase 3C - with database check)
 app.get("/api/health", async (c) => {
@@ -85,22 +87,27 @@ app.get("/api/health", async (c) => {
 // Error handling
 app.onError(errorHandler);
 
-// Start server
-const port = parseInt(process.env.PORT || "3000");
+// Start server only when run directly (not imported for tests)
+const isMainModule = import.meta.url === `file://${process.argv[1]?.replace(/\\/g, '/')}`;
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST;
 
-console.log(`🚀 ATlast API server starting...`);
-console.log(`📍 Port: ${port}`);
-console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
-console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+if (isMainModule && !isTestEnv) {
+  const port = parseInt(process.env.PORT || "3000");
 
-serve(
-  {
-    fetch: app.fetch,
-    port,
-  },
-  (info) => {
-    console.log(`✅ Server is running on http://localhost:${info.port}`);
-  },
-);
+  console.log(`🚀 ATlast API server starting...`);
+  console.log(`📍 Port: ${port}`);
+  console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
+  console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+
+  serve(
+    {
+      fetch: app.fetch,
+      port,
+    },
+    (info) => {
+      console.log(`✅ Server is running on http://localhost:${info.port}`);
+    },
+  );
+}
 
 export default app;
