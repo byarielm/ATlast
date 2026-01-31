@@ -49,15 +49,14 @@ export function getOAuthConfig(c: Context): OAuthConfig {
 
   // Local OAuth configuration (loopback)
   if (isLocal) {
-    const currentHost = host || "localhost:3000";
-    const protocol = currentHost.includes("127.0.0.1")
-      ? "http://127.0.0.1"
-      : "http://localhost";
-
+    // RFC 8252 requires loopback clients to use IP address, not hostname
+    // Always use 127.0.0.1 for AT Protocol OAuth compatibility
+    const currentHost = host || "127.0.0.1:3000";
     const port = currentHost.split(":")[1] || "3000";
-    const redirectUri = `${protocol}:${port}/api/auth/oauth-callback`;
+    const redirectUri = `http://127.0.0.1:${port}/api/auth/oauth-callback`;
 
-    // ClientID must start with localhost
+    // Client ID for loopback uses http://localhost with redirect_uri as query param
+    // But the redirect_uri itself MUST use 127.0.0.1
     const clientId = `http://localhost?${new URLSearchParams([
       ["redirect_uri", redirectUri],
       ["scope", CONFIG.OAUTH_SCOPES],
