@@ -1,4 +1,5 @@
 import { Context } from "hono";
+import { ZodError } from "zod";
 import {
   ApiError,
   AuthenticationError,
@@ -30,6 +31,23 @@ export const errorHandler = (err: Error, c: Context) => {
       {
         success: false,
         error: err.message,
+      },
+      400,
+    );
+  }
+
+  // Handle Zod validation errors (from schema parsing)
+  if (err instanceof ZodError) {
+    const firstIssue = err.issues[0];
+    const message = firstIssue
+      ? `${firstIssue.path.join(".")}: ${firstIssue.message}`
+      : "Validation failed";
+
+    return c.json(
+      {
+        success: false,
+        error: message,
+        details: err.issues,
       },
       400,
     );
