@@ -1,13 +1,16 @@
 {
   "name": "@atlast/api",
   "version": "1.0.0",
+  "type": "module",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:login": "tsx scripts/test-login.ts",
     "test:db": "tsx src/db/test-connection.ts"
   },
   "keywords": [],
@@ -30,6 +33,7 @@
     "@types/node": "^24.10.4",
     "@types/pg": "^8.16.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }
