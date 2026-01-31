@@ -85,7 +85,7 @@ export class SourceAccountRepository extends BaseRepository {
       upload_id: uploadId,
       user_did: userDid,
       source_account_id: link.sourceAccountId,
-      date_on_source: link.sourceDate ? new Date(link.sourceDate) : null,
+      // Note: date_on_source is stored in source_accounts table, not user_source_follows
     }));
 
     await this.db
@@ -95,5 +95,20 @@ export class SourceAccountRepository extends BaseRepository {
         oc.columns(['upload_id', 'source_account_id']).doNothing(),
       )
       .execute();
+  }
+
+  /**
+   * Mark source accounts as matched
+   * NOTE: This is a no-op in the new schema. The old schema had match_found
+   * and match_found_at columns, but the new schema tracks matches via the
+   * atproto_matches table instead. Keeping this method for compatibility.
+   */
+  async markAsMatched(sourceAccountIds: number[]): Promise<void> {
+    // No-op: match status is tracked via atproto_matches table existence
+    if (sourceAccountIds.length === 0) return;
+
+    // In the new schema, a source account is "matched" if it has rows in atproto_matches
+    // No need to update source_accounts table
+    return;
   }
 }

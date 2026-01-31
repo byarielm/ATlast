@@ -158,7 +158,7 @@ export class MatchRepository extends BaseRepository {
       )
       .leftJoin('user_match_status as ums', (join) =>
         join
-          .onRef('am.id', '=', 'ums.atproto_match_id')
+          .onRef('am.id', '=', 'ums.match_id')
           .on('ums.user_did', '=', userDid)
       )
       .select([
@@ -207,19 +207,17 @@ export class MatchRepository extends BaseRepository {
 
     const values = statuses.map((s) => ({
       user_did: s.userDid,
-      atproto_match_id: s.atprotoMatchId,
-      source_account_id: s.sourceAccountId,
+      match_id: s.atprotoMatchId, // Fixed: match_id not atproto_match_id
       viewed: s.viewed,
-      viewed_at: s.viewed ? new Date() : null,
     }));
 
     await this.db
       .insertInto('user_match_status')
       .values(values)
       .onConflict((oc) =>
-        oc.columns(['user_did', 'atproto_match_id']).doUpdateSet({
+        oc.columns(['user_did', 'match_id']).doUpdateSet({
           viewed: (eb) => eb.ref('excluded.viewed'),
-          viewed_at: sql`CASE WHEN excluded.viewed THEN NOW() ELSE user_match_status.viewed_at END`,
+          updated_at: sql`NOW()`,
         }),
       )
       .execute();
