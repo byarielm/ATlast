@@ -5,6 +5,12 @@
 
 import { Agent } from '@atproto/api';
 
+/** Shape of a follow record value from AT Protocol */
+interface FollowRecordValue {
+  subject?: string;
+  createdAt?: string;
+}
+
 interface FollowStatusResult {
   [did: string]: boolean;
 }
@@ -46,8 +52,8 @@ export class FollowService {
 
         // Check each record
         for (const record of response.data.records) {
-          const followRecord = record.value as any;
-          if (followRecord?.subject && didsSet.has(followRecord.subject)) {
+          const followRecord = record.value as FollowRecordValue;
+          if (followRecord.subject && didsSet.has(followRecord.subject)) {
             followStatus[followRecord.subject] = true;
             didsSet.delete(followRecord.subject); // Found it, no need to keep checking
           }
