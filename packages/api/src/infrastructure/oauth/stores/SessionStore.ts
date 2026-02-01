@@ -1,5 +1,6 @@
 import { db } from "../../../db/client";
-import { SessionData } from "../types";
+import type { SimpleStore, GetOptions } from "@atproto-labs/simple-store";
+import type { NodeSavedSession } from "@atproto/oauth-client-node";
 import {
   encryptToken,
   decryptToken,
@@ -9,18 +10,18 @@ import {
 interface EncryptedSessionData {
   encrypted: true;
   dpopJwk: unknown;
-  authMethod: string;
   tokenSet: string; // Encrypted tokenSet
 }
 
 /**
  * PostgreSQL-backed session store for OAuth sessions
  * Encrypts token sets at rest for security
+ * Implements SimpleStore<string, NodeSavedSession> for compatibility with @atproto/oauth-client-node
  */
-export class PostgresSessionStore {
+export class PostgresSessionStore implements SimpleStore<string, NodeSavedSession> {
   private encryptionEnabled = isEncryptionConfigured();
 
-  async get(key: string): Promise<SessionData | undefined> {
+  async get(key: string, _options?: GetOptions): Promise<NodeSavedSession | undefined> {
     const result = await db
       .selectFrom("oauth_sessions")
       .select("session_data")
@@ -42,15 +43,14 @@ export class PostgresSessionStore {
       try {
         const encryptedData = stored as EncryptedSessionData;
         // Decrypt tokenSet and reconstruct with dpopJwk
-        const decryptedTokenSet = decryptToken<SessionData["tokenSet"]>(
+        const decryptedTokenSet = decryptToken<NodeSavedSession["tokenSet"]>(
           encryptedData.tokenSet,
         );
 
         return {
           dpopJwk: encryptedData.dpopJwk,
           tokenSet: decryptedTokenSet,
-          authMethod: encryptedData.authMethod,
-        };
+        } as NodeSavedSession;
       } catch (error) {
         console.error(
           "[SessionStore] Failed to decrypt session token set:",
@@ -61,18 +61,17 @@ export class PostgresSessionStore {
     }
 
     // Fallback for unencrypted format
-    return stored as SessionData;
+    return stored as NodeSavedSession;
   }
 
-  async set(key: string, value: SessionData): Promise<void> {
+  async set(key: string, value: NodeSavedSession): Promise<void> {
     let dataToStore: Record<string, unknown>;
 
     if (this.encryptionEnabled) {
-      // Encrypt only tokenSet, keep dpopJwk and authMethod as-is
+      // Encrypt only tokenSet, keep dpopJwk as-is
       dataToStore = {
         encrypted: true,
         dpopJwk: value.dpopJwk,
-        authMethod: value.authMethod,
         tokenSet: encryptToken(value.tokenSet),
       };
     } else {

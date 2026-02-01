@@ -36,10 +36,8 @@ export async function createOAuthClient(c: Context): Promise<NodeOAuthClient> {
     try {
       const client = new NodeOAuthClient({
         clientMetadata,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        stateStore: stateStore as any,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        sessionStore: sessionStore as any,
+        stateStore,
+        sessionStore,
       });
       console.log("[oauth-client] Loopback client created successfully");
       return client;
@@ -82,9 +80,7 @@ export async function createOAuthClient(c: Context): Promise<NodeOAuthClient> {
       jwks_uri: config.jwksUri,
     },
     keyset: [privateKey],
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    stateStore: stateStore as any,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    sessionStore: sessionStore as any,
+    stateStore,
+    sessionStore,
   });
 }

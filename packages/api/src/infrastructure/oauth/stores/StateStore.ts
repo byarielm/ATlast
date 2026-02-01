@@ -1,12 +1,14 @@
 import { db } from "../../../db/client";
-import { StateData } from "../types";
+import type { SimpleStore, GetOptions } from "@atproto-labs/simple-store";
+import type { NodeSavedState } from "@atproto/oauth-client-node";
 
 /**
  * PostgreSQL-backed state store for OAuth flow
  * Stores ephemeral state data with automatic expiry (1 hour via cleanup job)
+ * Implements SimpleStore<string, NodeSavedState> for compatibility with @atproto/oauth-client-node
  */
-export class PostgresStateStore {
-  async get(key: string): Promise<StateData | undefined> {
+export class PostgresStateStore implements SimpleStore<string, NodeSavedState> {
+  async get(key: string, _options?: GetOptions): Promise<NodeSavedState | undefined> {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
 
     const result = await db
@@ -18,11 +20,11 @@ export class PostgresStateStore {
 
     if (!result) return undefined;
 
-    // State data contains dpopKey which must remain as JWK object
-    return result.data as unknown as StateData;
+    // State data contains dpopJwk which must remain as JWK object
+    return result.data as unknown as NodeSavedState;
   }
 
-  async set(key: string, value: StateData): Promise<void> {
+  async set(key: string, value: NodeSavedState): Promise<void> {
     try {
       console.log("[StateStore] Storing state:", key);
       await db
