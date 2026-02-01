@@ -23,10 +23,10 @@ export abstract class BaseRepository {
    * const [col1, col2] = buildArraysByColumn(['col1', 'col2'], rows);
    * // col1 = ['val1', 'val3'], col2 = ['val2', 'val4']
    */
-  protected buildArraysByColumn<T extends any[]>(
+  protected buildArraysByColumn<T extends unknown[]>(
     columns: string[],
     rows: T[],
-  ): any[][] {
+  ): unknown[][] {
     return columns.map((_, colIndex) => rows.map((row) => row[colIndex]));
   }
 
@@ -39,14 +39,18 @@ export abstract class BaseRepository {
    * const map = buildIdMap(results, 'username', 'id');
    * // map.get('alice') === 1
    */
-  protected buildIdMap<T extends Record<string, any>>(
+  protected buildIdMap<T extends Record<string, string | number>>(
     results: T[],
-    keyField: string,
-    valueField: string = 'id',
+    keyField: keyof T,
+    valueField: keyof T = 'id' as keyof T,
   ): Map<string, number> {
     const map = new Map<string, number>();
     for (const row of results) {
-      map.set(row[keyField], row[valueField]);
+      const key = row[keyField];
+      const value = row[valueField];
+      if (typeof key === 'string' && typeof value === 'number') {
+        map.set(key, value);
+      }
     }
     return map;
   }

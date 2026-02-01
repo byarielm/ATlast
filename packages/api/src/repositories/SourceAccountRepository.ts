@@ -35,7 +35,10 @@ export class SourceAccountRepository extends BaseRepository {
       .returning('id')
       .executeTakeFirst();
 
-    return result!.id;
+    if (!result) {
+      throw new Error('Failed to get or create source account: no result returned');
+    }
+    return result.id;
   }
 
   /**

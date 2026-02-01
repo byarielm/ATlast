@@ -6,6 +6,23 @@
 import { BaseRepository } from './BaseRepository';
 import { sql } from 'kysely';
 
+/** Row shape returned by getUploadDetails query */
+export interface UploadDetailRow {
+  original_username: string;
+  normalized_username: string;
+  date_on_source: Date | null;
+  atproto_did: string | null;
+  atproto_handle: string | null;
+  display_name: string | null;
+  match_score: number | null;
+  post_count: number | null;
+  follower_count: number | null;
+  found_at: Date | null;
+  follow_status: Record<string, unknown> | null;
+  dismissed: boolean | null;
+  is_new_match: number;
+}
+
 export class MatchRepository extends BaseRepository {
   /**
    * Store a single match (actor found on Bluesky)
@@ -46,7 +63,10 @@ export class MatchRepository extends BaseRepository {
       .returning('id')
       .executeTakeFirst();
 
-    return result!.id;
+    if (!result) {
+      throw new Error('Failed to store match: no result returned from insert');
+    }
+    return result.id;
   }
 
   /**
@@ -130,7 +150,7 @@ export class MatchRepository extends BaseRepository {
     page: number = 1,
     pageSize: number = 50,
   ): Promise<{
-    results: any[];
+    results: UploadDetailRow[];
     totalUsers: number;
   }> {
     // First, verify upload belongs to user
