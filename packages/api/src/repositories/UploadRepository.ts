@@ -104,7 +104,7 @@ export class UploadRepository extends BaseRepository {
       .selectFrom('user_uploads')
       .select('upload_id')
       .where('user_did', '=', userDid)
-      .where('created_at', '>', sql`NOW() - INTERVAL '5 seconds'`)
+      .where('created_at', '>', sql<Date>`NOW() - INTERVAL '5 seconds'`)
       .orderBy('created_at', 'desc')
       .limit(1)
       .execute();
