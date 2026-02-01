@@ -10,8 +10,9 @@ import { searchRateLimit } from '../middleware/rateLimit';
 import { SessionService } from '../services/SessionService';
 import { FollowService } from '../services/FollowService';
 import { normalize } from '../utils/string.utils';
+import type { AppEnv } from '../types/hono';
 
-const search = new Hono();
+const search = new Hono<AppEnv>();
 
 // Validation schema for batch search request
 const batchSearchSchema = z.object({

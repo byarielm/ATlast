@@ -7,12 +7,13 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth';
 import { UploadRepository } from '../repositories/UploadRepository';
 import { SourceAccountRepository } from '../repositories/SourceAccountRepository';
-import { MatchRepository } from '../repositories/MatchRepository';
+import { MatchRepository, UploadDetailRow } from '../repositories/MatchRepository';
 import { normalize } from '../utils/string.utils';
 import { ValidationError, NotFoundError } from '../errors';
 import { z } from 'zod';
+import type { AppEnv } from '../types/hono';
 
-const results = new Hono();
+const results = new Hono<AppEnv>();
 
 // Zod schemas for validation
 const searchResultSchema = z.object({
@@ -34,7 +35,7 @@ const searchResultSchema = z.object({
   ),
   isSearching: z.boolean().optional(),
   error: z.string().optional(),
-  selectedMatches: z.any().optional(),
+  selectedMatches: z.record(z.string(), z.boolean()).optional(),
 });
 
 const saveResultsSchema = z.object({
@@ -110,12 +111,15 @@ results.post('/save', authMiddleware, async (c) => {
     .map((result) => {
       const normalized = normalize(result.sourceUser.username);
       const sourceAccountId = sourceAccountIdMap.get(normalized);
+      if (sourceAccountId === undefined) {
+        return null;
+      }
       return {
-        sourceAccountId: sourceAccountId!,
+        sourceAccountId,
         sourceDate: result.sourceUser.date,
       };
     })
-    .filter((link) => link.sourceAccountId !== undefined);
+    .filter((link): link is NonNullable<typeof link> => link !== null);
 
   await sourceAccountRepo.linkUserToAccounts(uploadId, userDid, links);
 
@@ -153,7 +157,7 @@ results.post('/save', authMiddleware, async (c) => {
           atprotoHandle: match.handle,
           atprotoDisplayName: match.displayName,
           atprotoAvatar: match.avatar,
-          atprotoDescription: (match as any).description,
+          atprotoDescription: match.description,
           matchScore: match.matchScore,
           postCount: match.postCount || 0,
           followerCount: match.followerCount || 0,
@@ -266,9 +270,23 @@ results.get('/upload-details', authMiddleware, async (c) => {
   const totalPages = Math.ceil(totalUsers / pageSize);
 
   // Group results by source username
-  const groupedResults = new Map<string, any>();
+  interface GroupedResult {
+    sourceUser: { username: string; date: string };
+    atprotoMatches: Array<{
+      did: string;
+      handle: string;
+      displayName: string | null;
+      matchScore: number;
+      postCount: number | null;
+      followerCount: number | null;
+      foundAt: Date | null;
+      dismissed: boolean;
+      followStatus: Record<string, unknown>;
+    }>;
+  }
+  const groupedResults = new Map<string, GroupedResult>();
 
-  rawResults.forEach((row: any) => {
+  rawResults.forEach((row: UploadDetailRow) => {
     const username = row.original_username;
 
     // Get or create the entry for this username
@@ -278,7 +296,7 @@ results.get('/upload-details', authMiddleware, async (c) => {
       userResult = {
         sourceUser: {
           username: username,
-          date: row.date_on_source || '',
+          date: row.date_on_source?.toISOString() ?? '',
         },
         atprotoMatches: [],
       };
@@ -286,17 +304,17 @@ results.get('/upload-details', authMiddleware, async (c) => {
     }
 
     // Add the match (if it exists) to the array
-    if (row.atproto_did) {
+    if (row.atproto_did && row.atproto_handle) {
       userResult.atprotoMatches.push({
         did: row.atproto_did,
         handle: row.atproto_handle,
         displayName: row.display_name,
-        matchScore: row.match_score,
+        matchScore: row.match_score ?? 0,
         postCount: row.post_count,
         followerCount: row.follower_count,
         foundAt: row.found_at,
-        dismissed: row.dismissed || false,
-        followStatus: row.follow_status || {},
+        dismissed: row.dismissed ?? false,
+        followStatus: row.follow_status ?? {},
       });
     }
   });
