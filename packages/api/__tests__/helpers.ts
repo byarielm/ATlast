@@ -84,7 +84,7 @@ export async function authRequest(
 
   return app.request(path, {
     ...options,
-    headers,
+    headers: Object.fromEntries(headers.entries()),
   });
 }
 
@@ -112,7 +112,7 @@ export async function realAuthRequest(
 
   return app.request(path, {
     ...options,
-    headers,
+    headers: Object.fromEntries(headers.entries()),
   });
 }
 
@@ -131,7 +131,7 @@ export async function request(
 
   return app.request(path, {
     ...options,
-    headers,
+    headers: Object.fromEntries(headers.entries()),
   });
 }
 
@@ -153,7 +153,7 @@ export async function requestWithSession(
 
   return app.request(path, {
     ...options,
-    headers,
+    headers: Object.fromEntries(headers.entries()),
   });
 }
 
