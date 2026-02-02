@@ -9,6 +9,7 @@ import authRoutes from "./routes/auth";
 import searchRoutes from "./routes/search";
 import resultsRoutes from "./routes/results";
 import followRoutes from "./routes/follow";
+import extensionRoutes from "./routes/extension";
 import { db } from "./db/client";
 import { sql } from "kysely";
 
@@ -55,6 +56,7 @@ app.route("/api/auth", authRoutes);
 app.route("/api/search", searchRoutes);
 app.route("/api/results", resultsRoutes);
 app.route("/api/follow", followRoutes);
+app.route("/api/extension", extensionRoutes);
 
 // Health check endpoint (Phase 3C - with database check)
 app.get("/api/health", async (c) => {
