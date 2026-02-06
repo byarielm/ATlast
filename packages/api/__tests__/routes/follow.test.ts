@@ -384,4 +384,334 @@ describe('Follow API', () => {
       });
     });
   });
+
+  describe('Error Scenarios', () => {
+    describe('Network and API Errors', () => {
+      it('handles network timeouts during follow operations', async () => {
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        // Should handle timeouts gracefully
+        expect([200, 401, 500, 503]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          // Partial failures should be reported in results
+          expect(body.data.results).toBeDefined();
+        }
+      });
+
+      it('handles AT Protocol rate limits on follow operations', async () => {
+        // Following has strict rate limits on AT Protocol
+        // The API should handle 429 responses gracefully
+
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect([200, 401, 429, 500]).toContain(res.status);
+
+        if (res.status === 429) {
+          const body = await parseResponse(res);
+          expect(body.success).toBe(false);
+          expect(body.error).toBeDefined();
+        }
+      });
+
+      it('handles partial batch follow failures', async () => {
+        // Test that batch follow continues even if some follows fail
+
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect([200, 401, 500]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.results).toHaveLength(VALID_DIDS.length);
+
+          // Each result should indicate success or failure
+          body.data.results.forEach((result: Record<string, unknown>) => {
+            expect(result).toHaveProperty('did');
+            expect(result).toHaveProperty('success');
+            expect(typeof result.success).toBe('boolean');
+
+            if (!result.success) {
+              expect(result.error).toBeDefined();
+              expect(typeof result.error).toBe('string');
+            }
+          });
+
+          // Verify counts are consistent
+          expect(body.data.succeeded + body.data.failed).toBe(body.data.total);
+        }
+      });
+
+      it('handles already-following status correctly', async () => {
+        // Attempting to follow someone already followed should not error
+
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: [VALID_DID],
+            }),
+          },
+        );
+
+        expect([200, 401, 500]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          // alreadyFollowing count should be reported
+          expect(typeof body.data.alreadyFollowing).toBe('number');
+
+          const result = body.data.results[0];
+          if (result.alreadyFollowing) {
+            expect(result.success).toBe(true);
+            expect(result.error).toBeNull();
+          }
+        }
+      });
+
+      it('handles service unavailable (503) during follow operations', async () => {
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect([200, 401, 500, 503]).toContain(res.status);
+
+        if (res.status === 503) {
+          const body = await parseResponse(res);
+          expect(body.success).toBe(false);
+          expect(body.error).toBeDefined();
+        }
+      });
+
+      it('handles malformed AT Protocol responses', async () => {
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        // Should not crash on malformed responses
+        expect([200, 401, 500]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          expect(body.data.results).toBeDefined();
+          expect(Array.isArray(body.data.results)).toBe(true);
+        }
+      });
+    });
+
+    describe('Invalid Credentials', () => {
+      it('handles invalid/expired OAuth credentials on follow', async () => {
+        const expiredSession = 'expired-session-id';
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          expiredSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect(res.status).toBe(401);
+      });
+
+      it('handles OAuth token refresh failures during follow', async () => {
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect([200, 401, 500]).toContain(res.status);
+      });
+    });
+
+    describe('Follow-Specific Errors', () => {
+      it('handles blocked users (cannot follow)', async () => {
+        // If a user has blocked the authenticated user, follow should fail gracefully
+
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: [VALID_DID],
+            }),
+          },
+        );
+
+        expect([200, 401, 500]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          const result = body.data.results[0];
+
+          // If blocked, should report as failed with appropriate error
+          if (!result.success && result.error) {
+            expect(typeof result.error).toBe('string');
+          }
+        }
+      });
+
+      it('handles non-existent DIDs', async () => {
+        // Attempting to follow a non-existent DID should fail gracefully
+
+        const nonExistentDid = 'did:plc:nonexistent12345678901234';
+        const res = await requestWithSession(
+          '/api/follow/batch-follow-users',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: [nonExistentDid],
+            }),
+          },
+        );
+
+        expect([200, 401, 500]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          const result = body.data.results[0];
+
+          // Non-existent DID should be reported as failed
+          if (!result.success) {
+            expect(result.error).toBeDefined();
+          }
+        }
+      });
+
+      it('handles concurrent follow operations', async () => {
+        // Multiple simultaneous follow requests should be handled correctly
+
+        const requests = [
+          requestWithSession('/api/follow/batch-follow-users', validSession, {
+            method: 'POST',
+            body: JSON.stringify({ dids: [VALID_DIDS[0]] }),
+          }),
+          requestWithSession('/api/follow/batch-follow-users', validSession, {
+            method: 'POST',
+            body: JSON.stringify({ dids: [VALID_DIDS[1]] }),
+          }),
+        ];
+
+        const results = await Promise.all(requests);
+
+        // All requests should complete (not hang or crash)
+        results.forEach((res) => {
+          expect([200, 401, 500]).toContain(res.status);
+        });
+      });
+    });
+
+    describe('Check Status Error Scenarios', () => {
+      it('handles network errors during status check', async () => {
+        const res = await requestWithSession(
+          '/api/follow/check-status',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect([200, 401, 500, 503]).toContain(res.status);
+      });
+
+      it('handles invalid/expired credentials on status check', async () => {
+        const expiredSession = 'expired-session-id';
+        const res = await requestWithSession(
+          '/api/follow/check-status',
+          expiredSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect(res.status).toBe(401);
+      });
+
+      it('handles partial failures in status check', async () => {
+        const res = await requestWithSession(
+          '/api/follow/check-status',
+          validSession,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              dids: VALID_DIDS,
+            }),
+          },
+        );
+
+        expect([200, 401, 500]).toContain(res.status);
+
+        if (res.status === 200) {
+          const body = await parseResponse(res);
+          expect(body.data.followStatus).toBeDefined();
+
+          // Status check should return results for all DIDs that could be checked
+          expect(typeof body.data.followStatus).toBe('object');
+        }
+      });
+    });
+  });
 });

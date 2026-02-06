@@ -7,12 +7,11 @@
 // Test user definitions
 export {
   TEST_USERS,
-  TestUserId,
-  TestUser,
   getTestUser,
   isTestUserDid,
   ALL_TEST_USER_DIDS,
 } from './testUsers';
+export type { TestUserId, TestUser } from './testUsers';
 
 // Session management
 export {
@@ -24,5 +23,5 @@ export {
   cleanupAllTestSessions,
   cleanupAllTestData,
   countTestSessions,
-  CreateSessionOptions,
 } from './sessions';
+export type { CreateSessionOptions } from './sessions';
