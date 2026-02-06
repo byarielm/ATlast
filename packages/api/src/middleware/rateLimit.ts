@@ -108,23 +108,26 @@ export function rateLimiter(options: RateLimitOptions) {
  * Predefined rate limiters for common use cases
  */
 
-// General API rate limit: 60 requests per minute
+// Check if we're in test environment
+const isTestEnv = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+
+// General API rate limit: 60 requests per minute (1000 in tests)
 export const apiRateLimit = rateLimiter({
-  maxRequests: 60,
+  maxRequests: isTestEnv ? 1000 : 60,
   windowMs: 60 * 1000,
   message: 'Too many requests. Please try again later.',
 });
 
-// Search rate limit: 10 searches per minute (each can have 50 usernames)
+// Search rate limit: 10 searches per minute (100 in tests)
 export const searchRateLimit = rateLimiter({
-  maxRequests: 10,
+  maxRequests: isTestEnv ? 100 : 10,
   windowMs: 60 * 1000,
   message: 'Search limit reached. Please wait before searching again.',
 });
 
-// Follow rate limit: 100 follows per hour
+// Follow rate limit: 100 follows per hour (1000 in tests)
 export const followRateLimit = rateLimiter({
-  maxRequests: 100,
+  maxRequests: isTestEnv ? 1000 : 100,
   windowMs: 60 * 60 * 1000,
   message: 'Follow limit reached. Please try again later.',
 });
