@@ -4,7 +4,7 @@
  * Tests batch follow operations and follow status checking.
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import {
   request,
   authRequest,
@@ -14,7 +14,13 @@ import {
 import {
   createTestSession,
   cleanupAllTestSessions,
+  createMockAgent,
+  createTimeoutAgent,
+  createRateLimitAgent,
+  createServiceUnavailableAgent,
+  createFollowAgent,
 } from '../fixtures';
+import { SessionService } from '../../src/services/SessionService';
 
 describe('Follow API', () => {
   let validSession: string;
@@ -710,6 +716,365 @@ describe('Follow API', () => {
 
           // Status check should return results for all DIDs that could be checked
           expect(typeof body.data.followStatus).toBe('object');
+        }
+      });
+    });
+  });
+
+  // ==========================================================================
+  // Mocked AT Protocol Agent Tests
+  // Deterministic tests using mock agents to verify specific error scenarios
+  // ==========================================================================
+
+  describe('Mocked Error Scenarios', () => {
+    describe('Batch Follow - Network Timeout Handling', () => {
+      it('reports individual follow failures when AT Protocol times out', async () => {
+        const mockAgent = createTimeoutAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/batch-follow-users',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:user1', 'did:plc:user2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.total).toBe(2);
+
+          // listRecords (for checking already-following) throws timeout,
+          // but FollowService.checkFollowStatus catches and returns all false.
+          // Then createRecord also throws timeout, so all follows fail.
+          expect(body.data.failed).toBe(2);
+          expect(body.data.succeeded).toBe(0);
+
+          for (const result of body.data.results) {
+            expect(result.success).toBe(false);
+            expect(result.error).toBeDefined();
+            expect(result.error).toContain('timed out');
+          }
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Batch Follow - Rate Limit Handling', () => {
+      it('reports rate limit errors in individual follow results', async () => {
+        const mockAgent = createRateLimitAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/batch-follow-users',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:user1'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.failed).toBe(1);
+
+          const result = body.data.results[0];
+          expect(result.success).toBe(false);
+          expect(result.error).toContain('rate limit');
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Batch Follow - Service Unavailable Handling', () => {
+      it('reports service unavailable errors in follow results', async () => {
+        const mockAgent = createServiceUnavailableAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/batch-follow-users',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:user1'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.failed).toBe(1);
+
+          const result = body.data.results[0];
+          expect(result.success).toBe(false);
+          expect(result.error).toContain('Service Unavailable');
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Batch Follow - Already Following Detection', () => {
+      it('detects already-followed users and skips them', async () => {
+        const mockAgent = createFollowAgent({
+          alreadyFollowing: ['did:plc:already1', 'did:plc:already2'],
+        });
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/batch-follow-users',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:already1', 'did:plc:newuser', 'did:plc:already2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.total).toBe(3);
+          expect(body.data.alreadyFollowing).toBe(2);
+          expect(body.data.succeeded).toBe(3); // already-following counts as success
+
+          // Verify already-following results
+          const already1 = body.data.results.find(
+            (r: { did: string }) => r.did === 'did:plc:already1',
+          );
+          expect(already1.success).toBe(true);
+          expect(already1.alreadyFollowing).toBe(true);
+
+          // Verify new follow result
+          const newUser = body.data.results.find(
+            (r: { did: string }) => r.did === 'did:plc:newuser',
+          );
+          expect(newUser.success).toBe(true);
+          expect(newUser.alreadyFollowing).toBe(false);
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Batch Follow - Partial Failures', () => {
+      it('continues following remaining users when some fail', async () => {
+        const mockAgent = createFollowAgent({
+          failDids: ['did:plc:fail1'],
+        });
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/batch-follow-users',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:ok1', 'did:plc:fail1', 'did:plc:ok2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.total).toBe(3);
+          expect(body.data.succeeded).toBe(2);
+          expect(body.data.failed).toBe(1);
+
+          // Verify the failed follow
+          const failedResult = body.data.results.find(
+            (r: { did: string }) => r.did === 'did:plc:fail1',
+          );
+          expect(failedResult.success).toBe(false);
+          expect(failedResult.error).toBeDefined();
+
+          // Verify the successful follows
+          const ok1 = body.data.results.find(
+            (r: { did: string }) => r.did === 'did:plc:ok1',
+          );
+          expect(ok1.success).toBe(true);
+          expect(ok1.error).toBeNull();
+
+          const ok2 = body.data.results.find(
+            (r: { did: string }) => r.did === 'did:plc:ok2',
+          );
+          expect(ok2.success).toBe(true);
+          expect(ok2.error).toBeNull();
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Batch Follow - Concurrent Operations', () => {
+      it('processes follows in chunks with controlled concurrency', async () => {
+        const callOrder: string[] = [];
+        const mockAgent = createMockAgent({
+          listRecords: async () => ({
+            data: { records: [], cursor: undefined },
+          }),
+          createRecord: async (params) => {
+            const targetDid = (params.record as { subject?: string }).subject ?? '';
+            callOrder.push(targetDid);
+            // Simulate some async work
+            await new Promise((resolve) => setTimeout(resolve, 10));
+            return {
+              uri: `at://did:plc:mock/app.bsky.graph.follow/${Date.now()}`,
+              cid: 'mock-cid',
+            };
+          },
+        });
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const dids = Array.from({ length: 8 }, (_, i) => `did:plc:user${i}`);
+
+          const res = await requestWithSession(
+            '/api/follow/batch-follow-users',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({ dids }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.total).toBe(8);
+          expect(body.data.succeeded).toBe(8);
+
+          // All DIDs should have been processed
+          expect(callOrder).toHaveLength(8);
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Check Status - Mocked Scenarios', () => {
+      it('returns follow status from AT Protocol records', async () => {
+        const mockAgent = createFollowAgent({
+          alreadyFollowing: ['did:plc:followed1', 'did:plc:followed2'],
+        });
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/check-status',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:followed1', 'did:plc:notfollowed', 'did:plc:followed2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.followStatus).toBeDefined();
+
+          expect(body.data.followStatus['did:plc:followed1']).toBe(true);
+          expect(body.data.followStatus['did:plc:notfollowed']).toBe(false);
+          expect(body.data.followStatus['did:plc:followed2']).toBe(true);
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+
+      it('returns all false when listRecords fails', async () => {
+        const mockAgent = createTimeoutAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/follow/check-status',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                dids: ['did:plc:user1', 'did:plc:user2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          // FollowService.checkFollowStatus catches errors and returns all false
+          expect(body.data.followStatus['did:plc:user1']).toBe(false);
+          expect(body.data.followStatus['did:plc:user2']).toBe(false);
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
         }
       });
     });

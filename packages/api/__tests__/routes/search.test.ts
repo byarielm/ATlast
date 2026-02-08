@@ -4,7 +4,7 @@
  * Tests batch actor search functionality on AT Protocol.
  */
 
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import {
   request,
   authRequest,
@@ -14,7 +14,14 @@ import {
 import {
   createTestSession,
   cleanupAllTestSessions,
+  createTimeoutAgent,
+  createRateLimitAgent,
+  createServiceUnavailableAgent,
+  createPartialFailureSearchAgent,
+  createSuccessfulSearchAgent,
+  createMalformedResponseAgent,
 } from '../fixtures';
+import { SessionService } from '../../src/services/SessionService';
 
 describe('Search API', () => {
   let validSession: string;
@@ -438,6 +445,375 @@ describe('Search API', () => {
         // Search endpoint might not require DB, so could still return 200
         // If DB is needed and fails, should get 500
         expect([200, 401, 500]).toContain(res.status);
+      });
+    });
+  });
+
+  // ==========================================================================
+  // Mocked AT Protocol Agent Tests
+  // Deterministic tests using mock agents to verify specific error scenarios
+  // ==========================================================================
+
+  describe('Mocked Error Scenarios', () => {
+    /**
+     * These tests mock SessionService.getAgentForSession to inject
+     * controlled AT Protocol agent behavior. This enables deterministic
+     * testing of error handling without real API calls.
+     */
+
+    describe('Network Timeout Handling', () => {
+      it('returns results with error messages when AT Protocol times out', async () => {
+        const mockAgent = createTimeoutAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['user1', 'user2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.results).toHaveLength(2);
+
+          // Each search should have captured the timeout error
+          for (const result of body.data.results) {
+            expect(result.actors).toHaveLength(0);
+            expect(result.error).toBeDefined();
+            expect(result.error).toContain('timed out');
+          }
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('AT Protocol Rate Limit (429) Handling', () => {
+      it('captures rate limit errors per-username in results', async () => {
+        const mockAgent = createRateLimitAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['testuser'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          const result = body.data.results[0];
+          expect(result.actors).toHaveLength(0);
+          expect(result.error).toBeDefined();
+          expect(result.error).toContain('Rate Limit');
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Service Unavailable (503) Handling', () => {
+      it('captures service unavailable errors in results', async () => {
+        const mockAgent = createServiceUnavailableAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['testuser'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          const result = body.data.results[0];
+          expect(result.actors).toHaveLength(0);
+          expect(result.error).toContain('Service Unavailable');
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Partial Batch Failure Handling', () => {
+      it('returns mixed success/error results when some searches fail', async () => {
+        const mockAgent = createPartialFailureSearchAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['gooduser1', 'baduser', 'gooduser2'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.results).toHaveLength(3);
+
+          // gooduser1 should succeed
+          const result1 = body.data.results[0];
+          expect(result1.username).toBe('gooduser1');
+          expect(result1.actors.length).toBeGreaterThan(0);
+          expect(result1.error).toBeNull();
+
+          // baduser should fail with error
+          const result2 = body.data.results[1];
+          expect(result2.username).toBe('baduser');
+          expect(result2.actors).toHaveLength(0);
+          expect(result2.error).toBeDefined();
+          expect(result2.error).toContain('baduser');
+
+          // gooduser2 should succeed
+          const result3 = body.data.results[2];
+          expect(result3.username).toBe('gooduser2');
+          expect(result3.actors.length).toBeGreaterThan(0);
+          expect(result3.error).toBeNull();
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Successful Search with Actor Ranking', () => {
+      it('returns ranked actors with enriched profile data', async () => {
+        const mockAgent = createSuccessfulSearchAgent({
+          testuser: [
+            { did: 'did:plc:exact', handle: 'testuser.bsky.social', displayName: 'Test User' },
+            { did: 'did:plc:partial', handle: 'testuser123.bsky.social', displayName: 'Other' },
+            { did: 'did:plc:unrelated', handle: 'someone.bsky.social', displayName: 'Unrelated' },
+          ],
+        });
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['testuser'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          const result = body.data.results[0];
+          expect(result.username).toBe('testuser');
+          expect(result.error).toBeNull();
+
+          // Should have matched actors (unrelated one filtered out by score > 0)
+          expect(result.actors.length).toBeGreaterThanOrEqual(1);
+
+          // Exact match should be first (highest score)
+          const topActor = result.actors[0];
+          expect(topActor.did).toBe('did:plc:exact');
+          expect(topActor.matchScore).toBe(100);
+
+          // Actors should be enriched with profile data
+          expect(topActor.postCount).toBeDefined();
+          expect(topActor.followerCount).toBeDefined();
+          expect(topActor.followStatus).toBeDefined();
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Malformed API Response Handling', () => {
+      it('handles actors with missing/empty fields without crashing', async () => {
+        const mockAgent = createMalformedResponseAgent();
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['testuser'],
+              }),
+            },
+          );
+
+          // Should not crash - returns 200 with results
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+          expect(body.data.results).toHaveLength(1);
+
+          // Actors with empty handles still pass through with low score
+          // ('testuser'.includes('') === true -> score 30)
+          const result = body.data.results[0];
+          expect(result.error).toBeNull();
+          expect(Array.isArray(result.actors)).toBe(true);
+          // Verify it doesn't crash - actors come through with matchScore 30
+          for (const actor of result.actors) {
+            expect(actor.matchScore).toBe(30);
+          }
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Profile Enrichment Failure Handling', () => {
+      it('returns actors with default counts when profile fetch fails', async () => {
+        const mockAgent = createSuccessfulSearchAgent({
+          testuser: [
+            { did: 'did:plc:user1', handle: 'testuser.bsky.social' },
+          ],
+        });
+
+        // Override getProfiles to fail
+        (mockAgent.app.bsky.actor.getProfiles as ReturnType<typeof vi.fn>)
+          .mockRejectedValue(new Error('Profile service down'));
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['testuser'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          const result = body.data.results[0];
+          expect(result.actors.length).toBeGreaterThanOrEqual(1);
+
+          // Profile data should default to 0 when fetch fails
+          const actor = result.actors[0];
+          expect(actor.postCount).toBe(0);
+          expect(actor.followerCount).toBe(0);
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
+      });
+    });
+
+    describe('Follow Status Check Failure During Search', () => {
+      it('returns actors without follow status when check fails', async () => {
+        const mockAgent = createSuccessfulSearchAgent({
+          testuser: [
+            { did: 'did:plc:user1', handle: 'testuser.bsky.social' },
+          ],
+        });
+
+        // Override listRecords to fail (used by FollowService.checkFollowStatus)
+        (mockAgent.api.com.atproto.repo.listRecords as ReturnType<typeof vi.fn>)
+          .mockRejectedValue(new Error('Follow status check failed'));
+
+        const originalMethod = SessionService.getAgentForSession;
+        SessionService.getAgentForSession = vi.fn().mockResolvedValue({
+          agent: mockAgent,
+          did: 'did:plc:test-standard-user-001',
+          client: {},
+        });
+
+        try {
+          const res = await requestWithSession(
+            '/api/search/batch-search-actors',
+            validSession,
+            {
+              method: 'POST',
+              body: JSON.stringify({
+                usernames: ['testuser'],
+              }),
+            },
+          );
+
+          expect(res.status).toBe(200);
+          const body = await parseResponse(res);
+          expect(body.success).toBe(true);
+
+          // Should still return results even if follow status fails
+          const result = body.data.results[0];
+          expect(result.actors.length).toBeGreaterThanOrEqual(1);
+        } finally {
+          SessionService.getAgentForSession = originalMethod;
+        }
       });
     });
   });
