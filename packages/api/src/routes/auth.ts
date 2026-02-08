@@ -25,7 +25,12 @@ const PUBLIC_JWK = {
  * Initiates OAuth flow with AT Protocol provider
  */
 auth.post("/oauth-start", async (c) => {
-  const body = await c.req.json<{ login_hint?: string }>();
+  let body: { login_hint?: string };
+  try {
+    body = await c.req.json<{ login_hint?: string }>();
+  } catch {
+    throw new ValidationError("Invalid or missing JSON body");
+  }
   const loginHint = body.login_hint;
 
   if (!loginHint) {
