@@ -6,6 +6,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Hono } from 'hono';
 import { authMiddleware, extractSessionId } from './auth';
+import { errorHandler } from './error';
 import { createTestSession, deleteTestSession } from '../../__tests__/fixtures';
 
 describe('Auth Middleware', () => {
@@ -13,6 +14,7 @@ describe('Auth Middleware', () => {
 
   beforeEach(() => {
     app = new Hono();
+    app.onError(errorHandler);
     app.use('/protected/*', authMiddleware);
     app.get('/protected/test', (c) => {
       // Access context variables added by authMiddleware

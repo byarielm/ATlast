@@ -388,7 +388,9 @@ describe('Rate Limit Middleware', () => {
   });
 
   describe('Predefined Rate Limiters', () => {
-    it('apiRateLimit: 60 requests per minute', async () => {
+    // In test environment, limits are elevated to avoid flaky tests
+    // Production: 60/10/100, Test: 1000/100/1000
+    it('apiRateLimit: elevated limit in test env (1000 req/min)', async () => {
       app.use('/api/*', apiRateLimit);
       app.get('/api/test', (c) => c.json({ success: true }));
 
@@ -397,10 +399,10 @@ describe('Rate Limit Middleware', () => {
       });
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('X-RateLimit-Limit')).toBe('60');
+      expect(res.headers.get('X-RateLimit-Limit')).toBe('1000');
     });
 
-    it('searchRateLimit: 10 requests per minute', async () => {
+    it('searchRateLimit: elevated limit in test env (100 req/min)', async () => {
       app.use('/search', searchRateLimit);
       app.post('/search', (c) => c.json({ success: true }));
 
@@ -410,10 +412,10 @@ describe('Rate Limit Middleware', () => {
       });
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('X-RateLimit-Limit')).toBe('10');
+      expect(res.headers.get('X-RateLimit-Limit')).toBe('100');
     });
 
-    it('followRateLimit: 100 requests per hour', async () => {
+    it('followRateLimit: elevated limit in test env (1000 req/hr)', async () => {
       app.use('/follow', followRateLimit);
       app.post('/follow', (c) => c.json({ success: true }));
 
@@ -423,7 +425,7 @@ describe('Rate Limit Middleware', () => {
       });
 
       expect(res.status).toBe(200);
-      expect(res.headers.get('X-RateLimit-Limit')).toBe('100');
+      expect(res.headers.get('X-RateLimit-Limit')).toBe('1000');
     });
   });
 

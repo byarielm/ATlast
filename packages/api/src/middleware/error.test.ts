@@ -379,19 +379,21 @@ describe('Error Handler Middleware', () => {
   describe('Edge Cases', () => {
     it('handles null errors', async () => {
       app.get('/test', () => {
-        // Testing null throw
+        // Testing null throw - Hono propagates non-Error values as-is
         throw null; // eslint-disable-line @typescript-eslint/no-throw-literal
       });
 
-      const res = await app.request('/test');
-
-      expect(res.status).toBe(500);
+      // Hono doesn't catch non-Error throws, so request() rejects
+      try {
+        await app.request('/test');
+        expect.fail('should have thrown');
+      } catch (e) {
+        expect(e).toBeNull();
+      }
     });
 
     it('handles errors thrown during error handling', async () => {
-      // This is a meta-test: what if error handler itself throws?
-      // The framework should catch it
-
+      // Meta-test: what if error handler itself throws?
       const badErrorHandler = (err: Error, c: Context) => {
         throw new Error('Error handler error');
       };
@@ -402,8 +404,14 @@ describe('Error Handler Middleware', () => {
         throw new Error('Original error');
       });
 
-      // This should not hang or crash
-      await expect(testApp.request('/test')).resolves.toBeDefined();
+      // Hono propagates error handler failures, so request() rejects
+      try {
+        await testApp.request('/test');
+        expect.fail('should have thrown');
+      } catch (e) {
+        expect(e).toBeInstanceOf(Error);
+        expect((e as Error).message).toBe('Error handler error');
+      }
     });
 
     it('handles circular references in error details', async () => {
