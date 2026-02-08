@@ -111,6 +111,9 @@ importers:
 
   packages/api:
     dependencies:
+      '@atlast/shared':
+        specifier: workspace:*
+        version: link:../shared
       '@atproto/api':
         specifier: ^0.17.7
         version: 0.17.7
@@ -339,6 +342,9 @@ importers:
       vite-plugin-svgr:
         specifier: ^4.5.0
         version: 4.5.0(rollup@4.54.0)(typescript@5.9.3)(vite@5.4.21(@types/node@24.10.4))
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.4)
 
   packages/worker:
     dependencies:

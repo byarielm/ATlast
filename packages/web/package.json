@@ -13,7 +13,9 @@
     "lint:html": "eslint . --ext .ts,.tsx --rule 'jsx-a11y/*: error' --fix",
     "lint:tailwind": "eslint . --ext .ts,.tsx --rule 'tailwindcss/*: warn' --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\""
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\"",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@atlast/shared": "workspace:*",
@@ -29,10 +31,10 @@
     "zustand": "^5.0.9"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.0",
     "@types/jszip": "^3.4.0",
     "@types/react": "^19.1.14",
     "@types/react-dom": "^19.1.9",
-    "@eslint/js": "^9.39.0",
     "@typescript-eslint/eslint-plugin": "^8.20.0",
     "@typescript-eslint/parser": "^8.20.0",
     "@vitejs/plugin-react": "^4.2.1",
@@ -48,6 +50,7 @@
     "tailwindcss": "^3.4.0",
     "typescript": "^5.3.3",
     "vite": "^5.4.0",
-    "vite-plugin-svgr": "^4.5.0"
+    "vite-plugin-svgr": "^4.5.0",
+    "vitest": "^3.2.4"
   }
 }
