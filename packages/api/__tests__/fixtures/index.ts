@@ -13,6 +13,24 @@ export {
 } from './testUsers';
 export type { TestUserId, TestUser } from './testUsers';
 
+// Mock AT Protocol agent
+export {
+  createMockAgent,
+  createTimeoutAgent,
+  createRateLimitAgent,
+  createServiceUnavailableAgent,
+  createPartialFailureSearchAgent,
+  createSuccessfulSearchAgent,
+  createFollowAgent,
+  createMalformedResponseAgent,
+} from './mockAgent';
+export type {
+  MockActor,
+  MockProfile,
+  MockFollowRecord,
+  MockAgentOptions,
+} from './mockAgent';
+
 // Session management
 export {
   createTestSession,
