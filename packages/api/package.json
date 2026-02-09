@@ -10,6 +10,7 @@
     "start": "node dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:perf": "vitest run __tests__/performance",
     "test:login": "tsx scripts/test-login.ts",
     "test:db": "tsx src/db/test-connection.ts"
   },
