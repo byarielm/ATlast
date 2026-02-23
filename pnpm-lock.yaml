@@ -244,7 +244,11 @@ importers:
         specifier: ^5.3.3
         version: 5.9.3
 
-  packages/shared: {}
+  packages/shared:
+    dependencies:
+      kysely:
+        specifier: ^0.28.10
+        version: 0.28.10
 
   packages/web:
     dependencies:
@@ -357,6 +361,9 @@ importers:
       bullmq:
         specifier: ^5.66.5
         version: 5.66.5
+      dotenv:
+        specifier: ^17.2.3
+        version: 17.2.3
       ioredis:
         specifier: ^5.9.2
         version: 5.9.2
@@ -366,6 +373,22 @@ importers:
       pg:
         specifier: ^8.17.2
         version: 8.17.2
+    devDependencies:
+      '@types/node':
+        specifier: ^24.10.4
+        version: 24.10.4
+      '@types/pg':
+        specifier: ^8.16.0
+        version: 8.16.0
+      tsx:
+        specifier: ^4.21.0
+        version: 4.21.0
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.4(@types/node@24.10.4)
 
 packages:
 
