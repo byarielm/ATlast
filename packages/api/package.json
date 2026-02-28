@@ -21,6 +21,7 @@
   "packageManager": "pnpm@10.28.0",
   "dependencies": {
     "@atlast/shared": "workspace:*",
+    "@atproto-labs/simple-store": "^0.3.0",
     "@atproto/api": "^0.17.7",
     "@atproto/oauth-client-node": "^0.3.13",
     "@hono/node-server": "^1.19.9",
