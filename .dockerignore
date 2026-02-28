@@ -1,0 +1,25 @@
+# Node modules — never copy local node_modules into Docker builds.
+# pnpm install inside the container creates its own virtual store and symlinks.
+# If local node_modules are copied in, they overwrite container symlinks with
+# paths pointing to the local machine's pnpm store (which doesn't exist in container).
+node_modules
+**/node_modules
+
+# Compiled output — Docker builds TypeScript from source
+**/dist
+
+# Git
+.git
+.gitignore
+
+# Secrets — never include in build context
+docker/.env
+docker/.env.*
+.env
+.env.*
+*.local
+
+# IDE / OS
+.vscode
+.claude
+*.log

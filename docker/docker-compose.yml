@@ -1,0 +1,194 @@
+# ATlast Production Docker Compose
+# Run from repo root:    docker compose -f docker/docker-compose.yml up -d
+# Run from docker/ dir:  docker compose up -d
+
+services:
+
+  # ── PostgreSQL Database ──────────────────────────────────────────────────────
+  # Stores all application data: sessions, uploads, matches, source accounts.
+  # Lives ONLY on the backend network — cannot reach the internet.
+  database:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: atlast
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: atlast
+    volumes:
+      # Persist database data across container restarts.
+      - pgdata:/var/lib/postgresql/data
+      # Initialize schema on first run. Postgres runs scripts in
+      # /docker-entrypoint-initdb.d/ only when the data volume is empty.
+      - ../scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - backend
+    healthcheck:
+      # pg_isready checks if PostgreSQL is accepting connections.
+      # Other services use `condition: service_healthy` to wait for this.
+      test: ["CMD-SHELL", "pg_isready -U atlast"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ── Redis ────────────────────────────────────────────────────────────────────
+  # Used by BullMQ for the job queue (cleanup worker).
+  # Also on the backend network — not reachable from the internet.
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    # --appendonly yes: write every operation to disk for durability.
+    # Without this, a Redis restart loses all queued jobs.
+    command: redis-server --appendonly yes
+    volumes:
+      - redisdata:/data
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+  # ── Hono API Server ──────────────────────────────────────────────────────────
+  # The main backend: handles all /api/* requests.
+  # On both networks: talks to database/redis (backend), and receives requests
+  # from the frontend nginx proxy (frontend).
+  api:
+    build:
+      # Build context is the repo root (one level up from docker/).
+      # All COPY paths in docker/api/Dockerfile are relative to here.
+      context: ..
+      dockerfile: docker/api/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      # Uses Docker's internal DNS: "database" resolves to the postgres container's IP.
+      - DATABASE_URL=postgresql://atlast:${DB_PASSWORD}@database:5432/atlast
+      - REDIS_URL=redis://redis:6379
+      - OAUTH_PRIVATE_KEY=${OAUTH_PRIVATE_KEY}
+      - FRONTEND_URL=${FRONTEND_URL}
+      # TOKEN_ENCRYPTION_KEY is required by the auth middleware.
+      # Generate with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+      # WARNING: The migration plan's docker-compose was missing this variable.
+      - TOKEN_ENCRYPTION_KEY=${TOKEN_ENCRYPTION_KEY}
+      - PORT=3000
+    depends_on:
+      database:
+        # Wait until PostgreSQL is actually ready, not just started.
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      # wget is available in alpine; curl is not installed by default.
+      # -q suppresses output; --spider does a HEAD request only.
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  # ── BullMQ Worker ────────────────────────────────────────────────────────────
+  # Background job processor. Runs the daily cleanup job at 2 AM.
+  # Only needs the backend network (database + redis). No inbound connections.
+  worker:
+    build:
+      context: ..
+      dockerfile: docker/worker/Dockerfile
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://atlast:${DB_PASSWORD}@database:5432/atlast
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - backend
+
+  # ── Frontend (Nginx) ─────────────────────────────────────────────────────────
+  # Serves the compiled React app.
+  # Proxies /api/* requests to the api container (same-origin, no CORS needed).
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/frontend/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    networks:
+      - frontend
+    labels:
+      # Tell Traefik to route traffic to this container.
+      # Without these labels, Traefik ignores this service (exposedbydefault=false).
+      # DOMAIN defaults to "localhost" for local testing; set to production hostname in .env.
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`${DOMAIN:-localhost}`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+  # ── Traefik Reverse Proxy ────────────────────────────────────────────────────
+  # Sits in front of the frontend and handles routing.
+  # Only binds to 127.0.0.1 — Cloudflare Tunnel connects to it locally.
+  # The internet never connects directly to this port.
+  traefik:
+    image: traefik:v3.0
+    restart: unless-stopped
+    command:
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--accesslog=true"
+    ports:
+      # Bind only to localhost. Cloudflare Tunnel reaches this port.
+      # Traffic path: Internet → Cloudflare → Tunnel → 127.0.0.1:80 → Traefik → frontend
+      - "127.0.0.1:80:80"
+    volumes:
+      # Read-only access to Docker socket so Traefik can discover containers.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - frontend
+    labels:
+      # Do not expose Traefik itself through Traefik.
+      - "traefik.enable=false"
+
+  # ── Cloudflare Tunnel ────────────────────────────────────────────────────────
+  # Creates an outbound tunnel from this machine to Cloudflare's network.
+  # Your home server never needs an open inbound port.
+  # Tunnel token is obtained from the Cloudflare Zero Trust dashboard.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}
+    networks:
+      - frontend
+
+# ── Networks ──────────────────────────────────────────────────────────────────
+networks:
+  # frontend network: traefik, cloudflared, api, and frontend can communicate.
+  # Has normal internet access (needed by cloudflared to reach Cloudflare).
+  frontend:
+    driver: bridge
+
+  # backend network: database, redis, api, and worker can communicate.
+  # internal: true means NO outbound internet access from any container on this network.
+  # Even if the database or redis container is compromised, it cannot phone home.
+  backend:
+    driver: bridge
+    internal: true
+
+# ── Volumes ───────────────────────────────────────────────────────────────────
+volumes:
+  # Docker-managed volumes persist data across container restarts and rebuilds.
+  # Data lives at /var/lib/docker/volumes/ on the host machine.
+  pgdata:
+  redisdata:
