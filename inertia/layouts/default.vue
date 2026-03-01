@@ -49,7 +49,7 @@ watch(
             </Form>
           </template>
           <template v-else>
-            <Link route="new_account.create">Signup</Link>
+            <!-- <Link route="new_account.create">Signup</Link> -->
             <Link route="session.create">Login</Link>
           </template>
         </nav>
