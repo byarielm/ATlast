@@ -10,29 +10,18 @@ import { Form } from '@adonisjs/inertia/vue'
     </div>
 
     <div>
-      <Form route="session.store" #default="{ processing, errors }">
+      <Form route="oauth.login" #default="{ processing, errors }">
         <div>
-          <label for="email">Email</label>
+          <label for="athandle">Atmosphere Handle</label>
           <input
-            type="email"
-            name="email"
-            id="email"
+            type="text"
+            name="input"
+            id="input"
             autocomplete="username"
-            :data-invalid="errors.email ? 'true' : undefined"
+            palceholder="username.bsky.social"
+            :data-invalid="errors.input ? 'true' : undefined"
           />
-          <div v-if="errors.email">{{ errors.email }}</div>
-        </div>
-
-        <div>
-          <label for="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            autocomplete="current-password"
-            :data-invalid="errors.password ? 'true' : undefined"
-          />
-          <div v-if="errors.password">{{ errors.password }}</div>
+          <div v-if="errors.input">{{ errors.input }}</div>
         </div>
 
         <div>

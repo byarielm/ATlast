@@ -3,13 +3,14 @@ import { OAuthResolverError } from '@atproto/oauth-client-node'
 import { loginRequestValidator, signupRequestValidator } from '#validators/oauth'
 
 export default class OAuthController {
-  async handleLogin({ request, response, oauth, logger }: HttpContext) {
+  async handleLogin({ request, response, oauth, logger, inertia }: HttpContext) {
     // input should be a handle or service URL:
     const { input } = await request.validateUsing(loginRequestValidator)
     try {
       const authorizationUrl = await oauth.authorize(input)
 
-      response.redirect().toPath(authorizationUrl)
+      //response.redirect().toPath(authorizationUrl)
+      return inertia.location(authorizationUrl)
     } catch (err) {
       logger.error(err, 'Error starting AT Protocol OAuth flow')
       if (err instanceof OAuthResolverError) {
