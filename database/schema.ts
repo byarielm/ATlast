@@ -11,7 +11,7 @@ export class OauthSessionSchema extends BaseModel {
   static $columns = ['sub', 'value', 'updatedAt'] as const
   $columns = OauthSessionSchema.$columns
   @column()
-  declare sub: string | null
+  declare sub: string
   @column()
   declare value: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
@@ -22,7 +22,7 @@ export class OauthStateSchema extends BaseModel {
   static $columns = ['key', 'value', 'updatedAt'] as const
   $columns = OauthStateSchema.$columns
   @column()
-  declare key: string | null
+  declare key: string
   @column()
   declare value: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })

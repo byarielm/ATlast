@@ -79,6 +79,7 @@
     "better-sqlite3": "^12.6.2",
     "edge.js": "^6.5.0",
     "luxon": "^3.7.2",
+    "pg": "^8.19.0",
     "reflect-metadata": "^0.2.2",
     "vue": "^3.5.29",
     "vue-sonner": "^2.0.9"
