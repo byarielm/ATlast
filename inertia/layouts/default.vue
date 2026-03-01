@@ -42,9 +42,9 @@ watch(
       </div>
       <div>
         <nav>
-          <template v-if="page.props.user">
-            <span>{{ page.props.user.initials }}</span>
-            <Form route="session.destroy">
+          <template v-if="page.props.user.did">
+            <span>{{ page.props.user.did }}</span>
+            <Form route="oauth.logout">
               <button type="submit">Logout</button>
             </Form>
           </template>
