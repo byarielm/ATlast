@@ -10,7 +10,7 @@ import { Form } from '@adonisjs/inertia/vue'
     </div>
 
     <div>
-      <Form route="oauth.login" #default="{ processing, errors }">
+      <Form route="oauth.handle_login" #default="{ processing, errors }">
         <div>
           <label for="athandle">Atmosphere Handle</label>
           <input

@@ -7,7 +7,7 @@ import type { InferInput } from '@vinejs/vine/types'
 export type ParamValue = string | number | bigint | boolean
 
 export interface Registry {
-  'login': {
+  'oauth.show_login': {
     methods: ["GET","HEAD"]
     pattern: '/login'
     types: {
@@ -18,7 +18,7 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth_controller').default['showLogin']>>>
     }
   }
-  'oauth.logout': {
+  'oauth.handle_logout': {
     methods: ["POST"]
     pattern: '/oauth/logout'
     types: {
@@ -29,7 +29,7 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth_controller').default['handleLogout']>>>
     }
   }
-  'oauth.login': {
+  'oauth.handle_login': {
     methods: ["POST"]
     pattern: '/oauth/login'
     types: {
@@ -40,7 +40,7 @@ export interface Registry {
       response: ExtractResponse<Awaited<ReturnType<import('#controllers/oauth_controller').default['handleLogin']>>>
     }
   }
-  'oauth.signup': {
+  'oauth.handle_signup': {
     methods: ["POST"]
     pattern: '/oauth/signup'
     types: {

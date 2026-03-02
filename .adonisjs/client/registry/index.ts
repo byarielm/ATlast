@@ -6,29 +6,29 @@ import type { ApiDefinition } from './tree.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'login': {
+  'oauth.show_login': {
     methods: ["GET","HEAD"],
     pattern: '/login',
     tokens: [{"old":"/login","type":0,"val":"login","end":""}],
-    types: placeholder as Registry['login']['types'],
+    types: placeholder as Registry['oauth.show_login']['types'],
   },
-  'oauth.logout': {
+  'oauth.handle_logout': {
     methods: ["POST"],
     pattern: '/oauth/logout',
     tokens: [{"old":"/oauth/logout","type":0,"val":"oauth","end":""},{"old":"/oauth/logout","type":0,"val":"logout","end":""}],
-    types: placeholder as Registry['oauth.logout']['types'],
+    types: placeholder as Registry['oauth.handle_logout']['types'],
   },
-  'oauth.login': {
+  'oauth.handle_login': {
     methods: ["POST"],
     pattern: '/oauth/login',
     tokens: [{"old":"/oauth/login","type":0,"val":"oauth","end":""},{"old":"/oauth/login","type":0,"val":"login","end":""}],
-    types: placeholder as Registry['oauth.login']['types'],
+    types: placeholder as Registry['oauth.handle_login']['types'],
   },
-  'oauth.signup': {
+  'oauth.handle_signup': {
     methods: ["POST"],
     pattern: '/oauth/signup',
     tokens: [{"old":"/oauth/signup","type":0,"val":"oauth","end":""},{"old":"/oauth/signup","type":0,"val":"signup","end":""}],
-    types: placeholder as Registry['oauth.signup']['types'],
+    types: placeholder as Registry['oauth.handle_signup']['types'],
   },
   'oauth.callback': {
     methods: ["GET","HEAD"],

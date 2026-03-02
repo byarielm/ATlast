@@ -1,21 +1,15 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
-
-const OAuthController = () => import('#controllers/oauth_controller')
+import { controllers } from '#generated/controllers'
 
 // UI route
-router.get('login', [OAuthController, 'showLogin']).as('login').use(middleware.guest())
+router.get('login', [controllers.Oauth, 'showLogin']).use(middleware.guest())
 
 // Protocol routes
-router
-  .post('/oauth/logout', [OAuthController, 'handleLogout'])
-  .as('oauth.logout')
-  .use(middleware.auth())
+router.post('/oauth/logout', [controllers.Oauth, 'handleLogout']).use(middleware.auth())
 
-router
-  .group(() => {
-    router.post('/oauth/login', [OAuthController, 'handleLogin']).as('login')
-    router.post('/oauth/signup', [OAuthController, 'handleSignup']).as('signup')
-    router.get('/oauth/callback', [OAuthController, 'callback']).as('callback')
-  })
-  .as('oauth')
+router.group(() => {
+  router.post('/oauth/login', [controllers.Oauth, 'handleLogin'])
+  router.post('/oauth/signup', [controllers.Oauth, 'handleSignup'])
+  router.get('/oauth/callback', [controllers.Oauth, 'callback'])
+})
