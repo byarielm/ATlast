@@ -3,6 +3,10 @@ import { middleware } from '#start/kernel'
 
 const OAuthController = () => import('#controllers/oauth_controller')
 
+// UI route
+router.get('login', [OAuthController, 'showLogin']).as('login').use(middleware.guest())
+
+// Protocol routes
 router
   .post('/oauth/logout', [OAuthController, 'handleLogout'])
   .as('oauth.logout')

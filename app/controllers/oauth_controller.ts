@@ -46,6 +46,10 @@ export default class OAuthController {
     return response.redirect().back()
   }
 
+  async showLogin({ inertia }: HttpContext) {
+    return inertia.render('auth/login', {})
+  }
+
   async callback({ response, oauth, auth, logger }: HttpContext) {
     try {
       const session = await oauth.handleCallback()

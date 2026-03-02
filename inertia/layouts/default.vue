@@ -50,7 +50,7 @@ watch(
           </template>
           <template v-else>
             <!-- <Link route="new_account.create">Signup</Link> -->
-            <Link route="session.create">Login</Link>
+            <Link route="login">Login</Link>
           </template>
         </nav>
       </div>
