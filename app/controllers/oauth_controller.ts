@@ -3,14 +3,13 @@ import { OAuthResolverError } from '@atproto/oauth-client-node'
 import { loginRequestValidator, signupRequestValidator } from '#validators/oauth'
 
 export default class OAuthController {
-  async handleLogin({ request, response, oauth, logger, inertia }: HttpContext) {
+  async login({ request, response, inertia, oauth, logger }: HttpContext) {
     // input should be a handle or service URL:
     const { input } = await request.validateUsing(loginRequestValidator)
     try {
       const authorizationUrl = await oauth.authorize(input)
 
-      //response.redirect().toPath(authorizationUrl)
-      return inertia.location(authorizationUrl)
+      inertia.location(authorizationUrl)
     } catch (err) {
       logger.error(err, 'Error starting AT Protocol OAuth flow')
       if (err instanceof OAuthResolverError) {
@@ -21,7 +20,7 @@ export default class OAuthController {
     }
   }
 
-  async handleSignup({ request, response, oauth }: HttpContext) {
+  async signup({ request, response, inertia, oauth }: HttpContext) {
     // input should be a service URL:
     const { input } = await request.validateUsing(signupRequestValidator)
     const service = input ?? 'https://bsky.social'
@@ -36,18 +35,14 @@ export default class OAuthController {
 
     const authorizationUrl = await oauth.register(service)
 
-    return response.redirect().toPath(authorizationUrl)
+    inertia.location(authorizationUrl)
   }
 
-  async handleLogout({ auth, oauth, response }: HttpContext) {
+  async logout({ auth, oauth, response }: HttpContext) {
     await oauth.logout(auth.user?.did)
     await auth.use('web').logout()
 
     return response.redirect().back()
-  }
-
-  async showLogin({ inertia }: HttpContext) {
-    return inertia.render('auth/login', {})
   }
 
   async callback({ response, oauth, auth, logger }: HttpContext) {

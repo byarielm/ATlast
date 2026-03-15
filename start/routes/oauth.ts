@@ -2,14 +2,19 @@ import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import { controllers } from '#generated/controllers'
 
-// UI route
-router.get('login', [controllers.Oauth, 'showLogin']).use(middleware.guest())
+// This is necessary for handling the controllers not yet being updated
+try {
+  router.post('/oauth/logout', [controllers.Oauth, 'logout']).use(middleware.auth())
 
-// Protocol routes
-router.post('/oauth/logout', [controllers.Oauth, 'handleLogout']).use(middleware.auth())
-
-router.group(() => {
-  router.post('/oauth/login', [controllers.Oauth, 'handleLogin'])
-  router.post('/oauth/signup', [controllers.Oauth, 'handleSignup'])
-  router.get('/oauth/callback', [controllers.Oauth, 'callback'])
-})
+  router.group(() => {
+    router.post('/oauth/login', [controllers.Oauth, 'login'])
+    router.post('/oauth/signup', [controllers.Oauth, 'signup'])
+    router.get('/oauth/callback', [controllers.Oauth, 'callback'])
+  })
+} catch (err) {
+  if (err.message.includes("Cannot read properties of undefined (reading 'name')")) {
+    // ignore, as #generated/controllers hasn't been updated
+  } else {
+    throw err
+  }
+}

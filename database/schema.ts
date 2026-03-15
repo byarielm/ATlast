@@ -8,40 +8,40 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 import { DateTime } from 'luxon'
 
 export class OauthSessionSchema extends BaseModel {
-  static $columns = ['sub', 'value', 'updatedAt'] as const
+  static $columns = ['sub', 'updatedAt', 'value'] as const
   $columns = OauthSessionSchema.$columns
-  @column()
+  @column({ isPrimary: true })
   declare sub: string
-  @column()
-  declare value: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+  @column()
+  declare value: string
 }
 
 export class OauthStateSchema extends BaseModel {
-  static $columns = ['key', 'value', 'updatedAt'] as const
+  static $columns = ['key', 'updatedAt', 'value'] as const
   $columns = OauthStateSchema.$columns
-  @column()
+  @column({ isPrimary: true })
   declare key: string
-  @column()
-  declare value: string | null
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
+  @column()
+  declare value: string
 }
 
 export class UserSchema extends BaseModel {
-  static $columns = ['id', 'fullName', 'email', 'password', 'createdAt', 'updatedAt'] as const
+  static $columns = ['createdAt', 'email', 'fullName', 'id', 'password', 'updatedAt'] as const
   $columns = UserSchema.$columns
-  @column({ isPrimary: true })
-  declare id: number
-  @column()
-  declare fullName: string | null
-  @column()
-  declare email: string
-  @column({ serializeAs: null })
-  declare password: string
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
+  @column()
+  declare email: string
+  @column()
+  declare fullName: string | null
+  @column({ isPrimary: true })
+  declare id: number
+  @column({ serializeAs: null })
+  declare password: string
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime | null
 }

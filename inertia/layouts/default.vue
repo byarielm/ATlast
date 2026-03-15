@@ -42,15 +42,14 @@ watch(
       </div>
       <div>
         <nav>
-          <template v-if="page.props.user?.did">
+          <template v-if="page.props.user">
             <span>{{ page.props.user?.did }}</span>
-            <Form route="oauth.handle_logout">
+            <Form route="oauth.logout">
               <button type="submit">Logout</button>
             </Form>
           </template>
           <template v-else>
-            <!-- <Link route="oauth.handle_signup">Signup</Link> -->
-            <Link route="oauth.show_login">Login</Link>
+            <Link route="login">Login</Link>
           </template>
         </nav>
       </div>

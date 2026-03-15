@@ -6,29 +6,23 @@ import type { ApiDefinition } from './tree.d.ts'
 const placeholder: any = {}
 
 const routes = {
-  'oauth.show_login': {
-    methods: ["GET","HEAD"],
-    pattern: '/login',
-    tokens: [{"old":"/login","type":0,"val":"login","end":""}],
-    types: placeholder as Registry['oauth.show_login']['types'],
-  },
-  'oauth.handle_logout': {
+  'oauth.logout': {
     methods: ["POST"],
     pattern: '/oauth/logout',
     tokens: [{"old":"/oauth/logout","type":0,"val":"oauth","end":""},{"old":"/oauth/logout","type":0,"val":"logout","end":""}],
-    types: placeholder as Registry['oauth.handle_logout']['types'],
+    types: placeholder as Registry['oauth.logout']['types'],
   },
-  'oauth.handle_login': {
+  'oauth.login': {
     methods: ["POST"],
     pattern: '/oauth/login',
     tokens: [{"old":"/oauth/login","type":0,"val":"oauth","end":""},{"old":"/oauth/login","type":0,"val":"login","end":""}],
-    types: placeholder as Registry['oauth.handle_login']['types'],
+    types: placeholder as Registry['oauth.login']['types'],
   },
-  'oauth.handle_signup': {
+  'oauth.signup': {
     methods: ["POST"],
     pattern: '/oauth/signup',
     tokens: [{"old":"/oauth/signup","type":0,"val":"oauth","end":""},{"old":"/oauth/signup","type":0,"val":"signup","end":""}],
-    types: placeholder as Registry['oauth.handle_signup']['types'],
+    types: placeholder as Registry['oauth.signup']['types'],
   },
   'oauth.callback': {
     methods: ["GET","HEAD"],
@@ -41,6 +35,12 @@ const routes = {
     pattern: '/',
     tokens: [{"old":"/","type":0,"val":"/","end":""}],
     types: placeholder as Registry['home']['types'],
+  },
+  'login': {
+    methods: ["GET","HEAD"],
+    pattern: '/login',
+    tokens: [{"old":"/login","type":0,"val":"login","end":""}],
+    types: placeholder as Registry['login']['types'],
   },
 } as const satisfies Record<string, AdonisEndpoint>
 
