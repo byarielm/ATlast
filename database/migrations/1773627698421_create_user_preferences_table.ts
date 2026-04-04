@@ -5,10 +5,17 @@ export default class extends BaseSchema {
 
   async up() {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('id')
+      table.increments('id').notNullable()
+      table.string('user_did').references('did').inTable('users').notNullable()
 
       table.timestamp('created_at')
       table.timestamp('updated_at')
+
+      table.string('profile_lexicon')
+      table.json('upload_sources').nullable()
+      table.json('follow_targets').nullable()
+      table.boolean('consent_data_storage').defaultTo(false).notNullable()
+      table.boolean('consent_notifications').defaultTo(false).notNullable()
     })
   }
 
